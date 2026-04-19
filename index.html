@@ -1,0 +1,1320 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>营销链AI赋能 · 四层架构矩阵（调研版）</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #ffffff;
+  --surface: #f8faf8;
+  --border: #d1e8d5;
+  --green-dark: #1a5c1a;
+  --green-light: #4da64d;
+  --green-tint: #e1f4e4;
+  --green-pale: #f0f9f0;
+  --text-dark: #1a2a1a;
+  --text-mid: #3a5a3a;
+  --text-light: #6a8a6a;
+  --red-dark: #991b1b;
+  --orange-dark: #92400e;
+  --blue-dark: #1e3a8a;
+  --purple-dark: #4c1d95;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Noto Sans SC', -apple-system, 'Microsoft YaHei', sans-serif;
+  background: var(--bg);
+  color: var(--text-dark);
+  font-size: 13px;
+  line-height: 1.55;
+}
+.header {
+  background: linear-gradient(135deg, #1a5c1a 0%, #2d7a2d 60%, #3d9a3d 100%);
+  position: relative; overflow: hidden;
+}
+.header::before { content: ''; position: absolute; top: -50%; right: -5%; width: 600px; height: 600px; background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%); pointer-events: none; }
+.header::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px; background: rgba(255,255,255,0.15); }
+.header-inner { padding: 28px 40px 22px; position: relative; z-index: 1; }
+.header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
+.header-title { font-size: 22px; font-weight: 700; color: #fff; letter-spacing: 0.5px; }
+.header-subtitle { font-size: 12px; color: rgba(255,255,255,0.7); margin-top: 5px; font-weight: 300; }
+.header-meta { text-align: right; font-size: 11px; color: rgba(255,255,255,0.65); line-height: 1.9; }
+.header-meta strong { color: rgba(255,255,255,0.95); font-weight: 500; }
+.header-stats { display: flex; gap: 0; padding: 14px 0 0; border-top: 1px solid rgba(255,255,255,0.12); margin-top: 12px; }
+.h-stat { display: flex; align-items: center; gap: 8px; padding: 0 24px 0 0; margin-right: 24px; border-right: 1px solid rgba(255,255,255,0.12); font-size: 12px; color: rgba(255,255,255,0.75); }
+.h-stat:last-child { border-right: none; margin-right: 0; }
+.h-stat svg { opacity: 0.85; flex-shrink: 0; }
+.h-stat strong { font-weight: 600; color: #fff; font-size: 14px; }
+.tab-nav { background: var(--green-pale); border-bottom: 1px solid var(--border); padding: 0 40px; display: flex; gap: 4px; }
+.tab-btn { padding: 10px 18px; font-size: 12.5px; font-weight: 500; color: var(--text-mid); border: none; background: none; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; font-family: inherit; }
+.tab-btn:hover { color: var(--green-dark); }
+.tab-btn.active { color: var(--green-dark); border-bottom-color: var(--green-dark); font-weight: 600; }
+.main-content { padding: 28px 40px 40px; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+.section-title { display: flex; align-items: center; gap: 10px; font-size: 10.5px; font-weight: 700; color: var(--text-light); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 14px; }
+.section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+.section-title .sub { font-size: 10px; color: var(--text-light); font-weight: 400; text-transform: none; letter-spacing: 0; margin-left: 8px; }
+.legend-bar { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 20px; display: flex; flex-wrap: wrap; gap: 0; align-items: center; margin-bottom: 24px; }
+.legend-section { display: flex; align-items: center; padding-right: 20px; border-right: 1px solid var(--border); margin-right: 20px; }
+.legend-section:last-child { border-right: none; margin-right: 0; padding-right: 0; }
+.legend-item { display: flex; align-items: center; gap: 8px; padding: 0 14px 0 0; margin-right: 14px; }
+.legend-item:last-child { border-right: none; margin-right: 0; padding-right: 0; }
+.legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.legend-lbl { font-size: 11.5px; font-weight: 600; color: var(--text-dark); }
+.legend-sub { font-size: 9.5px; color: var(--text-light); }
+.mbadge { display: inline-flex; align-items: center; justify-content: center; border-radius: 10px; padding: 1px 7px; font-size: 10px; font-weight: 700; min-width: 30px; text-align: center; }
+.mbadge.hot { background: rgba(220,38,38,0.1); color: #991b1b; }
+.mbadge.warm { background: rgba(217,119,6,0.1); color: #92400e; }
+.mbadge.mild { background: rgba(59,130,246,0.1); color: #1e3a8a; }
+.mbadge.white { background: rgba(255,255,255,0.2); color: #fff; }
+.mbadge.ghost { background: rgba(0,0,0,0.05); color: var(--text-light); }
+.mainlines-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 24px; }
+.mainline-card { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; position: relative; overflow: hidden; }
+.mainline-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: 12px 12px 0 0; }
+.m1::before { background: #ef4444; }
+.m2::before { background: #f59e0b; }
+.m3::before { background: #3b82f6; }
+.mainline-tag { font-size: 9.5px; font-weight: 700; border-radius: 4px; padding: 2px 8px; display: inline-block; margin-bottom: 8px; }
+.m1 .mainline-tag { background: #fef2f2; color: #991b1b; }
+.m2 .mainline-tag { background: #fffbeb; color: #92400e; }
+.m3 .mainline-tag { background: #eff6ff; color: #1e3a8a; }
+.mainline-title { font-size: 13px; font-weight: 700; color: var(--text-dark); margin-bottom: 6px; }
+.mainline-desc { font-size: 11px; color: var(--text-mid); line-height: 1.6; margin-bottom: 10px; }
+.mainline-cr { font-size: 10px; color: var(--text-light); }
+.mainline-cr span { display: inline-block; padding: 1px 5px; border-radius: 3px; font-weight: 600; margin: 0 1px; }
+.m1 .mainline-cr span { background: #fef2f2; color: #991b1b; }
+.m2 .mainline-cr span { background: #fffbeb; color: #92400e; }
+.m3 .mainline-cr span { background: #eff6ff; color: #1e3a8a; }
+.matrix-wrap { border-radius: 12px; border: 1px solid var(--border); overflow-x: auto; margin-bottom: 8px; }
+.matrix { border-collapse: collapse; width: max-content; min-width: 100%; }
+.col-header-row td { background: var(--green-dark); border: 1px solid rgba(255,255,255,0.1); text-align: center; padding: 0; position: sticky; top: 0; z-index: 10; }
+.col-header-inner { padding: 11px 16px 9px; }
+.cr-stage { display: block; font-size: 14px; font-weight: 700; color: #fff; letter-spacing: 0.3px; }
+.cr-label { display: block; font-size: 10.5px; color: rgba(255,255,255,0.6); margin-top: 2px; }
+.cr-divider { display: block; height: 1px; background: rgba(255,255,255,0.12); margin: 5px 12px; }
+.cr-desc { display: block; font-size: 8.5px; color: rgba(255,255,255,0.45); margin-top: 2px; }
+.cr-role { display: inline-block; font-size: 9.5px; color: rgba(255,255,255,0.55); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 1px 8px; margin-top: 2px; }
+.row-header { background: #f0f9f0; border: 1px solid var(--border); width: 130px; min-width: 130px; position: sticky; left: 0; z-index: 5; }
+.row-header-inner { padding: 12px 10px; text-align: center; vertical-align: middle; }
+.row-icon { width: 36px; height: 36px; border-radius: 9px; display: flex; align-items: center; justify-content: center; margin: 0 auto 6px; }
+.row-title-text { font-size: 11.5px; font-weight: 700; color: var(--text-dark); display: block; margin-bottom: 2px; }
+.row-title-sub { font-size: 9px; color: var(--text-light); display: block; }
+.cell { border: 1px solid var(--border); padding: 8px 11px; vertical-align: top; min-width: 190px; max-width: 260px; }
+.layer-1 .cell { background: #fef9f9; }
+.layer-1 .row-header { background: #fdf6f6; border-color: #f0c0c0; }
+.layer-1 .row-icon { background: #fef2f2; }
+.layer-1 .row-title-text { color: var(--red-dark); }
+.layer-2 .cell { background: #fffef5; }
+.layer-2 .row-header { background: #fffef5; border-color: #f0e0a0; }
+.layer-2 .row-icon { background: #fffbeb; }
+.layer-2 .row-title-text { color: var(--orange-dark); }
+.layer-3 .cell { background: #f5f8ff; }
+.layer-3 .row-header { background: #f5f8ff; border-color: #c0d4f0; }
+.layer-3 .row-icon { background: #eff6ff; }
+.layer-3 .row-title-text { color: var(--blue-dark); }
+.layer-4 .cell { background: var(--green-tint); }
+.layer-4 .row-header { background: var(--green-pale); border-color: #b8dcc0; }
+.layer-4 .row-icon { background: var(--green-tint); }
+.layer-4 .row-title-text { color: var(--green-dark); }
+.voice-insight { background: rgba(255,255,255,0.95); border-radius: 6px; padding: 5px 9px; font-size: 10.5px; color: var(--text-dark); line-height: 1.5; margin-bottom: 5px; border: 1px solid rgba(0,0,0,0.06); }
+.voice-insight:last-child { margin-bottom: 0; }
+.voice-insight-label { display: flex; align-items: flex-start; gap: 5px; flex-wrap: wrap; margin-bottom: 2px; }
+.voice-insight-tag { display: inline-block; font-size: 8.5px; font-weight: 700; border-radius: 3px; padding: 1px 5px; flex-shrink: 0; }
+.vit-need { background: rgba(220,38,38,0.1); color: #991b1b; }
+.vit-fill { background: rgba(217,119,6,0.12); color: #92400e; }
+.vit-roi { background: rgba(234,179,8,0.12); color: #854d0e; }
+.vit-comp { background: rgba(139,92,246,0.1); color: #5b21b6; }
+.vit-proc { background: rgba(59,130,246,0.1); color: #1e3a8a; }
+.vit-sync { background: rgba(16,185,129,0.1); color: #047857; }
+.vit-value { background: rgba(236,72,153,0.08); color: #9d174d; }
+.vit-auto { background: rgba(6,95,70,0.08); color: #065f46; }
+.tag { display: inline-block; padding: 2px 7px; border-radius: 5px; font-size: 10.5px; margin: 1.5px; line-height: 1.4; font-weight: 500; }
+.tag-orange { background: rgba(245,158,11,0.12); color: var(--orange-dark); border: 1px solid rgba(245,158,11,0.2); }
+.tag-blue { background: rgba(59,130,246,0.12); color: var(--blue-dark); border: 1px solid rgba(59,130,246,0.2); }
+.tag-navy { background: rgba(26,92,26,0.1); color: var(--green-dark); border: 1px solid rgba(26,92,26,0.15); }
+.tag-purple { background: rgba(139,92,246,0.12); color: var(--purple-dark); border: 1px solid rgba(139,92,246,0.2); }
+.tag-red { background: rgba(239,68,68,0.1); color: var(--red-dark); border: 1px solid rgba(239,68,68,0.15); }
+.priority-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 24px; }
+.priority-card { border-radius: 10px; padding: 14px 14px 12px; border: 1px solid; position: relative; }
+.priority-card.p0 { background: #fef2f2; border-color: #fecaca; }
+.priority-card.p1 { background: #fffbeb; border-color: #fde68a; }
+.priority-card.p2 { background: #eff6ff; border-color: #bfdbfe; }
+.priority-card.p3 { background: var(--green-pale); border-color: var(--border); }
+.priority-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; gap: 4px; }
+.priority-level { font-size: 9.5px; font-weight: 700; border-radius: 4px; padding: 2px 7px; display: inline-block; flex-shrink: 0; }
+.p0 .priority-level { background: #dc2626; color: #fff; }
+.p1 .priority-level { background: #d97706; color: #fff; }
+.p2 .priority-level { background: #3b82f6; color: #fff; }
+.p3 .priority-level { background: var(--green-light); color: #fff; }
+.priority-title { font-size: 12px; font-weight: 600; color: var(--text-dark); line-height: 1.3; margin-bottom: 6px; }
+.priority-evidence { font-size: 10px; color: var(--text-light); line-height: 1.5; margin-bottom: 8px; }
+.priority-refs { display: flex; flex-wrap: wrap; gap: 4px; }
+.priority-ref { display: inline-flex; align-items: center; gap: 4px; font-size: 9.5px; padding: 2px 7px; border-radius: 10px; font-weight: 500; }
+.ref-ka { background: rgba(139,92,246,0.1); color: var(--purple-dark); border: 1px solid rgba(139,92,246,0.2); }
+.ref-mgr { background: rgba(236,72,153,0.1); color: #be185d; border: 1px solid rgba(236,72,153,0.2); }
+.ref-sp { background: rgba(16,185,129,0.1); color: #047857; border: 1px solid rgba(16,185,129,0.2); }
+.ref-pm { background: rgba(59,130,246,0.1); color: var(--blue-dark); border: 1px solid rgba(59,130,246,0.2); }
+.ref-cs { background: rgba(245,158,11,0.1); color: #b45309; border: 1px solid rgba(245,158,11,0.2); }
+.ref-interview { background: rgba(148,184,148,0.15); color: #2d7a2d; border: 1px solid rgba(148,184,148,0.25); }
+.ref-tele { background: rgba(220,38,38,0.1); color: #991b1b; border: 1px solid rgba(220,38,38,0.2); }
+.survey-overview { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 28px; }
+.survey-stat-card { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 18px; text-align: center; position: relative; overflow: hidden; }
+.survey-stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: 12px 12px 0 0; }
+.survey-stat-card.s-ka::before { background: #8b5cf6; }
+.survey-stat-card.s-ka-mgr::before { background: #ec4899; }
+.survey-stat-card.s-sp::before { background: #10b981; }
+.survey-stat-card.s-pm::before { background: #3b82f6; }
+.survey-stat-card.s-cs::before { background: #f59e0b; }
+.survey-stat-card.s-tele::before { background: #ef4444; }
+.survey-num { font-size: 30px; font-weight: 700; line-height: 1; margin-bottom: 4px; }
+.survey-stat-card.s-ka .survey-num { color: #6d28d9; }
+.survey-stat-card.s-ka-mgr .survey-num { color: #be185d; }
+.survey-stat-card.s-sp .survey-num { color: #047857; }
+.survey-stat-card.s-pm .survey-num { color: #1d4ed8; }
+.survey-stat-card.s-cs .survey-num { color: #b45309; }
+.survey-stat-card.s-tele .survey-num { color: #dc2626; }
+.survey-role { font-size: 11.5px; font-weight: 600; color: var(--text-mid); margin-bottom: 2px; }
+.survey-desc { font-size: 9.5px; color: var(--text-light); line-height: 1.5; }
+.cr-insight-wrap { margin-bottom: 28px; }
+.cr-insight-card { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 12px; }
+.cr-insight-header { padding: 10px 16px; color: #fff; display: flex; justify-content: space-between; align-items: center; }
+.cr-insight-title { font-size: 12.5px; font-weight: 700; }
+.cr-insight-meta-row { font-size: 10px; opacity: 0.8; font-weight: 400; margin-top: 2px; }
+.cr-insight-body { display: grid; grid-template-columns: 1fr 1fr; }
+.cr-insight-left { padding: 14px 16px; border-right: 1px solid var(--border); }
+.cr-insight-intro { font-size: 11px; color: var(--text-mid); line-height: 1.65; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+.cr-insight-point { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 8px; }
+.cr-insight-point:last-child { margin-bottom: 0; }
+.cr-insight-bullet { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+.cr-insight-point-text { font-size: 11px; color: var(--text-dark); line-height: 1.5; }
+.cr-insight-role-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+.cr-insight-role-tag { font-size: 9px; padding: 1px 6px; border-radius: 8px; font-weight: 500; }
+.cr-insight-right { padding: 14px 16px; background: var(--surface); }
+.cr-voice-item { background: var(--bg); border-radius: 8px; padding: 8px 12px; margin-bottom: 8px; border: 1px solid var(--border); }
+.cr-voice-item:last-child { margin-bottom: 0; }
+.cr-voice-text { font-size: 10.5px; color: var(--text-dark); line-height: 1.5; margin-bottom: 5px; font-style: italic; }
+.cr-voice-attribution { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
+.cr-voice-person { font-size: 9.5px; font-weight: 600; padding: 1px 6px; border-radius: 8px; }
+.theme-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 8px; }
+.theme-card { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+.theme-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; gap: 8px; }
+.theme-title { font-size: 13px; font-weight: 700; color: var(--text-dark); }
+.theme-desc { font-size: 10.5px; color: var(--text-mid); line-height: 1.6; margin-bottom: 10px; }
+.theme-refs { display: flex; flex-wrap: wrap; gap: 4px; }
+.rt-interview { background: rgba(148,184,148,0.15); color: #2d7a2d; }
+.rt-ka { background: rgba(139,92,246,0.12); color: var(--purple-dark); }
+.rt-mgr { background: rgba(236,72,153,0.1); color: #be185d; }
+.rt-sp { background: rgba(16,185,129,0.1); color: #047857; }
+.rt-pm { background: rgba(59,130,246,0.1); color: var(--blue-dark); }
+.rt-cs { background: rgba(245,158,11,0.1); color: #b45309; }
+.rt-reg { background: rgba(148,184,148,0.12); color: #3a7a3a; }
+.rt-tele { background: rgba(220,38,38,0.1); color: #991b1b; }
+.footer { padding: 14px 40px; background: var(--green-pale); border-top: 1px solid var(--border); display: flex; flex-wrap: wrap; gap: 16px 32px; }
+.footer-group { display: flex; flex-direction: column; gap: 4px; }
+.footer-group-title { font-size: 10px; font-weight: 700; color: var(--text-mid); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+.footer-item { display: flex; align-items: center; gap: 6px; font-size: 10.5px; color: var(--text-mid); }
+.footer-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+@media (max-width: 1200px) {
+  .mainlines-grid { grid-template-columns: 1fr; }
+  .priority-grid { grid-template-columns: repeat(2, 1fr); }
+  .survey-overview { grid-template-columns: repeat(3, 1fr); }
+  .theme-grid { grid-template-columns: 1fr; }
+  .cr-insight-body { grid-template-columns: 1fr; }
+  .cr-insight-left { border-right: none; border-bottom: 1px solid var(--border); }
+  .header-inner, .tab-nav, .main-content, .footer { padding-left: 20px; padding-right: 20px; }
+}
+@media print { .tab-nav { display: none; } .matrix-wrap { overflow: visible; } }
+</style>
+</head>
+<body>
+
+<!-- ═══ HEADER ═══ -->
+<div class="header">
+  <div class="header-inner">
+    <div class="header-top">
+      <div>
+        <div class="header-title">营销链AI赋能 · 四层架构矩阵（调研版）</div>
+        <div class="header-subtitle">深度访谈（4人）+ 问卷调研（25人） · 横轴：客户生命周期（CR1 → CR7） · 纵轴：销售声音 → 底层资料 → 模型处理 → AI应用</div>
+      </div>
+      <div class="header-meta">
+        <strong>调研时间</strong><br>
+        访谈：2026年4月14-15日（胡圳山/王迪/朱雪/颜川健）<br>
+        问卷：2026年4月14-16日（25人 · 6类角色）<br>
+        <strong>生成日期：2026年4月17日</strong>
+      </div>
+    </div>
+    <div class="header-stats">
+      <div class="h-stat"><svg width="15" height="15" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.8" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><span><strong>4人</strong> 深度访谈</span></div>
+      <div class="h-stat"><svg width="15" height="15" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.8" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span><strong>25人</strong> 问卷调研</span></div>
+      <div class="h-stat"><svg width="15" height="15" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.8" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><span><strong>7个</strong> CR阶段</span></div>
+      <div class="h-stat"><svg width="15" height="15" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.8" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg><span><strong>4层</strong> 架构体系</span></div>
+      <div class="h-stat"><svg width="15" height="15" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.8" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span><strong>10项</strong> P0-P3功能</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ TAB NAV ═══ -->
+<div class="tab-nav">
+  <button class="tab-btn active" onclick="showTab('matrix')">四层架构矩阵</button>
+  <button class="tab-btn" onclick="showTab('priority')">优先级矩阵</button>
+  <button class="tab-btn" onclick="showTab('survey')">调研洞察</button>
+</div>
+
+<div class="main-content">
+
+  <!-- ══ TAB 1: MATRIX ══ -->
+  <div id="tab-matrix" class="tab-panel active">
+
+    <div class="legend-bar">
+      <div class="legend-section">
+        <div class="legend-item"><div class="legend-dot" style="background:#fef2f2;border:1px solid #fecaca;"></div><div><div class="legend-lbl">销售声音</div><div class="legend-sub">一切的原点</div></div></div>
+        <div class="legend-item"><div class="legend-dot" style="background:#fffbeb;border:1px solid #fde68a;"></div><div><div class="legend-lbl">底层资料</div><div class="legend-sub">AI的燃料</div></div></div>
+        <div class="legend-item"><div class="legend-dot" style="background:#eff6ff;border:1px solid #bfdbfe;"></div><div><div class="legend-lbl">模型处理</div><div class="legend-sub">AI的大脑</div></div></div>
+        <div class="legend-item"><div class="legend-dot" style="background:#e1f4e4;border:1px solid #b8dcc0;"></div><div><div class="legend-lbl">AI应用</div><div class="legend-sub">AI的输出</div></div></div>
+      </div>
+      <div class="legend-section">
+        <div class="legend-item"><div class="legend-dot" style="background:#ef4444;"></div><div><div class="legend-lbl">电销</div><div class="legend-sub">线索入口</div></div></div>
+        <div class="legend-item"><div class="legend-dot" style="background:#8b5cf6;"></div><div><div class="legend-lbl">KA销售</div><div class="legend-sub">10人问卷</div></div></div>
+        <div class="legend-item"><div class="legend-dot" style="background:#ec4899;"></div><div><div class="legend-lbl">KA管理者</div><div class="legend-sub">2人问卷</div></div></div>
+        <div class="legend-item"><div class="legend-dot" style="background:#10b981;"></div><div><div class="legend-lbl">方案专家</div><div class="legend-sub">5人问卷</div></div></div>
+        <div class="legend-item"><div class="legend-dot" style="background:#3b82f6;"></div><div><div class="legend-lbl">项目经理</div><div class="legend-sub">6人问卷</div></div></div>
+        <div class="legend-item"><div class="legend-dot" style="background:#f59e0b;"></div><div><div class="legend-lbl">客户成功</div><div class="legend-sub">2人问卷</div></div></div>
+        <div class="legend-item"><div class="legend-dot" style="background:#94b894;"></div><div><div class="legend-lbl">区域销售</div><div class="legend-sub">访谈</div></div></div>
+      </div>
+      <div class="legend-section">
+        <div class="legend-item"><div class="legend-dot" style="background:#dc2626;"></div><div><div class="legend-lbl" style="font-size:10px;">更了解客户</div></div></div>
+        <div class="legend-item"><div class="legend-dot" style="background:#d97706;"></div><div><div class="legend-lbl" style="font-size:10px;">信息补全</div></div></div>
+        <div class="legend-item"><div class="legend-dot" style="background:#8b5cf6;"></div><div><div class="legend-lbl" style="font-size:10px;">竞品情报</div></div></div>
+        <div class="legend-item"><div class="legend-dot" style="background:#3b82f6;"></div><div><div class="legend-lbl" style="font-size:10px;">过程辅助</div></div></div>
+        <div class="legend-item"><div class="legend-dot" style="background:#059669;"></div><div><div class="legend-lbl" style="font-size:10px;">进度同步</div></div></div>
+        <div class="legend-item"><div class="legend-dot" style="background:#ec4899;"></div><div><div class="legend-lbl" style="font-size:10px;">价值感知</div></div></div>
+        <div class="legend-item"><div class="legend-dot" style="background:#92400e;"></div><div><div class="legend-lbl" style="font-size:10px;">ROI价值</div></div></div>
+      </div>
+    </div>
+
+    <!-- Three Mainlines -->
+    <div class="section-title">跨CR主线（调研最高频痛点）</div>
+    <div class="mainlines-grid">
+      <div class="mainline-card m1">
+        <div class="mainline-tag">主线一</div>
+        <div class="mainline-title">线索质量守护线</div>
+        <div class="mainline-desc">电销SPIN收集不完整 → 销售重复问客户 → 客户反感 → 商机浪费。商机真实性/准确性是最高频痛点。</div>
+        <div class="mainline-cr">贯穿：<span>CR1</span> → <span>CR2</span></div>
+      </div>
+      <div class="mainline-card m2">
+        <div class="mainline-tag">主线二</div>
+        <div class="mainline-title">信息孤岛穿越线</div>
+        <div class="mainline-desc">销售↔客成↔Poe三方信息割裂 → 客户问进度 → 踢皮球 → 客户觉得销售不专业。</div>
+        <div class="mainline-cr">贯穿：<span>CR4</span>（交付部分） → <span>CR5</span></div>
+      </div>
+      <div class="mainline-card m3">
+        <div class="mainline-tag">主线三</div>
+        <div class="mainline-title">区域 vs KA打法并行线</div>
+        <div class="mainline-desc">区域：当天成交不POC；KA：招投标+POC+多轮方案+底价审批。两条路径AI需求差异大。</div>
+        <div class="mainline-cr">贯穿：<span>CR3</span> → <span>CR4</span> → <span>CR6</span></div>
+      </div>
+    </div>
+
+    <!-- CR Definitions -->
+    <div class="section-title">CR阶段定义</div>
+    <div class="mainlines-grid" style="margin-bottom:24px;">
+      <div class="mainline-card m1" style="padding:10px 14px;">
+        <div class="mainline-tag">CR1</div>
+        <div class="mainline-title" style="font-size:11.5px;">用户名单 → 市场线索</div>
+        <div class="mainline-desc" style="font-size:10.5px;">电销通过陌CALL/展会/官网等方式获取潜在客户名单，录入CRM</div>
+      </div>
+      <div class="mainline-card m2" style="padding:10px 14px;">
+        <div class="mainline-tag">CR2</div>
+        <div class="mainline-title" style="font-size:11.5px;">市场线索 → 准商机</div>
+        <div class="mainline-desc" style="font-size:10.5px;">对线索进行筛选验证，判断意向度和紧迫性，形成可跟进商机</div>
+      </div>
+      <div class="mainline-card m3" style="padding:10px 14px;">
+        <div class="mainline-tag">CR3</div>
+        <div class="mainline-title" style="font-size:11.5px;">准商机 → 行业方案介绍</div>
+        <div class="mainline-desc" style="font-size:10.5px;">方案团队输出行业方案，销售向客户介绍行业通用方案PPT</div>
+      </div>
+      <div class="mainline-card" style="padding:10px 14px; border-color:#7c3aed;">
+        <div class="mainline-tag" style="background:#f3e8ff;color:#5b21b6;">CR4</div>
+        <div class="mainline-title" style="font-size:11.5px;">行业方案 → 客户方案 → POC → 商务谈判</div>
+        <div class="mainline-desc" style="font-size:10.5px;">KA专属链路：为客户定制方案 → POC测试 → 招投标 → 底价谈判</div>
+      </div>
+      <div class="mainline-card" style="padding:10px 14px; border-color:#0891b2;">
+        <div class="mainline-tag" style="background:#e0f2fe;color:#0c4a6e;">CR5</div>
+        <div class="mainline-title" style="font-size:11.5px;">商务谈判后 → 全面实施交付</div>
+        <div class="mainline-desc" style="font-size:10.5px;">合同签署后，设备安装、软件部署、上线验收全过程</div>
+      </div>
+      <div class="mainline-card" style="padding:10px 14px; border-color:#059669;">
+        <div class="mainline-tag" style="background:#d1fae5;color:#065f46;">CR6</div>
+        <div class="mainline-title" style="font-size:11.5px;">持续价值交付</div>
+        <div class="mainline-desc" style="font-size:10.5px;">设备运维、数据运营、季度汇报，让客户持续感知产品价值</div>
+      </div>
+      <div class="mainline-card" style="padding:10px 14px; border-color:#ec4899;">
+        <div class="mainline-tag" style="background:#fce7f3;color:#9d174d;">CR7</div>
+        <div class="mainline-title" style="font-size:11.5px;">交叉销售</div>
+        <div class="mainline-desc" style="font-size:10.5px;">老客户增购（新车/新仓库/新品类）、介绍新客户、转介绍</div>
+      </div>
+    </div>
+
+    <!-- MATRIX -->
+    <div class="section-title">四层架构矩阵</div>
+    <div class="matrix-wrap">
+      <table class="matrix">
+        <tr class="col-header-row">
+          <td style="background:var(--green-dark); border-color:rgba(255,255,255,0.1);"></td>
+          <td><div class="col-header-inner"><span class="cr-stage">用户名单</span><span class="cr-label">CR1</span><span class="cr-desc">用户名单→市场线索</span><span class="cr-divider"></span><span class="cr-role">电销 · 销售</span></div></td>
+          <td><div class="col-header-inner"><span class="cr-stage">验证意向</span><span class="cr-label">CR2</span><span class="cr-desc">市场线索→准商机</span><span class="cr-divider"></span><span class="cr-role">销售 · KA</span></div></td>
+          <td><div class="col-header-inner"><span class="cr-stage">行业方案</span><span class="cr-label">CR3</span><span class="cr-desc">准商机→行业方案介绍</span><span class="cr-divider"></span><span class="cr-role">方案 · 销售</span></div></td>
+          <td><div class="col-header-inner" style="background:#5b21b6;"><span class="cr-stage">KA攻坚</span><span class="cr-label">CR4</span><span class="cr-desc">行业方案→客户方案→POC→商务谈判</span><span class="cr-divider"></span><span class="cr-role">KA · 方案 · PM · 管理者</span></div></td>
+          <td><div class="col-header-inner"><span class="cr-stage">实施交付</span><span class="cr-label">CR5</span><span class="cr-desc">商务谈判后→全面实施交付</span><span class="cr-divider"></span><span class="cr-role">PM · 客成 · KA</span></div></td>
+          <td><div class="col-header-inner"><span class="cr-stage">持续价值</span><span class="cr-label">CR6</span><span class="cr-desc">持续价值交付</span><span class="cr-divider"></span><span class="cr-role">客成 · 销售 · KA</span></div></td>
+          <td><div class="col-header-inner"><span class="cr-stage">交叉销售</span><span class="cr-label">CR7</span><span class="cr-desc">增购 · 转介绍</span><span class="cr-divider"></span><span class="cr-role">销售 · KA · 客成</span></div></td>
+        </tr>
+
+        <!-- LAYER 1: 销售声音 -->
+        <tr class="layer-1">
+          <td class="row-header"><div class="row-header-inner"><div class="row-icon" style="background:#fef2f2;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#991b1b" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><span class="row-title-text">销售声音</span><span class="row-title-sub">核心诉求</span></div></td>
+
+          <!-- CR1: 用户名单→市场线索 -->
+          <td class="cell">
+            <div class="voice-insight">
+              <div class="voice-insight-label">
+                <span class="voice-insight-tag vit-fill">信息补全</span>
+                <span class="voice-insight-tag vit-need">更了解客户</span>
+              </div>名单质量差，"硬转"泛滥；缺乏批量筛选工具
+            </div>
+            <div class="voice-insight">
+              <div class="voice-insight-label">
+                <span class="voice-insight-tag vit-proc">过程辅助</span>
+              </div>陌CALL效率低，需要AI辅助生成话术和筛选标准
+            </div>
+          </td>
+
+          <!-- CR2: 市场线索→准商机 -->
+          <td class="cell">
+            <div class="voice-insight">
+              <div class="voice-insight-label">
+                <span class="voice-insight-tag vit-need">更了解客户</span>
+                <span class="voice-insight-tag vit-fill">信息补全</span>
+              </div>商机真实性不可靠，企查信息不完整；判断依据不足
+            </div>
+            <div class="voice-insight">
+              <div class="voice-insight-label">
+                <span class="voice-insight-tag vit-fill">信息补全</span>
+              </div>产品线经常转错；需要排除重复/循环商机
+            </div>
+            <div class="voice-insight">
+              <div class="voice-insight-label">
+                <span class="voice-insight-tag vit-comp">竞品情报</span>
+              </div>客户背景不清晰，不知道用什么竞品话术
+            </div>
+          </td>
+
+          <!-- CR3: 准商机→行业方案 -->
+          <td class="cell">
+            <div class="voice-insight">
+              <div class="voice-insight-label">
+                <span class="voice-insight-tag vit-proc">过程辅助</span>
+              </div>行业方案PPT千篇一律，不能针对客户行业定制
+            </div>
+            <div class="voice-insight">
+              <div class="voice-insight-label">
+                <span class="voice-insight-tag vit-comp">竞品情报</span>
+                <span class="voice-insight-tag vit-fill">信息补全</span>
+              </div>拜访前不了解客户用哪个竞品，现场被问到答不上来
+            </div>
+            <div class="voice-insight">
+              <div class="voice-insight-label">
+                <span class="voice-insight-tag vit-need">更了解客户</span>
+              </div>客户组织架构、行业地位不了解，拜访准备不足
+            </div>
+          </td>
+
+          <!-- CR4: 行业方案→客户方案→POC→商务谈判 -->
+          <td class="cell">
+            <div class="voice-insight">
+              <div class="voice-insight-label">
+                <span class="voice-insight-tag vit-need">更了解客户</span>
+                <span class="voice-insight-tag vit-roi">ROI价值</span>
+              </div>客户方案70页客户只关心10页；ROI说不清，产品边界不清
+            </div>
+            <div class="voice-insight">
+              <div class="voice-insight-label">
+                <span class="voice-insight-tag vit-sync">进度同步</span>
+              </div>POC是投名状——目标不量化、缺SOP模板；POE/PM/销售多方协同难
+            </div>
+            <div class="voice-insight">
+              <div class="voice-insight-label">
+                <span class="voice-insight-tag vit-comp">竞品情报</span>
+                <span class="voice-insight-tag vit-roi">ROI价值</span>
+              </div>招投标无工具做竞争态势分析；底价审批等2天单子凉了
+            </div>
+          </td>
+
+          <!-- CR5: 实施交付 -->
+          <td class="cell">
+            <div class="voice-insight">
+              <div class="voice-insight-label">
+                <span class="voice-insight-tag vit-sync">进度同步</span>
+              </div>客户问我进度→我打给客成→客成说他问Poe——三方踢皮球
+            </div>
+            <div class="voice-insight">
+              <div class="voice-insight-label">
+                <span class="voice-insight-tag vit-auto">流程自动化</span>
+              </div>周报冗余要写三四个；出库/安装/物流信息需自动推送
+            </div>
+            <div class="voice-insight">
+              <div class="voice-insight-label">
+                <span class="voice-insight-tag vit-sync">进度同步</span>
+                <span class="voice-insight-tag vit-fill">信息补全</span>
+              </div>客户安装调试非现场协调，信息不对称
+            </div>
+          </td>
+
+          <!-- CR6: 持续价值 -->
+          <td class="cell">
+            <div class="voice-insight">
+              <div class="voice-insight-label">
+                <span class="voice-insight-tag vit-value">价值感知</span>
+              </div>客户续费前才感知价值，中间出现"价值空窗期"——需要季度报告
+            </div>
+            <div class="voice-insight">
+              <div class="voice-insight-label">
+                <span class="voice-insight-tag vit-sync">进度同步</span>
+                <span class="voice-insight-tag vit-need">更了解客户</span>
+              </div>流失风险不知道（设备离线/无服务记录/客户投诉）
+            </div>
+            <div class="voice-insight">
+              <div class="voice-insight-label">
+                <span class="voice-insight-tag vit-fill">信息补全</span>
+                <span class="voice-insight-tag vit-comp">竞品情报</span>
+              </div>设备运维问题无法秒级响应；竞品动态不了解
+            </div>
+          </td>
+
+          <!-- CR7: 交叉销售 -->
+          <td class="cell">
+            <div class="voice-insight">
+              <div class="voice-insight-label">
+                <span class="voice-insight-tag vit-need">更了解客户</span>
+                <span class="voice-insight-tag vit-roi">ROI价值</span>
+              </div>不知道老客户有哪些增购机会（新车/新仓库/新品类）
+            </div>
+            <div class="voice-insight">
+              <div class="voice-insight-label">
+                <span class="voice-insight-tag vit-value">价值感知</span>
+              </div>老客户续费率低——价值感知不强，转介绍意愿低
+            </div>
+            <div class="voice-insight">
+              <div class="voice-insight-label">
+                <span class="voice-insight-tag vit-comp">竞品情报</span>
+              </div>不了解老客户是否有被竞品渗透的风险
+            </div>
+          </td>
+        </tr>
+
+        <!-- LAYER 2: 底层资料 -->
+        <tr class="layer-2">
+          <td class="row-header"><div class="row-header-inner"><div class="row-icon" style="background:#fffbeb;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#92400e" stroke-width="1.8"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg></div><span class="row-title-text">底层资料</span><span class="row-title-sub">AI的燃料</span></div></td>
+          <td class="cell">
+            <span class="tag tag-orange">用户名单（批量）</span>
+            <span class="tag tag-orange">企业工商信息</span>
+            <span class="tag tag-orange">行业基础数据</span>
+            <span class="tag tag-orange">陌CALL话术模板</span>
+            <span class="tag tag-orange">行业分类标签</span>
+          </td>
+          <td class="cell">
+            <span class="tag tag-orange">企查全景画像</span>
+            <span class="tag tag-orange">招投标记录</span>
+            <span class="tag tag-orange">实缴/社保人数</span>
+            <span class="tag tag-orange">招聘/融资动态</span>
+            <span class="tag tag-orange">SPIN收集记录</span>
+            <span class="tag tag-orange">历史跟进记录</span>
+          </td>
+          <td class="cell">
+            <span class="tag tag-orange">企查全景画像</span>
+            <span class="tag tag-orange">组织架构图</span>
+            <span class="tag tag-orange">行业知识库</span>
+            <span class="tag tag-orange">70页行业方案库</span>
+            <span class="tag tag-orange">竞品知识库</span>
+            <span class="tag tag-orange">ROI案例库</span>
+          </td>
+          <td class="cell">
+            <span class="tag tag-orange">拜访录音</span>
+            <span class="tag tag-orange">CRM商机信息</span>
+            <span class="tag tag-orange">竞品动态库</span>
+            <span class="tag tag-orange">历史客户方案库</span>
+            <span class="tag tag-orange">竞品报价数据</span>
+            <span class="tag tag-orange">决策链信息</span>
+            <span class="tag tag-orange">POC目标SOP</span>
+            <span class="tag tag-orange">ROI价值模型</span>
+          </td>
+          <td class="cell">
+            <span class="tag tag-orange">合同信息</span>
+            <span class="tag tag-orange">设备安装进度</span>
+            <span class="tag tag-orange">软件部署里程碑</span>
+            <span class="tag tag-orange">客成服务记录</span>
+            <span class="tag tag-orange">Poe使用数据</span>
+            <span class="tag tag-orange">客户投诉记录</span>
+          </td>
+          <td class="cell">
+            <span class="tag tag-orange">设备使用数据</span>
+            <span class="tag tag-orange">Poe运营日志</span>
+            <span class="tag tag-orange">客成服务记录</span>
+            <span class="tag tag-orange">竞品动态</span>
+            <span class="tag tag-orange">行业ROI报告</span>
+            <span class="tag tag-orange">历史价值报告</span>
+          </td>
+          <td class="cell">
+            <span class="tag tag-orange">合同/订单历史</span>
+            <span class="tag tag-orange">设备台账</span>
+            <span class="tag tag-orange">客户增购记录</span>
+            <span class="tag tag-orange">竞品渗透情报</span>
+            <span class="tag tag-orange">行业机会图谱</span>
+          </td>
+        </tr>
+
+        <!-- LAYER 3: 模型处理 -->
+        <tr class="layer-3">
+          <td class="row-header"><div class="row-header-inner"><div class="row-icon" style="background:#eff6ff;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1e3a8a" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg></div><span class="row-title-text">模型处理</span><span class="row-title-sub">AI的大脑</span></div></td>
+          <td class="cell">
+            <span class="tag tag-blue">名单质量评分</span>
+            <span class="tag tag-blue">行业分类识别</span>
+            <span class="tag tag-blue">意向度初筛</span>
+            <span class="tag tag-blue">话术推荐生成</span>
+          </td>
+          <td class="cell">
+            <span class="tag tag-blue">线索质量分级</span>
+            <span class="tag tag-blue">SPIN完整性检测</span>
+            <span class="tag tag-blue">产品线匹配校验</span>
+            <span class="tag tag-blue">KA智能识别</span>
+            <span class="tag tag-blue">重复线索去重</span>
+            <span class="tag tag-blue">商机紧迫性判断</span>
+          </td>
+          <td class="cell">
+            <span class="tag tag-blue">全景画像构建</span>
+            <span class="tag tag-blue">行业匹配分析</span>
+            <span class="tag tag-blue">竞品对比定位</span>
+            <span class="tag tag-blue">切入建议模型</span>
+            <span class="tag tag-blue">拜访前清单生成</span>
+          </td>
+          <td class="cell">
+            <span class="tag tag-blue">录音场景识别</span>
+            <span class="tag tag-blue">关键信息提炼</span>
+            <span class="tag tag-blue">多角色痛点归纳</span>
+            <span class="tag tag-blue">ROI分析模型</span>
+            <span class="tag tag-blue">方案版本对比</span>
+            <span class="tag tag-blue">需求变更追踪</span>
+            <span class="tag tag-blue">POC里程碑追踪</span>
+            <span class="tag tag-blue">多维竞争分析</span>
+          </td>
+          <td class="cell">
+            <span class="tag tag-blue">进度实时汇总</span>
+            <span class="tag tag-blue">多系统数据融合</span>
+            <span class="tag tag-blue">协同任务路由</span>
+            <span class="tag tag-blue">交付文档生成</span>
+          </td>
+          <td class="cell">
+            <span class="tag tag-blue">设备健康评估</span>
+            <span class="tag tag-blue">流失三维预警</span>
+            <span class="tag tag-blue">健康报告生成</span>
+            <span class="tag tag-blue">竞品渗透识别</span>
+            <span class="tag tag-blue">问题根因分析</span>
+          </td>
+          <td class="cell">
+            <span class="tag tag-blue">增购信号识别</span>
+            <span class="tag tag-blue">客户健康评分</span>
+            <span class="tag tag-blue">机会优先级排序</span>
+            <span class="tag tag-blue">转介绍指数评估</span>
+          </td>
+        </tr>
+
+        <!-- LAYER 4: AI应用 -->
+        <tr class="layer-4">
+          <td class="row-header"><div class="row-header-inner"><div class="row-icon" style="background:#e1f4e4;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1a5c1a" stroke-width="1.8"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div><span class="row-title-text">AI应用</span><span class="row-title-sub">AI的输出</span></div></td>
+          <td class="cell">
+            <span class="tag tag-navy">名单智能清洗</span>
+            <span class="tag tag-navy">意向客户初筛</span>
+            <span class="tag tag-navy">AI话术生成</span>
+            <span class="tag tag-red">低质名单过滤</span>
+          </td>
+          <td class="cell">
+            <span class="tag tag-navy">线索分配前智能校验</span>
+            <span class="tag tag-navy">商机分级（KA/区域）</span>
+            <span class="tag tag-navy">产品线智能推荐</span>
+            <span class="tag tag-navy">企查全景画像包</span>
+          </td>
+          <td class="cell">
+            <span class="tag tag-navy">行业方案智能裁剪</span>
+            <span class="tag tag-navy">拜访前全景画像卡</span>
+            <span class="tag tag-navy">竞品对比参考包</span>
+            <span class="tag tag-navy">相似案例推荐</span>
+          </td>
+          <td class="cell">
+            <span class="tag tag-navy">通用版客户档案（共用）</span>
+            <span class="tag tag-purple">KA版售前输入包</span>
+            <span class="tag tag-purple">招投标竞品对比包</span>
+            <span class="tag tag-purple">POC进度看板</span>
+            <span class="tag tag-purple">POC目标SOP模板</span>
+            <span class="tag tag-purple">竞争态势分析报告</span>
+            <span class="tag tag-purple">底价透明看板</span>
+          </td>
+          <td class="cell">
+            <span class="tag tag-navy">实施进度看板</span>
+            <span class="tag tag-navy">硬件/软件双维度</span>
+            <span class="tag tag-navy">交付文档自动生成</span>
+            <span class="tag tag-navy">周报精简版</span>
+          </td>
+          <td class="cell">
+            <span class="tag tag-navy">设备运行月报</span>
+            <span class="tag tag-purple">KA季度价值报告</span>
+            <span class="tag tag-red">流失三维预警</span>
+            <span class="tag tag-navy">产品问题秒级响应</span>
+            <span class="tag tag-navy">招投标监控（增购）</span>
+          </td>
+          <td class="cell">
+            <span class="tag tag-purple">增购机会清单</span>
+            <span class="tag tag-navy">客户健康仪表盘</span>
+            <span class="tag tag-red">竞品渗透预警</span>
+            <span class="tag tag-navy">转介绍话术生成</span>
+          </td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══ TAB 2: PRIORITY ══ -->
+  <div id="tab-priority" class="tab-panel">
+    <div class="section-title">优先级矩阵 <span class="sub">（访谈4人 + 问卷25人共同提及，数字为实际提及人数）</span></div>
+    <div class="priority-grid">
+      <div class="priority-card p0">
+        <div class="priority-card-header"><div class="priority-level">P0 · 立即启动</div><span class="mbadge hot">9人</span></div>
+        <div class="priority-title">企查接口直连 + 信息补全</div>
+        <div class="priority-evidence">商机真实性/准确性最高频痛点。企查基础信息+外部公开数据（招聘/融资/招投标）综合补全。</div>
+        <div class="priority-refs">
+          <span class="priority-ref ref-ka">KA×5</span>
+          <span class="priority-ref ref-cs">客成×1</span>
+          <span class="priority-ref ref-sp">方案×2</span>
+          <span class="priority-ref ref-pm">PM×1</span>
+        </div>
+      </div>
+      <div class="priority-card p0">
+        <div class="priority-card-header"><div class="priority-level">P0 · 立即启动</div><span class="mbadge hot">9人</span></div>
+        <div class="priority-title">实施进度看板（CR5）</div>
+        <div class="priority-evidence">跨部门信息同步+异常实时预警。销售/客成/交付三方共享同一视图，减少踢皮球。</div>
+        <div class="priority-refs">
+          <span class="priority-ref ref-interview">王迪 区域</span>
+          <span class="priority-ref ref-interview">朱雪 区域</span>
+          <span class="priority-ref ref-ka">KA×2</span>
+          <span class="priority-ref ref-cs">客成×2</span>
+          <span class="priority-ref ref-pm">PM×2</span>
+        </div>
+      </div>
+      <div class="priority-card p0">
+        <div class="priority-card-header"><div class="priority-level">P0 · 立即启动</div><span class="mbadge warm">8人</span></div>
+        <div class="priority-title">录音智能提炼（CR4）</div>
+        <div class="priority-evidence">"飞书总结是我自己都知道的信息"——要提炼的是遗漏了什么、竞品说了什么、隐藏的痛点。</div>
+        <div class="priority-refs">
+          <span class="priority-ref ref-interview">王迪 区域</span>
+          <span class="priority-ref ref-ka">KA×1</span>
+          <span class="priority-ref ref-sp">方案×2</span>
+          <span class="priority-ref ref-pm">PM×2</span>
+        </div>
+      </div>
+      <div class="priority-card p1">
+        <div class="priority-card-header"><div class="priority-level">P1 · 快速跟进</div><span class="mbadge hot">8人</span></div>
+        <div class="priority-title">ROI价值量化模型（CR4）</div>
+        <div class="priority-evidence">ROI/痛点量化/价值实现路径是最高频AI建议。客户ROI分析→面客方案→价值汇报形成完整链条。</div>
+        <div class="priority-refs">
+          <span class="priority-ref ref-interview">胡圳山 KA</span>
+          <span class="priority-ref ref-ka">KA×2</span>
+          <span class="priority-ref ref-mgr">管理者×1</span>
+          <span class="priority-ref ref-sp">方案×2</span>
+          <span class="priority-ref ref-cs">客成×1</span>
+        </div>
+      </div>
+      <div class="priority-card p1">
+        <div class="priority-card-header"><div class="priority-level">P1 · 快速跟进</div><span class="mbadge warm">6人</span></div>
+        <div class="priority-title">行业方案智能裁剪（CR3）</div>
+        <div class="priority-evidence">"10个问题只问了5个"是普遍现象。拜访前推送清单，拜访后检测完整性并告知缺失项。</div>
+        <div class="priority-refs">
+          <span class="priority-ref ref-interview">颜川健 区域</span>
+          <span class="priority-ref ref-ka">KA×2</span>
+          <span class="priority-ref ref-sp">方案×1</span>
+          <span class="priority-ref ref-pm">PM×1</span>
+        </div>
+      </div>
+      <div class="priority-card p1">
+        <div class="priority-card-header"><div class="priority-level">P1 · 快速跟进</div><span class="mbadge warm">5人</span></div>
+        <div class="priority-title">流失三维预警（CR6）</div>
+        <div class="priority-evidence">设备离线天数+无服务记录+客户投诉综合预警，降低续费流失风险。嵌入交付看板。</div>
+        <div class="priority-refs">
+          <span class="priority-ref ref-interview">王迪 区域</span>
+          <span class="priority-ref ref-interview">朱雪 区域</span>
+          <span class="priority-ref ref-ka">KA×1</span>
+          <span class="priority-ref ref-cs">客成×1</span>
+        </div>
+      </div>
+      <div class="priority-card p2">
+        <div class="priority-card-header"><div class="priority-level">P2 · 规划建设</div><span class="mbadge mild">5人</span></div>
+        <div class="priority-title">POC目标量化 + SOP模板（CR4）</div>
+        <div class="priority-evidence">POC目标不量化、缺少标准模板是高频痛点。需POC SOP模板+过程提醒+协同任务分配。</div>
+        <div class="priority-refs">
+          <span class="priority-ref ref-ka">KA×1</span>
+          <span class="priority-ref ref-mgr">管理者×1</span>
+          <span class="priority-ref ref-pm">PM×3</span>
+        </div>
+      </div>
+      <div class="priority-card p2">
+        <div class="priority-card-header"><div class="priority-level">P2 · 规划建设</div><span class="mbadge mild">6人</span></div>
+        <div class="priority-title">竞品知识库（含实时查询）</div>
+        <div class="priority-evidence">招投标现场查不到竞品信息，价格竞争力难以判断。静态知识库+动态从会话提取竞品情报。</div>
+        <div class="priority-refs">
+          <span class="priority-ref ref-interview">胡圳山 KA</span>
+          <span class="priority-ref ref-interview">朱雪 区域</span>
+          <span class="priority-ref ref-ka">KA×1</span>
+          <span class="priority-ref ref-sp">方案×2</span>
+          <span class="priority-ref ref-cs">客成×1</span>
+        </div>
+      </div>
+      <div class="priority-card p2">
+        <div class="priority-card-header"><div class="priority-level">P2 · 规划建设</div><span class="mbadge mild">5人</span></div>
+        <div class="priority-title">POC / 方案文档自动生成</div>
+        <div class="priority-evidence">过程汇报文档自动生成，减少周报/阶段汇报等冗余人工操作。POC报告需有图文有数据。</div>
+        <div class="priority-refs">
+          <span class="priority-ref ref-mgr">管理者×1</span>
+          <span class="priority-ref ref-pm">PM×3</span>
+          <span class="priority-ref ref-sp">方案×1</span>
+        </div>
+      </div>
+      <div class="priority-card p3">
+        <div class="priority-card-header"><div class="priority-level">P3 · 探索研究</div><span class="mbadge mild">1人</span></div>
+        <div class="priority-title">招投标现场AI实时内容（CR4）</div>
+        <div class="priority-evidence">访谈胡圳山提出"图/文/声并茂，现场生成方案"目标；取决于AI能力成熟度。</div>
+        <div class="priority-refs">
+          <span class="priority-ref ref-interview">胡圳山 KA</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ TAB 3: SURVEY ══ -->
+  <div id="tab-survey" class="tab-panel">
+
+    <div class="section-title">调研样本（29人 · 6类角色）</div>
+    <div class="survey-overview">
+      <div class="survey-stat-card s-tele"><div class="survey-num">2</div><div class="survey-role">电销</div><div class="survey-desc">问卷来源未明确标注，属销售支持角色</div></div>
+      <div class="survey-stat-card s-ka"><div class="survey-num">10</div><div class="survey-role">KA销售</div><div class="survey-desc">陈忠杰/李玉玲/王黔/王海山/方舟/王运明/王铚荣/黄伟卿/潘俊伟/连佳谊</div></div>
+      <div class="survey-stat-card s-ka-mgr"><div class="survey-num">2</div><div class="survey-role">KA管理者</div><div class="survey-desc">周双玉（总监）/ 王博</div></div>
+      <div class="survey-stat-card s-sp"><div class="survey-num">5</div><div class="survey-role">方案专家</div><div class="survey-desc">黄易飞/曹方/接战国/魏宇龙/刘和亮</div></div>
+      <div class="survey-stat-card s-pm"><div class="survey-num">6</div><div class="survey-role">项目经理</div><div class="survey-desc">盖垚/张力祥/赵建龙/顾浩/闫炳旭/姚泳竹</div></div>
+    </div>
+
+    <div class="section-title">跨角色三大共性主题</div>
+    <div class="theme-grid">
+      <div class="theme-card">
+        <div class="theme-header"><div class="theme-title">更了解客户，信息更完整</div><span class="mbadge hot">9人</span></div>
+        <div class="theme-desc">商机真实性/准确性最高频。企查信息不完整；AI需从公开数据（招聘/融资/新闻）补全客户全景画像，辅助意向度判断。</div>
+        <div class="theme-refs">
+          <span class="priority-ref ref-ka">KA×5</span>
+          <span class="priority-ref ref-cs">客成×1</span>
+          <span class="priority-ref ref-sp">方案×2</span>
+          <span class="priority-ref ref-pm">PM×1</span>
+        </div>
+      </div>
+      <div class="theme-card">
+        <div class="theme-header"><div class="theme-title">ROI价值量化与输出</div><span class="mbadge hot">8人</span></div>
+        <div class="theme-desc">ROI分析/痛点量化/价值实现路径是最高频AI建议。客户ROI分析→面客方案→价值汇报形成完整链条。</div>
+        <div class="theme-refs">
+          <span class="priority-ref ref-interview">胡圳山 KA</span>
+          <span class="priority-ref ref-ka">KA×2</span>
+          <span class="priority-ref ref-mgr">管理者×1</span>
+          <span class="priority-ref ref-sp">方案×2</span>
+          <span class="priority-ref ref-cs">客成×1</span>
+        </div>
+      </div>
+      <div class="theme-card">
+        <div class="theme-header"><div class="theme-title">POC流程标准化</div><span class="mbadge warm">5人</span></div>
+        <div class="theme-desc">POC目标不量化、缺少标准模板、过程无提醒、协同不顺畅是高频痛点。需要从目标设定到汇报全流程SOP支撑。</div>
+        <div class="theme-refs">
+          <span class="priority-ref ref-ka">KA×1</span>
+          <span class="priority-ref ref-mgr">管理者×1</span>
+          <span class="priority-ref ref-pm">PM×3</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CR Cards -->
+    <div class="cr-insight-wrap">
+      <div class="section-title">各CR阶段核心痛点（含原声引用）</div>
+
+      <!-- CR1 -->
+      <div class="cr-insight-card">
+        <div class="cr-insight-header" style="background:#ef4444;">
+          <div>
+            <div class="cr-insight-title">CR1 · 用户名单 → 市场线索</div>
+            <div class="cr-insight-meta-row">名单质量参差不齐，"硬转"泛滥，缺乏批量筛选和清洗工具</div>
+          </div>
+          <span class="mbadge white">1人提及</span>
+        </div>
+        <div class="cr-insight-body">
+          <div class="cr-insight-left">
+            <div class="cr-insight-intro">核心问题：电销为完成KPI把明显没意向的客户也推过来，造成"硬转"——销售拿到的名单质量差，浪费时间。</div>
+            <div class="cr-insight-point">
+              <div class="cr-insight-bullet" style="background:#ef4444;"></div>
+              <div>
+                <div class="cr-insight-point-text">"硬转"泛滥；名单质量差，缺乏批量筛选工具；陌CALL效率低</div>
+                <div class="cr-insight-role-tags">
+                  <span class="cr-insight-role-tag rt-interview">王迪 区域（访谈）</span>
+                  <span class="cr-insight-role-tag rt-interview">朱雪 区域（访谈）</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="cr-insight-right">
+            <div class="cr-voice-item">
+              <div class="cr-voice-text">"电销推明显没意向的客户，老销售不碰公海池。浪费我一上午时间，约了客户上门才发现没需求。"</div>
+              <div class="cr-voice-attribution">
+                <span class="cr-voice-person rt-interview">王迪 区域（访谈）</span>
+                <span class="cr-voice-person rt-interview">朱雪 区域（访谈）</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CR2 -->
+      <div class="cr-insight-card">
+        <div class="cr-insight-header" style="background:#d97706;">
+          <div>
+            <div class="cr-insight-title">CR2 · 市场线索 → 准商机</div>
+            <div class="cr-insight-meta-row">商机真实性不可靠，企查信息不完整；缺乏意向度和紧迫性判断依据</div>
+          </div>
+          <span class="mbadge white">9人提及</span>
+        </div>
+        <div class="cr-insight-body">
+          <div class="cr-insight-left">
+            <div class="cr-insight-intro">核心问题：电销SPIN收集不完整，转给销售后信息残缺，销售要重复问客户，客户反感觉得不专业。</div>
+            <div class="cr-insight-point">
+              <div class="cr-insight-bullet" style="background:#dc2626;"></div>
+              <div>
+                <div class="cr-insight-point-text">推送商机精准度差，联系客户基本无下文；商机真实性不完全可靠，AI识别背景存在失真</div>
+                <div class="cr-insight-role-tags">
+                  <span class="cr-insight-role-tag rt-ka">李玉玲 KA</span>
+                  <span class="cr-insight-role-tag rt-ka">王海山 KA</span>
+                  <span class="cr-insight-role-tag rt-ka">王运明 KA</span>
+                  <span class="cr-insight-role-tag rt-cs">郝海东 客成</span>
+                </div>
+              </div>
+            </div>
+            <div class="cr-insight-point">
+              <div class="cr-insight-bullet" style="background:#d97706;"></div>
+              <div>
+                <div class="cr-insight-point-text">缺乏客户意向度、紧迫性判断依据；需要排除重复/循环商机，避免重复跟进浪费人力</div>
+                <div class="cr-insight-role-tags">
+                  <span class="cr-insight-role-tag rt-cs">郝海东 客成</span>
+                  <span class="cr-insight-role-tag rt-ka">黄伟卿 KA</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="cr-insight-right">
+            <div class="cr-voice-item">
+              <div class="cr-voice-text">"商机的真实和准确性不完全可靠，AI识别的客户背景资料存在失真。推送商机要精准，过往联系客户基本都无下文，AI推送第二阶段对销售很友好。"</div>
+              <div class="cr-voice-attribution">
+                <span class="cr-voice-person rt-ka">李玉玲 KA</span>
+                <span class="cr-voice-person rt-ka">王海山 KA</span>
+                <span class="cr-voice-person rt-ka">王运明 KA</span>
+              </div>
+            </div>
+            <div class="cr-voice-item">
+              <div class="cr-voice-text">"缺乏对客户意向度、紧迫性的判断依据。建议：AI自动从公开数据（企查、招聘信息、融资动态）补全客户背景。"</div>
+              <div class="cr-voice-attribution">
+                <span class="cr-voice-person rt-cs">郝海东 客户成功</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CR3 -->
+      <div class="cr-insight-card">
+        <div class="cr-insight-header" style="background:#7c3aed;">
+          <div>
+            <div class="cr-insight-title">CR3 · 准商机 → 行业方案介绍</div>
+            <div class="cr-insight-meta-row">行业方案千篇一律，竞品情报缺失；拜访前缺乏客户全景画像</div>
+          </div>
+          <span class="mbadge white">8人提及</span>
+        </div>
+        <div class="cr-insight-body">
+          <div class="cr-insight-left">
+            <div class="cr-insight-intro">核心问题：行业方案PPT千篇一律，不能针对客户行业定制；拜访前不了解客户用哪个竞品。</div>
+            <div class="cr-insight-point">
+              <div class="cr-insight-bullet" style="background:#dc2626;"></div>
+              <div>
+                <div class="cr-insight-point-text">企查只有基础信息，缺组织架构/关键决策人/上下游/历史合作情况；拜访前不了解客户</div>
+                <div class="cr-insight-role-tags">
+                  <span class="cr-insight-role-tag rt-interview">胡圳山 KA（访谈）</span>
+                  <span class="cr-insight-role-tag rt-sp">黄易飞 方案</span>
+                </div>
+              </div>
+            </div>
+            <div class="cr-insight-point">
+              <div class="cr-insight-bullet" style="background:#d97706;"></div>
+              <div>
+                <div class="cr-insight-point-text">行业方案不够针对性；客户痛点ROI模型分析不够；相似案例检索缺失</div>
+                <div class="cr-insight-role-tags">
+                  <span class="cr-insight-role-tag rt-mgr">周双玉 KA管理者</span>
+                  <span class="cr-insight-role-tag rt-sp">曹方 方案</span>
+                  <span class="cr-insight-role-tag rt-sp">接战国 方案</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="cr-insight-right">
+            <div class="cr-voice-item">
+              <div class="cr-voice-text">"企查只有基础信息，如果有组织架构，IT投入金额，关键决策人就好了。客户上下游和历史合作情况不清楚，延伸问题没法回答，方案人员又不够。"</div>
+              <div class="cr-voice-attribution">
+                <span class="cr-voice-person rt-interview">胡圳山 KA（访谈）</span>
+                <span class="cr-voice-person rt-sp">黄易飞 方案专家</span>
+              </div>
+            </div>
+            <div class="cr-voice-item">
+              <div class="cr-voice-text">"客户痛点的ROI模型分析，自动生成行业痛点→面客方案。行业安全水平怎样？客户处在什么阶段？关联竞品情况——都需要补全。"</div>
+              <div class="cr-voice-attribution">
+                <span class="cr-voice-person rt-mgr">周双玉 KA管理者</span>
+                <span class="cr-voice-person rt-sp">接战国 方案专家</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CR4 -->
+      <div class="cr-insight-card">
+        <div class="cr-insight-header" style="background:#5b21b6;">
+          <div>
+            <div class="cr-insight-title">CR4 · 行业方案 → 客户方案 → POC → 商务谈判</div>
+            <div class="cr-insight-meta-row">KA专属链路：70页客户只关心10页；POC是投名状；竞争态势全靠经验</div>
+          </div>
+          <span class="mbadge white">11人提及</span>
+        </div>
+        <div class="cr-insight-body">
+          <div class="cr-insight-left">
+            <div class="cr-insight-intro">核心问题：70页行业方案客户只关心10页；方案做了最后产品说"不行"；POC是投名状；竞争态势无工具支撑。</div>
+            <div class="cr-insight-point">
+              <div class="cr-insight-bullet" style="background:#dc2626;"></div>
+              <div>
+                <div class="cr-insight-point-text">飞书总结是"已知信息"；需要提炼遗漏的/竞品说的/隐藏痛点；POC目标不量化</div>
+                <div class="cr-insight-role-tags">
+                  <span class="cr-insight-role-tag rt-interview">王迪 区域（访谈）</span>
+                  <span class="cr-insight-role-tag rt-interview">颜川健 区域（访谈）</span>
+                  <span class="cr-insight-role-tag rt-pm">张力祥 PM</span>
+                </div>
+              </div>
+            </div>
+            <div class="cr-insight-point">
+              <div class="cr-insight-bullet" style="background:#d97706;"></div>
+              <div>
+                <div class="cr-insight-point-text">行业方案60-70页客户不耐烦；产品能做到什么说不清；需要行业方案智能裁剪</div>
+                <div class="cr-insight-role-tags">
+                  <span class="cr-insight-role-tag rt-interview">胡圳山 KA（访谈）</span>
+                  <span class="cr-insight-role-tag rt-ka">王海山 KA</span>
+                  <span class="cr-insight-role-tag rt-sp">曹方 方案</span>
+                </div>
+              </div>
+            </div>
+            <div class="cr-insight-point">
+              <div class="cr-insight-bullet" style="background:#3b82f6;"></div>
+              <div>
+                <div class="cr-insight-point-text">POC是投名状（3-5家同时竞争）；目标不量化；POE/PM/产品/销售多方协同困难</div>
+                <div class="cr-insight-role-tags">
+                  <span class="cr-insight-role-tag rt-interview">胡圳山 KA（访谈）</span>
+                  <span class="cr-insight-role-tag rt-mgr">王博 KA管理者</span>
+                  <span class="cr-insight-role-tag rt-pm">赵建龙 PM</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="cr-insight-right">
+            <div class="cr-voice-item">
+              <div class="cr-voice-text">"飞书总结是我自己都知道的信息——想看我自己没能力获取的：竞品、行业动态。我10个问题只问了5个——录完总结也不完整，问不全，SPIN收集质量差。"</div>
+              <div class="cr-voice-attribution">
+                <span class="cr-voice-person rt-interview">王迪 区域（访谈）</span>
+                <span class="cr-voice-person rt-interview">颜川健 区域（访谈）</span>
+              </div>
+            </div>
+            <div class="cr-voice-item">
+              <div class="cr-voice-text">"行业方案60-70页，客户只关心AI调度，全讲完1-2小时，客户不耐烦。方案做了，最后产品说不行——能说清楚产品到底做到什么程度很重要。3-5家同时做POC，POC是投名状。"</div>
+              <div class="cr-voice-attribution">
+                <span class="cr-voice-person rt-interview">胡圳山 KA（访谈）</span>
+                <span class="cr-voice-person rt-ka">王海山 KA</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CR5 -->
+      <div class="cr-insight-card">
+        <div class="cr-insight-header" style="background:#0891b2;">
+          <div>
+            <div class="cr-insight-title">CR5 · 商务谈判后 → 全面实施交付</div>
+            <div class="cr-insight-meta-row">三方踢皮球、周报冗余、进度不透明；交付文档手工拼凑</div>
+          </div>
+          <span class="mbadge white">9人提及</span>
+        </div>
+        <div class="cr-insight-body">
+          <div class="cr-insight-left">
+            <div class="cr-insight-intro">核心问题：客户问销售进度，销售打电话给客成，客成说他问一下Poe——三方信息不同步。</div>
+            <div class="cr-insight-point">
+              <div class="cr-insight-bullet" style="background:#dc2626;"></div>
+              <div>
+                <div class="cr-insight-point-text">跨部门信息不同步，销售踢给客成，客成踢给Poe；周报要写三四个冗余工作多</div>
+                <div class="cr-insight-role-tags">
+                  <span class="cr-insight-role-tag rt-cs">郝海东 客成</span>
+                  <span class="cr-insight-role-tag rt-pm">张力祥 PM</span>
+                  <span class="cr-insight-role-tag rt-interview">王迪 区域（访谈）</span>
+                </div>
+              </div>
+            </div>
+            <div class="cr-insight-point">
+              <div class="cr-insight-bullet" style="background:#d97706;"></div>
+              <div>
+                <div class="cr-insight-point-text">安装/发货/预约节点靠人工传递；出库/安装/物流信息需自动推送</div>
+                <div class="cr-insight-role-tags">
+                  <span class="cr-insight-role-tag rt-pm">盖垚 PM</span>
+                  <span class="cr-insight-role-tag rt-pm">赵建龙 PM</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="cr-insight-right">
+            <div class="cr-voice-item">
+              <div class="cr-voice-text">"客户问我进度，我打电话给客成，客成说他问一下Poe——踢皮球，信息不同步。跨部门信息不同步，责任推诿。周报要写三四个，冗余工作多，建议精简。"</div>
+              <div class="cr-voice-attribution">
+                <span class="cr-voice-person rt-interview">王迪 区域（访谈）</span>
+                <span class="cr-voice-person rt-cs">郝海东 客户成功</span>
+                <span class="cr-voice-person rt-pm">张力祥 PM</span>
+              </div>
+            </div>
+            <div class="cr-voice-item">
+              <div class="cr-voice-text">"AI自动完成客户上门预约，对于安装调度，对于异常客户实时电话跟进；自动推送出库，安装日报，发货物流信息。"</div>
+              <div class="cr-voice-attribution">
+                <span class="cr-voice-person rt-pm">盖垚 PM</span>
+                <span class="cr-voice-person rt-pm">赵建龙 PM</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CR6 -->
+      <div class="cr-insight-card">
+        <div class="cr-insight-header" style="background:#059669;">
+          <div>
+            <div class="cr-insight-title">CR6 · 持续价值交付</div>
+            <div class="cr-insight-meta-row">价值空窗期、流失不知道、竞品渗透风险；客户成功工作量巨大</div>
+          </div>
+          <span class="mbadge white">8人提及</span>
+        </div>
+        <div class="cr-insight-body">
+          <div class="cr-insight-left">
+            <div class="cr-insight-intro">核心问题：客户续费前才感知价值，中间出现"价值空窗期"；设备离线了没人知道。</div>
+            <div class="cr-insight-point">
+              <div class="cr-insight-bullet" style="background:#dc2626;"></div>
+              <div>
+                <div class="cr-insight-point-text">客户续费前才感知价值，中间出现"价值空窗期"；设备离线不知情，流失被动</div>
+                <div class="cr-insight-role-tags">
+                  <span class="cr-insight-role-tag rt-cs">郝海东 客成</span>
+                  <span class="cr-insight-role-tag rt-interview">王迪 区域（访谈）</span>
+                  <span class="cr-insight-role-tag rt-interview">朱雪 区域（访谈）</span>
+                </div>
+              </div>
+            </div>
+            <div class="cr-insight-point">
+              <div class="cr-insight-bullet" style="background:#d97706;"></div>
+              <div>
+                <div class="cr-insight-point-text">客户续费后价值感知不强；设备运维问题无法秒级响应；产品问题排查耗时长</div>
+                <div class="cr-insight-role-tags">
+                  <span class="cr-insight-role-tag rt-cs">余红玲 客成</span>
+                  <span class="cr-insight-role-tag rt-pm">张力祥 PM</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="cr-insight-right">
+            <div class="cr-voice-item">
+              <div class="cr-voice-text">"客户续费前才感知价值，中间出现'价值空窗期'——需要季度价值报告（节省工时、收入增长、效率提升）发送给决策人。客户说不续了我才知道，原来设备一直离线。"</div>
+              <div class="cr-voice-attribution">
+                <span class="cr-voice-person rt-cs">郝海东 客户成功</span>
+                <span class="cr-voice-person rt-ka">王运明 KA</span>
+                <span class="cr-voice-person rt-ka">连佳谊 KA</span>
+              </div>
+            </div>
+            <div class="cr-voice-item">
+              <div class="cr-voice-text">"全面交付的时候会遇到各种问题，客户希望及时解决，AI可以提供产品常见问题排查和解决思路或直接给解决了。数据分散多系统，手工汇总做图表，每次花大量时间。"</div>
+              <div class="cr-voice-attribution">
+                <span class="cr-voice-person rt-pm">张力祥 PM</span>
+                <span class="cr-voice-person rt-interview">胡圳山 KA（访谈）</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CR7 -->
+      <div class="cr-insight-card">
+        <div class="cr-insight-header" style="background:#be185d;">
+          <div>
+            <div class="cr-insight-title">CR7 · 交叉销售</div>
+            <div class="cr-insight-meta-row">增购机会不知道、竞品渗透风险、转介绍意愿低——老客户价值未充分挖掘</div>
+          </div>
+          <span class="mbadge white">2人提及</span>
+        </div>
+        <div class="cr-insight-body">
+          <div class="cr-insight-left">
+            <div class="cr-insight-intro">核心问题：老客户增购机会未被识别；竞品正在渗透老客户不自知；价值感知不强导致转介绍意愿低。</div>
+            <div class="cr-insight-point">
+              <div class="cr-insight-bullet" style="background:#dc2626;"></div>
+              <div>
+                <div class="cr-insight-point-text">不知道老客户有哪些增购机会（新车/新仓库/新品类）；竞品渗透不知道</div>
+                <div class="cr-insight-role-tags">
+                  <span class="cr-insight-role-tag rt-interview">朱雪 区域（访谈）</span>
+                  <span class="cr-insight-role-tag rt-interview">胡圳山 KA（访谈）</span>
+                </div>
+              </div>
+            </div>
+            <div class="cr-insight-point">
+              <div class="cr-insight-bullet" style="background:#d97706;"></div>
+              <div>
+                <div class="cr-insight-point-text">老客户续费率低，价值感知不强，转介绍意愿低；从安装实施到后续跟进断裂</div>
+                <div class="cr-insight-role-tags">
+                  <span class="cr-insight-role-tag rt-interview">朱雪 区域（访谈）</span>
+                  <span class="cr-insight-role-tag rt-pm">张力祥 PM</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="cr-insight-right">
+            <div class="cr-voice-item">
+              <div class="cr-voice-text">"从安装实施到后续跟进，然后设备维护，客户的客情关系的维护，然后加单续费的推进，还有就是客户需求持续发掘和满足。"</div>
+              <div class="cr-voice-attribution">
+                <span class="cr-voice-person rt-interview">朱雪 区域（访谈）</span>
+                <span class="cr-voice-person rt-pm">张力祥 PM</span>
+              </div>
+            </div>
+            <div class="cr-voice-item">
+              <div class="cr-voice-text">"招投标现场查不到竞品信息，价格竞争力难以判断——竞品动态不掌握，增购机会不知道。"</div>
+              <div class="cr-voice-attribution">
+                <span class="cr-voice-person rt-interview">胡圳山 KA（访谈）</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 跨CR -->
+      <div class="cr-insight-card">
+        <div class="cr-insight-header" style="background:#4c1d95;">
+          <div>
+            <div class="cr-insight-title">跨CR · 共性问题</div>
+            <div class="cr-insight-meta-row">数据孤岛、知识库分散、人员调动客户断层——贯穿营销全链路</div>
+          </div>
+          <span class="mbadge white">贯穿全程</span>
+        </div>
+        <div class="cr-insight-body">
+          <div class="cr-insight-left">
+            <div class="cr-insight-intro">核心问题：CRM/客服系统/产品日志/市场工具多系统数据孤岛，形成360°客户动态档案是跨CR共性需求。</div>
+            <div class="cr-insight-point">
+              <div class="cr-insight-bullet" style="background:#dc2626;"></div>
+              <div>
+                <div class="cr-insight-point-text">多系统数据孤岛（CRM/客服/产品日志/市场工具)，形成360°客户动态档案；统一知识库，统一入口查询</div>
+                <div class="cr-insight-role-tags">
+                  <span class="cr-insight-role-tag rt-cs">郝海东 客成</span>
+                  <span class="cr-insight-role-tag rt-sp">曹方 方案</span>
+                </div>
+              </div>
+            </div>
+            <div class="cr-insight-point">
+              <div class="cr-insight-bullet" style="background:#d97706;"></div>
+              <div>
+                <div class="cr-insight-point-text">合并后人员调动，熟悉客户的销售/运营调走，客户找不到人，换抬头签约；培训资料/知识库不统一</div>
+                <div class="cr-insight-role-tags">
+                  <span class="cr-insight-role-tag rt-interview">朱雪 区域（访谈）</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="cr-insight-right">
+            <div class="cr-voice-item">
+              <div class="cr-voice-text">"多系统数据孤岛（CRM/客服系统、产品日志、市场自动化工具），建议：AI打通各系统，形成360°客户动态档案。统一知识库，统一入口查询。"</div>
+              <div class="cr-voice-attribution">
+                <span class="cr-voice-person rt-cs">郝海东 客户成功</span>
+                <span class="cr-voice-person rt-sp">曹方 方案专家</span>
+              </div>
+            </div>
+            <div class="cr-voice-item">
+              <div class="cr-voice-text">"合并后人员调动，熟悉客户的销售/运营调走，客户找不到人，换抬头签约；方案人员不够，没法全范围支持；培训资料/知识库不统一。"</div>
+              <div class="cr-voice-attribution">
+                <span class="cr-voice-person rt-interview">朱雪 区域（访谈）</span>
+                <span class="cr-voice-person rt-sp">黄易飞 方案专家</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end cr-insight-wrap -->
+  </div><!-- end tab-survey -->
+</div><!-- end main-content -->
+
+<!-- ═══ FOOTER ═══ -->
+<div class="footer">
+  <div class="footer-group">
+    <div class="footer-group-title">角色颜色</div>
+    <div class="footer-item"><div class="footer-dot" style="background:#ef4444;"></div>红色 = 电销（CR1入口）</div>
+    <div class="footer-item"><div class="footer-dot" style="background:#94b894;"></div>绿色 = 区域销售（访谈）</div>
+    <div class="footer-item"><div class="footer-dot" style="background:#8b5cf6;"></div>紫色 = KA销售</div>
+    <div class="footer-item"><div class="footer-dot" style="background:#ec4899;"></div>粉色 = KA管理者</div>
+    <div class="footer-item"><div class="footer-dot" style="background:#10b981;"></div>绿色 = 方案专家</div>
+    <div class="footer-item"><div class="footer-dot" style="background:#3b82f6;"></div>蓝色 = 项目经理</div>
+    <div class="footer-item"><div class="footer-dot" style="background:#f59e0b;"></div>橙色 = 客户成功</div>
+  </div>
+  <div class="footer-group">
+    <div class="footer-group-title">CR阶段定义</div>
+    <div class="footer-item"><div class="footer-dot" style="background:#ef4444;"></div>CR1 用户名单→市场线索</div>
+    <div class="footer-item"><div class="footer-dot" style="background:#d97706;"></div>CR2 市场线索→准商机</div>
+    <div class="footer-item"><div class="footer-dot" style="background:#7c3aed;"></div>CR3 准商机→行业方案介绍</div>
+    <div class="footer-item"><div class="footer-dot" style="background:#5b21b6;"></div>CR4 行业方案→客户方案→POC→商务谈判</div>
+    <div class="footer-item"><div class="footer-dot" style="background:#0891b2;"></div>CR5 商务谈判后→全面实施交付</div>
+    <div class="footer-item"><div class="footer-dot" style="background:#059669;"></div>CR6 持续价值交付</div>
+    <div class="footer-item"><div class="footer-dot" style="background:#be185d;"></div>CR7 交叉销售</div>
+  </div>
+  <div class="footer-group">
+    <div class="footer-group-title">优先级说明</div>
+    <div class="footer-item"><div class="footer-dot" style="background:#dc2626;"></div>P0 — 高频共识，立即启动</div>
+    <div class="footer-item"><div class="footer-dot" style="background:#d97706;"></div>P1 — 高发痛点，快速跟进</div>
+    <div class="footer-item"><div class="footer-dot" style="background:#3b82f6;"></div>P2 — 有价值，规划建设</div>
+    <div class="footer-item"><div class="footer-dot" style="background:#4da64d;"></div>P3 — 探索研究</div>
+  </div>
+  <div class="footer-group">
+    <div class="footer-group-title">数据来源</div>
+    <div class="footer-item"><div class="footer-dot" style="background:#8b5cf6;"></div>访谈：胡圳山/王迪/朱雪/颜川健（2026.4.14-15）</div>
+    <div class="footer-item"><div class="footer-dot" style="background:#64748b;"></div>问卷：25人（2026.4.14-16）· 6类角色</div>
+  </div>
+</div>
+
+<script>
+function showTab(name) {
+  document.querySelectorAll('.tab-panel').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});
+  document.getElementById('tab-' + name).classList.add('active');
+  event.target.classList.add('active');
+}
+</script>
+</body>
+</html>
