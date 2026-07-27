@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KA参谋长 · 项目试点空间</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+<style>
+  body{font-family:'Noto Sans SC',sans-serif;background:#f6f7f9}
+  .tab-btn{transition:all .2s}
+  .tab-btn.active{background:#7C3AED;color:#fff;box-shadow:0 2px 8px rgba(124,58,237,.3)}
+  .fade-in{animation:fadeIn .4s ease both}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .typing::after{content:'▍';animation:blink 1s infinite;color:#7C3AED}
+  @keyframes blink{50%{opacity:0}}
+  .progress-bar{transition:width .3s ease}
+  .req-card{transition:all .25s}
+  .req-card.accepted{border-color:#10B981;background:#F0FDF4}
+  .req-card.rejected{opacity:.45;border-color:#EF4444}
+  .gauge{transform:rotate(-90deg)}
+  .gauge circle{transition:stroke-dashoffset 1s ease}
+  .toast{animation:toastIn .3s ease both}
+  @keyframes toastIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
+  .modal-bg{background:rgba(15,15,30,.45);backdrop-filter:blur(2px)}
+  .temp-bar{transition:width 1s ease}
+  ::-webkit-scrollbar{width:6px;height:6px}
+  ::-webkit-scrollbar-thumb{background:#d4d4d8;border-radius:3px}
+</style>
+</head>
+<body class="min-h-screen text-gray-800">
+
+<!-- ===== 顶部项目栏 ===== -->
+<header class="bg-white border-b border-gray-200 sticky top-0 z-40">
+  <div class="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-4">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 to-fuchsia-500 flex items-center justify-center text-white text-lg font-bold">参</div>
+      <div>
+        <div class="flex items-center gap-2">
+          <h1 class="font-bold text-base">远航物流集团 · 智能调度平台项目</h1>
+          <span class="text-[11px] px-2 py-0.5 rounded-full bg-violet-100 text-violet-700 font-semibold">CR4 KA攻坚</span>
+          <span class="text-[11px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-semibold">试点项目</span>
+        </div>
+        <p class="text-xs text-gray-500 mt-0.5">KA参谋长智能体（项目专属副本 v3） · 已关联：客户知识空间 / 公司方案库 / 项目群「远航-智能调度项目组」</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-5 text-xs">
+      <div class="text-center"><div class="font-bold text-violet-600 text-sm">83%</div><div class="text-gray-400">需求识别准确率</div></div>
+      <div class="text-center"><div class="font-bold text-violet-600 text-sm">26%</div><div class="text-gray-400">AI 产出修正率</div></div>
+      <div class="text-center"><div class="font-bold text-emerald-600 text-sm">3天</div><div class="text-gray-400">调研→方案周期</div></div>
+      <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 text-xs font-bold">PM</div>
+    </div>
+  </div>
+  <!-- Tab 导航 -->
+  <div class="max-w-7xl mx-auto px-6 pb-3 flex gap-2">
+    <button class="tab-btn active px-4 py-1.5 rounded-full text-sm font-medium bg-gray-100" data-tab="overview" onclick="switchTab('overview')">项目总览</button>
+    <button class="tab-btn px-4 py-1.5 rounded-full text-sm font-medium bg-gray-100" data-tab="research" onclick="switchTab('research')">需求调研</button>
+    <button class="tab-btn px-4 py-1.5 rounded-full text-sm font-medium bg-gray-100" data-tab="solution" onclick="switchTab('solution')">方案输出</button>
+    <button class="tab-btn px-4 py-1.5 rounded-full text-sm font-medium bg-gray-100" data-tab="track" onclick="switchTab('track')">执行跟踪</button>
+    <button class="tab-btn px-4 py-1.5 rounded-full text-sm font-medium bg-gray-100" data-tab="business" onclick="switchTab('business')">客户经营</button>
+  </div>
+</header>
+
+<main class="max-w-7xl mx-auto px-6 py-6">
+
+<!-- ================= Tab 1: 项目总览 ================= -->
+<section id="tab-overview" class="space-y-5">
+  <!-- AI 初始化摘要 -->
+  <div class="bg-white rounded-2xl border border-gray-200 p-5">
+    <div class="flex items-center gap-2 mb-3">
+      <span class="w-6 h-6 rounded-lg bg-violet-600 text-white flex items-center justify-center text-xs">AI</span>
+      <h2 class="font-bold">项目初始化摘要</h2>
+      <span class="text-[11px] text-gray-400">由 KA 参谋长于 07-20 09:12 生成 · 项目经理已确认启动</span>
+    </div>
+    <div class="grid grid-cols-3 gap-4 text-sm">
+      <div class="bg-gray-50 rounded-xl p-4">
+        <div class="text-xs text-gray-400 mb-1 font-semibold">客户背景（CRM + 知识空间）</div>
+        <p class="leading-relaxed text-gray-600">战略级 KA，年合同额 1,200 万，物流行业 Top10。历史合作 2 个项目（仓储数字化、TMS 一期），续约率 100%。本次为智能调度平台新建项目。</p>
+      </div>
+      <div class="bg-gray-50 rounded-xl p-4">
+        <div class="text-xs text-gray-400 mb-1 font-semibold">同类项目最佳实践（公司方案库）</div>
+        <p class="leading-relaxed text-gray-600">命中 3 个同类项目：《顺捷物流智能调度》《云途仓配一体调度》《北斗干线优化》，已关联至本项目知识视图，可用于方案推荐。</p>
+      </div>
+      <div class="bg-gray-50 rounded-xl p-4">
+        <div class="text-xs text-gray-400 mb-1 font-semibold">项目目标</div>
+        <p class="leading-relaxed text-gray-600">4 周内完成需求调研与方案输出，进入 POC 验证；目标调研→方案周期 ≤ 3 天，方案一次通过。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-5">
+    <!-- 建议分工 -->
+    <div class="bg-white rounded-2xl border border-gray-200 p-5">
+      <h3 class="font-bold mb-3 text-sm">AI 建议分工 <span class="text-[11px] font-normal text-gray-400">人已确认</span></h3>
+      <div class="space-y-2.5 text-sm">
+        <div class="flex items-center justify-between py-2 border-b border-gray-100"><div class="flex items-center gap-2"><span class="w-7 h-7 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold">销</span>王磊 · 销售负责人</div><span class="text-xs text-gray-500">执行 AI 建议 + 客户确认</span></div>
+        <div class="flex items-center justify-between py-2 border-b border-gray-100"><div class="flex items-center gap-2"><span class="w-7 h-7 rounded-full bg-violet-100 text-violet-600 flex items-center justify-center text-xs font-bold">研</span>陈静 · 需求调研/解决方案</div><span class="text-xs text-gray-500">审核 AI 产出 + 深度调研</span></div>
+        <div class="flex items-center justify-between py-2 border-b border-gray-100"><div class="flex items-center gap-2"><span class="w-7 h-7 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center text-xs font-bold">项</span>刘洋 · 项目经理</div><span class="text-xs text-gray-500">监督 AI 执行 + 风险决策</span></div>
+        <div class="flex items-center justify-between py-2"><div class="flex items-center gap-2"><span class="w-7 h-7 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs font-bold">交</span>赵敏 · 交付/客成</div><span class="text-xs text-gray-500">确认 AI 产出 + 客户交付</span></div>
+      </div>
+    </div>
+    <!-- 待办 -->
+    <div class="bg-white rounded-2xl border border-gray-200 p-5">
+      <h3 class="font-bold mb-3 text-sm">项目待办 <span class="text-[11px] font-normal text-gray-400">3 条来自群聊自动识别 · 2 条来自智能体产出</span></h3>
+      <div class="space-y-2 text-sm">
+        <div class="flex items-center gap-3 p-2.5 rounded-xl bg-red-50 border border-red-100"><span class="text-[10px] px-1.5 py-0.5 rounded bg-red-500 text-white font-bold">逾期1天</span><span class="flex-1">客户提供现有调度系统数据字典</span><span class="text-xs text-gray-400">赵敏</span></div>
+        <div class="flex items-center gap-3 p-2.5 rounded-xl bg-amber-50 border border-amber-100"><span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-500 text-white font-bold">今日到期</span><span class="flex-1">确认一页纸方案 v3 并定稿</span><span class="text-xs text-gray-400">陈静</span></div>
+        <div class="flex items-center gap-3 p-2.5 rounded-xl border border-gray-100"><span class="text-[10px] px-1.5 py-0.5 rounded bg-gray-400 text-white font-bold">07-29</span><span class="flex-1">安排管理层方案汇报会（AI 已生成邀约函）</span><span class="text-xs text-gray-400">王磊</span></div>
+        <div class="flex items-center gap-3 p-2.5 rounded-xl border border-gray-100"><span class="text-[10px] px-1.5 py-0.5 rounded bg-gray-400 text-white font-bold">07-30</span><span class="flex-1">POC 环境资源申请</span><span class="text-xs text-gray-400">赵敏</span></div>
+        <div class="flex items-center gap-3 p-2.5 rounded-xl border border-gray-100 opacity-60"><span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500 text-white font-bold">已完成</span><span class="flex-1 line-through">需求调研报告确认</span><span class="text-xs text-gray-400">陈静</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= Tab 2: 需求调研 ================= -->
+<section id="tab-research" class="hidden space-y-5">
+  <!-- 步骤条 -->
+  <div class="bg-white rounded-2xl border border-gray-200 px-6 py-4 flex items-center gap-0 text-xs font-medium" id="research-steps">
+    <div class="flex items-center gap-2 text-violet-700" id="rs-1"><span class="w-6 h-6 rounded-full bg-violet-600 text-white flex items-center justify-center text-[11px] font-bold">1</span>纪要导入</div>
+    <div class="w-10 h-px bg-gray-300 mx-2"></div>
+    <div class="flex items-center gap-2 text-gray-400" id="rs-2"><span class="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-[11px] font-bold">2</span>AI 需求提取</div>
+    <div class="w-10 h-px bg-gray-300 mx-2"></div>
+    <div class="flex items-center gap-2 text-gray-400" id="rs-3"><span class="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-[11px] font-bold">3</span>人工审核</div>
+    <div class="w-10 h-px bg-gray-300 mx-2"></div>
+    <div class="flex items-center gap-2 text-gray-400" id="rs-4"><span class="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-[11px] font-bold">4</span>调研报告初稿</div>
+    <div class="w-10 h-px bg-gray-300 mx-2"></div>
+    <div class="flex items-center gap-2 text-gray-400" id="rs-5"><span class="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-[11px] font-bold">5</span>确认定稿</div>
+  </div>
+
+  <div class="grid grid-cols-5 gap-5">
+    <!-- 左：纪要 -->
+    <div class="col-span-2 bg-white rounded-2xl border border-gray-200 p-5 flex flex-col">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="font-bold text-sm">客户访谈纪要</h3>
+        <select class="text-xs border border-gray-200 rounded-lg px-2 py-1.5 text-gray-600" onchange="resetResearch()">
+          <option>07-22 客户高层调研会（已转写）</option>
+          <option>07-24 运营一线访谈（已转写）</option>
+        </select>
+      </div>
+      <div class="flex-1 bg-gray-50 rounded-xl p-4 text-[13px] leading-relaxed text-gray-600 overflow-y-auto max-h-[420px] space-y-3">
+        <p><b>客户（运营总监 张总）：</b>我们现在全国 23 个分拨中心，调度还是靠老师傅经验排线，旺季爆仓时临时调车平均要 4 个小时，客户投诉集中在时效。</p>
+        <p><b>客户（IT 负责人 李工）：</b>现有 TMS 是 5 年前自研的，接口文档不全，新系统必须能对接，数据迁移不能影响日常作业。</p>
+        <p><b>客户（张总）：</b>集团明年要上市，董事会要求降本增效有量化成果，我们希望调度成本降 15%，这个要写进方案目标里。</p>
+        <p><b>我方（陈静）：</b>分拨中心的峰值单量大概是多少？</p>
+        <p><b>客户（张总）：</b>旺季日均 80 万单，是淡季的 3 倍。系统必须扛住峰值，去年双十一我们就宕机过一次。</p>
+        <p><b>客户（财务 王经理）：</b>预算方面，一期控制在 300 万以内，走集团采购流程，需要 POC 验证报告作为立项依据。</p>
+      </div>
+      <button id="btn-analyze" onclick="startAnalysis()" class="mt-4 w-full py-2.5 rounded-xl bg-violet-600 text-white text-sm font-semibold hover:bg-violet-700 transition">▶ 开始 AI 需求分析</button>
+    </div>
+
+    <!-- 右：AI 提取结果 -->
+    <div class="col-span-3 space-y-4">
+      <div id="ai-idle" class="bg-white rounded-2xl border border-dashed border-gray-300 p-10 text-center text-gray-400 text-sm">
+        点击「开始 AI 需求分析」，KA 参谋长将从纪要中提取结构化需求，并关联历史同类项目
+      </div>
+
+      <div id="ai-progress" class="hidden bg-white rounded-2xl border border-gray-200 p-6">
+        <div class="flex items-center gap-2 mb-3">
+          <span class="w-6 h-6 rounded-lg bg-violet-600 text-white flex items-center justify-center text-xs">AI</span>
+          <span class="text-sm font-semibold typing" id="progress-text">正在解析访谈纪要…</span>
+        </div>
+        <div class="w-full h-2 bg-gray-100 rounded-full overflow-hidden"><div id="progress-bar" class="progress-bar h-full bg-gradient-to-r from-violet-500 to-fuchsia-500 rounded-full" style="width:5%"></div></div>
+      </div>
+
+      <div id="req-list" class="space-y-3"></div>
+
+      <!-- 报告初稿 -->
+      <div id="report-box" class="hidden bg-white rounded-2xl border border-gray-200 p-5 fade-in">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-2">
+            <span class="w-6 h-6 rounded-lg bg-violet-600 text-white flex items-center justify-center text-xs">AI</span>
+            <h3 class="font-bold text-sm">需求调研报告（初稿）</h3>
+            <span class="text-[11px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-semibold" id="accuracy-badge">需求识别准确率 83%（5/6 条直接采纳）</span>
+          </div>
+          <button onclick="confirmReport()" id="btn-confirm-report" class="px-4 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-semibold hover:bg-emerald-700">确认定稿 → 进入方案输出</button>
+        </div>
+        <textarea class="w-full h-40 text-[13px] leading-relaxed text-gray-700 bg-gray-50 rounded-xl p-4 border border-gray-100 focus:outline-violet-300">一、业务背景：客户为全国 23 个分拨中心的头部物流企业，旺季日均 80 万单（淡季 3 倍峰值），拟上市，降本增效需量化成果。
+二、核心诉求：1) 智能排线替代人工经验调度，临时调车响应从 4 小时降至 30 分钟内；2) 调度成本降低 15%（写入方案目标）；3) 系统扛住 3 倍峰值。
+三、约束条件：对接现有自研 TMS（接口文档不全，需逆向梳理）；数据迁移不停机；一期预算 ≤ 300 万；需 POC 验证报告支撑集团立项。
+四、关联同类项目：《顺捷物流智能调度》匹配度 92%（同样含 TMS 对接 + 峰值保障场景）。</textarea>
+        <p class="text-[11px] text-gray-400 mt-2">修正内容将被结构化记录，用于每周提示词迭代（试点复盘材料）</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= Tab 3: 方案输出 ================= -->
+<section id="tab-solution" class="hidden space-y-5">
+  <div id="sol-locked" class="bg-white rounded-2xl border border-dashed border-gray-300 p-10 text-center text-gray-400 text-sm">
+    请先在「需求调研」Tab 完成需求确认定稿，方案推荐将基于已确认的需求标签生成
+  </div>
+
+  <div id="sol-main" class="hidden space-y-5">
+    <!-- 方案推荐 -->
+    <div class="grid grid-cols-3 gap-5">
+      <div class="col-span-2 bg-white rounded-2xl border border-gray-200 p-5">
+        <div class="flex items-center gap-2 mb-3">
+          <span class="w-6 h-6 rounded-lg bg-violet-600 text-white flex items-center justify-center text-xs">AI</span>
+          <h3 class="font-bold text-sm">推荐方案框架</h3>
+          <span class="text-[11px] text-gray-400">基于 5 条已确认需求 + 公司方案库 · 检索耗时 8 秒（原人工检索约半天）</span>
+        </div>
+        <div class="grid grid-cols-2 gap-3 text-[13px]">
+          <div class="border border-violet-200 bg-violet-50/50 rounded-xl p-3.5"><div class="font-semibold text-violet-700 mb-1">① 智能排线引擎</div><p class="text-gray-500 leading-relaxed">算法排线替代老师傅经验，匹配「临时调车 4h→30min」诉求</p></div>
+          <div class="border border-violet-200 bg-violet-50/50 rounded-xl p-3.5"><div class="font-semibold text-violet-700 mb-1">② 峰值弹性调度</div><p class="text-gray-500 leading-relaxed">3 倍峰值容量预案，匹配「旺季 80 万单」约束</p></div>
+          <div class="border border-violet-200 bg-violet-50/50 rounded-xl p-3.5"><div class="font-semibold text-violet-700 mb-1">③ TMS 对接适配层</div><p class="text-gray-500 leading-relaxed">逆向梳理接口 + 双轨迁移不停机，复用顺捷项目资产</p></div>
+          <div class="border border-violet-200 bg-violet-50/50 rounded-xl p-3.5"><div class="font-semibold text-violet-700 mb-1">④ 降本度量看板</div><p class="text-gray-500 leading-relaxed">调度成本实时度量，支撑「降本 15%」量化目标汇报</p></div>
+        </div>
+      </div>
+      <div class="bg-white rounded-2xl border border-gray-200 p-5">
+        <h3 class="font-bold text-sm mb-3">Top 3 类似案例 <span class="text-[11px] font-normal text-gray-400">知识库引用溯源</span></h3>
+        <div class="space-y-2.5 text-[13px]">
+          <div class="p-3 rounded-xl border border-gray-100 hover:border-violet-300 cursor-pointer transition"><div class="flex justify-between"><span class="font-semibold">顺捷物流智能调度</span><span class="text-violet-600 font-bold text-xs">92%</span></div><p class="text-xs text-gray-400 mt-1">TMS 对接 + 峰值保障 · 调度成本降 18%</p></div>
+          <div class="p-3 rounded-xl border border-gray-100 hover:border-violet-300 cursor-pointer transition"><div class="flex justify-between"><span class="font-semibold">云途仓配一体调度</span><span class="text-violet-600 font-bold text-xs">85%</span></div><p class="text-xs text-gray-400 mt-1">多分拨中心场景 · 23→17 分拨优化</p></div>
+          <div class="p-3 rounded-xl border border-gray-100 hover:border-violet-300 cursor-pointer transition"><div class="flex justify-between"><span class="font-semibold">北斗干线优化</span><span class="text-violet-600 font-bold text-xs">78%</span></div><p class="text-xs text-gray-400 mt-1">干线排线算法 · 满载率提升 12%</p></div>
+        </div>
+        <button onclick="generateSolution()" id="btn-gen-sol" class="mt-4 w-full py-2.5 rounded-xl bg-violet-600 text-white text-sm font-semibold hover:bg-violet-700 transition">✦ 生成一页纸方案初稿</button>
+      </div>
+    </div>
+
+    <!-- 一页纸方案迭代 -->
+    <div id="sol-version-box" class="hidden bg-white rounded-2xl border border-gray-200 p-5 fade-in">
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-3">
+          <h3 class="font-bold text-sm">一页纸方案</h3>
+          <div class="flex gap-1.5" id="ver-tabs">
+            <button class="ver-tab px-3 py-1 rounded-lg text-xs font-semibold bg-violet-600 text-white" data-v="1" onclick="showVersion(1)">v1 AI 初稿</button>
+            <button class="ver-tab px-3 py-1 rounded-lg text-xs font-semibold bg-gray-100 text-gray-500 hidden" data-v="2" onclick="showVersion(2)">v2 人工修正</button>
+            <button class="ver-tab px-3 py-1 rounded-lg text-xs font-semibold bg-gray-100 text-gray-500 hidden" data-v="3" onclick="showVersion(3)">v3 定稿</button>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="text-[11px] px-2 py-1 rounded-full bg-emerald-100 text-emerald-700 font-semibold" id="fix-rate-badge">人工修正率 26%（≤30% 达标）</span>
+          <button onclick="reviseSolution()" id="btn-revise" class="px-4 py-1.5 rounded-lg bg-amber-500 text-white text-xs font-semibold hover:bg-amber-600">提交人工修正 →</button>
+          <button onclick="finalizeSolution()" id="btn-finalize" class="px-4 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-semibold hover:bg-emerald-700 hidden">定稿并沉淀</button>
+        </div>
+      </div>
+      <div id="sol-content" class="border border-gray-100 rounded-xl p-5 bg-gray-50/50 text-[13px] leading-relaxed"></div>
+      <div id="fix-summary" class="hidden mt-3 p-3.5 rounded-xl bg-amber-50 border border-amber-100 text-xs text-amber-800"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= Tab 4: 执行跟踪 ================= -->
+<section id="tab-track" class="hidden space-y-5">
+  <div class="grid grid-cols-5 gap-5">
+    <!-- 每日早报 -->
+    <div class="col-span-2 bg-white rounded-2xl border border-gray-200 p-5">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-6 h-6 rounded-lg bg-violet-600 text-white flex items-center justify-center text-xs">AI</span>
+        <h3 class="font-bold text-sm">每日早报</h3>
+        <span class="text-[11px] text-gray-400">工作日 9:30 自动推送至项目群</span>
+      </div>
+      <div class="bg-gray-50 rounded-xl p-4 text-[13px] space-y-3 leading-relaxed">
+        <div><div class="font-semibold text-red-600 text-xs mb-1">⚠ 已逾期（1）</div><p class="text-gray-600">客户提供调度系统数据字典 — 赵敏，逾期 1 天</p></div>
+        <div><div class="font-semibold text-amber-600 text-xs mb-1">◷ 今日到期（2）</div><p class="text-gray-600">确认一页纸方案 v3 定稿 — 陈静<br>POC 环境资源申请 — 赵敏</p></div>
+        <div><div class="font-semibold text-emerald-600 text-xs mb-1">✓ 昨日完成（3）</div><p class="text-gray-600">需求调研报告确认 / 方案框架评审 / 类似案例对标</p></div>
+        <div><div class="font-semibold text-gray-700 text-xs mb-1">⚡ 风险关注</div><p class="text-gray-600">TMS 接口文档不全，逆向梳理可能影响 POC 排期（中风险）</p></div>
+      </div>
+    </div>
+    <!-- 里程碑 + 周报 -->
+    <div class="col-span-3 space-y-5">
+      <div class="bg-white rounded-2xl border border-gray-200 p-5">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-bold text-sm">里程碑看板</h3>
+          <span class="text-[11px] text-gray-400">交付物完整性由 AI 自动检查</span>
+        </div>
+        <div class="flex items-center gap-0">
+          <div class="flex-1 text-center"><div class="w-8 h-8 mx-auto rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-bold">✓</div><div class="text-xs mt-2 font-medium">需求调研</div><div class="text-[10px] text-gray-400">07-25 完成</div></div>
+          <div class="flex-1 h-1 bg-emerald-500 rounded -mt-8"></div>
+          <div class="flex-1 text-center"><div class="w-8 h-8 mx-auto rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-bold">✓</div><div class="text-xs mt-2 font-medium">方案输出</div><div class="text-[10px] text-gray-400">07-27 完成 · 周期 3 天</div></div>
+          <div class="flex-1 h-1 bg-violet-400 rounded -mt-8"></div>
+          <div class="flex-1 text-center"><div class="w-8 h-8 mx-auto rounded-full bg-violet-600 text-white flex items-center justify-center text-xs font-bold animate-pulse">3</div><div class="text-xs mt-2 font-medium text-violet-700">POC 验证</div><div class="text-[10px] text-gray-400">进行中 · 缺数据字典</div></div>
+          <div class="flex-1 h-1 bg-gray-200 rounded -mt-8"></div>
+          <div class="flex-1 text-center"><div class="w-8 h-8 mx-auto rounded-full bg-gray-200 text-gray-500 flex items-center justify-center text-xs font-bold">4</div><div class="text-xs mt-2 font-medium text-gray-400">签约交付</div><div class="text-[10px] text-gray-400">预计 09-15</div></div>
+        </div>
+      </div>
+      <div class="bg-white rounded-2xl border border-gray-200 p-5">
+        <div class="flex items-center gap-2 mb-3">
+          <span class="w-6 h-6 rounded-lg bg-violet-600 text-white flex items-center justify-center text-xs">AI</span>
+          <h3 class="font-bold text-sm">项目周报（W4 · 自动生成）</h3>
+          <button class="ml-auto text-xs text-violet-600 font-semibold hover:underline" onclick="showToast('周报已推送至项目群并同步项目经理')">推送 →</button>
+        </div>
+        <div class="grid grid-cols-3 gap-3 text-[13px]">
+          <div class="bg-gray-50 rounded-xl p-3.5"><div class="text-xs text-gray-400 font-semibold mb-1">本周进展</div><p class="text-gray-600 leading-relaxed">需求调研报告定稿（周期 2 天，目标 3 天）；一页纸方案完成 2 轮迭代，修正率 26%</p></div>
+          <div class="bg-gray-50 rounded-xl p-3.5"><div class="text-xs text-gray-400 font-semibold mb-1">风险</div><p class="text-gray-600 leading-relaxed">TMS 接口文档缺失，建议客户安排 IT 对接人驻场 1 天（已生成沟通函）</p></div>
+          <div class="bg-gray-50 rounded-xl p-3.5"><div class="text-xs text-gray-400 font-semibold mb-1">下周计划</div><p class="text-gray-600 leading-relaxed">方案 v3 定稿 → POC 环境搭建 → 管理层汇报会（邀约函已生成）</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= Tab 5: 客户经营 ================= -->
+<section id="tab-business" class="hidden space-y-5">
+  <div class="grid grid-cols-3 gap-5">
+    <!-- 健康度 -->
+    <div class="bg-white rounded-2xl border border-gray-200 p-5 flex flex-col items-center">
+      <h3 class="font-bold text-sm self-start mb-2">客户关系健康度</h3>
+      <div class="relative w-36 h-36 my-2">
+        <svg class="gauge w-36 h-36" viewBox="0 0 120 120">
+          <circle cx="60" cy="60" r="52" fill="none" stroke="#f0f0f2" stroke-width="12"/>
+          <circle id="gauge-arc" cx="60" cy="60" r="52" fill="none" stroke="url(#gg)" stroke-width="12" stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="326.7"/>
+          <defs><linearGradient id="gg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#7C3AED"/><stop offset="100%" stop-color="#EC4899"/></linearGradient></defs>
+        </svg>
+        <div class="absolute inset-0 flex flex-col items-center justify-center"><span class="text-3xl font-black text-violet-700">82</span><span class="text-[11px] text-gray-400">健康 · 较上月 +6</span></div>
+      </div>
+      <div class="w-full space-y-2.5 text-xs mt-2">
+        <div><div class="flex justify-between mb-1"><span class="font-semibold">战略层（董事会/高管）</span><span class="text-emerald-600 font-bold">温度 高</span></div><div class="h-1.5 bg-gray-100 rounded-full"><div class="temp-bar h-full rounded-full bg-emerald-500" style="width:85%"></div></div><p class="text-[10px] text-gray-400 mt-1">依据：上市降本诉求与我司方案强匹配，行业新闻正面</p></div>
+        <div><div class="flex justify-between mb-1"><span class="font-semibold">管理层（运营/IT 总监）</span><span class="text-amber-500 font-bold">温度 中</span></div><div class="h-1.5 bg-gray-100 rounded-full"><div class="temp-bar h-full rounded-full bg-amber-400" style="width:60%"></div></div><p class="text-[10px] text-gray-400 mt-1">依据：近 2 周会议频次 2 次/周，但 IT 侧反馈响应变慢</p></div>
+        <div><div class="flex justify-between mb-1"><span class="font-semibold">执行层（一线调度员）</span><span class="text-gray-500 font-bold">待激活</span></div><div class="h-1.5 bg-gray-100 rounded-full"><div class="temp-bar h-full rounded-full bg-gray-300" style="width:25%"></div></div><p class="text-[10px] text-gray-400 mt-1">依据：POC 未开始，暂无使用数据 — 建议 POC 期埋点跟踪</p></div>
+      </div>
+    </div>
+
+    <!-- 销售动作指引 -->
+    <div class="bg-white rounded-2xl border border-gray-200 p-5">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-6 h-6 rounded-lg bg-violet-600 text-white flex items-center justify-center text-xs">AI</span>
+        <h3 class="font-bold text-sm">销售动作主动指引</h3>
+        <span class="text-[11px] text-gray-400">按 CR4 阶段标准化动作库</span>
+      </div>
+      <div class="space-y-3 text-[13px]">
+        <div class="p-3.5 rounded-xl border border-violet-200 bg-violet-50/50">
+          <div class="flex items-center justify-between"><span class="font-semibold text-violet-800">本周建议：安排管理层方案汇报会</span><span class="text-[10px] px-1.5 py-0.5 rounded bg-violet-600 text-white font-bold">优先</span></div>
+          <p class="text-xs text-gray-500 mt-1.5 leading-relaxed">方案 v3 已定稿，CR4→CR5 关键动作。建议参会：客户运营总监 + IT 负责人 + 财务经理。</p>
+          <button onclick="openModal('invite')" class="mt-2.5 text-xs px-3 py-1.5 rounded-lg bg-violet-600 text-white font-semibold hover:bg-violet-700">✦ 已生成邀约函 · 点击查看</button>
+        </div>
+        <div class="p-3.5 rounded-xl border border-gray-100">
+          <span class="font-semibold">IT 侧关系升温：安排技术对接驻场日</span>
+          <p class="text-xs text-gray-500 mt-1.5 leading-relaxed">管理层温度「中」且 IT 反馈变慢，借 TMS 接口梳理安排驻场，同时推进交付 + 关系经营。</p>
+          <button onclick="showToast('已创建待办并 @王磊，截止 07-29')" class="mt-2.5 text-xs px-3 py-1.5 rounded-lg border border-violet-300 text-violet-600 font-semibold hover:bg-violet-50">转为待办</button>
+        </div>
+        <div class="p-3.5 rounded-xl border border-gray-100">
+          <span class="font-semibold">准备 POC 立项汇报材料（财务关注点）</span>
+          <p class="text-xs text-gray-500 mt-1.5 leading-relaxed">客户需 POC 报告支撑集团立项，提前准备降本测算模型。</p>
+          <button onclick="showToast('已创建待办并 @陈静，截止 07-31')" class="mt-2.5 text-xs px-3 py-1.5 rounded-lg border border-violet-300 text-violet-600 font-semibold hover:bg-violet-50">转为待办</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 增购推荐 -->
+    <div class="bg-white rounded-2xl border border-gray-200 p-5">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-6 h-6 rounded-lg bg-fuchsia-500 text-white flex items-center justify-center text-xs">AI</span>
+        <h3 class="font-bold text-sm">增购机会挖掘</h3>
+        <span class="text-[11px] text-gray-400">监听客户业务变化</span>
+      </div>
+      <div class="space-y-3 text-[13px]">
+        <div class="p-3.5 rounded-xl border border-fuchsia-200 bg-fuchsia-50/50">
+          <div class="flex items-center justify-between"><span class="font-semibold text-fuchsia-800">信号：客户宣布东南亚扩张计划</span><span class="text-[10px] px-1.5 py-0.5 rounded bg-fuchsia-500 text-white font-bold">新</span></div>
+          <p class="text-xs text-gray-500 mt-1.5 leading-relaxed">来源：行业新闻 07-25。匹配方案：《跨境干线调度扩展包》，顺捷项目已验证。</p>
+          <button onclick="showToast('已推送至王磊（销售负责人）待办与私聊')" class="mt-2.5 text-xs px-3 py-1.5 rounded-lg bg-fuchsia-500 text-white font-semibold hover:bg-fuchsia-600">推送给销售 →</button>
+        </div>
+        <div class="p-3.5 rounded-xl border border-gray-100">
+          <span class="font-semibold">信号：集团上市进程（降本 KPI 加码）</span>
+          <p class="text-xs text-gray-500 mt-1.5 leading-relaxed">匹配方案：《降本度量看板》增购模块，可作为一期增值项报价。</p>
+          <button onclick="showToast('已推送至王磊（销售负责人）待办与私聊')" class="mt-2.5 text-xs px-3 py-1.5 rounded-lg border border-fuchsia-300 text-fuchsia-600 font-semibold hover:bg-fuchsia-50">推送给销售 →</button>
+        </div>
+      </div>
+      <div class="mt-4 pt-4 border-t border-gray-100">
+        <h4 class="text-xs font-bold text-gray-500 mb-2">风险预警</h4>
+        <div class="p-3 rounded-xl bg-red-50 border border-red-100 text-xs text-red-700 leading-relaxed">⚠ 续费风险（低）：当前项目健康，但 IT 侧关系温度下降若持续 2 周，将升级为中级预警并通知项目经理。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ===== 邀约函弹窗 ===== -->
+<div id="modal-invite" class="hidden fixed inset-0 z-50 modal-bg flex items-center justify-center p-6" onclick="if(event.target===this)closeModal('invite')">
+  <div class="bg-white rounded-2xl max-w-lg w-full p-6 fade-in">
+    <div class="flex items-center justify-between mb-4">
+      <div class="flex items-center gap-2"><span class="w-6 h-6 rounded-lg bg-violet-600 text-white flex items-center justify-center text-xs">AI</span><h3 class="font-bold text-sm">管理层方案汇报会 · 邀约函（AI 生成）</h3></div>
+      <button onclick="closeModal('invite')" class="text-gray-400 hover:text-gray-600 text-lg">✕</button>
+    </div>
+    <div class="bg-gray-50 rounded-xl p-4 text-[13px] leading-relaxed text-gray-700">
+      <p>张总、李工、王经理，您好：</p>
+      <p class="mt-2">基于前两次调研，我们已完成《远航智能调度平台方案》的定稿。方案围绕三个核心目标展开：<b>临时调车响应 4 小时 → 30 分钟、调度成本降低 15%、支撑旺季 3 倍峰值</b>。</p>
+      <p class="mt-2">诚邀各位参加方案汇报会（建议 45 分钟），现场将同步 POC 验证计划与集团立项所需材料清单。</p>
+      <p class="mt-2">建议时间：7 月 30 日（周三）14:00 · 贵司 3 号会议室</p>
+    </div>
+    <div class="flex gap-3 mt-4">
+      <button onclick="closeModal('invite');showToast('邀约函已发送至项目群，@王磊 确认后发出')" class="flex-1 py-2.5 rounded-xl bg-violet-600 text-white text-sm font-semibold hover:bg-violet-700">发送至项目群确认</button>
+      <button onclick="showToast('已复制到剪贴板')" class="px-5 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50">复制</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="hidden fixed top-5 left-1/2 -translate-x-1/2 z-50 toast bg-gray-900 text-white text-sm px-5 py-2.5 rounded-xl shadow-lg"></div>
+
+<footer class="fixed bottom-0 right-0 p-2 text-xs text-gray-400">v01 · 更新于 2026-07-27</footer>
+
+<script>
+/* ===== Tab 切换 ===== */
+function switchTab(name){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active', b.dataset.tab===name));
+  ['overview','research','solution','track','business'].forEach(t=>{
+    document.getElementById('tab-'+t).classList.toggle('hidden', t!==name);
+  });
+  if(name==='business') setTimeout(()=>{document.getElementById('gauge-arc').style.strokeDashoffset = 326.7*(1-0.82);},100);
+}
+
+/* ===== Toast / Modal ===== */
+let toastTimer;
+function showToast(msg){
+  const t=document.getElementById('toast'); t.textContent=msg; t.classList.remove('hidden');
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.add('hidden'),2600);
+}
+function openModal(id){document.getElementById('modal-'+id).classList.remove('hidden')}
+function closeModal(id){document.getElementById('modal-'+id).classList.add('hidden')}
+
+/* ===== 需求调研流程 ===== */
+const requirements=[
+  {tag:'业务诉求',text:'智能排线替代人工经验调度，临时调车响应 4小时 → 30分钟内',src:'纪要第1段 · 张总',conf:'高把握'},
+  {tag:'量化目标',text:'调度成本降低 15%（写入方案目标，对齐上市降本要求）',src:'纪要第3段 · 张总',conf:'高把握'},
+  {tag:'性能约束',text:'支撑旺季日均 80 万单（3 倍峰值），杜绝宕机',src:'纪要第5段 · 张总',conf:'高把握'},
+  {tag:'集成约束',text:'对接现有自研 TMS，接口文档不全需逆向梳理，迁移不停机',src:'纪要第2段 · 李工',conf:'高把握'},
+  {tag:'预算约束',text:'一期预算 ≤ 300 万，走集团采购流程',src:'纪要第6段 · 王经理',conf:'高把握'},
+  {tag:'流程要求',text:'需 POC 验证报告作为集团立项依据',src:'纪要第6段 · 王经理',conf:'中把握'}
+];
+const progressSteps=['正在解析访谈纪要…','正在提取结构化需求…','正在关联历史同类项目…','命中《顺捷物流智能调度》等 3 个案例','提取完成，请人工审核'];
+let accepted=0, rejected=0;
+
+function startAnalysis(){
+  document.getElementById('btn-analyze').disabled=true;
+  document.getElementById('btn-analyze').classList.add('opacity-50');
+  document.getElementById('ai-idle').classList.add('hidden');
+  document.getElementById('ai-progress').classList.remove('hidden');
+  setStep(2);
+  let i=0;
+  const bar=document.getElementById('progress-bar'), txt=document.getElementById('progress-text');
+  const iv=setInterval(()=>{
+    txt.textContent=progressSteps[i]; bar.style.width=(8+i*22)+'%';
+    i++;
+    if(i>=progressSteps.length){
+      clearInterval(iv);
+      document.getElementById('ai-progress').classList.add('hidden');
+      setStep(3);
+      renderRequirements();
+    }
+  },650);
+}
+
+function renderRequirements(){
+  const list=document.getElementById('req-list'); list.innerHTML='';
+  requirements.forEach((r,idx)=>{
+    setTimeout(()=>{
+      const el=document.createElement('div');
+      el.className='req-card fade-in bg-white rounded-2xl border border-gray-200 p-4 flex items-start gap-3';
+      el.id='req-'+idx;
+      el.innerHTML=`
+        <span class="shrink-0 text-[10px] px-2 py-1 rounded-lg font-bold ${r.conf==='高把握'?'bg-violet-100 text-violet-700':'bg-amber-100 text-amber-700'}">${r.tag}</span>
+        <div class="flex-1">
+          <p class="text-[13px] font-medium leading-relaxed">${r.text}</p>
+          <p class="text-[11px] text-gray-400 mt-1">来源引用：${r.src} · ${r.conf}</p>
+        </div>
+        <div class="flex gap-1.5 shrink-0">
+          <button onclick="judge(${idx},true)" class="px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-semibold hover:bg-emerald-700">接受</button>
+          <button onclick="judge(${idx},false)" class="px-3 py-1.5 rounded-lg border border-gray-200 text-gray-500 text-xs font-semibold hover:bg-gray-50">驳回</button>
+        </div>`;
+      list.appendChild(el);
+    }, idx*220);
+  });
+}
+
+function judge(idx, ok){
+  const el=document.getElementById('req-'+idx);
+  if(el.dataset.done) return;
+  el.dataset.done='1';
+  el.classList.add(ok?'accepted':'rejected');
+  el.querySelectorAll('button').forEach(b=>b.disabled=true);
+  ok?accepted++:rejected++;
+  if(accepted+rejected===requirements.length){
+    setStep(4);
+    setTimeout(()=>{document.getElementById('report-box').classList.remove('hidden');},400);
+  }
+}
+
+function confirmReport(){
+  setStep(5);
+  document.getElementById('btn-confirm-report').disabled=true;
+  document.getElementById('btn-confirm-report').textContent='✓ 已定稿 · 沉淀至项目空间 + 客户知识空间';
+  document.getElementById('btn-confirm-report').className='px-4 py-1.5 rounded-lg bg-emerald-100 text-emerald-700 text-xs font-semibold';
+  document.getElementById('sol-locked').classList.add('hidden');
+  document.getElementById('sol-main').classList.remove('hidden');
+  showToast('需求调研报告已定稿并沉淀，方案推荐已就绪 → 切换到「方案输出」');
+}
+
+function setStep(n){
+  for(let i=1;i<=5;i++){
+    const el=document.getElementById('rs-'+i);
+    const done=i<n, cur=i===n;
+    el.className='flex items-center gap-2 '+(done?'text-emerald-600':cur?'text-violet-700':'text-gray-400');
+    el.querySelector('span').className='w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold '+(done?'bg-emerald-500 text-white':cur?'bg-violet-600 text-white':'bg-gray-200');
+    if(done) el.querySelector('span').textContent='✓';
+  }
+}
+
+function resetResearch(){
+  accepted=0;rejected=0;
+  document.getElementById('req-list').innerHTML='';
+  document.getElementById('report-box').classList.add('hidden');
+  document.getElementById('ai-idle').classList.remove('hidden');
+  const b=document.getElementById('btn-analyze'); b.disabled=false; b.classList.remove('opacity-50');
+  setStep(1);
+}
+
+/* ===== 方案输出 ===== */
+const versions={
+  1:{html:`<b>远航物流智能调度平台方案（v1 · AI 初稿）</b><br><br>
+    <b>目标：</b>智能排线替代人工调度，调车响应 4h→30min；调度成本降 15%；支撑旺季 3 倍峰值。<br><br>
+    <b>方案构成：</b>① 智能排线引擎 ② 峰值弹性调度 ③ TMS 对接适配层 ④ 降本度量看板。<br><br>
+    <b>实施路径：</b>POC 验证（2 周，2 个分拨中心）→ 一期上线（全国 23 分拨，8 周）。<br><br>
+    <b>参考案例：</b>顺捷物流（成本降 18%）、云途仓配。<br><br>
+    <b>报价：</b>一期 280 万。`},
+  2:{html:`<b>远航物流智能调度平台方案（v2 · 人工修正）</b><br><br>
+    <b>目标：</b>智能排线替代人工调度，调车响应 4h→30min；调度成本降 15%<span class="bg-amber-100 px-1 rounded">（按财年分季度验收：Q1 8% / Q2 15%）</span>；支撑旺季 3 倍峰值。<br><br>
+    <b>方案构成：</b>① 智能排线引擎 ② 峰值弹性调度 ③ TMS 对接适配层<span class="bg-amber-100 px-1 rounded">（含接口逆向梳理专项 2 周）</span> ④ 降本度量看板。<br><br>
+    <b>实施路径：</b>POC 验证（2 周，2 个分拨中心）→ 一期上线<span class="bg-amber-100 px-1 rounded">（先 8 个核心分拨 4 周，再全量 8 周，避开双十一）</span>。<br><br>
+    <b>参考案例：</b>顺捷物流（成本降 18%）、云途仓配。<br><br>
+    <b>报价：</b>一期 280 万<span class="bg-amber-100 px-1 rounded">（含 POC 免费，签约后抵扣）</span>。`},
+  3:{html:`<b>远航物流智能调度平台方案（v3 · 定稿）</b><br><br>
+    <b>目标：</b>智能排线替代人工调度，调车响应 4h→30min；调度成本按财年分季度验收（Q1 8% / Q2 15%）；支撑旺季 3 倍峰值（SLA 99.95%）。<br><br>
+    <b>方案构成：</b>① 智能排线引擎 ② 峰值弹性调度 ③ TMS 对接适配层（含接口逆向梳理专项 2 周） ④ 降本度量看板。<br><br>
+    <b>实施路径：</b>POC 验证（2 周，2 个分拨中心，免费）→ 一期先 8 个核心分拨（4 周）→ 全量 23 分拨（8 周，避开双十一）。<br><br>
+    <b>立项支持：</b>POC 报告含降本测算模型，直接支撑集团采购立项。<br><br>
+    <b>报价：</b>一期 280 万（POC 免费，签约后抵扣）。`}
+};
+const fixSummaries={
+  2:'本轮人工修正 4 处（修正率 26%）：① 降本目标拆分为分季度验收 ② 增加接口逆向专项周期 ③ 实施节奏避开双十一 ④ POC 免费策略。修正点已结构化记录，将用于提示词迭代。',
+  3:'本轮人工修正 2 处（修正率 11%）：补充峰值 SLA 指标与立项支持说明。迭代 2 轮即定稿，符合「迭代 ≤ 3 次」试点指标。'
+};
+let curVer=1;
+
+function generateSolution(){
+  document.getElementById('btn-gen-sol').disabled=true;
+  document.getElementById('btn-gen-sol').textContent='生成中…';
+  setTimeout(()=>{
+    document.getElementById('sol-version-box').classList.remove('hidden');
+    showVersion(1);
+    showToast('一页纸方案 v1 已生成（引用知识库 4 篇文档）');
+  },1200);
+}
+
+function showVersion(v){
+  curVer=v;
+  document.querySelectorAll('.ver-tab').forEach(b=>{
+    const active=+b.dataset.v===v;
+    b.className='ver-tab px-3 py-1 rounded-lg text-xs font-semibold '+(active?'bg-violet-600 text-white':'bg-gray-100 text-gray-500');
+  });
+  document.getElementById('sol-content').innerHTML=versions[v].html;
+  const fs=document.getElementById('fix-summary');
+  if(fixSummaries[v]){fs.innerHTML='🔍 '+fixSummaries[v];fs.classList.remove('hidden');}else{fs.classList.add('hidden');}
+  document.getElementById('btn-revise').classList.toggle('hidden', v>=3);
+  document.getElementById('btn-finalize').classList.toggle('hidden', v<3);
+  document.getElementById('fix-rate-badge').textContent = v===1?'待人工审核':v===2?'人工修正率 26%（≤30% 达标）':'人工修正率 11% · 已达标';
+}
+
+function reviseSolution(){
+  const next=curVer+1;
+  const tab=document.querySelector(`.ver-tab[data-v="${next}"]`);
+  tab.classList.remove('hidden');
+  showVersion(next);
+  showToast(`已合并陈静的修正意见，生成 v${next}`);
+}
+
+function finalizeSolution(){
+  document.getElementById('btn-finalize').disabled=true;
+  document.getElementById('btn-finalize').textContent='✓ 已定稿沉淀';
+  document.getElementById('btn-finalize').className='px-4 py-1.5 rounded-lg bg-emerald-100 text-emerald-700 text-xs font-semibold';
+  showToast('方案已沉淀：项目空间 + 公司知识库（待审核入库）+ 客户知识空间');
+}
+</script>
+</body>
+</html>
