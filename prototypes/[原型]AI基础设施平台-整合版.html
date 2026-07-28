@@ -313,6 +313,7 @@
     <span class="font-bold text-[15px]">罗紫函 的 AI 工作台</span>
     <span class="text-[11px] text-gray-400 ml-2">🌱 专注当下，成就卓越。</span>
     <div class="ml-auto flex items-center gap-3">
+      <button class="text-xs text-violet-600 font-semibold hover:underline" onclick="openDash()">📊 经营看板</button>
       <button class="text-xs text-gray-500 hover:text-violet-600" onclick="gotoPlatform()">⚙ 智能体平台 ↗</button>
       <span class="w-7 h-7 rounded-full bg-violet-100 text-violet-700 flex items-center justify-center text-xs font-bold">L</span>
     </div>
@@ -332,7 +333,7 @@
       <!-- 应用标签行 -->
       <div class="flex items-center gap-2 px-4 py-2.5 border-b border-gray-50 overflow-x-auto shrink-0">
         <div id="wb-app-chips" class="flex items-center gap-2"></div>
-        <button class="ml-auto shrink-0 text-xs px-3 py-1.5 rounded-lg border border-gray-200 text-gray-500 hover:border-violet-300 hover:text-violet-600" onclick="toast('选择应用（示意，可在我的空间添加）')">+ 选择</button>
+        <button class="ml-auto shrink-0 text-xs px-3 py-1.5 rounded-lg border border-gray-200 text-gray-500 hover:border-violet-300 hover:text-violet-600" onclick="openAddApp()">+ 选择</button>
         <button class="shrink-0 text-xs px-3 py-1.5 rounded-lg bg-gray-900 text-white" onclick="toast('AI能力广场（示意）')">⚡ 探索（AI能力广场）</button>
       </div>
       <!-- 快捷动作 -->
@@ -409,11 +410,6 @@
             <div class="flex items-center justify-between mb-2"><span class="text-[13px] font-bold">📁 项目空间</span><span class="text-[10.5px] text-gray-400">按我的授权显示</span></div>
             <div class="space-y-2" id="wb-project-list"></div>
           </div>
-          <!-- 我的应用 -->
-          <div class="card p-3.5">
-            <div class="flex items-center justify-between mb-2"><span class="text-[13px] font-bold">🧩 我的应用</span><button class="text-[11px] text-violet-600 font-semibold" onclick="openAddApp()">+ 添加应用</button></div>
-            <div class="flex flex-wrap gap-2" id="wb-myapps"></div>
-          </div>
           <!-- 生成的文档 -->
           <div class="card p-3.5">
             <div class="text-[13px] font-bold mb-2">📄 生成的文档</div>
@@ -451,17 +447,31 @@
 <!-- ===== 添加应用弹窗 ===== -->
 <div id="modal-addapp" class="hidden fixed inset-0 z-50 modal-bg flex items-center justify-center" onclick="if(event.target===this)closeAddApp()">
   <div class="bg-white rounded-2xl w-[440px] p-6 fade-in">
-    <div class="flex items-center justify-between mb-1"><h3 class="font-bold">添加应用到工作台</h3><button class="text-gray-400 hover:text-gray-600" onclick="closeAddApp()">✕</button></div>
-    <p class="text-[11.5px] text-gray-400 mb-4">从智能体平台已发布的应用中选择，添加后出现在会话应用栏</p>
+    <div class="flex items-center justify-between mb-1"><h3 class="font-bold">选择智能体应用</h3><button class="text-gray-400 hover:text-gray-600" onclick="closeAddApp()">✕</button></div>
+    <p class="text-[11.5px] text-gray-400 mb-4">勾选后出现在左侧会话应用栏，点击标签即可切换当前智能体</p>
     <div class="space-y-2 max-h-72 overflow-y-auto" id="addapp-list"></div>
-    <button class="btn-p w-full mt-4" onclick="confirmAddApp()">确认添加</button>
+    <button class="btn-p w-full mt-4" onclick="confirmAddApp()">确认</button>
+  </div>
+</div>
+
+<!-- ===== 经营看板聚合页 ===== -->
+<div id="view-dash" class="hidden fixed inset-0 z-[55] bg-white flex flex-col fade-in">
+  <header class="flex items-center gap-3 px-5 py-3 border-b border-gray-100 shrink-0">
+    <button class="text-xs px-3 py-1.5 rounded-lg border border-gray-200 text-gray-500 hover:border-violet-300 hover:text-violet-600" onclick="closeDash()">← 返回工作台</button>
+    <span class="font-bold text-[15px]">📊 经营看板 · 聚合视图</span>
+    <span class="text-[11px] text-gray-400">统一对接形式：提供 HTML 地址即可接入看板</span>
+    <button class="ml-auto text-xs px-3 py-1.5 rounded-lg bg-gray-900 text-white" onclick="toast('录入看板名称与 HTML 地址即可接入（示意）')">+ 对接新看板</button>
+  </header>
+  <div class="flex flex-1 overflow-hidden">
+    <aside class="w-64 shrink-0 border-r border-gray-100 overflow-y-auto p-4 space-y-5" id="dash-nav"></aside>
+    <main class="flex-1 bg-gray-50"><iframe id="dash-frame" class="w-full h-full border-0" title="经营看板"></iframe></main>
   </div>
 </div>
 
 <!-- Toast -->
 <div id="toast" class="hidden fixed top-5 left-1/2 -translate-x-1/2 z-[60] toast bg-gray-900 text-white text-[13px] px-5 py-2.5 rounded-xl shadow-lg"></div>
 
-<footer class="fixed bottom-1 right-2 text-[10px] text-gray-300 z-[60]">v02 · 更新于 2026-07-28</footer>
+<footer class="fixed bottom-1 right-2 text-[10px] text-gray-300 z-[60]">v03 · 更新于 2026-07-28</footer>
 
 <script>
 /* ================= 数据 ================= */
@@ -498,7 +508,7 @@ const wbDocs=[
 ];
 const capSkills=[['上传文件到飞书空间','上传深度智能体生成的文件到飞书云文档，并分享给当前对话的用户'],['发送飞书消息','用户需求中提到"给某人推送消息"时调用，收件人可填中文名或账号名'],['知识库文档自动添加（需人工确认）','将生成的文档添加到指定知识库或客户知识空间，需要人工确认'],['语音识别','根据用户提供的语音文件识别其内容'],['解析图片内容','根据描述提取、解析图片内容']];
 const pdSkills=['调研方案生成','需求解决方案','POC 报告','任务拆解','每周分析总结','文档处理（标准）'];
-let curProject=null, resTab='custom', addedAppSel=new Set();
+let curProject=null, resTab='custom', addedAppSel=new Set(), currentAgent='路书（销售AI）';
 
 /* ================= 视图切换 ================= */
 function gotoWorkbench(){document.getElementById('view-platform').classList.add('hidden');document.getElementById('view-workbench').classList.remove('hidden');renderWbAll()}
@@ -718,12 +728,15 @@ function pdUpdate(ok){
 }
 
 /* ================= AI 工作台 ================= */
-function renderWbAll(){renderAppChips();renderQuickActions();renderCapSkills();renderWbProjects();renderMyApps();renderWbDocs();document.getElementById('cap-proj-name').textContent=curProject?(' · '+curProject.customer):''}
+function renderWbAll(){renderAppChips();renderQuickActions();renderCapSkills();renderWbProjects();renderWbDocs();document.getElementById('cap-proj-name').textContent=curProject?(' · '+curProject.customer):''}
 function renderAppChips(){
-  document.getElementById('wb-app-chips').innerHTML=myApps.map((a,i)=>`
-    <span class="app-chip ${i===0?'!border-violet-300 !bg-violet-50 !text-violet-700':''}">${a}<button onclick="removeApp(${i})">✕</button></span>`).join('');
-  document.getElementById('wb-agent-name').textContent=curProject?'KA 主理智能体':myApps[0]||'智能体';
+  const list=(curProject?['KA 主理智能体']:[]).concat(myApps);
+  if(!list.includes(currentAgent))currentAgent=list[0]||'智能体';
+  document.getElementById('wb-app-chips').innerHTML=list.map(a=>`
+    <span class="app-chip cursor-pointer ${a===currentAgent?'!border-violet-300 !bg-violet-50 !text-violet-700':''}" onclick="switchAgent('${a}')">${a==='KA 主理智能体'?'👑 ':'🤖 '}${a}</span>`).join('');
+  document.getElementById('wb-agent-name').textContent=currentAgent;
 }
+function switchAgent(a){currentAgent=a;renderAppChips();toast(`已切换至「${a}」`)}
 function renderQuickActions(){
   const qa=curProject?['生成调研报告','推荐方案框架','生成一页纸方案','查询项目进展']:['生成拜访前简报','生成拜访复盘报告'];
   document.getElementById('wb-quick-actions').innerHTML=qa.map(q=>`<button class="text-[11.5px] px-3 py-1.5 rounded-lg border border-gray-200 text-gray-500 hover:border-violet-300 hover:text-violet-600" onclick="wbQuick('${q}')">📄 ${q}</button>`).join('');
@@ -739,9 +752,6 @@ function renderWbProjects(){
     <div class="flex items-center gap-3 text-[10.5px] text-gray-400 mt-1.5"><span>我的角色：项目经理</span><span>待办 ${p.todos}</span>${p.risk?`<span class="text-red-500">风险 ${p.risk}</span>`:''}</div>
     <button class="btn-p !py-1 !px-3 text-[11px] mt-2 w-full" onclick="enterProjectWb(${p.id})">${curProject&&curProject.id===p.id?'当前项目 ✓':'进入项目 →'}</button>
   </div>`).join('');
-}
-function renderMyApps(){
-  document.getElementById('wb-myapps').innerHTML=myApps.map((a,i)=>`<span class="app-chip !bg-gray-50">${a}<button onclick="removeApp(${i})">✕</button></span>`).join('')||'<span class="text-[11px] text-gray-400">尚未添加应用</span>';
 }
 function renderWbDocs(){
   document.getElementById('wb-doc-list').innerHTML=wbDocs.map(d=>`
@@ -761,6 +771,7 @@ function showTtab(t){
 }
 function enterProjectWb(id){
   curProject=projects.find(p=>p.id===id);
+  currentAgent='KA 主理智能体';
   gotoWorkbench();
   document.getElementById('wb-proj-banner').classList.remove('hidden');
   document.getElementById('wb-proj-name').textContent=curProject.name;
@@ -770,16 +781,17 @@ function enterProjectWb(id){
 }
 function exitProject(){
   curProject=null;
+  currentAgent=myApps[0]||'智能体';
   document.getElementById('wb-proj-banner').classList.add('hidden');
   document.getElementById('wb-welcome').textContent='你好，我是销售专家，你的工作好帮手。';
   renderWbAll();
 }
-/* 添加应用 */
+/* 选择智能体应用 */
 function openAddApp(){
-  addedAppSel=new Set();
-  document.getElementById('addapp-list').innerHTML=allApps.filter(a=>!myApps.includes(a)).map(a=>`
+  addedAppSel=new Set(myApps);
+  document.getElementById('addapp-list').innerHTML=allApps.map(a=>`
     <label class="flex items-center gap-3 p-3 rounded-xl border border-gray-100 hover:border-violet-300 cursor-pointer">
-      <input type="checkbox" class="accent-violet-600" value="${a}" onchange="this.checked?addedAppSel.add('${a}'):addedAppSel.delete('${a}')">
+      <input type="checkbox" class="accent-violet-600" value="${a}" ${myApps.includes(a)?'checked':''} onchange="this.checked?addedAppSel.add('${a}'):addedAppSel.delete('${a}')">
       <span class="w-7 h-7 rounded-lg bg-violet-50 flex items-center justify-center text-sm">🤖</span>
       <span class="text-[13px] font-medium">${a}</span>
       <span class="ml-auto tag bg-emerald-100 text-emerald-700">已发布</span>
@@ -788,11 +800,10 @@ function openAddApp(){
 }
 function closeAddApp(){document.getElementById('modal-addapp').classList.add('hidden')}
 function confirmAddApp(){
-  if(!addedAppSel.size){toast('请先勾选要添加的应用');return}
-  myApps=myApps.concat([...addedAppSel]);closeAddApp();renderAppChips();renderMyApps();
-  toast(`已添加 ${addedAppSel.size} 个应用到工作台`);
+  if(!addedAppSel.size){toast('请至少保留一个智能体应用');return}
+  myApps=myApps.filter(a=>addedAppSel.has(a)).concat([...addedAppSel].filter(a=>!myApps.includes(a)));
+  closeAddApp();renderAppChips();toast('会话应用栏已更新');
 }
-function removeApp(i){const n=myApps.splice(i,1)[0];renderAppChips();renderMyApps();toast(`已移除应用「${n}」`)}
 /* 会话 */
 function wbQuick(q){document.getElementById('wb-input').value=q;wbSend()}
 function wbSend(){
@@ -800,7 +811,7 @@ function wbSend(){
   const chat=document.getElementById('wb-chat');
   chat.insertAdjacentHTML('beforeend',`<div class="flex gap-3 mb-4 flex-row-reverse"><div class="w-8 h-8 rounded-full bg-violet-600 text-white flex items-center justify-center shrink-0 text-sm">罗</div><div class="bg-violet-600 text-white rounded-xl rounded-tr-none px-4 py-3 text-[13px] max-w-lg">${v}</div></div>`);
   const tid='wbt-'+Date.now();
-  chat.insertAdjacentHTML('beforeend',`<div class="flex gap-3 mb-4" id="${tid}"><div class="w-8 h-8 rounded-full bg-violet-100 flex items-center justify-center shrink-0 text-sm">🤖</div><div><div class="text-[11px] text-gray-400 mb-1">${curProject?'KA 主理智能体':myApps[0]||'智能体'} 刚刚</div><div class="bg-gray-50 rounded-xl rounded-tl-none px-4 py-3 text-[13px] text-gray-700 max-w-lg typing">正在基于${curProject?'项目统一上下文':'可用知识库'}处理…</div></div></div>`);
+  chat.insertAdjacentHTML('beforeend',`<div class="flex gap-3 mb-4" id="${tid}"><div class="w-8 h-8 rounded-full bg-violet-100 flex items-center justify-center shrink-0 text-sm">🤖</div><div><div class="text-[11px] text-gray-400 mb-1">${currentAgent} 刚刚</div><div class="bg-gray-50 rounded-xl rounded-tl-none px-4 py-3 text-[13px] text-gray-700 max-w-lg typing">正在基于${curProject?'项目统一上下文':'可用知识库'}处理…</div></div></div>`);
   chat.scrollTop=chat.scrollHeight;
   setTimeout(()=>{
     const reply=curProject
@@ -815,6 +826,32 @@ function wbTaskDone(btn){
   const card=btn.closest('.card');card.style.opacity=.45;
   card.querySelectorAll('button').forEach(b=>b.disabled=true);
   toast('已完成，状态已同步飞书待办与项目任务清单');
+}
+
+/* ================= 经营看板聚合 ================= */
+let dashSel={g:0,i:0};
+const KA_DASH_SRC=encodeURIComponent('[原型]KA参谋长-项目试点空间.html');
+function dashSrcdoc(t,sub,rows){return `<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{font-family:'PingFang SC','Microsoft YaHei',sans-serif;margin:0;padding:32px;background:#f9fafb;color:#1f2937}h1{font-size:20px;margin:0}.sub{font-size:12px;color:#9ca3af;margin:6px 0 24px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.card{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:16px}.k{font-size:12px;color:#6b7280}.v{font-size:24px;font-weight:800;color:#7C3AED;margin-top:6px}.d{font-size:11px;color:#9ca3af;margin-top:4px}</style></head><body><h1>${t}</h1><p class="sub">${sub} · 示意看板（对接 HTML 后即真实数据）</p><div class="grid">${rows.map(r=>`<div class="card"><div class="k">${r[0]}</div><div class="v">${r[1]}</div><div class="d">${r[2]}</div></div>`).join('')}</div></body></html>`}
+function dashGroups(){return [
+  {title:'项目经营看板',items:projects.map(p=>({name:p.customer,tag:p.stage.split(' ')[0],src:p.id===1?KA_DASH_SRC:null}))},
+  {title:'业务系统看板',items:[{name:'任务中心看板 · CRM',tag:'CRM',crm:true}]}
+]}
+function openDash(){document.getElementById('view-dash').classList.remove('hidden');openDashItem(0,0)}
+function closeDash(){document.getElementById('view-dash').classList.add('hidden');const f=document.getElementById('dash-frame');f.removeAttribute('srcdoc');f.src='about:blank'}
+function renderDashNav(){
+  document.getElementById('dash-nav').innerHTML=dashGroups().map((g,gi)=>`
+    <div><div class="text-[11px] font-bold text-gray-400 mb-2 px-1">${g.title}</div>
+    <div class="space-y-1">${g.items.map((it,ii)=>`
+      <div class="flex items-center gap-2 px-3 py-2.5 rounded-xl cursor-pointer text-[12.5px] border ${dashSel.g===gi&&dashSel.i===ii?'bg-violet-50 text-violet-700 font-semibold border-violet-200':'text-gray-600 hover:bg-gray-50 border-transparent'}" onclick="openDashItem(${gi},${ii})">
+        <span>${gi===0?'📁':'🧩'}</span><span class="truncate">${it.name}</span><span class="ml-auto tag ${gi===0?'bg-violet-100 text-violet-700':'bg-gray-100 text-gray-500'}">${it.tag}</span>
+      </div>`).join('')}</div></div>`).join('');
+}
+function openDashItem(gi,ii){
+  dashSel={g:gi,i:ii};renderDashNav();
+  const it=dashGroups()[gi].items[ii];const f=document.getElementById('dash-frame');
+  if(it.src){f.removeAttribute('srcdoc');f.src=it.src}
+  else if(it.crm){f.removeAttribute('src');f.srcdoc=dashSrcdoc('任务中心看板 · CRM','业务系统 · 销售任务全局视图',[['进行中任务','46','较上周 +8'],['逾期任务','5','3 个 KA 项目相关'],['本周完成','23','完成率 82%'],['飞书待办同步','38','双向同步正常'],['涉及项目','12','其中 KA 项目 4 个'],['平均响应时长','3.2h','目标 ≤ 4h']])}
+  else{const p=projects.find(x=>x.customer===it.name)||{};f.removeAttribute('src');f.srcdoc=dashSrcdoc(it.name+' · 项目经营看板',(p.stage||'')+' · 项目组协同',[['客户关系评分','72/100','三层关系评估'],['本周销售动作','9','指引完成 6 项'],['增购机会','2 个','预计 ¥86万'],['待办事项',(p.todos||0)+' 项','已同步飞书待办'],['风险事项',(p.risk||0)+' 项',p.risk?'需今日跟进':'无'],['文档沉淀','17 篇','项目空间自动归档']])}
 }
 
 /* ================= 工具 ================= */
