@@ -230,8 +230,12 @@
       <div id="pt-groups" class="hidden card p-5">
         <div class="flex items-center justify-between mb-3">
           <h3 class="font-bold text-sm">关联群 <span class="text-[11px] font-normal text-gray-400">KA 主理智能体在已绑定群中接收全部消息并选择性响应</span></h3>
-          <button class="btn-p !py-1.5 !px-4 text-xs" onclick="toast('搜索并绑定群聊（示意）')">+ 绑定群</button>
+          <div class="flex gap-2">
+            <button class="btn-o !py-1.5 !px-4 text-xs" onclick="createPdGroup()">⚡ 一键创建并关联</button>
+            <button class="btn-p !py-1.5 !px-4 text-xs" onclick="toast('搜索并绑定群聊（示意）')">+ 绑定群</button>
+          </div>
         </div>
+        <div class="mb-4 border border-gray-100 rounded-xl p-3.5" id="pd-listen-box"></div>
         <div class="space-y-2" id="pd-group-list"></div>
       </div>
 
@@ -451,14 +455,6 @@
         <input id="cp-ref-search" class="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-xs mb-1.5 focus:outline-violet-300" placeholder="搜索历史项目" oninput="filterCpList('ref')">
         <div class="space-y-1.5 max-h-36 overflow-y-auto border border-gray-100 rounded-xl p-2" id="cp-refs"></div>
       </div>
-      <div>
-        <label class="text-[12px] font-semibold text-gray-600 block mb-1.5">关联项目群 <span class="text-gray-400 font-normal">（一键创建飞书项目群并关联，创建时自动邀请已配置用户入群）</span></label>
-        <div id="cp-group-box"></div>
-      </div>
-      <div>
-        <label class="text-[12px] font-semibold text-gray-600 block mb-1.5">群消息监听</label>
-        <div id="cp-listen-box"></div>
-      </div>
     </div>
     <button class="btn-p w-full mt-5" onclick="saveProjModal()">确认</button>
   </div>
@@ -534,7 +530,7 @@
 <!-- Toast -->
 <div id="toast" class="hidden fixed top-5 left-1/2 -translate-x-1/2 z-[60] toast bg-gray-900 text-white text-[13px] px-5 py-2.5 rounded-xl shadow-lg"></div>
 
-<footer class="fixed bottom-1 right-2 text-[10px] text-gray-300 z-[60]">v07 · 更新于 2026-07-29</footer>
+<footer class="fixed bottom-1 right-2 text-[10px] text-gray-300 z-[60]">v08 · 更新于 2026-07-29</footer>
 
 <script>
 /* ================= 数据 ================= */
@@ -727,48 +723,14 @@ function closeRuleModal(){document.getElementById('modal-rule').classList.add('h
 
 /* ===== 创建/配置项目空间弹窗 ===== */
 let editingProjId=null, selSpaces=new Set(), selRefs=new Set();
-const allMembers=['王磊','陈静','刘洋','赵敏'];
-let cpGroupBound=false, cpGroupName='', cpMembers=new Set(allMembers), cpListen=true, cpListenOpts=new Set(['daily','summary','task']);
-const genGroup=n=>n.split('·')[0].trim()+'-项目组';
 function filterCpList(kind){
   const kw=(document.getElementById('cp-'+kind+'-search').value||'').trim();
   document.querySelectorAll('#cp-'+kind+'s label').forEach(l=>l.style.display=l.textContent.includes(kw)?'':'none');
-}
-function bindCpGroup(){
-  if(!document.getElementById('cp-name').value.trim()){toast('请先填写项目名称，将基于名称创建项目群');return}
-  cpGroupBound=true;renderCpGroup();
-}
-function renderCpGroup(){
-  const box=document.getElementById('cp-group-box');
-  if(!cpGroupBound){box.innerHTML=`<button class="btn-o w-full !py-2.5 text-[12.5px]" onclick="bindCpGroup()">⚡ 一键创建并关联项目群</button>`;return}
-  const gname=cpGroupName||genGroup(document.getElementById('cp-name').value.trim());
-  box.innerHTML=`
-    <div class="border border-violet-200 bg-violet-50/50 rounded-xl p-3">
-      <div class="flex items-center gap-2 text-[12.5px]"><span>💬</span><span class="font-semibold">${gname}</span><span class="tag ${cpGroupName?'bg-emerald-100 text-emerald-700':'bg-violet-100 text-violet-700'}">${cpGroupName?'已关联':'将创建并关联'}</span><button class="ml-auto text-[11px] text-gray-400 hover:text-red-400" onclick="cpGroupBound=false;cpGroupName='';renderCpGroup()">取消</button></div>
-      <div class="text-[11px] text-gray-400 mt-2 mb-1.5">创建后自动邀请入群（来自已配置用户）：</div>
-      <div class="flex flex-wrap gap-2">${allMembers.map(m=>`
-        <label class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border ${cpMembers.has(m)?'border-violet-300 bg-white text-violet-700 font-semibold':'border-gray-200 text-gray-500'} text-[11.5px] cursor-pointer">
-          <input type="checkbox" class="accent-violet-600" ${cpMembers.has(m)?'checked':''} onchange="this.checked?cpMembers.add('${m}'):cpMembers.delete('${m}');renderCpGroup()">${m}
-        </label>`).join('')}</div>
-    </div>`;
-}
-function renderCpListen(){
-  document.getElementById('cp-listen-box').innerHTML=`
-    <div class="border border-gray-100 rounded-xl p-3">
-      <label class="flex items-center gap-2.5 cursor-pointer text-[12.5px] font-semibold">
-        <input type="checkbox" class="accent-violet-600" ${cpListen?'checked':''} onchange="cpListen=this.checked;renderCpListen()">开启群消息监听
-        <span class="text-[11px] font-normal text-gray-400">智能体接收全部群消息并选择性响应</span>
-      </label>
-      ${cpListen?`<div class="mt-2.5 space-y-1.5 pl-1">${[['daily','每日 09:00 自动查询群消息并生成总结'],['summary','基于总结内容自动更新项目摘要（项目经理确认后写入）'],['task','自动拆解任务并推送对应角色确认（同步飞书待办）']].map(o=>`
-        <label class="flex items-center gap-2 text-[11.5px] text-gray-600 cursor-pointer"><input type="checkbox" class="accent-violet-600" ${cpListenOpts.has(o[0])?'checked':''} onchange="this.checked?cpListenOpts.add('${o[0]}'):cpListenOpts.delete('${o[0]}')">${o[1]}</label>`).join('')}</div>`:''}
-    </div>`;
 }
 function openProjModal(editId){
   editingProjId=editId||null;
   const p=editId?projects.find(x=>x.id===editId):null;
   selSpaces=new Set(p?p.spaces:[]);selRefs=new Set(p?p.refs:[]);
-  cpGroupBound=p?p.group!=='待绑定飞书群':false;cpGroupName=p&&cpGroupBound?p.group:'';
-  cpMembers=new Set(allMembers);cpListen=p?p.listen!==false:true;
   document.getElementById('cp-name').value=p?p.name:'';
   document.getElementById('cp-space-search').value='';document.getElementById('cp-ref-search').value='';
   document.getElementById('cp-title').textContent=p?'配置项目空间':'创建项目空间';
@@ -778,7 +740,6 @@ function openProjModal(editId){
     </label>`).join('');
   document.getElementById('cp-spaces').innerHTML=mk(allSpaces,selSpaces,'selSpaces');
   document.getElementById('cp-refs').innerHTML=mk(allRefs,selRefs,'selRefs');
-  renderCpGroup();renderCpListen();
   document.getElementById('modal-createproj').classList.remove('hidden');
 }
 function closeProjModal(){document.getElementById('modal-createproj').classList.add('hidden')}
@@ -787,12 +748,11 @@ function saveProjModal(){
   if(!name){toast('请填写项目名称');return}
   if(editingProjId){
     const p=projects.find(x=>x.id===editingProjId);
-    p.name=name;p.spaces=[...selSpaces];p.refs=[...selRefs];p.time='2026-07-29 刚刚';p.listen=cpListen;
-    if(cpGroupBound&&!cpGroupName){p.group=genGroup(name)}
+    p.name=name;p.spaces=[...selSpaces];p.refs=[...selRefs];p.time='2026-07-29 刚刚';
     toast('项目空间配置已更新');
   }else{
-    projects.unshift({id:Date.now(),name,customer:selSpaces.size?selSpaces.values().next().value.replace('知识空间',''):'待关联客户',stage:'CR4 KA攻坚',group:cpGroupBound?genGroup(name):'待绑定飞书群',members:cpGroupBound?Math.max(cpMembers.size,1):1,skills:5,time:'2026-07-29 刚刚',todos:0,risk:0,agents:['KA 主理智能体'],defaultAgent:'KA 主理智能体',listen:cpListen,spaces:[...selSpaces],refs:[...selRefs]});
-    toast(cpGroupBound?`项目空间已创建，项目群已创建并自动邀请 ${cpMembers.size} 人入群`:'项目空间已创建，KA 主理智能体将在绑定群后自动入群挂载');
+    projects.unshift({id:Date.now(),name,customer:selSpaces.size?selSpaces.values().next().value.replace('知识空间',''):'待关联客户',stage:'CR4 KA攻坚',group:'待绑定飞书群',members:1,skills:5,time:'2026-07-29 刚刚',todos:0,risk:0,agents:['KA 主理智能体'],defaultAgent:'KA 主理智能体',spaces:[...selSpaces],refs:[...selRefs]});
+    toast('项目空间已创建，可在「关联群」tab 一键创建项目群');
   }
   closeProjModal();renderProjAgentFilter();renderProjects();
 }
@@ -857,6 +817,38 @@ function renderFolders(){
       <button class="text-[11px] text-gray-400 hover:text-violet-600" onclick="toast('已提交同步至 gitlab（示意）')">⇪同步</button>
     </div>`).join('');
 }
+const genGroup=n=>n.split('·')[0].trim()+'-项目组';
+let pdGroups=[], pdListen=true, pdListenOpts=new Set(['daily','summary','task']);
+function renderPdGroups(){
+  document.getElementById('pd-group-list').innerHTML=pdGroups.map((g,i)=>`
+    <div class="flex items-center gap-3 p-3 rounded-xl border border-gray-100 text-[12.5px]">
+      <span class="text-base">💬</span>
+      <div class="flex-1"><div class="font-semibold">${g[0]}</div><div class="text-[11px] text-gray-400">${g[1]}</div></div>
+      <span class="tag ${g[3]?'bg-emerald-100 text-emerald-700':'bg-gray-100 text-gray-500'}">${g[2]}</span>
+      ${g[3]?`<button class="text-[11px] text-gray-400 hover:text-red-400" onclick="unbindGroup(${i})">解绑</button>`:`<button class="btn-o !py-1 !px-3 text-[11px]" onclick="bindGroup(${i})">绑定</button>`}
+    </div>`).join('')||'<div class="py-8 text-center text-gray-400 text-[12.5px]">暂无关联群，点击右上角「一键创建并关联」</div>';
+}
+function bindGroup(i){pdGroups[i][2]='已绑定 · 智能体监听中';pdGroups[i][3]=true;renderPdGroups();toast('已绑定，KA 主理智能体自动入群')}
+function unbindGroup(i){pdGroups[i][2]='待绑定';pdGroups[i][3]=false;renderPdGroups();toast('解绑后智能体将退出该群（示意）')}
+function createPdGroup(){
+  if(curProject.group&&curProject.group!=='待绑定飞书群'){toast('已关联项目群：'+curProject.group);return}
+  const name=genGroup(curProject.name);
+  pdGroups.unshift([name,'项目主群 · 一键创建 · 已自动邀请 4 人入群','已绑定 · 智能体监听中',true]);
+  curProject.group=name;
+  document.getElementById('pd-group').textContent='绑定群：'+name;
+  renderPdGroups();toast('项目群已创建并关联，已自动邀请已配置用户（4 人）入群');
+}
+function renderPdListen(){
+  const opts=[['daily','每日 09:00 自动查询群消息并生成总结'],['summary','基于总结内容自动更新项目摘要（项目经理确认后写入）'],['task','自动拆解任务并推送对应角色确认（同步飞书待办）']];
+  document.getElementById('pd-listen-box').innerHTML=`
+    <div class="flex items-center justify-between mb-2.5">
+      <div class="font-semibold text-[12.5px]">群消息监听 <span class="text-[11px] font-normal text-gray-400 ml-1">开启后 KA 主理智能体每日定时处理群消息</span></div>
+      <label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" ${pdListen?'checked':''} onchange="pdListen=this.checked;renderPdListen()" class="sr-only peer"><span class="w-9 h-5 bg-gray-200 peer-checked:bg-violet-500 rounded-full transition"></span><span class="absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full transition peer-checked:translate-x-4"></span></label>
+    </div>
+    <div class="space-y-1.5 ${pdListen?'':'opacity-40 pointer-events-none'}">
+      ${opts.map(o=>`<label class="flex items-center gap-2 text-[12px] text-gray-600"><input type="checkbox" ${pdListenOpts.has(o[0])?'checked':''} onchange="this.checked?pdListenOpts.add('${o[0]}'):pdListenOpts.delete('${o[0]}')" class="accent-violet-600">${o[1]}</label>`).join('')}
+    </div>`;
+}
 function openProjectDetail(id){
   curProject=projects.find(p=>p.id===id);
   document.getElementById('pd-name').textContent=curProject.name;
@@ -868,17 +860,11 @@ function openProjectDetail(id){
   document.getElementById('pd-edit-btn').textContent='编辑';
   document.getElementById('pd-users-body').innerHTML=[['王磊','销售负责人','客户关系与商务推进','方案外发确认'],['陈静','售前架构师','需求与方案审核','调研报告/方案定稿确认'],['刘洋','项目经理','进度与风险决策','摘要更新确认'],['赵敏','交付工程师','POC 执行','POC 报告确认']].map(r=>`
     <tr class="border-b border-gray-50"><td class="py-2.5 font-medium">${r[0]}</td><td><span class="tag bg-violet-100 text-violet-700">${r[1]}</span></td><td class="text-gray-500">${r[2]}</td><td class="text-gray-500">${r[3]}</td><td><button class="text-[11px] text-gray-400 hover:text-violet-600" onclick="toast('编辑成员（示意）')">编辑</button></td></tr>`).join('');
-  document.getElementById('pd-group-list').innerHTML=[
-    [curProject.group,'项目主群 · 我方 6 人 + 客户 4 人','已绑定 · 智能体监听中',true],
-    [curProject.customer+'-高层对接群','客户关系群 · 监听经营信号','已绑定 · 智能体监听中',true],
-    ['POC 现场支持群','POC 阶段临时群','待绑定',false]
-  ].map(g=>`
-    <div class="flex items-center gap-3 p-3 rounded-xl border border-gray-100 text-[12.5px]">
-      <span class="text-base">💬</span>
-      <div class="flex-1"><div class="font-semibold">${g[0]}</div><div class="text-[11px] text-gray-400">${g[1]}</div></div>
-      <span class="tag ${g[3]?'bg-emerald-100 text-emerald-700':'bg-gray-100 text-gray-500'}">${g[2]}</span>
-      ${g[3]?`<button class="text-[11px] text-gray-400 hover:text-red-400" onclick="toast('解绑后智能体将退出该群（示意）')">解绑</button>`:`<button class="btn-o !py-1 !px-3 text-[11px]" onclick="toast('已绑定，KA 主理智能体自动入群')">绑定</button>`}
-    </div>`).join('');
+  pdGroups=[];
+  if(curProject.group!=='待绑定飞书群')pdGroups.push([curProject.group,'项目主群 · 我方 6 人 + 客户 4 人','已绑定 · 智能体监听中',true]);
+  pdGroups.push([curProject.customer+'-高层对接群','客户关系群 · 监听经营信号','已绑定 · 智能体监听中',true]);
+  pdGroups.push(['POC 现场支持群','POC 阶段临时群','待绑定',false]);
+  renderPdGroups();renderPdListen();
   renderFolders();
   document.getElementById('pd-tasks-body').innerHTML=(projTasks[curProject.id]||[]).map(t=>`
     <tr class="border-b border-gray-50"><td class="py-2.5 font-medium">${t.t}</td><td>${t.owner}</td><td class="text-gray-500">${t.src}</td><td class="text-gray-500">${t.due}</td><td><span class="tag ${taskTag(t.st)}">${t.st}</span></td><td class="text-gray-400 text-[11px]">已同步</td></tr>`).join('')||'<tr><td colspan="6" class="py-8 text-center text-gray-400">暂无任务</td></tr>';
