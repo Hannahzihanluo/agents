@@ -422,7 +422,8 @@
           <!-- 项目空间列表 -->
           <div class="card p-3.5">
             <div class="flex items-center justify-between mb-2"><span class="text-[13px] font-bold">📁 项目空间</span><span class="text-[10.5px] text-gray-400">按我的授权显示</span></div>
-            <div class="space-y-2" id="wb-project-list"></div>
+            <input id="wb-proj-search" class="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-xs mb-2 focus:outline-violet-300" placeholder="搜索项目名称 / 类型" oninput="renderWbProjects()">
+            <div class="space-y-2 max-h-[380px] overflow-y-auto" id="wb-project-list" onscroll="wbProjScroll(this)"></div>
           </div>
           <!-- 生成的文档 -->
           <div class="card p-3.5">
@@ -442,13 +443,22 @@
     <div class="flex items-center justify-between mb-4"><h3 class="font-bold" id="cp-title">创建项目空间</h3><button class="text-gray-400 hover:text-gray-600" onclick="closeProjModal()">✕</button></div>
     <div class="space-y-4">
       <div>
+        <label class="text-[12px] font-semibold text-gray-600 block mb-1.5">项目类型 <span class="text-red-400">*</span></label>
+        <div class="flex gap-2" id="cp-types">
+          <label class="flex-1 flex items-center justify-center gap-1.5 border border-gray-200 rounded-lg py-2 text-[12.5px] cursor-pointer has-[:checked]:border-violet-400 has-[:checked]:bg-violet-50 has-[:checked]:text-violet-700"><input type="radio" name="cp-type" value="KA项目" class="accent-violet-600" checked onchange="setCpType('KA项目')">KA项目</label>
+          <label class="flex-1 flex items-center justify-center gap-1.5 border border-gray-200 rounded-lg py-2 text-[12.5px] cursor-pointer has-[:checked]:border-violet-400 has-[:checked]:bg-violet-50 has-[:checked]:text-violet-700"><input type="radio" name="cp-type" value="SKA项目" class="accent-violet-600" onchange="setCpType('SKA项目')">SKA项目</label>
+          <label class="flex-1 flex items-center justify-center gap-1.5 border border-gray-200 rounded-lg py-2 text-[12.5px] cursor-pointer has-[:checked]:border-violet-400 has-[:checked]:bg-violet-50 has-[:checked]:text-violet-700"><input type="radio" name="cp-type" value="个人项目" class="accent-violet-600" onchange="setCpType('个人项目')">个人项目</label>
+        </div>
+      </div>
+      <div>
         <label class="text-[12px] font-semibold text-gray-600 block mb-1.5">项目名称 <span class="text-red-400">*</span></label>
         <input id="cp-name" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-[13px] focus:outline-violet-300" placeholder="如：远航物流集团 · 智能调度平台项目">
       </div>
       <div>
-        <label class="text-[12px] font-semibold text-gray-600 block mb-1.5">关联客户知识空间 <span class="text-gray-400 font-normal">（可搜索多选，绑定后自动带入客户信息与历史对接记录）</span></label>
+        <label class="text-[12px] font-semibold text-gray-600 block mb-1.5">关联客户知识空间 <span id="cp-space-req" class="text-red-400">*</span> <span class="text-gray-400 font-normal">（可搜索多选，绑定后自动带入客户信息与历史对接记录）</span></label>
         <input id="cp-space-search" class="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-xs mb-1.5 focus:outline-violet-300" placeholder="搜索客户名称" oninput="filterCpList('space')">
         <div class="space-y-1.5 max-h-36 overflow-y-auto border border-gray-100 rounded-xl p-2" id="cp-spaces"></div>
+        <div id="cp-opp-box" class="hidden mt-2"></div>
       </div>
       <div>
         <label class="text-[12px] font-semibold text-gray-600 block mb-1.5">关联历史项目 <span class="text-gray-400 font-normal">（可搜索多选，用于方案推荐与最佳实践参考）</span></label>
@@ -530,7 +540,7 @@
 <!-- Toast -->
 <div id="toast" class="hidden fixed top-5 left-1/2 -translate-x-1/2 z-[60] toast bg-gray-900 text-white text-[13px] px-5 py-2.5 rounded-xl shadow-lg"></div>
 
-<footer class="fixed bottom-1 right-2 text-[10px] text-gray-300 z-[60]">v08 · 更新于 2026-07-29</footer>
+<footer class="fixed bottom-1 right-2 text-[10px] text-gray-300 z-[60]">v09 · 更新于 2026-07-29</footer>
 
 <script>
 /* ================= 数据 ================= */
@@ -550,32 +560,44 @@ const kbData={
   customer:[['远航物流集团知识空间',56,89,'是','KA 主理智能体','platform','2026-07-28 08:30:00'],['肇庆新景昌物流知识空间',23,41,'是','销售AI-test','platform','2026-07-06 16:33:19'],['徐州聚鸿建设知识空间',19,33,'是','销售AI-test','platform','2026-07-06 13:41:56']]
 };
 let projects=[
-  {id:1,name:'远航物流集团 · 智能调度平台项目',customer:'远航物流集团',stage:'CR4 KA攻坚',group:'远航-智能调度项目组',members:4,skills:6,time:'2026-07-28 09:12',todos:3,risk:1,done:12,overdue:1,agents:['KA 主理智能体','解决方案生成','数据分析'],defaultAgent:'KA 主理智能体',spaces:['远航物流集团知识空间'],refs:['顺捷物流智能调度','云途仓配一体调度']},
-  {id:2,name:'肇庆新景昌物流 · 车队安全管理项目',customer:'肇庆新景昌物流',stage:'CR5 签约交付',group:'新景昌-车队安全项目群',members:5,skills:5,time:'2026-07-26 14:20',todos:5,risk:0,done:8,overdue:2,agents:['KA 主理智能体','拜访复盘报告'],defaultAgent:'KA 主理智能体',spaces:['肇庆新景昌物流知识空间'],refs:['北斗干线优化']},
-  {id:3,name:'徐州聚鸿建设 · 大宗运输数字化项目',customer:'徐州聚鸿建设',stage:'CR3 方案验证',group:'聚鸿-数字化项目群',members:3,skills:4,time:'2026-07-20 11:05',todos:2,risk:0,done:5,overdue:0,agents:['KA 主理智能体'],defaultAgent:'KA 主理智能体',spaces:['徐州聚鸿建设知识空间'],refs:[]}
+  {id:1,name:'远航物流集团 · 智能调度平台项目',type:'SKA项目',customer:'远航物流集团',stage:'CR4 KA攻坚',group:'远航-智能调度项目组',members:4,skills:6,time:'2026-07-28 09:12',todos:3,risk:1,done:12,overdue:1,agents:['KA 主理智能体','解决方案生成','数据分析'],defaultAgent:'KA 主理智能体',spaces:['远航物流集团知识空间'],refs:['顺捷物流智能调度','云途仓配一体调度']},
+  {id:2,name:'肇庆新景昌物流 · 车队安全管理项目',type:'KA项目',customer:'肇庆新景昌物流',stage:'CR5 签约交付',group:'新景昌-车队安全项目群',members:5,skills:5,time:'2026-07-26 14:20',todos:5,risk:0,done:8,overdue:2,agents:['KA 主理智能体','拜访复盘报告'],defaultAgent:'KA 主理智能体',spaces:['肇庆新景昌物流知识空间'],refs:['北斗干线优化']},
+  {id:3,name:'徐州聚鸿建设 · 大宗运输数字化项目',type:'KA项目',customer:'徐州聚鸿建设',stage:'CR3 方案验证',group:'聚鸿-数字化项目群',members:3,skills:4,time:'2026-07-20 11:05',todos:2,risk:0,done:5,overdue:0,agents:['KA 主理智能体'],defaultAgent:'KA 主理智能体',spaces:['徐州聚鸿建设知识空间'],refs:[]},
+  {id:4,name:'顺捷物流 · 智能调度二期项目',type:'KA项目',customer:'顺捷物流',stage:'CR2 需求调研',group:'顺捷-调度二期项目群',members:3,skills:4,time:'2026-07-18 10:20',todos:1,risk:0,done:2,overdue:0,agents:['KA 主理智能体'],defaultAgent:'KA 主理智能体',spaces:['远航物流集团知识空间'],refs:['顺捷物流智能调度']},
+  {id:5,name:'云途供应链 · 仓配一体调度项目',type:'KA项目',customer:'云途供应链',stage:'CR3 方案验证',group:'云途-仓配调度项目群',members:4,skills:5,time:'2026-07-15 16:40',todos:2,risk:1,done:6,overdue:1,agents:['KA 主理智能体','数据分析'],defaultAgent:'KA 主理智能体',spaces:['云途供应链知识空间'],refs:['云途仓配一体调度']},
+  {id:6,name:'北斗干线 · 运输线路优化项目',type:'SKA项目',customer:'北斗干线',stage:'CR4 KA攻坚',group:'北斗-线路优化项目群',members:5,skills:6,time:'2026-07-12 09:30',todos:4,risk:1,done:10,overdue:2,agents:['KA 主理智能体','解决方案生成'],defaultAgent:'KA 主理智能体',spaces:['远航物流集团知识空间'],refs:['北斗干线优化']},
+  {id:7,name:'G7易流 · TMS 二期对接项目',type:'KA项目',customer:'G7易流',stage:'CR5 签约交付',group:'G7-TMS二期项目群',members:3,skills:3,time:'2026-07-08 14:05',todos:1,risk:0,done:7,overdue:0,agents:['KA 主理智能体'],defaultAgent:'KA 主理智能体',spaces:['远航物流集团知识空间'],refs:['G7易流 TMS 一期']},
+  {id:8,name:'个人 · 销售话术与拜访素材整理',type:'个人项目',customer:'个人',stage:'CR1 线索触达',group:'未绑定群',members:1,skills:2,time:'2026-07-05 11:15',todos:0,risk:0,done:3,overdue:0,agents:['拜访复盘报告'],defaultAgent:'拜访复盘报告',spaces:[],refs:[]}
 ];
+const custOpps={
+  '远航物流集团知识空间':{stage:'CR4 KA攻坚',opp:'智能调度平台项目',amount:'预计 300 万',owner:'王磊',next:'07-31 管理层方案汇报会'},
+  '肇庆新景昌物流知识空间':{stage:'CR5 签约交付',opp:'车队安全管理项目',amount:'合同 180 万',owner:'王磊',next:'08-05 回款节点跟进'},
+  '徐州聚鸿建设知识空间':{stage:'CR3 方案验证',opp:'大宗运输数字化项目',amount:'预计 220 万',owner:'陈静',next:'08-03 POC 方案评审会'},
+  '云途供应链知识空间':{stage:'CR2 需求调研',opp:'仓配一体调度项目',amount:'预计 150 万',owner:'王磊',next:'08-01 调研启动会'}
+};
 const projTasks={
   1:[
-    {t:'客户提供调度系统数据字典',owner:'赵敏',src:'远航-智能调度项目组群',due:'逾期1天',st:'逾期'},
-    {t:'确认一页纸方案 v3 定稿',owner:'陈静',src:'任务拆解 skill',due:'今日到期',st:'待办'},
-    {t:'安排管理层方案汇报会',owner:'王磊',src:'远航-智能调度项目组群',due:'07-29',st:'待办'},
-    {t:'POC 环境资源申请',owner:'赵敏',src:'任务拆解 skill',due:'07-30',st:'执行中'},
-    {t:'需求调研报告确认',owner:'陈静',src:'调研方案生成 skill',due:'07-25',st:'已完成'}
+    {t:'客户提供调度系统数据字典',owner:'赵敏',src:'远航-智能调度项目组群',due:'2026-07-28 18:00:00',st:'逾期'},
+    {t:'确认一页纸方案 v3 定稿',owner:'陈静',src:'任务拆解 skill',due:'2026-07-29 18:00:00',st:'待办'},
+    {t:'安排管理层方案汇报会',owner:'王磊',src:'远航-智能调度项目组群',due:'2026-07-29 20:00:00',st:'待办'},
+    {t:'POC 环境资源申请',owner:'赵敏',src:'任务拆解 skill',due:'2026-07-30 12:00:00',st:'执行中'},
+    {t:'需求调研报告确认',owner:'陈静',src:'调研方案生成 skill',due:'2026-07-25 17:30:00',st:'已完成'}
   ],
   2:[
-    {t:'车队安全设备到货验收',owner:'刘洋',src:'任务拆解 skill',due:'逾期2天',st:'逾期'},
-    {t:'客户司机培训排期确认',owner:'王磊',src:'新景昌-车队安全项目群',due:'逾期1天',st:'逾期'},
-    {t:'签约回款节点跟进',owner:'王磊',src:'新景昌-车队安全项目群',due:'07-31',st:'待办'},
-    {t:'上线试运行周报 W1',owner:'赵敏',src:'每周分析总结 skill',due:'08-01',st:'待办'},
-    {t:'安全告警规则联调',owner:'赵敏',src:'任务拆解 skill',due:'08-02',st:'执行中'}
+    {t:'车队安全设备到货验收',owner:'刘洋',src:'任务拆解 skill',due:'2026-07-27 18:00:00',st:'逾期'},
+    {t:'客户司机培训排期确认',owner:'王磊',src:'新景昌-车队安全项目群',due:'2026-07-28 12:00:00',st:'逾期'},
+    {t:'签约回款节点跟进',owner:'王磊',src:'新景昌-车队安全项目群',due:'2026-07-31 18:00:00',st:'待办'},
+    {t:'上线试运行周报 W1',owner:'赵敏',src:'每周分析总结 skill',due:'2026-08-01 09:00:00',st:'待办'},
+    {t:'安全告警规则联调',owner:'赵敏',src:'任务拆解 skill',due:'2026-08-02 18:00:00',st:'执行中'}
   ],
   3:[
-    {t:'大宗运输线路数据补齐',owner:'陈静',src:'聚鸿-数字化项目群',due:'07-30',st:'待办'},
-    {t:'POC 方案评审会',owner:'刘洋',src:'聚鸿-数字化项目群',due:'08-03',st:'待办'},
-    {t:'客户现有系统接口调研',owner:'赵敏',src:'任务拆解 skill',due:'08-05',st:'执行中'}
+    {t:'大宗运输线路数据补齐',owner:'陈静',src:'聚鸿-数字化项目群',due:'2026-07-30 18:00:00',st:'待办'},
+    {t:'POC 方案评审会',owner:'刘洋',src:'聚鸿-数字化项目群',due:'2026-08-03 15:00:00',st:'待办'},
+    {t:'客户现有系统接口调研',owner:'赵敏',src:'任务拆解 skill',due:'2026-08-05 18:00:00',st:'执行中'}
   ]
 };
 function taskTag(st){return ({'待办':'bg-amber-100 text-amber-600','逾期':'bg-red-100 text-red-600','执行中':'bg-blue-100 text-blue-600','已完成':'bg-emerald-100 text-emerald-700'})[st]||'bg-gray-100 text-gray-500'}
+function typeTagCls(t){return t==='SKA项目'?'bg-red-100 text-red-600':t==='KA项目'?'bg-violet-100 text-violet-700':'bg-gray-100 text-gray-500'}
 const allSpaces=['远航物流集团知识空间','肇庆新景昌物流知识空间','徐州聚鸿建设知识空间','云途供应链知识空间'];
 const allRefs=['顺捷物流智能调度','云途仓配一体调度','北斗干线优化','G7易流 TMS 一期'];
 const allApps=['解决方案生成','数据分析','PPT制作','拜访简报生成','拜访复盘报告','POC报告生成','CRM录入','调研方案生成','物流数字化方案专家','周报生成'];
@@ -666,7 +688,7 @@ function renderProjects(){
   document.getElementById('project-grid').innerHTML=list.length?list.map(p=>`
   <div class="card p-4 cursor-pointer" onclick="openProjectDetail(${p.id})">
     <div class="flex items-center justify-between mb-2">
-      <span class="tag bg-violet-100 text-violet-700">${p.stage}</span>
+      <div class="flex gap-1.5"><span class="tag ${typeTagCls(p.type||'KA项目')}">${p.type||'KA项目'}</span>${p.type!=='个人项目'?`<span class="tag bg-blue-100 text-blue-600">${p.stage}</span>`:''}</div>
       <span class="text-[10.5px] text-gray-400">更新 ${p.time}</span>
     </div>
     <div class="font-bold text-[13.5px] mb-1">${p.name}</div>
@@ -722,10 +744,27 @@ function openRuleModal(){document.getElementById('modal-rule').classList.remove(
 function closeRuleModal(){document.getElementById('modal-rule').classList.add('hidden')}
 
 /* ===== 创建/配置项目空间弹窗 ===== */
-let editingProjId=null, selSpaces=new Set(), selRefs=new Set();
+let editingProjId=null, selSpaces=new Set(), selRefs=new Set(), cpType='KA项目';
 function filterCpList(kind){
   const kw=(document.getElementById('cp-'+kind+'-search').value||'').trim();
   document.querySelectorAll('#cp-'+kind+'s label').forEach(l=>l.style.display=l.textContent.includes(kw)?'':'none');
+}
+function setCpType(t){
+  cpType=t;
+  document.getElementById('cp-space-req').style.display=t==='个人项目'?'none':'';
+  renderCpOpp();
+}
+function renderCpOpp(){
+  const box=document.getElementById('cp-opp-box');
+  if(cpType==='个人项目'){box.classList.add('hidden');box.innerHTML='';return}
+  const first=[...selSpaces][0], opp=first&&custOpps[first];
+  if(!opp){box.classList.add('hidden');box.innerHTML='';return}
+  box.classList.remove('hidden');
+  box.innerHTML=`<div class="border border-violet-100 bg-violet-50/60 rounded-xl p-3 text-[12px]">
+    <div class="font-semibold text-violet-700 mb-1">🔎 已查询到该客户进行中的商机（CRM 同步）</div>
+    <div class="text-gray-600 leading-relaxed">商机阶段：<span class="tag bg-violet-100 text-violet-700">${opp.stage}</span> · ${opp.opp} · ${opp.amount}<br>商机负责人：${opp.owner} · 下次关键动作：${opp.next}</div>
+    <div class="text-[11px] text-gray-400 mt-1.5">创建后商机阶段与信息将自动同步至项目摘要，并随 CRM 变更更新</div>
+  </div>`;
 }
 function openProjModal(editId){
   editingProjId=editId||null;
@@ -734,25 +773,49 @@ function openProjModal(editId){
   document.getElementById('cp-name').value=p?p.name:'';
   document.getElementById('cp-space-search').value='';document.getElementById('cp-ref-search').value='';
   document.getElementById('cp-title').textContent=p?'配置项目空间':'创建项目空间';
+  cpType=p?(p.type||'KA项目'):'KA项目';
+  document.querySelectorAll('#cp-types input[name=cp-type]').forEach(r=>r.checked=r.value===cpType);
+  document.getElementById('cp-space-req').style.display=cpType==='个人项目'?'none':'';
   const mk=(arr,sel,setName)=>arr.map(x=>`
     <label class="flex items-center gap-2.5 p-2 rounded-lg hover:bg-violet-50/50 cursor-pointer text-[12.5px]">
-      <input type="checkbox" class="accent-violet-600" ${sel.has(x)?'checked':''} onchange="this.checked?${setName}.add('${x}'):${setName}.delete('${x}')">${x}
+      <input type="checkbox" class="accent-violet-600" ${sel.has(x)?'checked':''} onchange="this.checked?${setName}.add('${x}'):${setName}.delete('${x}');${setName==='selSpaces'?'renderCpOpp()':''}">${x}
     </label>`).join('');
   document.getElementById('cp-spaces').innerHTML=mk(allSpaces,selSpaces,'selSpaces');
   document.getElementById('cp-refs').innerHTML=mk(allRefs,selRefs,'selRefs');
+  renderCpOpp();
   document.getElementById('modal-createproj').classList.remove('hidden');
 }
 function closeProjModal(){document.getElementById('modal-createproj').classList.add('hidden')}
 function saveProjModal(){
   const name=document.getElementById('cp-name').value.trim();
   if(!name){toast('请填写项目名称');return}
+  if(cpType!=='个人项目'&&selSpaces.size===0){toast(cpType+'需关联客户知识空间');return}
   if(editingProjId){
     const p=projects.find(x=>x.id===editingProjId);
-    p.name=name;p.spaces=[...selSpaces];p.refs=[...selRefs];p.time='2026-07-29 刚刚';
+    p.name=name;p.type=cpType;p.spaces=[...selSpaces];p.refs=[...selRefs];p.time='2026-07-29 刚刚';
     toast('项目空间配置已更新');
   }else{
-    projects.unshift({id:Date.now(),name,customer:selSpaces.size?selSpaces.values().next().value.replace('知识空间',''):'待关联客户',stage:'CR4 KA攻坚',group:'待绑定飞书群',members:1,skills:5,time:'2026-07-29 刚刚',todos:0,risk:0,agents:['KA 主理智能体'],defaultAgent:'KA 主理智能体',spaces:[...selSpaces],refs:[...selRefs]});
-    toast('项目空间已创建，可在「关联群」tab 一键创建项目群');
+    const firstSpace=[...selSpaces][0], opp=firstSpace&&custOpps[firstSpace];
+    const cust=cpType==='个人项目'?'个人':(firstSpace?firstSpace.replace('知识空间',''):'待关联客户');
+    const stage=opp?opp.stage:'CR1 线索触达';
+    const summary=opp?`# 项目摘要 · ${name}
+
+## 商机信息（CRM 同步 · ${opp.stage}）
+- 商机：${opp.opp} · ${opp.amount}
+- 商机负责人：${opp.owner}
+- 下次关键动作：${opp.next}
+
+## 客户信息（客户知识空间）
+- 客户：${cust}
+- 已关联 ${selSpaces.size} 个客户知识空间、${selRefs.size} 个历史项目
+
+## 当前阶段 · ${opp.stage}
+- 项目刚创建，待项目团队补充调研结论与方案进展
+
+## 风险概况
+- 暂无记录`:'';
+    projects.unshift({id:Date.now(),name,type:cpType,customer:cust,stage,group:'待绑定飞书群',members:1,skills:5,time:'2026-07-29 刚刚',todos:0,risk:0,done:0,overdue:0,agents:['KA 主理智能体'],defaultAgent:'KA 主理智能体',spaces:[...selSpaces],refs:[...selRefs],summary});
+    toast(opp?'项目空间已创建，商机阶段与信息已同步至项目摘要':'项目空间已创建，可在「关联群」tab 一键创建项目群');
   }
   closeProjModal();renderProjAgentFilter();renderProjects();
 }
@@ -800,11 +863,12 @@ function toggleSummaryEdit(){
   const editing=edit.classList.contains('hidden');
   view.classList.toggle('hidden',editing);edit.classList.toggle('hidden',!editing);
   document.getElementById('pd-edit-btn').textContent=editing?'预览':'编辑';
-  if(editing)document.getElementById('pd-summary-textarea').value=summaryMd;
+  if(editing)document.getElementById('pd-summary-textarea').value=curProject?(curProject.summary||summaryMd):summaryMd;
 }
 function saveSummaryEdit(){
-  summaryMd=document.getElementById('pd-summary-textarea').value;
-  document.getElementById('pd-summary-view').innerHTML=mdRender(summaryMd);
+  const v=document.getElementById('pd-summary-textarea').value;
+  if(curProject)curProject.summary=v;else summaryMd=v;
+  document.getElementById('pd-summary-view').innerHTML=mdRender(v);
   toggleSummaryEdit();toast('项目摘要已保存（版本可追溯/可回滚）');
 }
 function renderFolders(){
@@ -854,7 +918,7 @@ function openProjectDetail(id){
   document.getElementById('pd-name').textContent=curProject.name;
   document.getElementById('pd-stage').textContent=curProject.stage;
   document.getElementById('pd-group').textContent='绑定群：'+curProject.group;
-  document.getElementById('pd-summary-view').innerHTML=mdRender(summaryMd);
+  document.getElementById('pd-summary-view').innerHTML=mdRender(curProject.summary||summaryMd);
   document.getElementById('pd-summary-view').classList.remove('hidden');
   document.getElementById('pd-summary-edit').classList.add('hidden');
   document.getElementById('pd-edit-btn').textContent='编辑';
@@ -901,13 +965,29 @@ function renderCapSkills(){
   document.getElementById('cap-skill-list').innerHTML=capSkills.map(s=>`
     <div class="flex items-start gap-2.5 p-2.5 rounded-xl bg-gray-50"><span class="text-violet-500 mt-0.5">⚡</span><div><div class="text-[12.5px] font-semibold">${s[0]} <span class="tag bg-gray-200 text-gray-500 ml-1">工具</span></div><p class="text-[11px] text-gray-400 mt-0.5 leading-relaxed">${s[1]}</p></div></div>`).join('');
 }
-function renderWbProjects(){
-  document.getElementById('wb-project-list').innerHTML=projects.map(p=>`
-  <div class="p-3 rounded-xl border ${curProject&&curProject.id===p.id?'border-violet-300 bg-violet-50/60':'border-gray-100 bg-gray-50/60'}">
-    <div class="flex items-center justify-between"><span class="text-[12.5px] font-bold">${p.name}</span><span class="tag bg-violet-100 text-violet-700">${p.stage.split(' ')[0]}</span></div>
+let wbProjShown=5;
+function wbProjFiltered(){
+  const kw=(document.getElementById('wb-proj-search')?.value||'').trim();
+  return projects.filter(p=>!kw||p.name.includes(kw)||(p.type||'').includes(kw));
+}
+function wbProjCard(p){
+  return `<div class="p-3 rounded-xl border ${curProject&&curProject.id===p.id?'border-violet-300 bg-violet-50/60':'border-gray-100 bg-gray-50/60'}">
+    <div class="flex items-center justify-between gap-2"><span class="text-[12.5px] font-bold truncate">${p.name}</span><span class="flex gap-1 shrink-0"><span class="tag ${typeTagCls(p.type||'KA项目')}">${p.type||'KA项目'}</span>${p.type!=='个人项目'?`<span class="tag bg-blue-100 text-blue-600">${p.stage.split(' ')[0]}</span>`:''}</span></div>
     <div class="flex items-center gap-3 text-[10.5px] text-gray-400 mt-1.5"><span>我的角色：项目经理</span><span class="cursor-pointer hover:text-violet-600 underline decoration-dotted" onclick="event.stopPropagation();openProjTasks(${p.id})">待办 ${p.todos}</span>${p.risk?`<span class="text-red-500">风险 ${p.risk}</span>`:''}</div>
     <button class="btn-p !py-1 !px-3 text-[11px] mt-2 w-full" onclick="enterProjectWb(${p.id})">${curProject&&curProject.id===p.id?'当前项目 ✓':'进入项目 →'}</button>
-  </div>`).join('');
+  </div>`;
+}
+function renderWbProjects(){
+  wbProjShown=5;
+  const l=wbProjFiltered();
+  document.getElementById('wb-project-list').innerHTML=l.slice(0,wbProjShown).map(wbProjCard).join('')+(l.length>wbProjShown?'<div class="text-center text-[10.5px] text-gray-300 py-1">下滑加载更多 ↓</div>':'')||( '<div class="text-center text-gray-400 text-xs py-6">未找到匹配的项目空间</div>');
+}
+function wbProjScroll(el){
+  if(el.scrollTop+el.clientHeight<el.scrollHeight-8)return;
+  const l=wbProjFiltered();
+  if(wbProjShown>=l.length)return;
+  wbProjShown=Math.min(wbProjShown+5,l.length);
+  el.innerHTML=l.slice(0,wbProjShown).map(wbProjCard).join('');
 }
 function renderWbDocs(){
   document.getElementById('wb-doc-list').innerHTML=wbDocs.map(d=>`
