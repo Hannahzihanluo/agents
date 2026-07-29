@@ -368,7 +368,6 @@
               <div class="flex items-center gap-2 p-2.5 rounded-xl bg-gray-50"><span class="text-emerald-500">🔓</span>公司知识仓库<button class="ml-auto text-[11px] text-gray-400 border border-gray-200 rounded-md px-2 py-0.5" onclick="gotoPlatformResource('company')">去管理</button></div>
               <div class="flex items-center gap-2 p-2.5 rounded-xl bg-gray-50"><span class="text-emerald-500">🔓</span>客户知识空间<button class="ml-auto text-[11px] text-gray-400 border border-gray-200 rounded-md px-2 py-0.5" onclick="gotoPlatformResource('customer')">去管理</button></div>
               <div class="flex items-center gap-2 p-2.5 rounded-xl bg-gray-50"><span class="text-emerald-500">🔓</span>自定义知识库<button class="ml-auto text-[11px] text-gray-400 border border-gray-200 rounded-md px-2 py-0.5" onclick="gotoPlatformResource('custom')">去管理</button></div>
-              <div class="flex items-center gap-2 p-2.5 rounded-xl bg-violet-50/70 border border-violet-100"><span class="text-violet-500">📁</span><span>项目空间<b class="text-violet-600 ml-1" id="cap-proj-name"></b></span><button class="ml-auto text-[11px] text-violet-600 border border-violet-200 rounded-md px-2 py-0.5" onclick="gotoPlatformResource('project')">去管理</button></div>
             </div>
           </div>
           <div class="card p-3.5">
@@ -421,7 +420,7 @@
         <div id="wt-space" class="hidden space-y-3">
           <!-- 项目空间列表 -->
           <div class="card p-3.5">
-            <div class="flex items-center justify-between mb-2"><span class="text-[13px] font-bold">📁 项目空间</span><span class="text-[10.5px] text-gray-400">按我的授权显示</span></div>
+            <div class="flex items-center justify-between mb-2"><span class="text-[13px] font-bold">📁 项目空间 <span class="text-[10.5px] font-normal text-gray-400 ml-1">按我的授权显示</span></span><button class="btn-p !py-1 !px-3 text-[11px]" onclick="openProjModal()">+ 创建</button></div>
             <input id="wb-proj-search" class="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-xs mb-2 focus:outline-violet-300" placeholder="搜索项目名称 / 类型" oninput="renderWbProjects()">
             <div class="space-y-2 max-h-[380px] overflow-y-auto" id="wb-project-list" onscroll="wbProjScroll(this)"></div>
           </div>
@@ -540,7 +539,7 @@
 <!-- Toast -->
 <div id="toast" class="hidden fixed top-5 left-1/2 -translate-x-1/2 z-[60] toast bg-gray-900 text-white text-[13px] px-5 py-2.5 rounded-xl shadow-lg"></div>
 
-<footer class="fixed bottom-1 right-2 text-[10px] text-gray-300 z-[60]">v09 · 更新于 2026-07-29</footer>
+<footer class="fixed bottom-1 right-2 text-[10px] text-gray-300 z-[60]">v10 · 更新于 2026-07-29</footer>
 
 <script>
 /* ================= 数据 ================= */
@@ -688,7 +687,7 @@ function renderProjects(){
   document.getElementById('project-grid').innerHTML=list.length?list.map(p=>`
   <div class="card p-4 cursor-pointer" onclick="openProjectDetail(${p.id})">
     <div class="flex items-center justify-between mb-2">
-      <div class="flex gap-1.5"><span class="tag ${typeTagCls(p.type||'KA项目')}">${p.type||'KA项目'}</span>${p.type!=='个人项目'?`<span class="tag bg-blue-100 text-blue-600">${p.stage}</span>`:''}</div>
+      <div class="flex gap-1.5"><span class="tag ${typeTagCls(p.type||'KA项目')}">${p.type||'KA项目'}</span>${p.type==='KA项目'?`<span class="tag bg-blue-100 text-blue-600">${p.stage}</span>`:''}</div>
       <span class="text-[10.5px] text-gray-400">更新 ${p.time}</span>
     </div>
     <div class="font-bold text-[13.5px] mb-1">${p.name}</div>
@@ -948,7 +947,7 @@ function pdUpdate(ok){
 }
 
 /* ================= AI 工作台 ================= */
-function renderWbAll(){renderAppChips();renderQuickActions();renderCapSkills();renderWbProjects();renderWbDocs();document.getElementById('cap-proj-name').textContent=curProject?(' · '+curProject.customer):''}
+function renderWbAll(){renderAppChips();renderQuickActions();renderCapSkills();renderWbProjects();renderWbDocs()}
 function renderAppChips(){
   const list=(curProject?['KA 主理智能体']:[]).concat(myApps);
   if(!list.includes(currentAgent))currentAgent=list[0]||'智能体';
@@ -972,7 +971,7 @@ function wbProjFiltered(){
 }
 function wbProjCard(p){
   return `<div class="p-3 rounded-xl border ${curProject&&curProject.id===p.id?'border-violet-300 bg-violet-50/60':'border-gray-100 bg-gray-50/60'}">
-    <div class="flex items-center justify-between gap-2"><span class="text-[12.5px] font-bold truncate">${p.name}</span><span class="flex gap-1 shrink-0"><span class="tag ${typeTagCls(p.type||'KA项目')}">${p.type||'KA项目'}</span>${p.type!=='个人项目'?`<span class="tag bg-blue-100 text-blue-600">${p.stage.split(' ')[0]}</span>`:''}</span></div>
+    <div class="flex items-center justify-between gap-2"><span class="text-[12.5px] font-bold truncate">${p.name}</span><span class="flex gap-1 shrink-0"><span class="tag ${typeTagCls(p.type||'KA项目')}">${p.type||'KA项目'}</span>${p.type==='KA项目'?`<span class="tag bg-blue-100 text-blue-600">${p.stage.split(' ')[0]}</span>`:''}</span></div>
     <div class="flex items-center gap-3 text-[10.5px] text-gray-400 mt-1.5"><span>我的角色：项目经理</span><span class="cursor-pointer hover:text-violet-600 underline decoration-dotted" onclick="event.stopPropagation();openProjTasks(${p.id})">待办 ${p.todos}</span>${p.risk?`<span class="text-red-500">风险 ${p.risk}</span>`:''}</div>
     <button class="btn-p !py-1 !px-3 text-[11px] mt-2 w-full" onclick="enterProjectWb(${p.id})">${curProject&&curProject.id===p.id?'当前项目 ✓':'进入项目 →'}</button>
   </div>`;
