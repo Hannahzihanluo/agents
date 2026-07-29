@@ -471,7 +471,7 @@
 <!-- Toast -->
 <div id="toast" class="hidden fixed top-5 left-1/2 -translate-x-1/2 z-[60] toast bg-gray-900 text-white text-[13px] px-5 py-2.5 rounded-xl shadow-lg"></div>
 
-<footer class="fixed bottom-1 right-2 text-[10px] text-gray-300 z-[60]">v03 · 更新于 2026-07-28</footer>
+<footer class="fixed bottom-1 right-2 text-[10px] text-gray-300 z-[60]">v04 · 更新于 2026-07-29</footer>
 
 <script>
 /* ================= 数据 ================= */
@@ -491,9 +491,9 @@ const kbData={
   customer:[['远航物流集团知识空间',56,89,'是','KA 主理智能体','platform','2026-07-28 08:30:00'],['肇庆新景昌物流知识空间',23,41,'是','销售AI-test','platform','2026-07-06 16:33:19'],['徐州聚鸿建设知识空间',19,33,'是','销售AI-test','platform','2026-07-06 13:41:56']]
 };
 let projects=[
-  {id:1,name:'远航物流集团 · 智能调度平台项目',customer:'远航物流集团',stage:'CR4 KA攻坚',group:'远航-智能调度项目组',members:4,skills:6,time:'2026-07-28 09:12',todos:3,risk:1,spaces:['远航物流集团知识空间'],refs:['顺捷物流智能调度','云途仓配一体调度']},
-  {id:2,name:'肇庆新景昌物流 · 车队安全管理项目',customer:'肇庆新景昌物流',stage:'CR5 签约交付',group:'新景昌-车队安全项目群',members:5,skills:5,time:'2026-07-26 14:20',todos:5,risk:0,spaces:['肇庆新景昌物流知识空间'],refs:['北斗干线优化']},
-  {id:3,name:'徐州聚鸿建设 · 大宗运输数字化项目',customer:'徐州聚鸿建设',stage:'CR3 方案验证',group:'聚鸿-数字化项目群',members:3,skills:4,time:'2026-07-20 11:05',todos:2,risk:0,spaces:['徐州聚鸿建设知识空间'],refs:[]}
+  {id:1,name:'远航物流集团 · 智能调度平台项目',customer:'远航物流集团',stage:'CR4 KA攻坚',group:'远航-智能调度项目组',members:4,skills:6,time:'2026-07-28 09:12',todos:3,risk:1,done:12,overdue:1,spaces:['远航物流集团知识空间'],refs:['顺捷物流智能调度','云途仓配一体调度']},
+  {id:2,name:'肇庆新景昌物流 · 车队安全管理项目',customer:'肇庆新景昌物流',stage:'CR5 签约交付',group:'新景昌-车队安全项目群',members:5,skills:5,time:'2026-07-26 14:20',todos:5,risk:0,done:8,overdue:2,spaces:['肇庆新景昌物流知识空间'],refs:['北斗干线优化']},
+  {id:3,name:'徐州聚鸿建设 · 大宗运输数字化项目',customer:'徐州聚鸿建设',stage:'CR3 方案验证',group:'聚鸿-数字化项目群',members:3,skills:4,time:'2026-07-20 11:05',todos:2,risk:0,done:5,overdue:0,spaces:['徐州聚鸿建设知识空间'],refs:[]}
 ];
 const allSpaces=['远航物流集团知识空间','肇庆新景昌物流知识空间','徐州聚鸿建设知识空间','云途供应链知识空间'];
 const allRefs=['顺捷物流智能调度','云途仓配一体调度','北斗干线优化','G7易流 TMS 一期'];
@@ -831,9 +831,55 @@ function wbTaskDone(btn){
 /* ================= 经营看板聚合 ================= */
 let dashSel={g:0,i:0};
 const KA_DASH_SRC=encodeURIComponent('[原型]KA参谋长-项目试点空间.html');
+function globalDashSrcdoc(){
+  const stageMap={};projects.forEach(p=>{stageMap[p.stage]=(stageMap[p.stage]||0)+1});
+  const stages=Object.entries(stageMap);const maxCnt=Math.max(...stages.map(s=>s[1]));
+  const tot={done:0,overdue:0,todos:0,risk:0};
+  projects.forEach(p=>{tot.done+=p.done||0;tot.overdue+=p.overdue||0;tot.todos+=p.todos||0;tot.risk+=p.risk?1:0});
+  const riskLabel=r=>r>=2?['高','#EF4444']:r===1?['中','#F59E0B']:['低','#10B981'];
+  const rows=projects.map(p=>{const[rl,rc]=riskLabel(p.risk||0);return `<tr>
+    <td style="font-weight:600">${p.name}</td><td>${p.stage.split(' ')[0]}</td>
+    <td><span style="color:${rc};font-weight:700">${rl}${p.risk?`（${p.risk} 项）`:''}</span></td>
+    <td style="color:#10B981;font-weight:700">${p.done||0}</td>
+    <td style="color:${p.overdue?'#EF4444':'#9ca3af'};font-weight:700">${p.overdue||0}</td>
+    <td style="color:#7C3AED;font-weight:700">${p.todos||0}</td></tr>`}).join('');
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"><style>
+    body{font-family:'PingFang SC','Microsoft YaHei',sans-serif;margin:0;padding:32px;background:#f9fafb;color:#1f2937}
+    h1{font-size:20px;margin:0}.sub{font-size:12px;color:#9ca3af;margin:6px 0 24px}
+    .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+    .card{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:16px}
+    .k{font-size:12px;color:#6b7280}.v{font-size:26px;font-weight:800;color:#7C3AED;margin-top:6px}.d{font-size:11px;color:#9ca3af;margin-top:4px}
+    .panel{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:20px;margin-bottom:18px}
+    .pt{font-size:14px;font-weight:700;margin-bottom:14px}
+    .bar-row{display:flex;align-items:center;gap:12px;margin-bottom:10px;font-size:12.5px}
+    .bar-name{width:110px;color:#4b5563;text-align:right}
+    .bar-track{flex:1;background:#f3f4f6;border-radius:6px;height:18px;overflow:hidden}
+    .bar-fill{height:100%;background:linear-gradient(90deg,#7C3AED,#D946EF);border-radius:6px}
+    .bar-cnt{width:56px;font-weight:700;color:#7C3AED}
+    table{width:100%;border-collapse:collapse;font-size:12.5px}
+    th{color:#9ca3af;font-weight:600;padding:8px 10px;border-bottom:1px solid #f3f4f6;font-size:11.5px;text-align:center}
+    th:first-child,td:first-child{text-align:left}
+    td{padding:10px;border-bottom:1px solid #f9fafb;text-align:center}
+  </style></head><body>
+    <h1>项目经营看板 · 全局视图</h1>
+    <p class="sub">全部项目空间 · 更新于 2026-07-29 08:30 · 数据来自各项目空间任务清单与经营看板</p>
+    <div class="grid">
+      <div class="card"><div class="k">项目总数</div><div class="v">${projects.length}</div><div class="d">覆盖 ${stages.length} 个营销阶段</div></div>
+      <div class="card"><div class="k">风险项目</div><div class="v" style="color:#EF4444">${tot.risk}</div><div class="d">含未闭环风险事项</div></div>
+      <div class="card"><div class="k">逾期任务</div><div class="v" style="color:#EF4444">${tot.overdue}</div><div class="d">已同步飞书待办催办</div></div>
+      <div class="card"><div class="k">待办任务</div><div class="v">${tot.todos}</div><div class="d">本周累计完成 ${tot.done} 项</div></div>
+    </div>
+    <div class="panel"><div class="pt">各阶段项目数</div>
+      ${stages.map(([s,c])=>`<div class="bar-row"><div class="bar-name">${s}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(c/maxCnt*100)}%"></div></div><div class="bar-cnt">${c} 个</div></div>`).join('')}
+    </div>
+    <div class="panel"><div class="pt">各项目任务情况</div>
+      <table><thead><tr><th>项目</th><th>阶段</th><th>风险程度</th><th>已完成任务</th><th>逾期任务</th><th>待办任务</th></tr></thead>
+      <tbody>${rows}</tbody></table>
+    </div>
+  </body></html>`}
 function dashSrcdoc(t,sub,rows){return `<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{font-family:'PingFang SC','Microsoft YaHei',sans-serif;margin:0;padding:32px;background:#f9fafb;color:#1f2937}h1{font-size:20px;margin:0}.sub{font-size:12px;color:#9ca3af;margin:6px 0 24px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.card{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:16px}.k{font-size:12px;color:#6b7280}.v{font-size:24px;font-weight:800;color:#7C3AED;margin-top:6px}.d{font-size:11px;color:#9ca3af;margin-top:4px}</style></head><body><h1>${t}</h1><p class="sub">${sub} · 示意看板（对接 HTML 后即真实数据）</p><div class="grid">${rows.map(r=>`<div class="card"><div class="k">${r[0]}</div><div class="v">${r[1]}</div><div class="d">${r[2]}</div></div>`).join('')}</div></body></html>`}
 function dashGroups(){return [
-  {title:'项目经营看板',items:projects.map(p=>({name:p.customer,tag:p.stage.split(' ')[0],src:p.id===1?KA_DASH_SRC:null}))},
+  {title:'项目经营看板',items:[{name:'全局视图',tag:'全部',global:true}].concat(projects.map(p=>({name:p.customer,tag:p.stage.split(' ')[0],src:p.id===1?KA_DASH_SRC:null})))},
   {title:'业务系统看板',items:[{name:'任务中心看板 · CRM',tag:'CRM',crm:true}]}
 ]}
 function openDash(){document.getElementById('view-dash').classList.remove('hidden');openDashItem(0,0)}
@@ -843,13 +889,14 @@ function renderDashNav(){
     <div><div class="text-[11px] font-bold text-gray-400 mb-2 px-1">${g.title}</div>
     <div class="space-y-1">${g.items.map((it,ii)=>`
       <div class="flex items-center gap-2 px-3 py-2.5 rounded-xl cursor-pointer text-[12.5px] border ${dashSel.g===gi&&dashSel.i===ii?'bg-violet-50 text-violet-700 font-semibold border-violet-200':'text-gray-600 hover:bg-gray-50 border-transparent'}" onclick="openDashItem(${gi},${ii})">
-        <span>${gi===0?'📁':'🧩'}</span><span class="truncate">${it.name}</span><span class="ml-auto tag ${gi===0?'bg-violet-100 text-violet-700':'bg-gray-100 text-gray-500'}">${it.tag}</span>
+        <span>${it.global?'🌐':gi===0?'📁':'🧩'}</span><span class="truncate">${it.name}</span><span class="ml-auto tag ${gi===0?'bg-violet-100 text-violet-700':'bg-gray-100 text-gray-500'}">${it.tag}</span>
       </div>`).join('')}</div></div>`).join('');
 }
 function openDashItem(gi,ii){
   dashSel={g:gi,i:ii};renderDashNav();
   const it=dashGroups()[gi].items[ii];const f=document.getElementById('dash-frame');
-  if(it.src){f.removeAttribute('srcdoc');f.src=it.src}
+  if(it.global){f.removeAttribute('src');f.srcdoc=globalDashSrcdoc()}
+  else if(it.src){f.removeAttribute('srcdoc');f.src=it.src}
   else if(it.crm){f.removeAttribute('src');f.srcdoc=dashSrcdoc('任务中心看板 · CRM','业务系统 · 销售任务全局视图',[['进行中任务','46','较上周 +8'],['逾期任务','5','3 个 KA 项目相关'],['本周完成','23','完成率 82%'],['飞书待办同步','38','双向同步正常'],['涉及项目','12','其中 KA 项目 4 个'],['平均响应时长','3.2h','目标 ≤ 4h']])}
   else{const p=projects.find(x=>x.customer===it.name)||{};f.removeAttribute('src');f.srcdoc=dashSrcdoc(it.name+' · 项目经营看板',(p.stage||'')+' · 项目组协同',[['客户关系评分','72/100','三层关系评估'],['本周销售动作','9','指引完成 6 项'],['增购机会','2 个','预计 ¥86万'],['待办事项',(p.todos||0)+' 项','已同步飞书待办'],['风险事项',(p.risk||0)+' 项',p.risk?'需今日跟进':'无'],['文档沉淀','17 篇','项目空间自动归档']])}
 }
