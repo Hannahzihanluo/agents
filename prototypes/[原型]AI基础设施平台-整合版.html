@@ -240,7 +240,7 @@
           <h3 class="font-bold text-sm">关联群 <span class="text-[11px] font-normal text-gray-400">KA 主理智能体在已绑定群中接收全部消息并选择性响应</span></h3>
           <div class="flex gap-2">
             <button class="btn-o !py-1.5 !px-4 text-xs" onclick="createPdGroup()">⚡ 一键创建并关联</button>
-            <button class="btn-p !py-1.5 !px-4 text-xs" onclick="toast('搜索并绑定群聊（示意）')">+ 绑定群</button>
+            <button class="btn-p !py-1.5 !px-4 text-xs" onclick="openBindGroup()">+ 绑定群</button>
           </div>
         </div>
         <div class="mb-4 border border-gray-100 rounded-xl p-3.5" id="pd-listen-box"></div>
@@ -556,8 +556,9 @@
             </div>
           </div>
           <div class="card p-3.5">
-            <div class="flex items-center justify-between mb-2"><span class="text-[13px] font-bold">📁 项目空间 <span class="text-[10.5px] font-normal text-gray-400 ml-1">按我的授权显示</span></span><span class="text-[10.5px] text-gray-300">点击展开文件</span></div>
-            <div class="space-y-2 max-h-[360px] overflow-y-auto" id="cap-proj-list"></div>
+            <div class="flex items-center justify-between mb-2"><span class="text-[13px] font-bold">📁 项目空间 <span class="text-[10.5px] font-normal text-gray-400 ml-1">按我的授权显示 · 点击展开文件</span></span><button class="btn-p !py-1 !px-3 text-[11px]" onclick="gotoPlatformProjects()">+ 新建项目</button></div>
+            <input id="cap-proj-search" class="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-xs mb-2 focus:outline-violet-300" placeholder="搜索项目名称 / 类型" oninput="renderCapProjects()">
+            <div class="space-y-2 max-h-[380px] overflow-y-auto" id="cap-proj-list"></div>
           </div>
           <div class="card p-3.5">
             <div class="text-[13px] font-bold mb-2">⚡ 集成的技能 <span class="text-[11px] font-normal text-gray-400">当前会话可用技能 (24)</span></div>
@@ -607,12 +608,6 @@
 
         <!-- 我的空间 -->
         <div id="wt-space" class="hidden space-y-3">
-          <!-- 项目空间列表 -->
-          <div class="card p-3.5">
-            <div class="flex items-center justify-between mb-2"><span class="text-[13px] font-bold">📁 项目空间 <span class="text-[10.5px] font-normal text-gray-400 ml-1">按我的授权显示</span></span><button class="btn-p !py-1 !px-3 text-[11px]" onclick="openProjModal()">+ 创建</button></div>
-            <input id="wb-proj-search" class="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-xs mb-2 focus:outline-violet-300" placeholder="搜索项目名称 / 类型" oninput="renderWbProjects()">
-            <div class="space-y-2 max-h-[380px] overflow-y-auto" id="wb-project-list" onscroll="wbProjScroll(this)"></div>
-          </div>
           <!-- 生成的文档 -->
           <div class="card p-3.5">
             <div class="text-[13px] font-bold mb-2">📄 生成的文档</div>
@@ -643,10 +638,24 @@
         <input id="cp-name" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-[13px] focus:outline-violet-300" placeholder="如：远航物流集团 · 智能调度平台项目">
       </div>
       <div>
-        <label class="text-[12px] font-semibold text-gray-600 block mb-1.5">关联客户知识空间 <span id="cp-space-req" class="text-red-400">*</span> <span class="text-gray-400 font-normal">（可搜索多选，绑定后自动带入客户信息与历史对接记录）</span></label>
+        <label class="text-[12px] font-semibold text-gray-600 block mb-1.5">关联客户知识空间 <span id="cp-space-req" class="text-red-400">*</span> <span class="text-gray-400 font-normal">（KA 项目必选，SKA/个人项目可选；绑定后自动带入客户信息与历史对接记录）</span></label>
         <input id="cp-space-search" class="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-xs mb-1.5 focus:outline-violet-300" placeholder="搜索客户名称" oninput="filterCpList('space')">
         <div class="space-y-1.5 max-h-36 overflow-y-auto border border-gray-100 rounded-xl p-2" id="cp-spaces"></div>
         <div id="cp-opp-box" class="hidden mt-2"></div>
+      </div>
+      <div id="cp-kb-block">
+        <label class="text-[12px] font-semibold text-gray-600 block mb-1.5">关联知识库 <span class="text-gray-400 font-normal">（可选，可搜索多选，SKA/个人项目按需关联）</span></label>
+        <input id="cp-kb-search" class="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-xs mb-1.5 focus:outline-violet-300" placeholder="搜索知识库名称" oninput="filterCpList('kb')">
+        <div class="space-y-1.5 max-h-36 overflow-y-auto border border-gray-100 rounded-xl p-2" id="cp-kbs"></div>
+      </div>
+      <div>
+        <label class="text-[12px] font-semibold text-gray-600 block mb-1.5">绑定微信群 <span class="text-gray-400 font-normal">（下拉选择当前智能体已加入的群，可搜索添加）</span></label>
+        <div id="cp-group-chips" class="flex flex-wrap gap-1.5 mb-1.5"></div>
+        <div class="flex gap-1.5">
+          <input id="cp-group-search" class="flex-1 border border-gray-200 rounded-lg px-3 py-1.5 text-xs focus:outline-violet-300" placeholder="搜索群名称" oninput="renderCpGroupDrop(true)" onfocus="renderCpGroupDrop(true)">
+          <button type="button" class="btn-o !py-1 !px-3 text-xs shrink-0" onclick="toggleCpGroupDrop()">▾</button>
+        </div>
+        <div id="cp-group-drop" class="hidden mt-1.5 border border-gray-100 rounded-xl max-h-36 overflow-y-auto"></div>
       </div>
       <div>
         <label class="text-[12px] font-semibold text-gray-600 block mb-1.5">关联历史项目 <span class="text-gray-400 font-normal">（可搜索多选，用于方案推荐与最佳实践参考）</span></label>
@@ -697,7 +706,12 @@
   <div class="bg-white rounded-2xl w-[440px] p-6 fade-in">
     <div class="flex items-center justify-between mb-1"><h3 class="font-bold">关联智能体</h3><button class="text-gray-400 hover:text-gray-600" onclick="closeProjAgents()">✕</button></div>
     <p class="text-[11.5px] text-gray-400 mb-4" id="pa-sub"></p>
-    <div class="space-y-2 max-h-72 overflow-y-auto" id="pa-list"></div>
+    <div class="space-y-2 max-h-60 overflow-y-auto" id="pa-list"></div>
+    <button class="btn-o w-full mt-3 text-xs" onclick="togglePaAdd()">＋ 添加智能体 <span class="text-gray-400 font-normal">（从我可管理的智能体中选择）</span></button>
+    <div id="pa-add-panel" class="hidden mt-2 border border-gray-100 rounded-xl p-2">
+      <input id="pa-add-search" class="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-xs focus:outline-violet-300" placeholder="搜索我可管理的智能体" oninput="renderPaAdd()">
+      <div class="space-y-1 max-h-36 overflow-y-auto mt-1.5" id="pa-add-list"></div>
+    </div>
     <button class="btn-p w-full mt-4" onclick="saveProjAgents()">保存默认智能体</button>
   </div>
 </div>
@@ -781,10 +795,34 @@
   </div>
 </div>
 
+<!-- ===== 项目摘要查看 / AI 对话更新弹窗 ===== -->
+<div id="modal-capsummary" class="hidden fixed inset-0 z-50 modal-bg flex items-center justify-center" onclick="if(event.target===this)closeCapSummary()">
+  <div class="bg-white rounded-2xl w-[560px] p-6 fade-in max-h-[90vh] flex flex-col">
+    <div class="flex items-center justify-between mb-1 shrink-0"><h3 class="font-bold" id="cs-title">项目摘要</h3><button class="text-gray-400 hover:text-gray-600" onclick="closeCapSummary()">✕</button></div>
+    <p class="text-[11px] text-gray-400 mb-3 shrink-0">AI 生成并持续维护 · 需要修改时，直接在下方对话框描述，AI 自动更新摘要并生成新版本</p>
+    <div id="cs-view" class="flex-1 min-h-0 overflow-y-auto text-[13px] leading-relaxed text-gray-700 bg-gray-50 rounded-xl p-4 mb-3"></div>
+    <div id="cs-chat" class="space-y-2 max-h-32 overflow-y-auto shrink-0"></div>
+    <div class="border border-gray-200 rounded-2xl px-4 py-2.5 flex items-center gap-3 shrink-0 mt-2">
+      <input id="cs-input" class="flex-1 text-[13px] focus:outline-none" placeholder="如：把 POC 范围更新为 4 个分拨中心" onkeydown="if(event.key==='Enter')capSumSend()">
+      <button class="w-7 h-7 rounded-lg bg-violet-600 text-white flex items-center justify-center text-xs hover:bg-violet-700" onclick="capSumSend()">➤</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 绑定微信群弹窗 ===== -->
+<div id="modal-bindgroup" class="hidden fixed inset-0 z-50 modal-bg flex items-center justify-center" onclick="if(event.target===this)closeBindGroup()">
+  <div class="bg-white rounded-2xl w-[440px] p-6 fade-in">
+    <div class="flex items-center justify-between mb-1"><h3 class="font-bold">绑定微信群</h3><button class="text-gray-400 hover:text-gray-600" onclick="closeBindGroup()">✕</button></div>
+    <p class="text-[11.5px] text-gray-400 mb-4">下拉选择 KA 主理智能体已加入的群，绑定后智能体在群内接收消息并选择性响应</p>
+    <input id="bg-search" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-[12.5px] mb-2 focus:outline-violet-300" placeholder="搜索群名称" oninput="renderBgList()">
+    <div class="space-y-1.5 max-h-64 overflow-y-auto" id="bg-list"></div>
+  </div>
+</div>
+
 <!-- Toast -->
 <div id="toast" class="hidden fixed top-5 left-1/2 -translate-x-1/2 z-[60] toast bg-gray-900 text-white text-[13px] px-5 py-2.5 rounded-xl shadow-lg"></div>
 
-<footer class="fixed bottom-1 right-2 text-[10px] text-gray-300 z-[60]">v13 · 更新于 2026-08-11</footer>
+<footer class="fixed bottom-1 right-2 text-[10px] text-gray-300 z-[60]">v14 · 更新于 2026-08-11</footer>
 
 <script>
 /* ================= 数据 ================= */
@@ -843,6 +881,8 @@ const projTasks={
 function taskTag(st){return ({'待办':'bg-amber-100 text-amber-600','逾期':'bg-red-100 text-red-600','执行中':'bg-blue-100 text-blue-600','已完成':'bg-emerald-100 text-emerald-700'})[st]||'bg-gray-100 text-gray-500'}
 function typeTagCls(t){return t==='SKA项目'?'bg-red-100 text-red-600':t==='KA项目'?'bg-violet-100 text-violet-700':'bg-gray-100 text-gray-500'}
 const allSpaces=['远航物流集团知识空间','肇庆新景昌物流知识空间','徐州聚鸿建设知识空间','云途供应链知识空间'];
+const allKbPool=[...kbData.custom.map(r=>r[0]),...kbData.company.map(r=>r[0])];
+const joinedGroups=['远航-智能调度项目组','新景昌-车队安全项目群','聚鸿-数字化项目群','顺捷-调度二期项目群','云途-仓配调度项目群','北斗-线路优化项目群','G7-TMS二期项目群','销售管理周会群','华东 KA 客户交流群','TMS 产品技术对接群','交付实施协同群'];
 const projCreators={1:'罗紫函',2:'王磊',3:'陈静',4:'王磊',5:'陈静',6:'王磊',7:'刘洋',8:'罗紫函'};
 const allRefs=['顺捷物流智能调度','云途仓配一体调度','北斗干线优化','G7易流 TMS 一期'];
 const allApps=['解决方案生成','数据分析','PPT制作','拜访简报生成','拜访复盘报告','POC报告生成','CRM录入','调研方案生成','物流数字化方案专家','周报生成'];
@@ -938,7 +978,7 @@ function renderProjects(){
     </div>
     <div class="font-bold text-[13.5px] mb-1">${p.name}</div>
     <div class="text-[11.5px] text-gray-400 mb-1">绑定群：${p.group}</div>
-    <div class="text-[11px] text-gray-400 mb-3">创建人：${projCreators[p.id]||'—'} · 关联知识空间 ${p.spaces.length} · 历史项目 ${p.refs.length} · 默认智能体：<span class="text-violet-600 font-semibold">${p.defaultAgent||'未设置'}</span></div>
+    <div class="text-[11px] text-gray-400 mb-3">创建人：${projCreators[p.id]||'—'} · 关联知识空间 ${p.spaces.length}${p.kbs&&p.kbs.length?` · 关联知识库 ${p.kbs.length}`:''} · 历史项目 ${p.refs.length} · 默认智能体：<span class="text-violet-600 font-semibold">${p.defaultAgent||'未设置'}</span></div>
     <div class="grid grid-cols-4 gap-2 text-center text-[11px] text-gray-500 border-t border-gray-50 pt-3">
       <div><div class="font-bold text-gray-700 text-[13px]">${p.members}</div>成员</div>
       <div class="cursor-pointer rounded-lg hover:bg-violet-50" onclick="event.stopPropagation();openProjAgents(${p.id})" title="点击查看智能体列表"><div class="font-bold text-violet-600 text-[13px]">${(p.agents||[]).length}</div>关联智能体</div>
@@ -954,9 +994,16 @@ function renderProjects(){
 }
 /* ===== 关联智能体 ===== */
 let agentProjId=null, agentDefaultSel='';
+const manageableAgents=[...new Set(agents.map(a=>a.name).concat(allApps))];
 function openProjAgents(id){
   agentProjId=id;const p=projects.find(x=>x.id===id);agentDefaultSel=p.defaultAgent||p.agents[0];
   document.getElementById('pa-sub').textContent=p.name+' · 选择项目默认使用的智能体（群会话与任务默认由其处理）';
+  document.getElementById('pa-add-panel').classList.add('hidden');
+  paRenderList();
+  document.getElementById('modal-projagents').classList.remove('hidden');
+}
+function paRenderList(){
+  const p=projects.find(x=>x.id===agentProjId);
   document.getElementById('pa-list').innerHTML=p.agents.map(a=>`
     <label class="flex items-center gap-3 p-3 rounded-xl border border-gray-100 hover:border-violet-300 cursor-pointer">
       <input type="radio" name="pa-default" class="accent-violet-600" ${a===agentDefaultSel?'checked':''} onchange="agentDefaultSel='${a}'">
@@ -964,7 +1011,25 @@ function openProjAgents(id){
       <span class="text-[13px] font-medium">${a}</span>
       ${a===p.defaultAgent?'<span class="ml-auto tag bg-violet-100 text-violet-700">当前默认</span>':''}
     </label>`).join('');
-  document.getElementById('modal-projagents').classList.remove('hidden');
+}
+function togglePaAdd(){
+  const el=document.getElementById('pa-add-panel');el.classList.toggle('hidden');
+  if(!el.classList.contains('hidden')){document.getElementById('pa-add-search').value='';renderPaAdd()}
+}
+function renderPaAdd(){
+  const p=projects.find(x=>x.id===agentProjId);
+  const kw=(document.getElementById('pa-add-search').value||'').trim();
+  const list=manageableAgents.filter(a=>!p.agents.includes(a)&&(!kw||a.includes(kw)));
+  document.getElementById('pa-add-list').innerHTML=list.map(a=>`
+  <div class="flex items-center gap-2 px-2.5 py-2 rounded-lg hover:bg-violet-50/60 text-[12.5px]">
+    <span>🤖</span><span class="flex-1">${a}</span>
+    <button class="btn-o !py-0.5 !px-2.5 text-[11px]" onclick="paAddAgent('${a}')">＋ 添加</button>
+  </div>`).join('')||'<div class="px-2 py-2 text-[11.5px] text-gray-300">暂无可添加的智能体</div>';
+}
+function paAddAgent(a){
+  const p=projects.find(x=>x.id===agentProjId);p.agents.push(a);
+  paRenderList();renderPaAdd();renderProjects();
+  toast('已将「'+a+'」添加为项目关联智能体');
 }
 function closeProjAgents(){document.getElementById('modal-projagents').classList.add('hidden')}
 function saveProjAgents(){
@@ -989,16 +1054,32 @@ function openRuleModal(){document.getElementById('modal-rule').classList.remove(
 function closeRuleModal(){document.getElementById('modal-rule').classList.add('hidden')}
 
 /* ===== 创建/配置项目空间弹窗 ===== */
-let editingProjId=null, selSpaces=new Set(), selRefs=new Set(), cpType='KA项目';
+let editingProjId=null, selSpaces=new Set(), selRefs=new Set(), selKbs=new Set(), selGroups=new Set(), cpType='KA项目';
 function filterCpList(kind){
   const kw=(document.getElementById('cp-'+kind+'-search').value||'').trim();
   document.querySelectorAll('#cp-'+kind+'s label').forEach(l=>l.style.display=l.textContent.includes(kw)?'':'none');
 }
 function setCpType(t){
   cpType=t;
-  document.getElementById('cp-space-req').style.display=t==='个人项目'?'none':'';
+  document.getElementById('cp-space-req').style.display=t==='KA项目'?'':'none';
+  document.getElementById('cp-kb-block').classList.toggle('hidden',t==='KA项目');
   renderCpOpp();
 }
+/* 绑定微信群下拉 */
+function renderCpGroupChips(){
+  document.getElementById('cp-group-chips').innerHTML=[...selGroups].map(g=>`<span class="tag bg-violet-100 text-violet-700 !text-[11.5px] !px-2.5 !py-1">💬 ${g} <button class="ml-1 text-gray-400 hover:text-red-400" onclick="delCpGroup('${g}')">✕</button></span>`).join('');
+}
+function renderCpGroupDrop(open){
+  const drop=document.getElementById('cp-group-drop');
+  if(open)drop.classList.remove('hidden');
+  if(drop.classList.contains('hidden'))return;
+  const kw=(document.getElementById('cp-group-search').value||'').trim();
+  const list=joinedGroups.filter(g=>!selGroups.has(g)&&(!kw||g.includes(kw)));
+  drop.innerHTML=list.map(g=>`<div class="px-3 py-2 text-[12.5px] cursor-pointer hover:bg-violet-50 hover:text-violet-700" onclick="addCpGroup('${g}')">💬 ${g}</div>`).join('')||'<div class="px-3 py-2 text-[11.5px] text-gray-300">无匹配群聊</div>';
+}
+function toggleCpGroupDrop(){const d=document.getElementById('cp-group-drop');d.classList.toggle('hidden');renderCpGroupDrop()}
+function addCpGroup(g){selGroups.add(g);document.getElementById('cp-group-search').value='';renderCpGroupChips();renderCpGroupDrop();toast('已添加绑定群「'+g+'」')}
+function delCpGroup(g){selGroups.delete(g);renderCpGroupChips();renderCpGroupDrop()}
 function renderCpOpp(){
   const box=document.getElementById('cp-opp-box');
   if(cpType==='个人项目'){box.classList.add('hidden');box.innerHTML='';return}
@@ -1015,17 +1096,23 @@ function openProjModal(editId){
   editingProjId=editId||null;
   const p=editId?projects.find(x=>x.id===editId):null;
   selSpaces=new Set(p?p.spaces:[]);selRefs=new Set(p?p.refs:[]);
+  selKbs=new Set(p?(p.kbs||[]):[]);selGroups=new Set(p?(p.bindGroups||[]):[]);
   document.getElementById('cp-name').value=p?p.name:'';
   document.getElementById('cp-space-search').value='';document.getElementById('cp-ref-search').value='';
+  document.getElementById('cp-kb-search').value='';document.getElementById('cp-group-search').value='';
   document.getElementById('cp-title').textContent=p?'配置项目空间':'创建项目空间';
   cpType=p?(p.type||'KA项目'):'KA项目';
   document.querySelectorAll('#cp-types input[name=cp-type]').forEach(r=>r.checked=r.value===cpType);
-  document.getElementById('cp-space-req').style.display=cpType==='个人项目'?'none':'';
+  document.getElementById('cp-space-req').style.display=cpType==='KA项目'?'':'none';
+  document.getElementById('cp-kb-block').classList.toggle('hidden',cpType==='KA项目');
+  document.getElementById('cp-group-drop').classList.add('hidden');
+  renderCpGroupChips();
   const mk=(arr,sel,setName)=>arr.map(x=>`
     <label class="flex items-center gap-2.5 p-2 rounded-lg hover:bg-violet-50/50 cursor-pointer text-[12.5px]">
       <input type="checkbox" class="accent-violet-600" ${sel.has(x)?'checked':''} onchange="this.checked?${setName}.add('${x}'):${setName}.delete('${x}');${setName==='selSpaces'?'renderCpOpp()':''}">${x}
     </label>`).join('');
   document.getElementById('cp-spaces').innerHTML=mk(allSpaces,selSpaces,'selSpaces');
+  document.getElementById('cp-kbs').innerHTML=mk(allKbPool,selKbs,'selKbs');
   document.getElementById('cp-refs').innerHTML=mk(allRefs,selRefs,'selRefs');
   renderCpOpp();
   document.getElementById('modal-createproj').classList.remove('hidden');
@@ -1034,10 +1121,12 @@ function closeProjModal(){document.getElementById('modal-createproj').classList.
 function saveProjModal(){
   const name=document.getElementById('cp-name').value.trim();
   if(!name){toast('请填写项目名称');return}
-  if(cpType!=='个人项目'&&selSpaces.size===0){toast(cpType+'需关联客户知识空间');return}
+  if(cpType==='KA项目'&&selSpaces.size===0){toast('KA 项目需关联客户知识空间');return}
   if(editingProjId){
     const p=projects.find(x=>x.id===editingProjId);
-    p.name=name;p.type=cpType;p.spaces=[...selSpaces];p.refs=[...selRefs];p.time='2026-07-29 刚刚';
+    p.name=name;p.type=cpType;p.spaces=[...selSpaces];p.refs=[...selRefs];p.kbs=[...selKbs];p.bindGroups=[...selGroups];
+    if(selGroups.size)p.group=[...selGroups][0];
+    p.time='2026-07-29 刚刚';
     toast('项目空间配置已更新');
   }else{
     const firstSpace=[...selSpaces][0], opp=firstSpace&&custOpps[firstSpace];
@@ -1059,7 +1148,7 @@ function saveProjModal(){
 
 ## 风险概况
 - 暂无记录`:'';
-    projects.unshift({id:Date.now(),name,type:cpType,customer:cust,stage,group:'待绑定飞书群',members:1,skills:5,time:'2026-07-29 刚刚',todos:0,risk:0,done:0,overdue:0,agents:['KA 主理智能体'],defaultAgent:'KA 主理智能体',spaces:[...selSpaces],refs:[...selRefs],summary});
+    projects.unshift({id:Date.now(),name,type:cpType,customer:cust,stage,group:[...selGroups][0]||'待绑定飞书群',members:1,skills:5,time:'2026-07-29 刚刚',todos:0,risk:0,done:0,overdue:0,agents:['KA 主理智能体'],defaultAgent:'KA 主理智能体',spaces:[...selSpaces],refs:[...selRefs],kbs:[...selKbs],bindGroups:[...selGroups],summary});
     toast(opp?'项目空间已创建，商机阶段与信息已同步至项目摘要':'项目空间已创建，可在「关联群」tab 一键创建项目群');
   }
   closeProjModal();renderProjAgentFilter();renderProjects();
@@ -1140,6 +1229,24 @@ function renderPdGroups(){
     </div>`).join('')||'<div class="py-8 text-center text-gray-400 text-[12.5px]">暂无关联群，点击右上角「一键创建并关联」或「绑定群」</div>';
 }
 function unbindGroup(i){const n=pdGroups[i][0];pdGroups.splice(i,1);renderPdGroups();toast('已解绑「'+n+'」，KA 主理智能体已退出该群')}
+/* 绑定微信群：从当前智能体已加入的群中搜索选择 */
+function openBindGroup(){document.getElementById('bg-search').value='';renderBgList();document.getElementById('modal-bindgroup').classList.remove('hidden')}
+function closeBindGroup(){document.getElementById('modal-bindgroup').classList.add('hidden')}
+function renderBgList(){
+  const kw=(document.getElementById('bg-search').value||'').trim();
+  const bound=pdGroups.map(g=>g[0]);
+  const list=joinedGroups.filter(g=>!bound.includes(g)&&(!kw||g.includes(kw)));
+  document.getElementById('bg-list').innerHTML=list.map(g=>`
+  <div class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl border border-gray-100 text-[12.5px]">
+    <span>💬</span><span class="flex-1">${g}</span>
+    <button class="btn-o !py-1 !px-3 text-[11px]" onclick="bindGroup('${g}')">绑定</button>
+  </div>`).join('')||'<div class="py-6 text-center text-gray-300 text-[12px]">暂无可绑定的群</div>';
+}
+function bindGroup(g){
+  pdGroups.unshift([g,'手动绑定 · 智能体已入群监听','已绑定 · 智能体监听中',true]);
+  if(!curProject.group||curProject.group==='待绑定飞书群'||curProject.group==='未绑定群'){curProject.group=g;document.getElementById('pd-group').textContent='绑定群：'+g}
+  renderPdGroups();renderBgList();toast('已绑定「'+g+'」，KA 主理智能体已在群内开启监听');
+}
 function createPdGroup(){
   if(curProject.group&&curProject.group!=='待绑定飞书群'){toast('已关联项目群：'+curProject.group);return}
   const name=genGroup(curProject.name);
@@ -1309,7 +1416,7 @@ function saveAddUser(){
 }
 
 /* ================= AI 工作台 ================= */
-function renderWbAll(){renderAppChips();renderQuickActions();renderCapSkills();renderWbProjects();renderWbDocs();renderCapProjects()}
+function renderWbAll(){renderAppChips();renderQuickActions();renderCapSkills();renderWbDocs();renderCapProjects()}
 function renderAppChips(){
   const list=(curProject?['KA 主理智能体']:[]).concat(myApps);
   if(!list.includes(currentAgent))currentAgent=list[0]||'智能体';
@@ -1326,7 +1433,6 @@ function renderCapSkills(){
   document.getElementById('cap-skill-list').innerHTML=capSkills.map(s=>`
     <div class="flex items-start gap-2.5 p-2.5 rounded-xl bg-gray-50"><span class="text-violet-500 mt-0.5">⚡</span><div><div class="text-[12.5px] font-semibold">${s[0]} <span class="tag bg-gray-200 text-gray-500 ml-1">工具</span></div><p class="text-[11px] text-gray-400 mt-0.5 leading-relaxed">${s[1]}</p></div></div>`).join('');
 }
-let wbProjShown=5;
 /* ===== 能力空间：项目空间文件树 ===== */
 const capProjFiles={
   1:['项目摘要.md',{d:'需求分析',files:['远航需求调研报告 v2.docx','需求确认单.pdf']},{d:'技术方案',files:['调度平台架构设计图.png','一页纸方案 v3.md']},{d:'POC验证',files:['POC 测试计划.xlsx','调度系统数据字典.xlsx']}],
@@ -1340,10 +1446,15 @@ const capProjFiles={
 };
 let capProjOpen=new Set([1]);
 function renderCapProjects(){
-  document.getElementById('cap-proj-list').innerHTML=projects.map(p=>{
+  const kw=(document.getElementById('cap-proj-search')?.value||'').trim();
+  const list=projects.filter(p=>!kw||p.name.includes(kw)||(p.type||'').includes(kw));
+  document.getElementById('cap-proj-list').innerHTML=list.map(p=>{
     const open=capProjOpen.has(p.id);
-    const tree=(capProjFiles[p.id]||[]).map(it=>{
-      if(typeof it==='string')return `<div class="flex items-center gap-1.5 px-2 py-1.5 rounded-lg hover:bg-violet-50 cursor-pointer text-gray-600" onclick="event.stopPropagation();toast('预览文件（示意）')">📄 ${it}</div>`;
+    const tree=(capProjFiles[p.id]||['项目摘要.md']).map(it=>{
+      if(typeof it==='string'){
+        const isSum=it==='项目摘要.md';
+        return `<div class="flex items-center gap-1.5 px-2 py-1.5 rounded-lg hover:bg-violet-50 cursor-pointer ${isSum?'text-violet-700':'text-gray-600'}" onclick="event.stopPropagation();${isSum?`openCapSummary(${p.id})`:`toast('预览文件（示意）')`}">📄 ${it}${isSum?'<span class="ml-auto tag bg-violet-100 text-violet-700 shrink-0">AI 维护 · 点击查看</span>':''}</div>`;
+      }
       return `<div>
         <div class="flex items-center gap-1.5 px-2 py-1.5 rounded-lg hover:bg-violet-50 cursor-pointer font-medium text-gray-700" onclick="event.stopPropagation();toggleCapDir(this)">📁 ${it.d}<span class="ml-auto text-gray-300 text-[10px] transition-transform cap-dir-arrow">›</span></div>
         <div class="pl-6 space-y-0.5">${it.files.map(f=>`<div class="px-2 py-1.5 rounded-lg hover:bg-violet-50 cursor-pointer text-gray-500" onclick="event.stopPropagation();toast('预览文件（示意）')">📄 ${f}</div>`).join('')}</div>
@@ -1351,38 +1462,58 @@ function renderCapProjects(){
     }).join('');
     return `<div class="rounded-xl border ${open?'border-violet-200 bg-white':'border-gray-100 bg-gray-50/60'}">
       <div class="p-3 cursor-pointer" onclick="toggleCapProj(${p.id})">
-        <div class="flex items-center justify-between gap-2"><span class="text-[12.5px] font-bold truncate">${p.name}</span><span class="text-gray-300 text-xs shrink-0 transition-transform ${open?'rotate-90':''}">›</span></div>
-        <div class="flex items-center gap-2 text-[10.5px] text-gray-400 mt-1.5"><span>👥 ${p.members} 人员</span>${p.todos?`<span class="tag bg-red-100 text-red-600">待办 ${p.todos}</span>`:''}<span class="tag bg-blue-100 text-blue-600">🤖 ${p.defaultAgent}</span></div>
+        <div class="flex items-center justify-between gap-2"><span class="text-[12.5px] font-bold truncate">${p.name}</span><span class="flex gap-1 shrink-0"><span class="tag ${typeTagCls(p.type||'KA项目')}">${p.type||'KA项目'}</span>${p.type==='KA项目'?`<span class="tag bg-blue-100 text-blue-600">${p.stage.split(' ')[0]}</span>`:''}</span></div>
+        <div class="flex items-center gap-2 text-[10.5px] text-gray-400 mt-1.5">
+          <span>👥 ${p.members} 人员</span>
+          <span class="cursor-pointer hover:text-violet-600 underline decoration-dotted ${p.todos?'text-red-500 font-semibold':''}" title="点击查看任务清单" onclick="event.stopPropagation();openProjTasks(${p.id})">待办 ${p.todos}</span>
+          ${p.risk?`<span class="text-red-500">风险 ${p.risk}</span>`:''}
+          <span class="tag bg-blue-100 text-blue-600">🤖 ${p.defaultAgent}</span>
+          <span class="ml-auto text-gray-300 text-xs transition-transform ${open?'rotate-90':''}">›</span>
+        </div>
+        <button class="btn-p !py-1 !px-3 text-[11px] mt-2 w-full" onclick="event.stopPropagation();enterProjectWb(${p.id})">${curProject&&curProject.id===p.id?'当前项目 ✓':'进入项目 →'}</button>
       </div>
       <div class="${open?'':'hidden'} border-t border-gray-100 px-2 py-2 text-[11.5px] space-y-0.5">${tree}</div>
     </div>`;
-  }).join('');
+  }).join('')||'<div class="text-center text-gray-400 text-xs py-6">未找到匹配的项目空间</div>';
+}
+function gotoPlatformProjects(){gotoPlatform();showPage('resource');showRtab('project')}
+/* ===== 项目摘要查看 + AI 对话更新 ===== */
+let capSumId=null;
+function openCapSummary(id){
+  capSumId=id;const p=projects.find(x=>x.id===id);
+  document.getElementById('cs-title').textContent='项目摘要 · '+p.name;
+  document.getElementById('cs-view').innerHTML=mdRender(p.summary||summaryMd);
+  document.getElementById('cs-chat').innerHTML='';
+  document.getElementById('cs-input').value='';
+  document.getElementById('modal-capsummary').classList.remove('hidden');
+}
+function closeCapSummary(){document.getElementById('modal-capsummary').classList.add('hidden')}
+function insertUnder(md,heading,line){return md.includes(heading)?md.replace(heading,heading+'\n'+line):md+'\n\n'+heading+'\n'+line}
+function capSumSend(){
+  const inp=document.getElementById('cs-input');const v=inp.value.trim();if(!v)return;inp.value='';
+  const chat=document.getElementById('cs-chat');
+  chat.insertAdjacentHTML('beforeend',`<div class="flex justify-end"><div class="bg-violet-600 text-white rounded-xl rounded-tr-none px-3 py-2 text-[12px] max-w-[80%]">${v}</div></div>`);
+  const tid='cs-'+Date.now();
+  chat.insertAdjacentHTML('beforeend',`<div class="flex gap-2" id="${tid}"><div class="w-6 h-6 rounded-full bg-violet-100 flex items-center justify-center shrink-0 text-[11px]">🤖</div><div class="bg-gray-100 rounded-xl rounded-tl-none px-3 py-2 text-[12px] text-gray-700 max-w-[85%] typing">正在理解修改意图并更新摘要…</div></div>`);
+  chat.scrollTop=chat.scrollHeight;
+  setTimeout(()=>{
+    const p=projects.find(x=>x.id===capSumId);
+    let md=p.summary||summaryMd, where='关键结论';
+    if(/分拨|POC\s*范围/i.test(v)&&md.includes('2 个分拨中心')){md=md.replace('2 个分拨中心','4 个分拨中心');where='当前阶段 · POC 范围';}
+    else if(/风险/.test(v)){md=insertUnder(md,'## 风险概况','- '+v+'（AI 对话更新 08-11）');where='风险概况';}
+    else{md=insertUnder(md,'## 关键结论','- '+v+'（AI 对话更新 08-11）');}
+    p.summary=md;
+    document.getElementById('cs-view').innerHTML=mdRender(md);
+    pushSummaryHist('罗紫函','AI 对话更新：'+v.slice(0,24));
+    const bubble=document.getElementById(tid).querySelector('.bg-gray-100');
+    bubble.classList.remove('typing');
+    bubble.innerHTML=`已更新项目摘要 ✅<br>· 更新位置：${where}<br>· 已生成新版本，可在项目空间「历史版本」回溯`;
+    chat.scrollTop=chat.scrollHeight;
+    toast('项目摘要已通过 AI 对话更新');
+  },1200);
 }
 function toggleCapProj(id){capProjOpen.has(id)?capProjOpen.delete(id):capProjOpen.add(id);renderCapProjects()}
 function toggleCapDir(el){const b=el.nextElementSibling;b.classList.toggle('hidden');el.querySelector('.cap-dir-arrow').classList.toggle('rotate-90')}
-function wbProjFiltered(){
-  const kw=(document.getElementById('wb-proj-search')?.value||'').trim();
-  return projects.filter(p=>!kw||p.name.includes(kw)||(p.type||'').includes(kw));
-}
-function wbProjCard(p){
-  return `<div class="p-3 rounded-xl border ${curProject&&curProject.id===p.id?'border-violet-300 bg-violet-50/60':'border-gray-100 bg-gray-50/60'}">
-    <div class="flex items-center justify-between gap-2"><span class="text-[12.5px] font-bold truncate">${p.name}</span><span class="flex gap-1 shrink-0"><span class="tag ${typeTagCls(p.type||'KA项目')}">${p.type||'KA项目'}</span>${p.type==='KA项目'?`<span class="tag bg-blue-100 text-blue-600">${p.stage.split(' ')[0]}</span>`:''}</span></div>
-    <div class="flex items-center gap-3 text-[10.5px] text-gray-400 mt-1.5"><span>我的角色：项目经理</span><span class="cursor-pointer hover:text-violet-600 underline decoration-dotted" onclick="event.stopPropagation();openProjTasks(${p.id})">待办 ${p.todos}</span>${p.risk?`<span class="text-red-500">风险 ${p.risk}</span>`:''}</div>
-    <button class="btn-p !py-1 !px-3 text-[11px] mt-2 w-full" onclick="enterProjectWb(${p.id})">${curProject&&curProject.id===p.id?'当前项目 ✓':'进入项目 →'}</button>
-  </div>`;
-}
-function renderWbProjects(){
-  wbProjShown=5;
-  const l=wbProjFiltered();
-  document.getElementById('wb-project-list').innerHTML=l.slice(0,wbProjShown).map(wbProjCard).join('')+(l.length>wbProjShown?'<div class="text-center text-[10.5px] text-gray-300 py-1">下滑加载更多 ↓</div>':'')||( '<div class="text-center text-gray-400 text-xs py-6">未找到匹配的项目空间</div>');
-}
-function wbProjScroll(el){
-  if(el.scrollTop+el.clientHeight<el.scrollHeight-8)return;
-  const l=wbProjFiltered();
-  if(wbProjShown>=l.length)return;
-  wbProjShown=Math.min(wbProjShown+5,l.length);
-  el.innerHTML=l.slice(0,wbProjShown).map(wbProjCard).join('');
-}
 function renderWbDocs(){
   document.getElementById('wb-doc-list').innerHTML=wbDocs.map(d=>`
   <div class="flex items-center gap-2.5">
@@ -1406,7 +1537,7 @@ function enterProjectWb(id){
   document.getElementById('wb-proj-banner').classList.remove('hidden');
   document.getElementById('wb-proj-name').textContent=curProject.name;
   document.getElementById('wb-welcome').textContent=`已进入「${curProject.customer}」项目上下文。我可以基于项目统一上下文（客户信息、项目摘要、已确认需求）直接工作，试试「生成调研报告」或「推荐方案框架」。`;
-  showWtab('space');renderWbAll();
+  showWtab('cap');renderWbAll();
   toast('已切换至项目上下文 · KA 主理智能体已挂载本项目空间');
 }
 function exitProject(){
