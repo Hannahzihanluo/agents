@@ -556,6 +556,10 @@
             </div>
           </div>
           <div class="card p-3.5">
+            <div class="flex items-center justify-between mb-2"><span class="text-[13px] font-bold">📁 项目空间 <span class="text-[10.5px] font-normal text-gray-400 ml-1">按我的授权显示</span></span><span class="text-[10.5px] text-gray-300">点击展开文件</span></div>
+            <div class="space-y-2 max-h-[360px] overflow-y-auto" id="cap-proj-list"></div>
+          </div>
+          <div class="card p-3.5">
             <div class="text-[13px] font-bold mb-2">⚡ 集成的技能 <span class="text-[11px] font-normal text-gray-400">当前会话可用技能 (24)</span></div>
             <div class="space-y-2" id="cap-skill-list"></div>
             <button class="w-full mt-3 py-2 rounded-xl bg-gray-100 text-xs text-gray-500 hover:bg-violet-50 hover:text-violet-600" onclick="toast('打开技能库（示意）')">+ 添加技能</button>
@@ -780,7 +784,7 @@
 <!-- Toast -->
 <div id="toast" class="hidden fixed top-5 left-1/2 -translate-x-1/2 z-[60] toast bg-gray-900 text-white text-[13px] px-5 py-2.5 rounded-xl shadow-lg"></div>
 
-<footer class="fixed bottom-1 right-2 text-[10px] text-gray-300 z-[60]">v12 · 更新于 2026-07-31</footer>
+<footer class="fixed bottom-1 right-2 text-[10px] text-gray-300 z-[60]">v13 · 更新于 2026-08-11</footer>
 
 <script>
 /* ================= 数据 ================= */
@@ -1305,7 +1309,7 @@ function saveAddUser(){
 }
 
 /* ================= AI 工作台 ================= */
-function renderWbAll(){renderAppChips();renderQuickActions();renderCapSkills();renderWbProjects();renderWbDocs()}
+function renderWbAll(){renderAppChips();renderQuickActions();renderCapSkills();renderWbProjects();renderWbDocs();renderCapProjects()}
 function renderAppChips(){
   const list=(curProject?['KA 主理智能体']:[]).concat(myApps);
   if(!list.includes(currentAgent))currentAgent=list[0]||'智能体';
@@ -1323,6 +1327,39 @@ function renderCapSkills(){
     <div class="flex items-start gap-2.5 p-2.5 rounded-xl bg-gray-50"><span class="text-violet-500 mt-0.5">⚡</span><div><div class="text-[12.5px] font-semibold">${s[0]} <span class="tag bg-gray-200 text-gray-500 ml-1">工具</span></div><p class="text-[11px] text-gray-400 mt-0.5 leading-relaxed">${s[1]}</p></div></div>`).join('');
 }
 let wbProjShown=5;
+/* ===== 能力空间：项目空间文件树 ===== */
+const capProjFiles={
+  1:['项目摘要.md',{d:'需求分析',files:['远航需求调研报告 v2.docx','需求确认单.pdf']},{d:'技术方案',files:['调度平台架构设计图.png','一页纸方案 v3.md']},{d:'POC验证',files:['POC 测试计划.xlsx','调度系统数据字典.xlsx']}],
+  2:['项目摘要.md',{d:'方案交付',files:['车队安全方案 v1.docx','司机培训材料.pptx']},{d:'验收材料',files:['设备到货验收单.pdf']}],
+  3:['项目摘要.md',{d:'需求分析',files:['大宗运输调研报告.docx']},{d:'POC验证',files:['POC 方案 v1.md']}],
+  4:['项目摘要.md',{d:'需求分析',files:['二期需求调研纪要.md']}],
+  5:['项目摘要.md',{d:'技术方案',files:['仓配一体调度方案 v2.docx','数据分析月报.xlsx']}],
+  6:['项目摘要.md',{d:'技术方案',files:['干线线路优化方案.docx','线路成本测算.xlsx']}],
+  7:['项目摘要.md',{d:'对接文档',files:['TMS 二期接口说明.md','联调测试报告.pdf']}],
+  8:[{d:'素材库',files:['销售话术集锦.md','拜访记录模板.docx']}]
+};
+let capProjOpen=new Set([1]);
+function renderCapProjects(){
+  document.getElementById('cap-proj-list').innerHTML=projects.map(p=>{
+    const open=capProjOpen.has(p.id);
+    const tree=(capProjFiles[p.id]||[]).map(it=>{
+      if(typeof it==='string')return `<div class="flex items-center gap-1.5 px-2 py-1.5 rounded-lg hover:bg-violet-50 cursor-pointer text-gray-600" onclick="event.stopPropagation();toast('预览文件（示意）')">📄 ${it}</div>`;
+      return `<div>
+        <div class="flex items-center gap-1.5 px-2 py-1.5 rounded-lg hover:bg-violet-50 cursor-pointer font-medium text-gray-700" onclick="event.stopPropagation();toggleCapDir(this)">📁 ${it.d}<span class="ml-auto text-gray-300 text-[10px] transition-transform cap-dir-arrow">›</span></div>
+        <div class="pl-6 space-y-0.5">${it.files.map(f=>`<div class="px-2 py-1.5 rounded-lg hover:bg-violet-50 cursor-pointer text-gray-500" onclick="event.stopPropagation();toast('预览文件（示意）')">📄 ${f}</div>`).join('')}</div>
+      </div>`;
+    }).join('');
+    return `<div class="rounded-xl border ${open?'border-violet-200 bg-white':'border-gray-100 bg-gray-50/60'}">
+      <div class="p-3 cursor-pointer" onclick="toggleCapProj(${p.id})">
+        <div class="flex items-center justify-between gap-2"><span class="text-[12.5px] font-bold truncate">${p.name}</span><span class="text-gray-300 text-xs shrink-0 transition-transform ${open?'rotate-90':''}">›</span></div>
+        <div class="flex items-center gap-2 text-[10.5px] text-gray-400 mt-1.5"><span>👥 ${p.members} 人员</span>${p.todos?`<span class="tag bg-red-100 text-red-600">待办 ${p.todos}</span>`:''}<span class="tag bg-blue-100 text-blue-600">🤖 ${p.defaultAgent}</span></div>
+      </div>
+      <div class="${open?'':'hidden'} border-t border-gray-100 px-2 py-2 text-[11.5px] space-y-0.5">${tree}</div>
+    </div>`;
+  }).join('');
+}
+function toggleCapProj(id){capProjOpen.has(id)?capProjOpen.delete(id):capProjOpen.add(id);renderCapProjects()}
+function toggleCapDir(el){const b=el.nextElementSibling;b.classList.toggle('hidden');el.querySelector('.cap-dir-arrow').classList.toggle('rotate-90')}
 function wbProjFiltered(){
   const kw=(document.getElementById('wb-proj-search')?.value||'').trim();
   return projects.filter(p=>!kw||p.name.includes(kw)||(p.type||'').includes(kw));
