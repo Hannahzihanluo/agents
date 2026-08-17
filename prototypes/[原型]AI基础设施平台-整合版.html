@@ -153,7 +153,7 @@
         <span class="ml-auto text-xs text-gray-400">KA 主理智能体已挂载本项目空间</span>
       </div>
       <div class="flex gap-1 mb-4 bg-white border border-gray-100 rounded-xl p-1 w-fit">
-        <span class="ptab active" data-pt="summary" onclick="showPtab('summary')">项目摘要</span>
+        <span class="ptab active" data-pt="summary" onclick="showPtab('summary')">Project Summary</span>
         <span class="ptab" data-pt="tasks" onclick="showPtab('tasks')">任务清单</span>
         <span class="ptab" data-pt="files" onclick="showPtab('files')">文件</span>
         <span class="ptab" data-pt="users" onclick="showPtab('users')">用户</span>
@@ -167,12 +167,12 @@
         <div class="card p-5">
           <div class="flex items-center gap-2 mb-3">
             <span class="w-5 h-5 rounded bg-violet-600 text-white flex items-center justify-center text-[10px]">AI</span>
-            <h3 class="font-bold text-sm">项目摘要</h3>
-            <span class="tag bg-gray-100 text-gray-500">md</span>
-            <span class="text-[11px] text-gray-400">AI 生成并持续维护 · 更新需项目经理确认</span>
+            <h3 class="font-bold text-sm">Project Summary</h3>
+            <span class="tag bg-gray-100 text-gray-500">Project Summary.md</span>
+            <span class="text-[11px] text-gray-400">AI 自动更新 · 项目云空间与项目管理推进统一上下文 · 全程可追溯/可回滚</span>
             <span class="text-[11px] text-gray-300" id="pd-summary-count"></span>
             <button class="ml-auto btn-o !py-1 !px-3 text-[11px]" onclick="openSummaryHist()">历史版本</button>
-            <button class="btn-o !py-1 !px-3 text-[11px]" onclick="openRuleModal()">提取规则</button>
+            <button class="btn-o !py-1 !px-3 text-[11px]" onclick="openRuleModal()">更新提示词</button>
             <button class="btn-o !py-1 !px-3 text-[11px]" id="pd-edit-btn" onclick="toggleSummaryEdit()">编辑</button>
           </div>
           <div id="pd-summary-view" class="text-[13px] leading-relaxed text-gray-700 bg-gray-50 rounded-xl p-4 max-h-[420px] overflow-y-auto"></div>
@@ -184,15 +184,15 @@
             </div>
           </div>
         </div>
-        <div class="card p-5 border-l-4 !border-l-amber-400" id="pd-update-suggest">
+        <div class="card p-5 border-l-4 !border-l-emerald-400" id="pd-update-suggest">
           <div class="flex items-center gap-2 mb-2">
-            <span class="tag bg-amber-100 text-amber-700">待确认 · 摘要更新建议</span>
+            <span class="tag bg-emerald-100 text-emerald-700">已自动更新</span>
             <span class="text-[11px] text-gray-400">来源：项目群消息 07-28 10:12 · 张总确认 POC 从 2 个分拨扩大到 4 个</span>
           </div>
-          <p class="text-[13px] text-gray-600 leading-relaxed">建议将「当前阶段-POC 范围」由 <b>2 个分拨中心</b> 更新为 <b>4 个分拨中心</b>，并在风险概况中新增「POC 周期可能延长 1 周」。</p>
+          <p class="text-[13px] text-gray-600 leading-relaxed">AI 已将「当前阶段-POC 范围」由 <b>2 个分拨中心</b> 自动更新为 <b>4 个分拨中心</b>，并在风险概况中新增「POC 周期可能延长 1 周」，已生成新版本。</p>
           <div class="flex gap-2 mt-3">
-            <button class="btn-p !py-1.5 !px-4 text-xs" onclick="pdUpdate(true)">确认写入</button>
-            <button class="btn-o !py-1.5 text-xs" onclick="pdUpdate(false)">驳回</button>
+            <button class="btn-o !py-1.5 !px-4 text-xs" onclick="pdUpdate(true)">查看历史版本</button>
+            <button class="btn-o !py-1.5 text-xs" onclick="pdUpdate(false)">我知道了</button>
           </div>
         </div>
       </div>
@@ -680,22 +680,25 @@
 <!-- ===== 摘要提取规则弹窗 ===== -->
 <div id="modal-rule" class="hidden fixed inset-0 z-50 modal-bg flex items-center justify-center" onclick="if(event.target===this)closeRuleModal()">
   <div class="bg-white rounded-2xl w-[560px] p-6 fade-in max-h-[90vh] overflow-y-auto">
-    <div class="flex items-center justify-between mb-1"><h3 class="font-bold">项目摘要提取规则提示词</h3><button class="text-gray-400 hover:text-gray-600" onclick="closeRuleModal()">✕</button></div>
-    <p class="text-[11.5px] text-gray-400 mb-3">默认使用平台配置 · 项目级修改仅对本项目生效 · KA 主理智能体从群消息/文档/CRM 变更中提取摘要更新时遵循</p>
-    <textarea id="pd-rule-text" class="w-full h-64 text-[12.5px] leading-relaxed text-gray-700 bg-gray-50 rounded-xl p-4 border border-gray-200 focus:outline-violet-300 font-mono">你是 KA 主理智能体的项目摘要维护模块。基于项目群消息、项目文档变更与 CRM 阶段变更，提取影响项目统一上下文的更新，输出更新建议（不直接写入）。
+    <div class="flex items-center justify-between mb-1"><h3 class="font-bold">Project Summary 自动更新提示词</h3><button class="text-gray-400 hover:text-gray-600" onclick="closeRuleModal()">✕</button></div>
+    <p class="text-[11.5px] text-gray-400 mb-3">默认使用平台配置 · 项目级修改仅对本项目生效 · KA 主理智能体从群消息/文档/CRM 变更中提取更新后<b>自动写入</b> Project Summary.md，全程可追溯可回滚</p>
+    <textarea id="pd-rule-text" class="w-full h-64 text-[12.5px] leading-relaxed text-gray-700 bg-gray-50 rounded-xl p-4 border border-gray-200 focus:outline-violet-300 font-mono">你是 KA 主理智能体的 Project Summary 维护模块。Project Summary 是项目云空间与项目管理推进的统一上下文文件（Project Summary.md），基于项目群消息、项目文档变更与 CRM 阶段变更自动维护，识别到有效更新后直接写入并生成新版本（历史版本可追溯/可回滚，无需人工确认）。
 
-提取范围：
-1. 关键决策：客户或我方确认的方向性结论（范围、排期、预算、目标变更）
-2. 阶段推进：营销阶段（CR1-CR7）迁移、里程碑完成
-3. 风险变化：新风险出现、既有风险升级/解除
-4. 分工变化：负责人更替、关键角色加入/退出
+文件结构（必须包含）：
+1. 项目目标与范围：目标、验收口径、排期基线
+2. 商机与客户信息：CRM 商机阶段（CR1-CR7）、金额、负责人、客户背景
+3. 客户关键决策人及核心诉求：客户侧关键决策人（姓名/角色/态度/核心诉求），以及我方项目承接人（姓名/角色/负责事项）
+4. 当前阶段与推进进展：阶段迁移、里程碑、进行中事项与下一步动作
+5. 关键结论与决策：客户或我方确认的方向性结论（范围、排期、预算、目标变更）
+6. 风险概况：风险项、等级与应对措施
 
-输出要求：
-- 每条建议包含：变更字段、原内容、建议更新内容、依据来源（消息时间+发言人/文档名）
-- 不确定的内容不要写入建议
-- 所有建议必须经项目经理确认后方可写入摘要</textarea>
+提取与写入规则：
+- 从群消息/文档/CRM 变更中识别影响上述模块的信息，直接更新对应模块并记录来源（消息时间+发言人/文档名）
+- 关键决策人态度变化、核心诉求新增、我方承接人分工调整须即时更新模块 3
+- 不确定的信息不写入，仅在群中向项目经理求证
+- 每次更新生成历史版本，写入摘要末尾「更新日志」（时间/来源/变更要点）</textarea>
     <div class="flex gap-2 mt-4">
-      <button class="btn-p flex-1" onclick="closeRuleModal();toast('提取规则已保存，即时生效')">保存</button>
+      <button class="btn-p flex-1" onclick="closeRuleModal();toast('更新提示词已保存，即时生效')">保存</button>
       <button class="btn-o" onclick="toast('已恢复为平台默认规则（示意）')">恢复默认</button>
     </div>
   </div>
@@ -741,8 +744,8 @@
 <!-- ===== 摘要历史版本弹窗 ===== -->
 <div id="modal-sumhist" class="hidden fixed inset-0 z-50 modal-bg flex items-center justify-center" onclick="if(event.target===this)closeSummaryHist()">
   <div class="bg-white rounded-2xl w-[520px] p-6 fade-in max-h-[85vh] flex flex-col">
-    <div class="flex items-center justify-between mb-1"><h3 class="font-bold">项目摘要 · 历史版本</h3><button class="text-gray-400 hover:text-gray-600" onclick="closeSummaryHist()">✕</button></div>
-    <p class="text-[11.5px] text-gray-400 mb-4">每次确认写入或人工保存生成一个版本，可回溯可回滚</p>
+    <div class="flex items-center justify-between mb-1"><h3 class="font-bold">Project Summary · 历史版本</h3><button class="text-gray-400 hover:text-gray-600" onclick="closeSummaryHist()">✕</button></div>
+    <p class="text-[11.5px] text-gray-400 mb-4">AI 自动更新或人工保存均生成一个版本，可回溯可回滚</p>
     <div class="space-y-2.5 overflow-y-auto" id="sumhist-list"></div>
   </div>
 </div>
@@ -795,11 +798,11 @@
   </div>
 </div>
 
-<!-- ===== 项目摘要查看 / AI 对话更新弹窗 ===== -->
+<!-- ===== Project Summary 查看 / AI 对话更新弹窗 ===== -->
 <div id="modal-capsummary" class="hidden fixed inset-0 z-50 modal-bg flex items-center justify-center" onclick="if(event.target===this)closeCapSummary()">
   <div class="bg-white rounded-2xl w-[560px] p-6 fade-in max-h-[90vh] flex flex-col">
-    <div class="flex items-center justify-between mb-1 shrink-0"><h3 class="font-bold" id="cs-title">项目摘要</h3><button class="text-gray-400 hover:text-gray-600" onclick="closeCapSummary()">✕</button></div>
-    <p class="text-[11px] text-gray-400 mb-3 shrink-0">AI 生成并持续维护 · 需要修改时，直接在下方对话框描述，AI 自动更新摘要并生成新版本</p>
+    <div class="flex items-center justify-between mb-1 shrink-0"><h3 class="font-bold" id="cs-title">Project Summary</h3><button class="text-gray-400 hover:text-gray-600" onclick="closeCapSummary()">✕</button></div>
+    <p class="text-[11px] text-gray-400 mb-3 shrink-0">AI 自动维护的项目云空间与项目管理推进统一上下文 · 需要修改时，在下方对话框描述，AI 直接更新并生成新版本</p>
     <div id="cs-view" class="flex-1 min-h-0 overflow-y-auto text-[13px] leading-relaxed text-gray-700 bg-gray-50 rounded-xl p-4 mb-3"></div>
     <div id="cs-chat" class="space-y-2 max-h-32 overflow-y-auto shrink-0"></div>
     <div class="border border-gray-200 rounded-2xl px-4 py-2.5 flex items-center gap-3 shrink-0 mt-2">
@@ -822,7 +825,7 @@
 <!-- Toast -->
 <div id="toast" class="hidden fixed top-5 left-1/2 -translate-x-1/2 z-[60] toast bg-gray-900 text-white text-[13px] px-5 py-2.5 rounded-xl shadow-lg"></div>
 
-<footer class="fixed bottom-1 right-2 text-[10px] text-gray-300 z-[60]">v14 · 更新于 2026-08-11</footer>
+<footer class="fixed bottom-1 right-2 text-[10px] text-gray-300 z-[60]">v15 · 更新于 2026-08-17</footer>
 
 <script>
 /* ================= 数据 ================= */
@@ -1089,7 +1092,7 @@ function renderCpOpp(){
   box.innerHTML=`<div class="border border-violet-100 bg-violet-50/60 rounded-xl p-3 text-[12px]">
     <div class="font-semibold text-violet-700 mb-1">🔎 已查询到该客户进行中的商机（CRM 同步）</div>
     <div class="text-gray-600 leading-relaxed">商机阶段：<span class="tag bg-violet-100 text-violet-700">${opp.stage}</span> · ${opp.opp} · ${opp.amount}<br>商机负责人：${opp.owner} · 下次关键动作：${opp.next}</div>
-    <div class="text-[11px] text-gray-400 mt-1.5">创建后商机阶段与信息将自动同步至项目摘要，并随 CRM 变更更新</div>
+    <div class="text-[11px] text-gray-400 mt-1.5">创建后商机阶段与信息将自动同步至 Project Summary，并随 CRM 变更自动更新</div>
   </div>`;
 }
 function openProjModal(editId){
@@ -1132,7 +1135,9 @@ function saveProjModal(){
     const firstSpace=[...selSpaces][0], opp=firstSpace&&custOpps[firstSpace];
     const cust=cpType==='个人项目'?'个人':(firstSpace?firstSpace.replace('知识空间',''):'待关联客户');
     const stage=opp?opp.stage:'CR1 线索触达';
-    const summary=opp?`# 项目摘要 · ${name}
+    const summary=opp?`# Project Summary · ${name}
+
+> 项目云空间与项目管理推进统一上下文 · KA 主理智能体自动维护
 
 ## 商机信息（CRM 同步 · ${opp.stage}）
 - 商机：${opp.opp} · ${opp.amount}
@@ -1143,19 +1148,25 @@ function saveProjModal(){
 - 客户：${cust}
 - 已关联 ${selSpaces.size} 个客户知识空间、${selRefs.size} 个历史项目
 
+## 客户关键决策人及核心诉求
+- 客户关键决策人：待调研确认（KA 主理智能体将基于群消息与拜访记录自动识别补充）
+- 我方承接：待项目管理员在「用户」tab 配置成员角色后自动同步
+
 ## 当前阶段 · ${opp.stage}
 - 项目刚创建，待项目团队补充调研结论与方案进展
 
 ## 风险概况
 - 暂无记录`:'';
     projects.unshift({id:Date.now(),name,type:cpType,customer:cust,stage,group:[...selGroups][0]||'待绑定飞书群',members:1,skills:5,time:'2026-07-29 刚刚',todos:0,risk:0,done:0,overdue:0,agents:['KA 主理智能体'],defaultAgent:'KA 主理智能体',spaces:[...selSpaces],refs:[...selRefs],kbs:[...selKbs],bindGroups:[...selGroups],summary});
-    toast(opp?'项目空间已创建，商机阶段与信息已同步至项目摘要':'项目空间已创建，可在「关联群」tab 一键创建项目群');
+    toast(opp?'项目空间已创建，商机阶段与信息已同步至 Project Summary':'项目空间已创建，可在「关联群」tab 一键创建项目群');
   }
   closeProjModal();renderProjAgentFilter();renderProjects();
 }
 
 /* ================= 项目空间详情（平台侧） ================= */
-let summaryMd=`# 项目摘要 · 远航物流集团智能调度平台
+let summaryMd=`# Project Summary · 远航物流集团智能调度平台
+
+> 项目云空间与项目管理推进统一上下文 · KA 主理智能体自动维护 · 历史版本可追溯/可回滚
 
 ## 项目目标
 4 周内完成需求调研与方案输出并进入 POC 验证；调研→方案周期 ≤ 3 天。
@@ -1164,6 +1175,11 @@ let summaryMd=`# 项目摘要 · 远航物流集团智能调度平台
 - 战略级 KA，年合同额 1,200 万，物流行业 Top10
 - 历史合作 2 个项目（仓储数字化、TMS 一期），续约率 100%
 - 集团明年上市，降本增效需量化成果
+
+## 客户关键决策人及核心诉求
+- 张总（客户副总裁 · 最终决策人｜态度：积极）：核心诉求「临时调车响应 4 小时 → 30 分钟」，作为上市降本增效标杆案例
+- 李峰（客户 IT 总监 · 技术评估）：核心诉求「与现有 TMS 平滑对接、接口文档补齐」，态度中性，需技术侧持续升温
+- 我方项目承接人：王磊（角色：销售负责人｜负责事项：客户关系维护、商务推进、合同与回款）；陈静（角色：解决方案/产品｜负责事项：需求与方案审核、方案定稿）；刘洋（角色：项目经理｜负责事项：进度与风险决策、项目资源协调）；赵敏（角色：交付/运营｜负责事项：POC 执行与实施）
 
 ## 当前阶段 · CR4 KA攻坚
 - 需求调研报告已定稿（07-25）
@@ -1204,7 +1220,7 @@ function saveSummaryEdit(){
   if(curProject)curProject.summary=v;else summaryMd=v;
   document.getElementById('pd-summary-view').innerHTML=mdRender(v);
   pushSummaryHist('罗紫函','手动编辑更新');
-  toggleSummaryEdit();toast('项目摘要已保存（版本可追溯/可回滚）');
+  toggleSummaryEdit();toast('Project Summary 已保存（版本可追溯/可回滚）');
 }
 function renderFolders(){
   document.getElementById('pd-folder-list').innerHTML=Object.keys(pdFiles).map(f=>`
@@ -1256,7 +1272,7 @@ function createPdGroup(){
   renderPdGroups();toast('项目群已创建并关联，已自动邀请已配置用户（4 人）入群');
 }
 function renderPdListen(){
-  const opts=[['daily','每日 09:00 自动查询群消息并生成总结'],['summary','基于总结内容自动更新项目摘要（项目经理确认后写入）'],['task','自动拆解任务并推送对应角色确认（同步飞书待办）']];
+  const opts=[['daily','每日 09:00 自动查询群消息并生成总结'],['summary','基于总结内容自动更新 Project Summary（自动写入，版本可追溯）'],['task','自动拆解任务并推送对应角色确认（同步飞书待办）']];
   document.getElementById('pd-listen-box').innerHTML=`
     <div class="flex items-center justify-between mb-2.5">
       <div class="font-semibold text-[12.5px]">群消息监听 <span class="text-[11px] font-normal text-gray-400 ml-1">开启后 KA 主理智能体每日定时处理群消息</span></div>
@@ -1294,10 +1310,9 @@ function showPtab(t){
   document.querySelectorAll('.ptab').forEach(x=>x.classList.toggle('active',x.dataset.pt===t));
   ['summary','tasks','files','users','groups','skills','biz'].forEach(x=>document.getElementById('pt-'+x).classList.toggle('hidden',x!==t));
 }
-function pdUpdate(ok){
+function pdUpdate(view){
   document.getElementById('pd-update-suggest').classList.add('hidden');
-  if(ok)pushSummaryHist('陈静','AI 建议确认写入：POC 范围 2 → 4 个分拨中心');
-  toast(ok?'摘要已更新（版本可追溯/可回滚）':'已驳回，本次识别不写入摘要');
+  if(view){openSummaryHist()}
 }
 
 /* ================= 项目空间：摘要版本 / 成员授权 ================= */
@@ -1435,13 +1450,13 @@ function renderCapSkills(){
 }
 /* ===== 能力空间：项目空间文件树 ===== */
 const capProjFiles={
-  1:['项目摘要.md',{d:'需求分析',files:['远航需求调研报告 v2.docx','需求确认单.pdf']},{d:'技术方案',files:['调度平台架构设计图.png','一页纸方案 v3.md']},{d:'POC验证',files:['POC 测试计划.xlsx','调度系统数据字典.xlsx']}],
-  2:['项目摘要.md',{d:'方案交付',files:['车队安全方案 v1.docx','司机培训材料.pptx']},{d:'验收材料',files:['设备到货验收单.pdf']}],
-  3:['项目摘要.md',{d:'需求分析',files:['大宗运输调研报告.docx']},{d:'POC验证',files:['POC 方案 v1.md']}],
-  4:['项目摘要.md',{d:'需求分析',files:['二期需求调研纪要.md']}],
-  5:['项目摘要.md',{d:'技术方案',files:['仓配一体调度方案 v2.docx','数据分析月报.xlsx']}],
-  6:['项目摘要.md',{d:'技术方案',files:['干线线路优化方案.docx','线路成本测算.xlsx']}],
-  7:['项目摘要.md',{d:'对接文档',files:['TMS 二期接口说明.md','联调测试报告.pdf']}],
+  1:['Project Summary.md',{d:'需求分析',files:['远航需求调研报告 v2.docx','需求确认单.pdf']},{d:'技术方案',files:['调度平台架构设计图.png','一页纸方案 v3.md']},{d:'POC验证',files:['POC 测试计划.xlsx','调度系统数据字典.xlsx']}],
+  2:['Project Summary.md',{d:'方案交付',files:['车队安全方案 v1.docx','司机培训材料.pptx']},{d:'验收材料',files:['设备到货验收单.pdf']}],
+  3:['Project Summary.md',{d:'需求分析',files:['大宗运输调研报告.docx']},{d:'POC验证',files:['POC 方案 v1.md']}],
+  4:['Project Summary.md',{d:'需求分析',files:['二期需求调研纪要.md']}],
+  5:['Project Summary.md',{d:'技术方案',files:['仓配一体调度方案 v2.docx','数据分析月报.xlsx']}],
+  6:['Project Summary.md',{d:'技术方案',files:['干线线路优化方案.docx','线路成本测算.xlsx']}],
+  7:['Project Summary.md',{d:'对接文档',files:['TMS 二期接口说明.md','联调测试报告.pdf']}],
   8:[{d:'素材库',files:['销售话术集锦.md','拜访记录模板.docx']}]
 };
 let capProjOpen=new Set([1]);
@@ -1450,9 +1465,9 @@ function renderCapProjects(){
   const list=projects.filter(p=>!kw||p.name.includes(kw)||(p.type||'').includes(kw));
   document.getElementById('cap-proj-list').innerHTML=list.map(p=>{
     const open=capProjOpen.has(p.id);
-    const tree=(capProjFiles[p.id]||['项目摘要.md']).map(it=>{
+    const tree=(capProjFiles[p.id]||['Project Summary.md']).map(it=>{
       if(typeof it==='string'){
-        const isSum=it==='项目摘要.md';
+        const isSum=it==='Project Summary.md';
         return `<div class="flex items-center gap-1.5 px-2 py-1.5 rounded-lg hover:bg-violet-50 cursor-pointer ${isSum?'text-violet-700':'text-gray-600'}" onclick="event.stopPropagation();${isSum?`openCapSummary(${p.id})`:`toast('预览文件（示意）')`}">📄 ${it}${isSum?'<span class="ml-auto tag bg-violet-100 text-violet-700 shrink-0">AI 维护 · 点击查看</span>':''}</div>`;
       }
       return `<div>
@@ -1481,7 +1496,7 @@ function gotoPlatformProjects(){gotoPlatform();showPage('resource');showRtab('pr
 let capSumId=null;
 function openCapSummary(id){
   capSumId=id;const p=projects.find(x=>x.id===id);
-  document.getElementById('cs-title').textContent='项目摘要 · '+p.name;
+  document.getElementById('cs-title').textContent='Project Summary · '+p.name;
   document.getElementById('cs-view').innerHTML=mdRender(p.summary||summaryMd);
   document.getElementById('cs-chat').innerHTML='';
   document.getElementById('cs-input').value='';
@@ -1500,16 +1515,16 @@ function capSumSend(){
     const p=projects.find(x=>x.id===capSumId);
     let md=p.summary||summaryMd, where='关键结论';
     if(/分拨|POC\s*范围/i.test(v)&&md.includes('2 个分拨中心')){md=md.replace('2 个分拨中心','4 个分拨中心');where='当前阶段 · POC 范围';}
-    else if(/风险/.test(v)){md=insertUnder(md,'## 风险概况','- '+v+'（AI 对话更新 08-11）');where='风险概况';}
-    else{md=insertUnder(md,'## 关键结论','- '+v+'（AI 对话更新 08-11）');}
+    else if(/风险/.test(v)){md=insertUnder(md,'## 风险概况','- '+v+'（AI 对话更新 08-17）');where='风险概况';}
+    else{md=insertUnder(md,'## 关键结论','- '+v+'（AI 对话更新 08-17）');}
     p.summary=md;
     document.getElementById('cs-view').innerHTML=mdRender(md);
     pushSummaryHist('罗紫函','AI 对话更新：'+v.slice(0,24));
     const bubble=document.getElementById(tid).querySelector('.bg-gray-100');
     bubble.classList.remove('typing');
-    bubble.innerHTML=`已更新项目摘要 ✅<br>· 更新位置：${where}<br>· 已生成新版本，可在项目空间「历史版本」回溯`;
+    bubble.innerHTML=`已更新 Project Summary ✅<br>· 更新位置：${where}<br>· 已生成新版本，可在项目空间「历史版本」回溯`;
     chat.scrollTop=chat.scrollHeight;
-    toast('项目摘要已通过 AI 对话更新');
+    toast('Project Summary 已通过 AI 对话更新');
   },1200);
 }
 function toggleCapProj(id){capProjOpen.has(id)?capProjOpen.delete(id):capProjOpen.add(id);renderCapProjects()}
@@ -1536,7 +1551,7 @@ function enterProjectWb(id){
   gotoWorkbench();
   document.getElementById('wb-proj-banner').classList.remove('hidden');
   document.getElementById('wb-proj-name').textContent=curProject.name;
-  document.getElementById('wb-welcome').textContent=`已进入「${curProject.customer}」项目上下文。我可以基于项目统一上下文（客户信息、项目摘要、已确认需求）直接工作，试试「生成调研报告」或「推荐方案框架」。`;
+  document.getElementById('wb-welcome').textContent=`已进入「${curProject.customer}」项目上下文。我可以基于项目统一上下文（客户信息、Project Summary、已确认需求）直接工作，试试「生成调研报告」或「推荐方案框架」。`;
   showWtab('cap');renderWbAll();
   toast('已切换至项目上下文 · KA 主理智能体已挂载本项目空间');
 }
@@ -1576,7 +1591,7 @@ function wbSend(){
   chat.scrollTop=chat.scrollHeight;
   setTimeout(()=>{
     const reply=curProject
-      ?`已基于「${curProject.customer}」项目上下文完成「${v}」初稿：<br>· 引用项目摘要 3 处、公司知识仓库 2 篇（可溯源）<br>· 相关行动项已拆解为待办，<b>待你确认后</b>同步飞书待办<br>· 文档已保存至项目空间，可在「我的空间-生成的文档」查看`
+      ?`已基于「${curProject.customer}」项目上下文完成「${v}」初稿：<br>· 引用 Project Summary 3 处、公司知识仓库 2 篇（可溯源）<br>· 相关行动项已拆解为待办，<b>待你确认后</b>同步飞书待办<br>· 文档已保存至项目空间，可在「我的空间-生成的文档」查看`
       :`收到，「${v}」正在处理。提示：从「我的空间-项目空间」进入具体项目后，我可以携带项目上下文直接产出。`;
     document.getElementById(tid).querySelector('.typing').classList.remove('typing');
     document.getElementById(tid).querySelector('.typing, .bg-gray-50').innerHTML=reply;
@@ -1675,8 +1690,8 @@ const acKbPool=[
   {name:'远航物流集团知识空间',type:'客户知识空间'}
 ];
 const acSpacePool=[
-  {name:'远航物流集团 · 智能调度平台项目',stage:'SKA项目 · CR4 KA攻坚',perm:true,total:24,files:['项目摘要.md','需求调研报告 v2.docx','一页纸方案 v3.md','POC 测试计划.xlsx','调度系统数据字典.xlsx']},
-  {name:'肇庆新景昌物流 · 车队安全管理项目',stage:'KA项目 · CR5 签约交付',perm:true,total:17,files:['项目摘要.md','车队安全方案 v1.docx','司机培训材料.pptx']},
+  {name:'远航物流集团 · 智能调度平台项目',stage:'SKA项目 · CR4 KA攻坚',perm:true,total:24,files:['Project Summary.md','需求调研报告 v2.docx','一页纸方案 v3.md','POC 测试计划.xlsx','调度系统数据字典.xlsx']},
+  {name:'肇庆新景昌物流 · 车队安全管理项目',stage:'KA项目 · CR5 签约交付',perm:true,total:17,files:['Project Summary.md','车队安全方案 v1.docx','司机培训材料.pptx']},
   {name:'徐州聚鸿建设 · 大宗运输数字化项目',stage:'KA项目 · CR3 方案验证',perm:false,total:12},
   {name:'云途供应链 · 仓配一体调度项目',stage:'KA项目 · CR3 方案验证',perm:false,total:9}
 ];
