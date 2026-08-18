@@ -571,7 +571,7 @@
         <div id="wt-task" class="hidden">
           <div class="flex gap-4 text-[12.5px] border-b border-gray-200 mb-3">
             <span class="pb-2 border-b-2 border-violet-600 text-violet-700 font-semibold cursor-pointer" id="tt-rec" onclick="showTtab('rec')">记录</span>
-            <span class="pb-2 text-gray-500 cursor-pointer" id="tt-mine" onclick="showTtab('mine')">待办 <span class="tag bg-red-100 text-red-600">3</span></span>
+            <span class="pb-2 text-gray-500 cursor-pointer" id="tt-mine" onclick="showTtab('mine')">待办 <span class="tag bg-red-100 text-red-600" id="tt-mine-badge">3</span></span>
             <span class="pb-2 text-gray-500 cursor-pointer" id="tt-run" onclick="showTtab('run')">执行 <span class="tag bg-blue-100 text-blue-600">2</span></span>
           </div>
           <div id="tt-rec-list" class="space-y-2.5">
@@ -579,11 +579,7 @@
             <div class="card p-3.5"><div class="flex justify-between items-center"><span class="text-[13px] font-semibold">徐州聚鸿拜访复盘</span><span class="tag bg-emerald-100 text-emerald-700">已完成 4:56</span></div><p class="text-[11.5px] text-gray-500 mt-1.5 leading-relaxed">拜访复盘报告已生成完毕！核心摘要：客户为大宗新能源行业，200+台电车石灰石建材运输，整体评分 74/100…</p><p class="text-[10.5px] text-gray-300 mt-1.5 text-right">销售AI-test 深度模式 2026-07-06 13:37</p></div>
             <div class="card p-3.5"><div class="flex justify-between items-center"><span class="text-[13px] font-semibold">跟进徐州聚鸿建设</span><span class="tag bg-emerald-100 text-emerald-700">已完成 5:01</span></div><p class="text-[11.5px] text-gray-500 mt-1.5 leading-relaxed">已为您生成商机跟进表单，客户与商机关键信息摘要已同步 CRM…</p><p class="text-[10.5px] text-gray-300 mt-1.5 text-right">销售AI-test 深度模式 2026-07-03 17:35</p></div>
           </div>
-          <div id="tt-mine-list" class="hidden space-y-2.5">
-            <div class="card p-3.5 border-l-4 !border-l-red-400"><div class="flex justify-between items-center"><span class="text-[13px] font-semibold">客户提供调度系统数据字典</span><span class="tag bg-red-100 text-red-600">逾期1天</span></div><p class="text-[11px] text-gray-400 mt-1">远航物流·智能调度 · 来源：远航-智能调度项目组群 · 已同步飞书待办</p><div class="flex gap-2 mt-2"><button class="btn-p !py-1 !px-3 text-[11px]" onclick="wbTaskDone(this)">完成</button><button class="btn-o !py-1 !px-3 text-[11px]" onclick="toast('选择接手人（示意）')">转交</button></div></div>
-            <div class="card p-3.5 border-l-4 !border-l-amber-400"><div class="flex justify-between items-center"><span class="text-[13px] font-semibold">确认一页纸方案 v3 定稿</span><span class="tag bg-amber-100 text-amber-600">今日到期</span></div><p class="text-[11px] text-gray-400 mt-1">远航物流·智能调度 · 来源：任务拆解 skill · 已同步飞书待办</p><div class="flex gap-2 mt-2"><button class="btn-p !py-1 !px-3 text-[11px]" onclick="wbTaskDone(this)">完成</button><button class="btn-o !py-1 !px-3 text-[11px]" onclick="toast('选择接手人（示意）')">转交</button></div></div>
-            <div class="card p-3.5"><div class="flex justify-between items-center"><span class="text-[13px] font-semibold">安排管理层方案汇报会</span><span class="tag bg-gray-100 text-gray-500">07-29</span></div><p class="text-[11px] text-gray-400 mt-1">远航物流·智能调度 · 来源：每周分析总结 skill · 已同步飞书待办</p><div class="flex gap-2 mt-2"><button class="btn-p !py-1 !px-3 text-[11px]" onclick="wbTaskDone(this)">完成</button><button class="btn-o !py-1 !px-3 text-[11px]" onclick="toast('选择接手人（示意）')">转交</button></div></div>
-          </div>
+          <div id="tt-mine-list" class="hidden space-y-2.5"></div>
           <div id="tt-run-list" class="hidden space-y-2.5">
             <div class="text-[11px] text-gray-400 font-semibold">我创建的会话任务</div>
             <div class="card p-3.5">
@@ -825,7 +821,7 @@
 <!-- Toast -->
 <div id="toast" class="hidden fixed top-5 left-1/2 -translate-x-1/2 z-[60] toast bg-gray-900 text-white text-[13px] px-5 py-2.5 rounded-xl shadow-lg"></div>
 
-<footer class="fixed bottom-1 right-2 text-[10px] text-gray-300 z-[60]">v15 · 更新于 2026-08-17</footer>
+<footer class="fixed bottom-1 right-2 text-[10px] text-gray-300 z-[60]">v18 · 更新于 2026-08-18 · 多智能体统一跟进引擎</footer>
 
 <script>
 /* ================= 数据 ================= */
@@ -902,7 +898,7 @@ const pdSkills=['调研方案生成','需求解决方案','POC 报告','任务�
 let curProject=null, resTab='custom', addedAppSel=new Set(), currentAgent='路书（销售AI）';
 
 /* ================= 视图切换 ================= */
-function gotoWorkbench(){document.getElementById('view-platform').classList.add('hidden');document.getElementById('view-workbench').classList.remove('hidden');renderWbAll()}
+function gotoWorkbench(){document.getElementById('view-platform').classList.add('hidden');document.getElementById('view-workbench').classList.remove('hidden');renderWbAll();maybePushWbDigest()}
 function gotoPlatform(){document.getElementById('view-workbench').classList.add('hidden');document.getElementById('view-platform').classList.remove('hidden')}
 function gotoPlatformResource(tab){gotoPlatform();showPage('resource');showRtab(tab)}
 
@@ -1431,7 +1427,7 @@ function saveAddUser(){
 }
 
 /* ================= AI 工作台 ================= */
-function renderWbAll(){renderAppChips();renderQuickActions();renderCapSkills();renderWbDocs();renderCapProjects()}
+function renderWbAll(){renderAppChips();renderQuickActions();renderCapSkills();renderWbDocs();renderCapProjects();renderWbTasks()}
 function renderAppChips(){
   const list=(curProject?['KA 主理智能体']:[]).concat(myApps);
   if(!list.includes(currentAgent))currentAgent=list[0]||'智能体';
@@ -1439,9 +1435,9 @@ function renderAppChips(){
     <span class="app-chip cursor-pointer ${a===currentAgent?'!border-violet-300 !bg-violet-50 !text-violet-700':''}" onclick="switchAgent('${a}')">${a==='KA 主理智能体'?'👑 ':'🤖 '}${a}</span>`).join('');
   document.getElementById('wb-agent-name').textContent=currentAgent;
 }
-function switchAgent(a){currentAgent=a;renderAppChips();toast(`已切换至「${a}」`)}
+function switchAgent(a){currentAgent=a;renderAppChips();wbAgentScopeSummary(a);toast(`已切换至「${a}」`)}
 function renderQuickActions(){
-  const qa=curProject?['生成调研报告','推荐方案框架','生成一页纸方案','查询项目进展']:['生成拜访前简报','生成拜访复盘报告'];
+  const qa=curProject?['今日任务','生成调研报告','推荐方案框架','生成一页纸方案','查询项目进展']:['今日任务','逾期任务有哪些','生成拜访前简报','生成拜访复盘报告'];
   document.getElementById('wb-quick-actions').innerHTML=qa.map(q=>`<button class="text-[11.5px] px-3 py-1.5 rounded-lg border border-gray-200 text-gray-500 hover:border-violet-300 hover:text-violet-600" onclick="wbQuick('${q}')">📄 ${q}</button>`).join('');
 }
 function renderCapSkills(){
@@ -1553,6 +1549,7 @@ function enterProjectWb(id){
   document.getElementById('wb-proj-name').textContent=curProject.name;
   document.getElementById('wb-welcome').textContent=`已进入「${curProject.customer}」项目上下文。我可以基于项目统一上下文（客户信息、Project Summary、已确认需求）直接工作，试试「生成调研报告」或「推荐方案框架」。`;
   showWtab('cap');renderWbAll();
+  wbAgentScopeSummary('KA 主理智能体');
   toast('已切换至项目上下文 · KA 主理智能体已挂载本项目空间');
 }
 function exitProject(){
@@ -1590,18 +1587,311 @@ function wbSend(){
   chat.insertAdjacentHTML('beforeend',`<div class="flex gap-3 mb-4" id="${tid}"><div class="w-8 h-8 rounded-full bg-violet-100 flex items-center justify-center shrink-0 text-sm">🤖</div><div><div class="text-[11px] text-gray-400 mb-1">${currentAgent} 刚刚</div><div class="bg-gray-50 rounded-xl rounded-tl-none px-4 py-3 text-[13px] text-gray-700 max-w-lg typing">正在基于${curProject?'项目统一上下文':'可用知识库'}处理…</div></div></div>`);
   chat.scrollTop=chat.scrollHeight;
   setTimeout(()=>{
+    const bubble=document.getElementById(tid).querySelector('.typing, .bg-gray-50');
+    bubble.classList.remove('typing');
+    if(wbTaskIntent(v)){document.getElementById(tid).remove();chat.scrollTop=chat.scrollHeight;return}
     const reply=curProject
       ?`已基于「${curProject.customer}」项目上下文完成「${v}」初稿：<br>· 引用 Project Summary 3 处、公司知识仓库 2 篇（可溯源）<br>· 相关行动项已拆解为待办，<b>待你确认后</b>同步飞书待办<br>· 文档已保存至项目空间，可在「我的空间-生成的文档」查看`
       :`收到，「${v}」正在处理。提示：从「我的空间-项目空间」进入具体项目后，我可以携带项目上下文直接产出。`;
-    document.getElementById(tid).querySelector('.typing').classList.remove('typing');
-    document.getElementById(tid).querySelector('.typing, .bg-gray-50').innerHTML=reply;
+    bubble.innerHTML=reply;
     chat.scrollTop=chat.scrollHeight;
   },1400);
 }
-function wbTaskDone(btn){
-  const card=btn.closest('.card');card.style.opacity=.45;
-  card.querySelectorAll('button').forEach(b=>b.disabled=true);
-  toast('已完成，状态已同步飞书待办与项目任务清单');
+/* ================= 通用任务模块：工作台交互（v16） ================= */
+/* 数据模型：任务不区分归属类型，仅有来源 + 是否关联项目空间（proj 为空即个人任务） */
+const wbTasks=[
+  {id:1,title:'客户提供调度系统数据字典',proj:'远航物流·智能调度',source:'群聊识别 · 远航-智能调度项目组群',creator:'KA 主理智能体',due:'逾期1天',urgency:'overdue',prio:'高',done:false,watched:false,
+   timeline:[['07-27 14:02','群消息识别创建：王磊「客户数据字典本周内要补给我」'],['07-27 14:02','已同步飞书待办 @罗紫函'],['07-28 09:00','截止未处理，早报提醒已推送'],['07-28 18:00','标记逾期，已升级提醒项目经理 刘洋']]},
+  {id:2,title:'确认一页纸方案 v3 定稿',proj:'远航物流·智能调度',source:'skill 产出 · 任务拆解',creator:'KA 主理智能体',due:'今日到期',urgency:'today',prio:'中',done:false,watched:false,
+   timeline:[['07-27 16:42','任务拆解 skill 产出，经项目经理确认下发'],['07-27 16:42','已同步飞书待办 · 备注「等待 罗紫函 确认」']]},
+  {id:3,title:'安排管理层方案汇报会',proj:'远航物流·智能调度',source:'skill 产出 · 每周分析总结',creator:'KA 主理智能体',due:'07-29 截止',urgency:'normal',prio:'中',done:false,watched:false,
+   timeline:[['07-28 09:30','每周分析总结 skill 生成行动项'],['07-28 09:31','已同步飞书待办']]},
+  {id:4,title:'补充徐州聚鸿拜访纪要到 CRM',proj:null,source:'智能体创建 · 路书（销售AI）',creator:'路书（销售AI）',due:'今日到期',urgency:'today',prio:'低',done:false,watched:false,
+   timeline:[['07-28 17:35','路书（销售AI）生成拜访复盘后创建跟进任务'],['07-28 17:35','已同步飞书待办（个人任务，未关联项目空间）']]}
+];
+let wbFollowupId=null;
+const urgCfg={overdue:{tag:'bg-red-100 text-red-600',bd:'!border-l-red-400'},today:{tag:'bg-amber-100 text-amber-600',bd:'!border-l-amber-400'},normal:{tag:'bg-gray-100 text-gray-500',bd:''}};
+const wbTaskActive=()=>wbTasks.filter(t=>!t.done&&!t.transfer);
+const wbFollowActive=()=>wbTasks.filter(t=>!t.done&&t.transfer);
+
+function wbTaskMeta(t){return `${t.proj||'个人任务'} · 来源：${t.source} · 已同步飞书待办${t.watched?' · 👁 关注中':''}`}
+function wbFollowMeta(t){return `转交给 ${t.transfer.to} · ${t.transfer.time} · ${t.proj||'个人任务'}${t.transfer.nudges?` · 已催办 ${t.transfer.nudges} 次`:''}`}
+
+/* ---- 面板渲染（任务执行-待办 tab：我的待办 + 我转交·跟进中） ---- */
+function renderWbTasks(){
+  const list=wbTaskActive();
+  const follow=wbFollowActive();
+  const bd=document.getElementById('tt-mine-badge');
+  bd.textContent=list.length;bd.classList.toggle('hidden',!list.length);
+  const mineHtml=list.map(t=>{
+    const u=urgCfg[t.urgency];
+    return `<div class="card p-3.5 border-l-4 ${u.bd}" id="ptask-${t.id}">
+      <div class="flex justify-between items-center gap-2"><span class="text-[13px] font-semibold">${t.title}${t.watched?' <span class="text-violet-500 text-[10px]">👁</span>':''}</span><span class="tag ${u.tag} shrink-0">${t.due}</span></div>
+      <p class="text-[11px] text-gray-400 mt-1">${wbTaskMeta(t)}</p>
+      <div class="flex gap-2 mt-2">
+        <button class="btn-p !py-1 !px-3 text-[11px]" onclick="wbPanelDone(${t.id})">完成</button>
+        <button class="btn-o !py-1 !px-3 text-[11px]" onclick="wbAskTransfer(${t.id})">转交</button>
+        <button class="text-[11px] text-gray-400 hover:text-violet-600 ml-auto" onclick="wbQuick('「${t.title}」这条任务什么情况')">问智能体 ›</button>
+      </div></div>`;
+  }).join('');
+  const followHtml=follow.map(t=>{
+    const st=t.transfer.status;
+    return `<div class="card p-3.5 border-l-4 !border-l-violet-400" id="ptask-${t.id}">
+      <div class="flex justify-between items-center gap-2"><span class="text-[13px] font-semibold">${t.title}</span><span class="tag ${st==='进行中'?'bg-blue-100 text-blue-600':'bg-gray-100 text-gray-500'} shrink-0">${st==='进行中'?'进行中 · '+t.transfer.to:'待处理 · '+t.transfer.to}</span></div>
+      <p class="text-[11px] text-gray-400 mt-1">${wbFollowMeta(t)}</p>
+      <div class="flex gap-2 mt-2">
+        <button class="btn-o !py-1 !px-3 text-[11px]" onclick="wbNudge(${t.id})">🔔 催办</button>
+        <button class="text-[11px] text-gray-400 hover:text-violet-600 ml-auto" onclick="wbQuick('我转交的「${t.title}」怎么样了')">问智能体 ›</button>
+      </div></div>`;
+  }).join('');
+  document.getElementById('tt-mine-list').innerHTML=
+    (list.length?`<div class="text-[11px] text-gray-400 font-semibold">我的待办 ${list.length}</div>${mineHtml}`:'')+
+    (follow.length?`<div class="text-[11px] text-gray-400 font-semibold ${list.length?'mt-4':''}">我转交 · 跟进中 ${follow.length} <span class="font-normal">智能体自动盯，进展主动告知</span></div>${followHtml}`:'')+
+    (!list.length&&!follow.length?'<div class="text-center text-gray-400 text-xs py-6">待办已清空 🎉</div>':'');
+}
+function wbPanelDone(id){wbMarkDone(id,null,true)}
+
+/* ---- 对话内任务卡片 ---- */
+function wbChatTaskCard(t){
+  const u=urgCfg[t.urgency];
+  return `<div class="rounded-xl border border-gray-200 bg-white p-3 mt-1.5" id="ctask-${t.id}">
+    <div class="flex items-start justify-between gap-2">
+      <div class="text-[12.5px] font-bold">${t.title}</div>
+      <span class="tag ${u.tag} shrink-0">${t.due}</span>
+    </div>
+    <div class="text-[10.5px] text-gray-400 mt-1">${wbTaskMeta(t)}</div>
+    <div class="flex flex-wrap gap-1.5 mt-2">
+      <button class="btn-p !py-0.5 !px-2.5 text-[11px]" onclick="wbDoneTask(${t.id})">完成</button>
+      <button class="btn-o !py-0.5 !px-2.5 text-[11px]" onclick="wbAskResched(${t.id})">改期</button>
+      <button class="btn-o !py-0.5 !px-2.5 text-[11px]" onclick="wbAskTransfer(${t.id})">转交</button>
+      <button class="btn-o !py-0.5 !px-2.5 text-[11px]" onclick="wbToggleTimeline(${t.id})">详情</button>
+      <button class="btn-o !py-0.5 !px-2.5 text-[11px]" onclick="wbLocateTask(${t.id})">面板定位</button>
+      <button class="text-[11px] ${t.watched?'text-violet-600 font-semibold':'text-gray-400 hover:text-violet-600'} self-center ml-auto" onclick="wbWatch(${t.id})">${t.watched?'👁 已关注':'👁 帮我盯着'}</button>
+    </div>
+    <div class="hidden mt-2 pt-2 border-t border-gray-100 space-y-1" id="ctl-${t.id}">
+      ${t.timeline.map(x=>`<div class="flex gap-2 text-[10.5px] text-gray-500"><span class="text-gray-300 shrink-0">${x[0]}</span><span>${x[1]}</span></div>`).join('')}
+    </div>
+  </div>`;
+}
+function wbAgentMsg(html,scroll=true,agent){
+  const chat=document.getElementById('wb-chat');
+  const sender=agent||currentAgent;
+  chat.insertAdjacentHTML('beforeend',`<div class="flex gap-3 mb-4"><div class="w-8 h-8 rounded-full bg-violet-100 flex items-center justify-center shrink-0 text-sm">🤖</div><div><div class="text-[11px] text-gray-400 mb-1">${sender} 刚刚${sender!==currentAgent?` <span class="tag bg-violet-100 text-violet-700 ml-1">任务来源智能体</span>`:''}</div><div class="bg-gray-50 rounded-xl rounded-tl-none px-4 py-3 text-[13px] text-gray-700 max-w-lg">${html}</div></div></div>`);
+  if(scroll)chat.scrollTop=chat.scrollHeight;
+}
+/* ---- 多智能体共用跟进引擎：各智能体仅跟进自己创建/关注的任务 ---- */
+const wbGreeted=new Set();
+function wbAgentScopeSummary(a){
+  if(wbGreeted.has(a)||document.getElementById('view-workbench').classList.contains('hidden'))return;
+  const own=wbTasks.filter(t=>!t.done&&t.creator===a&&(t.urgency!=='normal'||t.transfer));
+  if(!own.length)return;
+  wbGreeted.add(a);
+  setTimeout(()=>wbAgentMsg(`我是「${a}」，我创建/跟进的任务中有 ${own.length} 条需要你留意：${own.map(t=>t.transfer?wbFollowChatCard(t):wbChatTaskCard(t)).join('')}`,true,a),500);
+}
+
+/* ---- 任务操作（对话/面板共用，统一回写） ---- */
+function wbDoneTask(id){
+  const t=wbTasks.find(x=>x.id===id);
+  wbMarkDone(id);
+  wbAgentMsg(`已完成「${t.title}」✅ 状态已同步飞书待办${t.proj?'与项目任务清单':''}。<button class="text-violet-600 font-semibold underline ml-1" onclick="wbUndoDone(${t.id},this)">撤销</button>`);
+}
+function wbMarkDone(id,_,fromPanel){
+  const t=wbTasks.find(x=>x.id===id);t.done=true;
+  renderWbTasks();
+  const c=document.getElementById('ctask-'+id);
+  if(c){c.style.opacity=.45;c.querySelectorAll('button').forEach(b=>b.disabled=true);}
+}
+function wbUndoDone(id,btn){
+  const t=wbTasks.find(x=>x.id===id);t.done=false;
+  renderWbTasks();
+  btn.closest('.bg-gray-50').innerHTML=`已撤销，「${t.title}」恢复为待办。`;
+  toast('已撤销完成操作');
+}
+function wbFollowupDone(id){wbFollowupId=null;wbDoneTask(id)}
+function wbMarkTransfer(id,el){
+  const t=wbTasks.find(x=>x.id===id);
+  t.transfer={to:'刘洋（项目经理）',time:'刚刚',status:'待处理',nudges:0};
+  t.timeline.push(['刚刚','罗紫函 转交给 刘洋（项目经理），转入跟进视角，智能体自动盯']);
+  wbFollowupId=null;
+  wbCloseActionCard(el);
+  renderWbTasks();
+  const c=document.getElementById('ctask-'+id);
+  if(c)c.outerHTML=wbFollowChatCard(t);
+  wbAgentMsg(`已将「${t.title}」转交给 刘洋（项目经理），飞书待办与项目任务清单已同步。这条任务进入你的「我转交 · 跟进中」，我会自动盯着，对方开始处理 / 完成 / 逾期都会告诉你。`);
+  /* 演示：模拟对方处理进展，智能体主动回报 */
+  setTimeout(()=>{
+    if(t.done||!t.transfer)return;
+    t.transfer.status='进行中';
+    t.timeline.push(['刚刚','刘洋 已开始处理']);
+    renderWbTasks();
+    wbAgentMsg(`📣 跟进进展：刘洋 已开始处理你转交的「${t.title}」。`,true,t.creator);
+  },12000);
+  setTimeout(()=>{
+    if(t.done||!t.transfer)return;
+    t.done=true;
+    t.timeline.push(['刚刚','刘洋 已完成并提交']);
+    renderWbTasks();
+    const fc=document.getElementById('ctask-'+id);
+    if(fc){fc.style.opacity=.45;fc.querySelectorAll('button').forEach(b=>b.disabled=true);}
+    wbAgentMsg(`✅ 你转交的任务已完成：刘洋 已完成「${t.title}」，结果已同步项目任务清单与飞书待办。这条跟进关闭。`,true,t.creator);
+  },28000);
+}
+/* ---- 跟进视角卡片（我转交的任务） ---- */
+function wbFollowChatCard(t){
+  const st=t.transfer.status;
+  return `<div class="rounded-xl border border-violet-200 bg-violet-50/40 p-3 mt-1.5" id="ctask-${t.id}">
+    <div class="flex items-start justify-between gap-2">
+      <div class="text-[12.5px] font-bold">${t.title}</div>
+      <span class="tag ${st==='进行中'?'bg-blue-100 text-blue-600':'bg-gray-100 text-gray-500'} shrink-0">${st==='进行中'?'进行中':'待处理'} · ${t.transfer.to}</span>
+    </div>
+    <div class="text-[10.5px] text-gray-400 mt-1">${wbFollowMeta(t)}</div>
+    <div class="flex flex-wrap gap-1.5 mt-2">
+      <button class="btn-p !py-0.5 !px-2.5 text-[11px]" onclick="wbNudge(${t.id})">🔔 催办</button>
+      <button class="btn-o !py-0.5 !px-2.5 text-[11px]" onclick="wbTakeBack(${t.id})">收回</button>
+      <button class="btn-o !py-0.5 !px-2.5 text-[11px]" onclick="wbToggleTimeline(${t.id})">详情</button>
+      <button class="btn-o !py-0.5 !px-2.5 text-[11px]" onclick="wbLocateTask(${t.id})">面板定位</button>
+    </div>
+    <div class="hidden mt-2 pt-2 border-t border-violet-100 space-y-1" id="ctl-${t.id}">
+      ${t.timeline.map(x=>`<div class="flex gap-2 text-[10.5px] text-gray-500"><span class="text-gray-300 shrink-0">${x[0]}</span><span>${x[1]}</span></div>`).join('')}
+    </div>
+  </div>`;
+}
+function wbNudge(id){
+  const t=wbTasks.find(x=>x.id===id);
+  t.transfer.nudges++;
+  t.timeline.push(['刚刚',`罗紫函 发起第 ${t.transfer.nudges} 次催办，飞书已提醒处理人`]);
+  renderWbTasks();
+  const c=document.getElementById('ctask-'+id);
+  if(c&&!c.style.opacity)c.outerHTML=wbFollowChatCard(t);
+  wbAgentMsg(`已在飞书提醒 ${t.transfer.to}（附任务卡片与截止时间），对方回复后我会第一时间告诉你。`);
+}
+function wbTakeBack(id){
+  const t=wbTasks.find(x=>x.id===id);
+  const to=t.transfer.to;
+  t.transfer=null;
+  t.timeline.push(['刚刚','罗紫函 收回任务，返回我的待办']);
+  renderWbTasks();
+  const c=document.getElementById('ctask-'+id);
+  if(c)c.outerHTML=wbChatTaskCard(t);
+  wbAgentMsg(`已从 ${to} 处收回「${t.title}」，任务回到你的待办列表，飞书待办已同步。`);
+}
+function wbDoResched(id,el){
+  const t=wbTasks.find(x=>x.id===id);
+  t.due='08-20 截止';t.urgency='normal';
+  t.timeline.push(['刚刚','对话改期：截止调整为 08-20 18:00']);
+  wbFollowupId=null;
+  wbCloseActionCard(el);
+  renderWbTasks();
+  const old=document.getElementById('ctask-'+id);
+  if(old)old.outerHTML=wbChatTaskCard(t);
+  wbAgentMsg(`已将「${t.title}」截止时间调整为 <b>08-20 18:00</b>，飞书待办已同步，提醒节奏按新时间重置。`);
+}
+function wbCloseActionCard(el){const b=el.closest('.rounded-xl');if(b)b.remove()}
+
+/* ---- 需确认操作（高风险先预览） ---- */
+function wbAskResched(id){
+  const t=wbTasks.find(x=>x.id===id);
+  wbAgentMsg(`改期确认：将「${t.title}」截止时间调整为 <b>明天 18:00（08-19）</b>？调整会重置提醒节奏。
+    <div class="flex gap-2 mt-2">
+      <button class="btn-p !py-1 !px-3 text-[11px]" onclick="wbDoResched(${t.id},this)">确认改期</button>
+      <button class="btn-o !py-1 !px-3 text-[11px]" onclick="wbCloseActionCard(this)">取消</button>
+    </div>`);
+}
+function wbAskTransfer(id){
+  const t=wbTasks.find(x=>x.id===id);
+  wbAgentMsg(`转交确认：将「${t.title}」转交给 <b>刘洋（项目经理）</b>？转交后由对方继续处理。
+    <div class="flex gap-2 mt-2">
+      <button class="btn-p !py-1 !px-3 text-[11px]" onclick="wbMarkTransfer(${t.id},this)">确认转交</button>
+      <button class="btn-o !py-1 !px-3 text-[11px]" onclick="wbCloseActionCard(this)">取消</button>
+      <button class="btn-o !py-1 !px-3 text-[11px]" onclick="toast('选择其他成员（示意）')">换一个人</button>
+    </div>`);
+}
+function wbDisambiguate(){
+  wbAgentMsg(`你当前有 ${wbTaskActive().length} 条进行中的任务，「搞完了」指的是哪一条？
+    ${wbTaskActive().map(t=>`<div class="flex items-center justify-between gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 mt-1.5"><span class="text-[12px]">${t.title}</span><button class="btn-o !py-0.5 !px-2.5 text-[11px] shrink-0" onclick="wbDoneTask(${t.id})">这条 ✓</button></div>`).join('')}`);
+}
+
+/* ---- 关注 / 时间线 / 面板联动 ---- */
+function wbWatch(id){
+  const t=wbTasks.find(x=>x.id===id);t.watched=!t.watched;
+  t.timeline.push(['刚刚',t.watched?'罗紫函 已关注此任务，状态变化将主动告知':'已取消关注']);
+  renderWbTasks();
+  const old=document.getElementById('ctask-'+id);
+  if(old)old.outerHTML=wbChatTaskCard(t);
+  if(t.watched)wbAgentMsg(`好的，我会盯着「${t.title}」。状态变化、处理人回复、再次逾期都会第一时间在这里告诉你。`);
+}
+function wbToggleTimeline(id){document.getElementById('ctl-'+id).classList.toggle('hidden')}
+function wbLocateTask(id){
+  showWtab('task');showTtab('mine');
+  setTimeout(()=>{
+    const el=document.getElementById('ptask-'+id);
+    if(el){el.scrollIntoView({behavior:'smooth',block:'center'});el.classList.add('ring-2','ring-violet-400');setTimeout(()=>el.classList.remove('ring-2','ring-violet-400'),2000);}
+  },50);
+}
+
+/* ---- 进入工作台：每日简报 + 跟进 ---- */
+let wbDigestDone=false;
+function maybePushWbDigest(){
+  if(wbDigestDone)return;wbDigestDone=true;
+  const act=wbTaskActive();
+  const od=act.filter(t=>t.urgency==='overdue').length, td=act.filter(t=>t.urgency==='today').length;
+  const fl=wbFollowActive().length;
+  setTimeout(()=>{
+    wbAgentMsg(`☀️ 早上好，今日任务简报：<b class="text-red-500">逾期 ${od}</b> · <b class="text-amber-500">今日到期 ${td}</b>${fl?` · 转交跟进中 ${fl}`:''} · 本周已完成 5 项。
+      <div class="flex gap-2 mt-2"><button class="btn-o !py-1 !px-3 text-[11px]" onclick="wbQuick('今日任务')">查看今日任务</button><button class="btn-o !py-1 !px-3 text-[11px]" onclick="wbQuick('逾期的任务有哪些')">只看逾期</button></div>`,false);
+    const t=wbTasks.find(x=>x.urgency==='overdue'&&!x.done);
+    if(t){
+      wbFollowupId=t.id;
+      wbAgentMsg(`跟进一步：「${t.title}」已逾期 1 天，进展如何？（本条任务由我创建，由我负责盯到闭环）
+        <div class="flex flex-wrap gap-2 mt-2">
+          <button class="btn-p !py-1 !px-3 text-[11px]" onclick="wbFollowupDone(${t.id})">已完成 ✓</button>
+          <button class="btn-o !py-1 !px-3 text-[11px]" onclick="wbAskResched(${t.id})">还要两天</button>
+          <button class="btn-o !py-1 !px-3 text-[11px]" onclick="wbAskTransfer(${t.id})">转交他人</button>
+          <button class="text-[11px] text-gray-400 hover:text-violet-600 self-center" onclick="wbWatch(${t.id})">👁 帮我盯着</button>
+        </div>`,true,t.creator);
+    }
+    const chat=document.getElementById('wb-chat');chat.scrollTop=chat.scrollHeight;
+  },600);
+}
+
+/* ---- 对话意图路由：任务查询 / 完成 / 跟进回复 ---- */
+function wbTaskIntent(v){
+  if(/搞完|做完了|完成了/.test(v)){wbDisambiguate();return true}
+  if(/盯着|帮我盯|关注一下/.test(v)){
+    const t=wbTasks.find(x=>!x.done&&v.includes(x.title.slice(0,4)))||wbTasks.find(x=>x.urgency==='overdue'&&!x.done)||wbTaskActive()[0];
+    if(t){wbWatch(t.id);return true}
+  }
+  if(/还要|延后|延期|改期/.test(v)&&wbFollowupId){wbAskResched(wbFollowupId);return true}
+  if(/我转交|转交的|转交出去|跟进中/.test(v)){
+    const list=wbFollowActive();
+    if(!list.length){wbAgentMsg('你当前没有转交出去、需要跟进的任务。转交任务后会进入「我转交 · 跟进中」，我会自动盯着并主动汇报进展。');return true}
+    wbAgentMsg(`你转交出去、正在跟进的任务共 ${list.length} 条：${list.map(wbFollowChatCard).join('')}`);
+    return true;
+  }
+  if(/情况|进展|怎么样/.test(v)&&/「/.test(v)){
+    const t=wbTasks.find(x=>v.includes(x.title));
+    if(t){
+      const card=t.transfer?wbFollowChatCard(t):wbChatTaskCard(t);
+      wbAgentMsg(`「${t.title}」当前状态如下，点击「详情」可看完整来龙去脉：${card}`);return true
+    }
+  }
+  if(!/任务|待办/.test(v))return false;
+  if(/创建|新建|加一|帮我记/.test(v))return false; /* 创建类走通用回复 */
+  let list=wbTaskActive(),label='全部进行中';
+  if(/逾期/.test(v)){list=list.filter(t=>t.urgency==='overdue');label='逾期'}
+  else if(/高.*优先级|优先级.*高/.test(v)){list=list.filter(t=>t.prio==='高');label='高优先级'}
+  else if(/今天|今日|到期/.test(v)){list=list.filter(t=>t.urgency==='today'||t.urgency==='overdue');label='今日到期（含逾期）'}
+  else if(/本周|这周/.test(v)){label='本周'}
+  /* 渐进筛选：结合上一查询上下文 */
+  if(/那|呢$/.test(v)&&window._wbLastFilter){list=wbTaskActive().filter(window._wbLastFilter);list=list.filter(t=>/高/.test(v)?t.prio==='高':true)}
+  window._wbLastFilter=t=>(/逾期/.test(v)?t.urgency==='overdue':/今天|今日|到期/.test(v)?(t.urgency==='today'||t.urgency==='overdue'):true);
+  if(!list.length){
+    const rest=wbTaskActive();
+    wbAgentMsg(`${label}的任务当前为 0 条 ✅${rest.length?`<br>进行中共 ${rest.length} 条（最早 ${rest[rest.length-1].due} 到期），要看吗？<div class="flex gap-2 mt-2"><button class="btn-o !py-1 !px-3 text-[11px]" onclick="wbQuick('我全部的任务')">查看全部</button></div>`:'<br>待办已全部清空 🎉'}`);
+    return true;
+  }
+  wbAgentMsg(`查到 ${list.length} 条${label}任务（支持继续追问收窄，如「只看高优先级的」）：${list.map(wbChatTaskCard).join('')}`);
+  return true;
 }
 
 /* ================= 经营看板聚合 ================= */
