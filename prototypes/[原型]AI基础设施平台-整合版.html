@@ -237,7 +237,7 @@
       <!-- 关联群 -->
       <div id="pt-groups" class="hidden card p-5">
         <div class="flex items-center justify-between mb-3">
-          <h3 class="font-bold text-sm">关联群 <span class="text-[11px] font-normal text-gray-400">KA 主理智能体在已绑定群中接收全部消息并选择性响应</span></h3>
+          <h3 class="font-bold text-sm">关联群 <span class="text-[11px] font-normal text-gray-400">KA 主理智能体在已绑定群中监听消息 · 每群可单独设置「被@时回复 / 新消息时回复」</span></h3>
           <div class="flex gap-2">
             <button class="btn-o !py-1.5 !px-4 text-xs" onclick="createPdGroup()">⚡ 一键创建并关联</button>
             <button class="btn-p !py-1.5 !px-4 text-xs" onclick="openBindGroup()">+ 绑定群</button>
@@ -289,16 +289,70 @@
     <!-- ===== 页面：任务执行 ===== -->
     <section id="pg-runs" class="hidden px-8 pb-10">
       <h1 class="text-xl font-bold mb-4">任务执行</h1>
-      <div class="card p-5">
-        <table class="w-full text-[12.5px]">
-          <thead><tr class="text-left text-gray-400 border-b border-gray-100"><th class="py-2 font-medium">任务</th><th class="font-medium">智能体</th><th class="font-medium">关联项目</th><th class="font-medium">状态</th><th class="font-medium">耗时</th><th class="font-medium">时间</th></tr></thead>
-          <tbody>
-            <tr class="border-b border-gray-50"><td class="py-3">生成一页纸方案 v2</td><td>KA 主理智能体</td><td>远航物流·智能调度</td><td><span class="tag bg-emerald-100 text-emerald-700">已完成</span></td><td>3:42</td><td class="text-gray-400">2026-07-27 15:20</td></tr>
-            <tr class="border-b border-gray-50"><td class="py-3">需求调研报告初稿</td><td>KA 主理智能体</td><td>远航物流·智能调度</td><td><span class="tag bg-emerald-100 text-emerald-700">已完成</span></td><td>4:56</td><td class="text-gray-400">2026-07-25 11:02</td></tr>
-            <tr class="border-b border-gray-50"><td class="py-3">每周分析总结 W4</td><td>KA 主理智能体</td><td>远航物流·智能调度</td><td><span class="tag bg-emerald-100 text-emerald-700">已完成</span></td><td>2:18</td><td class="text-gray-400">2026-07-26 09:30</td></tr>
-            <tr><td class="py-3">拜访复盘报告</td><td>销售AI-test</td><td>—</td><td><span class="tag bg-blue-100 text-blue-600">执行中</span></td><td>—</td><td class="text-gray-400">2026-07-28 10:41</td></tr>
-          </tbody>
-        </table>
+      <div class="flex gap-6 border-b border-gray-200 mb-4 text-sm">
+        <span class="pb-2 border-b-2 border-violet-600 text-violet-700 font-semibold cursor-pointer" id="runt-mine" onclick="showRunTab('mine')">我的任务</span>
+        <span class="pb-2 text-gray-500 cursor-pointer hover:text-violet-600" id="runt-agent" onclick="showRunTab('agent')">智能体任务执行</span>
+      </div>
+
+      <!-- 我的任务 -->
+      <div id="run-mine">
+        <div class="card p-4 mb-4 flex gap-2 items-center">
+          <select id="rm-view" class="border border-gray-200 rounded-lg px-3 py-1.5 text-xs text-gray-600 focus:outline-violet-300" onchange="renderRunMine()">
+            <option value="all">全部视角</option><option value="mine">我处理</option><option value="follow">我转交 · 跟进中</option>
+          </select>
+          <select id="rm-status" class="border border-gray-200 rounded-lg px-3 py-1.5 text-xs text-gray-600 focus:outline-violet-300" onchange="renderRunMine()">
+            <option value="open">进行中</option><option value="done">已完成</option><option value="all">全部状态</option>
+          </select>
+          <input id="rm-search" class="border border-gray-200 rounded-lg px-3 py-1.5 text-xs w-56 focus:outline-violet-300" placeholder="搜索任务名称 / 来源 / 项目" oninput="renderRunMine()">
+          <button class="btn-p !py-1.5 !px-4 text-xs" onclick="renderRunMine()">搜 索</button>
+          <button class="px-3 py-1.5 rounded-lg bg-gray-100 text-xs text-gray-600 hover:bg-gray-200" onclick="document.getElementById('rm-view').value='all';document.getElementById('rm-status').value='open';document.getElementById('rm-search').value='';renderRunMine()">重 置</button>
+          <span class="ml-auto text-[11px] text-gray-400">来源、项目、外部系统任务统一列表 · 操作实时同步工作台与飞书</span>
+        </div>
+        <div class="card overflow-hidden">
+          <table class="w-full text-[12.5px]">
+            <thead><tr class="text-left text-gray-400 border-b border-gray-100">
+              <th class="px-4 py-3 font-medium">任务名称</th><th class="font-medium">视角</th><th class="font-medium">关联项目</th><th class="font-medium">来源</th><th class="font-medium">截止时间</th><th class="font-medium">状态</th><th class="font-medium">操作</th>
+            </tr></thead>
+            <tbody id="rm-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 智能体任务执行 -->
+      <div id="run-agent" class="hidden">
+        <div class="card p-4 mb-4 flex gap-2 items-center">
+          <select id="ra-status" class="border border-gray-200 rounded-lg px-3 py-1.5 text-xs text-gray-600 focus:outline-violet-300" onchange="renderRunAgent()">
+            <option value="">启用状态</option><option>已启用</option><option>已过期</option><option>已停用</option>
+          </select>
+          <select id="ra-create" class="border border-gray-200 rounded-lg px-3 py-1.5 text-xs text-gray-600 focus:outline-violet-300" onchange="renderRunAgent()">
+            <option value="">创建方式</option><option>会话创建</option><option>后台</option>
+          </select>
+          <input id="ra-agent" class="border border-gray-200 rounded-lg px-3 py-1.5 text-xs w-40 focus:outline-violet-300" placeholder="请选择智能体" oninput="renderRunAgent()">
+          <input id="ra-search" class="border border-gray-200 rounded-lg px-3 py-1.5 text-xs w-44 focus:outline-violet-300" placeholder="搜索任务名称" oninput="renderRunAgent()">
+          <button class="btn-p !py-1.5 !px-4 text-xs" onclick="renderRunAgent()">搜 索</button>
+          <button class="px-3 py-1.5 rounded-lg bg-gray-100 text-xs text-gray-600 hover:bg-gray-200" onclick="['ra-status','ra-create','ra-agent','ra-search'].forEach(i=>document.getElementById(i).value='');renderRunAgent()">重 置</button>
+        </div>
+        <div class="flex items-center mb-3">
+          <button class="btn-p" onclick="toast('新建任务（示意）')">+ 新建任务</button>
+          <button class="ml-auto text-xs text-violet-600 font-semibold hover:underline" onclick="openRunRecords()">执行记录</button>
+        </div>
+        <div class="card overflow-hidden">
+          <table class="w-full text-[12.5px]">
+            <thead><tr class="text-left text-gray-400 border-b border-gray-100">
+              <th class="px-4 py-3 font-medium">名称</th><th class="font-medium">触发方式</th><th class="font-medium">执行方式</th><th class="font-medium">创建方式</th><th class="font-medium">执行内容</th><th class="font-medium">执行智能体</th><th class="font-medium">状态</th><th class="font-medium">更新人</th><th class="font-medium">更新时间</th><th class="font-medium">操作</th>
+            </tr></thead>
+            <tbody id="ra-tbody"></tbody>
+          </table>
+          <div class="flex items-center justify-end gap-3 px-4 py-3 text-[11.5px] text-gray-400 border-t border-gray-100">
+            <span id="ra-total"></span>
+            <span class="text-gray-300">‹</span>
+            <span class="w-6 h-6 rounded border border-violet-400 text-violet-600 flex items-center justify-center font-semibold">1</span>
+            <span class="cursor-pointer hover:text-violet-600">2</span>
+            <span class="cursor-pointer hover:text-violet-600">3</span>
+            <span class="cursor-pointer hover:text-violet-600">›</span>
+            <span class="border border-gray-200 rounded px-2 py-0.5">20 条/页</span>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -313,7 +367,7 @@
           <div class="text-[11px] text-gray-400 mt-0.5">当前版本时间: 2026-07-31 12:46:14 <span class="tag bg-emerald-100 text-emerald-700 ml-1">已发布</span></div>
         </div>
         <div class="ml-auto flex gap-2">
-          <button class="btn-o" onclick="toast('应用设置（示意）')">应用设置</button>
+          <button class="btn-o" onclick="openAppSetting()">应用设置</button>
           <button class="btn-o" onclick="toast('配置已保存（示意）')">保 存</button>
           <button class="btn-p" onclick="toast('已发布更新（示意）')">更 新</button>
         </div>
@@ -673,6 +727,23 @@
   </div>
 </div>
 
+<!-- ===== 智能体任务执行记录弹窗 ===== -->
+<div id="modal-runrecords" class="hidden fixed inset-0 z-50 modal-bg flex items-center justify-center" onclick="if(event.target===this)closeRunRecords()">
+  <div class="bg-white rounded-2xl w-[720px] p-6 fade-in max-h-[85vh] overflow-y-auto">
+    <div class="flex items-center justify-between mb-1"><h3 class="font-bold">执行记录</h3><button class="text-gray-400 hover:text-gray-600" onclick="closeRunRecords()">✕</button></div>
+    <p class="text-[11.5px] text-gray-400 mb-4">智能体任务的历次执行明细（示意数据）</p>
+    <table class="w-full text-[12.5px]">
+      <thead><tr class="text-left text-gray-400 border-b border-gray-100"><th class="py-2 font-medium">任务</th><th class="font-medium">智能体</th><th class="font-medium">关联项目</th><th class="font-medium">状态</th><th class="font-medium">耗时</th><th class="font-medium">时间</th></tr></thead>
+      <tbody>
+        <tr class="border-b border-gray-50"><td class="py-3">生成一页纸方案 v2</td><td>KA 主理智能体</td><td>远航物流·智能调度</td><td><span class="tag bg-emerald-100 text-emerald-700">已完成</span></td><td>3:42</td><td class="text-gray-400">2026-07-27 15:20</td></tr>
+        <tr class="border-b border-gray-50"><td class="py-3">需求调研报告初稿</td><td>KA 主理智能体</td><td>远航物流·智能调度</td><td><span class="tag bg-emerald-100 text-emerald-700">已完成</span></td><td>4:56</td><td class="text-gray-400">2026-07-25 11:02</td></tr>
+        <tr class="border-b border-gray-50"><td class="py-3">每周分析总结 W4</td><td>KA 主理智能体</td><td>远航物流·智能调度</td><td><span class="tag bg-emerald-100 text-emerald-700">已完成</span></td><td>2:18</td><td class="text-gray-400">2026-07-26 09:30</td></tr>
+        <tr><td class="py-3">拜访复盘报告</td><td>路书（销售AI）</td><td>—</td><td><span class="tag bg-blue-100 text-blue-600">执行中</span></td><td>—</td><td class="text-gray-400">2026-07-28 10:41</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
 <!-- ===== 摘要提取规则弹窗 ===== -->
 <div id="modal-rule" class="hidden fixed inset-0 z-50 modal-bg flex items-center justify-center" onclick="if(event.target===this)closeRuleModal()">
   <div class="bg-white rounded-2xl w-[560px] p-6 fade-in max-h-[90vh] overflow-y-auto">
@@ -818,10 +889,72 @@
   </div>
 </div>
 
+<!-- ===== 应用设置弹窗（智能体平台 · 含飞书群会话配置） ===== -->
+<div id="modal-appsetting" class="hidden fixed inset-0 z-50 modal-bg flex items-center justify-center" onclick="if(event.target===this)closeAppSetting()">
+  <div class="bg-white rounded-2xl w-[560px] p-6 fade-in max-h-[90vh] overflow-y-auto">
+    <div class="flex items-center justify-between mb-1"><h3 class="font-bold">应用设置</h3><button class="text-gray-400 hover:text-gray-600" onclick="closeAppSetting()">✕</button></div>
+    <p class="text-[11.5px] text-gray-400 mb-4">配置智能体的接入渠道与响应方式</p>
+    <div class="space-y-3">
+      <div class="border border-gray-100 rounded-xl p-3.5">
+        <div class="flex items-center gap-2 cursor-pointer select-none" onclick="toggleCapSec('as-feishu')">
+          <span class="text-gray-400 text-xs" id="arrow-as-feishu">▾</span>
+          <span class="font-semibold text-[13px]">飞书应用</span>
+          <span class="tag bg-emerald-100 text-emerald-700">已启用</span>
+          <button class="ml-auto btn-o !py-1 !px-3 text-[11px]" onclick="event.stopPropagation();openFsGroupCfg('__default__')">飞书群会话配置</button>
+        </div>
+        <div id="as-feishu" class="mt-3">
+          <div class="text-[11px] text-gray-400 mb-2">该智能体已加入 <b class="text-gray-600" id="as-feishu-cnt">0</b> 个飞书群，可按群分别设置响应方式</div>
+          <div class="space-y-1.5 max-h-56 overflow-y-auto" id="as-feishu-list"></div>
+        </div>
+      </div>
+      <div class="border border-gray-100 rounded-xl p-3.5">
+        <div class="flex items-center gap-2">
+          <span class="font-semibold text-[13px]">网页应用</span>
+          <span class="tag bg-emerald-100 text-emerald-700">已启用</span>
+        </div>
+        <div class="flex items-center gap-2 mt-2.5 text-[12px] text-gray-500">
+          <span class="shrink-0">内部应用链接</span>
+          <input class="flex-1 border border-gray-200 rounded-lg px-2.5 py-1.5 text-[11.5px] text-gray-500 bg-gray-50" readonly value="https://ai-agent.chinawayltd.com/chatV?robotNo=aibot_711_6176">
+          <button class="btn-o !py-1 !px-2.5 text-[11px]" onclick="toast('链接已复制（示意）')">复制</button>
+        </div>
+      </div>
+      <div class="border border-gray-100 rounded-xl p-3.5 flex items-center gap-2">
+        <span class="font-semibold text-[13px]">API调用</span>
+        <span class="tag bg-gray-100 text-gray-500">未启用</span>
+      </div>
+      <div class="flex items-center gap-3 pt-1 text-[12.5px]">
+        <span class="text-gray-600 font-semibold">是否启用</span>
+        <label class="flex items-center gap-1.5 cursor-pointer"><input type="radio" name="as-enable" checked class="accent-violet-600">是</label>
+        <label class="flex items-center gap-1.5 cursor-pointer"><input type="radio" name="as-enable" class="accent-violet-600">否</label>
+      </div>
+    </div>
+    <div class="flex justify-end gap-2 mt-5">
+      <button class="btn-o !py-1.5 !px-5 text-xs" onclick="closeAppSetting()">取 消</button>
+      <button class="btn-p !py-1.5 !px-5 text-xs" onclick="closeAppSetting();toast('应用设置已保存（示意）')">确 定</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 飞书群会话配置弹窗 ===== -->
+<div id="modal-fsgroupcfg" class="hidden fixed inset-0 z-[55] modal-bg flex items-center justify-center" onclick="if(event.target===this)closeFsGroupCfg()">
+  <div class="bg-white rounded-2xl w-[380px] p-6 fade-in">
+    <div class="flex items-center justify-between mb-1"><h3 class="font-bold">飞书群会话配置</h3><button class="text-gray-400 hover:text-gray-600" onclick="closeFsGroupCfg()">✕</button></div>
+    <p class="text-[11.5px] text-gray-400 mb-4" id="fsgroup-name"></p>
+    <div class="space-y-2.5 text-[13px] text-gray-700">
+      <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="fs-resp" value="at" class="accent-violet-600" id="fs-resp-at">被@时回复</label>
+      <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="fs-resp" value="new" class="accent-violet-600" id="fs-resp-new">群内新增消息时回复</label>
+    </div>
+    <div class="flex justify-end gap-2 mt-5">
+      <button class="btn-o !py-1.5 !px-5 text-xs" onclick="closeFsGroupCfg()">取 消</button>
+      <button class="btn-p !py-1.5 !px-5 text-xs" onclick="saveFsGroupCfg()">确 定</button>
+    </div>
+  </div>
+</div>
+
 <!-- Toast -->
 <div id="toast" class="hidden fixed top-5 left-1/2 -translate-x-1/2 z-[60] toast bg-gray-900 text-white text-[13px] px-5 py-2.5 rounded-xl shadow-lg"></div>
 
-<footer class="fixed bottom-1 right-2 text-[10px] text-gray-300 z-[60]">v18 · 更新于 2026-08-18 · 多智能体统一跟进引擎</footer>
+<footer class="fixed bottom-1 right-2 text-[10px] text-gray-300 z-[60]">v20 · 更新于 2026-08-20 · 飞书群响应方式按群配置（应用设置 / 项目空间关联群）</footer>
 
 <script>
 /* ================= 数据 ================= */
@@ -905,7 +1038,88 @@ function gotoPlatformResource(tab){gotoPlatform();showPage('resource');showRtab(
 function showPage(pg){
   ['agents','resource','projdetail','runs','agentconfig'].forEach(p=>document.getElementById('pg-'+p).classList.toggle('hidden',p!==pg));
   document.querySelectorAll('#view-platform .nav-item[data-pg]').forEach(n=>n.classList.toggle('active',n.dataset.pg===pg||(pg==='projdetail'&&n.dataset.pg==='resource')||(pg==='agentconfig'&&n.dataset.pg==='agents')));
+  if(pg==='runs'){renderRunMine();renderRunAgent()}
 }
+
+/* ================= 任务执行：我的任务 / 智能体任务执行 ================= */
+function showRunTab(t){
+  document.getElementById('runt-mine').className='pb-2 cursor-pointer '+(t==='mine'?'border-b-2 border-violet-600 text-violet-700 font-semibold':'text-gray-500 hover:text-violet-600');
+  document.getElementById('runt-agent').className='pb-2 cursor-pointer '+(t==='agent'?'border-b-2 border-violet-600 text-violet-700 font-semibold':'text-gray-500 hover:text-violet-600');
+  document.getElementById('run-mine').classList.toggle('hidden',t!=='mine');
+  document.getElementById('run-agent').classList.toggle('hidden',t!=='agent');
+}
+const rmStatusTag={overdue:'<span class="tag bg-red-100 text-red-600">逾期</span>',today:'<span class="tag bg-amber-100 text-amber-600">今日到期</span>',normal:'<span class="tag bg-gray-100 text-gray-500">待办</span>'};
+function renderRunMine(){
+  const view=document.getElementById('rm-view').value, st=document.getElementById('rm-status').value;
+  const kw=(document.getElementById('rm-search').value||'').trim();
+  let list=wbTasks.filter(t=>{
+    if(st==='open'&&t.done)return false;
+    if(st==='done'&&!t.done)return false;
+    if(view==='mine'&&t.transfer)return false;
+    if(view==='follow'&&!t.transfer)return false;
+    if(kw&&!(t.title.includes(kw)||(t.source||'').includes(kw)||(t.proj||'').includes(kw)))return false;
+    return true;
+  });
+  document.getElementById('rm-tbody').innerHTML=list.map(t=>{
+    const status=t.done?'<span class="tag bg-emerald-100 text-emerald-700">已完成</span>':rmStatusTag[t.urgency];
+    const viewTag=t.transfer?'<span class="tag bg-violet-100 text-violet-700">我转交</span>':'<span class="tag bg-blue-100 text-blue-600">我处理</span>';
+    const ops=t.done?'<span class="text-gray-300 text-[11px]">—</span>':t.transfer
+      ?`<button class="btn-o !py-1 !px-2.5 text-[11px]" onclick="ptNudge(${t.id})">催办</button><button class="btn-o !py-1 !px-2.5 text-[11px]" onclick="ptTakeBack(${t.id})">收回</button>`
+      :`<button class="btn-p !py-1 !px-2.5 text-[11px]" onclick="ptDone(${t.id})">完成</button><button class="btn-o !py-1 !px-2.5 text-[11px]" onclick="ptTransfer(${t.id})">转交</button>`;
+    return `<tr class="border-b border-gray-50 hover:bg-violet-50/40">
+      <td class="px-4 py-3 font-medium">${t.title}</td>
+      <td>${viewTag}</td>
+      <td class="text-gray-500">${t.proj||'<span class="text-gray-300">个人任务</span>'}</td>
+      <td class="text-gray-500">${t.source}</td>
+      <td class="text-gray-500">${t.transfer?'转交 '+t.transfer.to:t.due}</td>
+      <td>${status}</td>
+      <td><div class="flex gap-1.5">${ops}</div></td>
+    </tr>`;
+  }).join('')||'<tr><td colspan="7" class="text-center text-gray-400 text-xs py-8">没有符合条件的任务</td></tr>';
+}
+/* 平台页操作（与工作台/飞书同源回写） */
+function ptDone(id){const t=wbTasks.find(x=>x.id===id);t.done=true;t.timeline.push(['刚刚','罗紫函 在平台任务执行页标记完成']);renderWbTasks();toast('已完成，状态已同步工作台与飞书待办')}
+function ptTransfer(id){const t=wbTasks.find(x=>x.id===id);t.transfer={to:'刘洋（项目经理）',time:'刚刚',status:'待处理',nudges:0};t.timeline.push(['刚刚','罗紫函 转交给 刘洋（项目经理）']);renderWbTasks();toast('已转交，任务进入「我转交 · 跟进中」视角')}
+function ptNudge(id){const t=wbTasks.find(x=>x.id===id);t.transfer.nudges++;t.timeline.push(['刚刚',`罗紫函 第 ${t.transfer.nudges} 次催办`]);renderWbTasks();toast('已催办，飞书已提醒处理人')}
+function ptTakeBack(id){const t=wbTasks.find(x=>x.id===id);t.transfer=null;t.timeline.push(['刚刚','罗紫函 收回任务']);renderWbTasks();toast('已收回，任务返回「我处理」视角')}
+
+/* ---- 智能体任务执行 ---- */
+const agentRunTasks=[
+  {name:'华北区域销售拜访日报推送',trig:'定时触发',mode:'指定用户',create:'会话创建',exec:'触发时间：2026-08-17 20:00:00 每日重复，截止至 2027-08-17；执行要求：完成华北区域拜访日报汇总并推送',agent:'啄木鸟',status:'已启用',updater:'木明',time:'2026-08-17 20:18:28'},
+  {name:'11',trig:'定时触发',mode:'任务通知',create:'后台',exec:'触发时间：2026-08-17 19:17:45；执行要求：完成任务通知推送',agent:'啄木鸟',status:'已过期',updater:'郝可欣',time:'2026-08-17 19:16:55'},
+  {name:'销售执行力-每日推送',trig:'定时触发',mode:'任务通知',create:'后台',exec:'触发时间：2026-08-17 18:39:59；执行要求：完成销售执行力日报推送',agent:'啄木鸟',status:'已过期',updater:'郝可欣',time:'2026-08-17 18:38:42'},
+  {name:'华北区域销售拜访日报',trig:'定时触发',mode:'指定用户',create:'会话创建',exec:'触发时间：2026-08-15 20:00:00 每日重复，截止至 2027-08-15',agent:'啄木鸟',status:'已启用',updater:'木明',time:'2026-08-14 20:00:40'},
+  {name:'每日执行力-西部',trig:'定时触发',mode:'任务通知',create:'后台',exec:'触发时间：2026-08-17 09:00:00 每日重复（仅工作日）',agent:'啄木鸟',status:'已启用',updater:'郝可欣',time:'2026-08-15 17:37:10'},
+  {name:'每日执行力-华东二部',trig:'定时触发',mode:'任务通知',create:'后台',exec:'触发时间：2026-08-17 09:00:00 每日重复（仅工作日）',agent:'啄木鸟',status:'已启用',updater:'郝可欣',time:'2026-08-15 17:37:42'},
+  {name:'每日执行力-华东一部',trig:'定时触发',mode:'任务通知',create:'后台',exec:'触发时间：2026-08-17 09:00:00 每日重复（仅工作日）',agent:'啄木鸟',status:'已启用',updater:'郝可欣',time:'2026-08-15 17:38:31'},
+  {name:'项目逾期任务扫描提醒',trig:'定时触发',mode:'任务通知',create:'会话创建',exec:'触发时间：每日 10:00 / 14:00 / 16:00 扫描逾期任务并推送提醒',agent:'KA 主理智能体',status:'已启用',updater:'罗紫函',time:'2026-08-17 10:02:11'},
+  {name:'每周分析总结生成',trig:'定时触发',mode:'指定用户',create:'后台',exec:'触发时间：每周五 17:00；执行要求：生成项目周报并推送项目群',agent:'KA 主理智能体',status:'已停用',updater:'罗紫函',time:'2026-08-15 09:12:00'}
+];
+const raStatusTag={'已启用':'bg-emerald-100 text-emerald-700','已过期':'bg-orange-100 text-orange-600','已停用':'bg-gray-100 text-gray-500'};
+function renderRunAgent(){
+  const st=document.getElementById('ra-status').value, cr=document.getElementById('ra-create').value;
+  const ag=(document.getElementById('ra-agent').value||'').trim(), kw=(document.getElementById('ra-search').value||'').trim();
+  const list=agentRunTasks.filter(t=>(!st||t.status===st)&&(!cr||t.create===cr)&&(!ag||t.agent.includes(ag))&&(!kw||t.name.includes(kw)));
+  document.getElementById('ra-total').textContent='总计 '+list.length+' 条';
+  document.getElementById('ra-tbody').innerHTML=list.map((t,i)=>`<tr class="border-b border-gray-50 hover:bg-violet-50/40">
+    <td class="px-4 py-3 font-medium">${t.name}</td>
+    <td class="text-gray-500">${t.trig}</td>
+    <td class="text-gray-500">${t.mode}</td>
+    <td><span class="tag ${t.create==='会话创建'?'bg-blue-100 text-blue-600':'bg-amber-100 text-amber-600'}">${t.create}</span></td>
+    <td class="text-gray-500 max-w-[220px]"><div class="truncate" title="${t.exec}">${t.exec}</div></td>
+    <td class="text-gray-500">${t.agent}</td>
+    <td><span class="tag ${raStatusTag[t.status]}">${t.status}</span></td>
+    <td class="text-gray-500">${t.updater}</td>
+    <td class="text-gray-400">${t.time}</td>
+    <td><div class="flex gap-1.5">
+      <button class="btn-o !py-1 !px-2.5 text-[11px]" onclick="toast('任务配置（示意）')">配 置</button>
+      <button class="btn-o !py-1 !px-2.5 text-[11px]" onclick="openRunRecords()">执行记录</button>
+      <button class="text-[11px] px-2.5 py-1 rounded-lg border border-red-200 text-red-500 hover:bg-red-50" onclick="this.closest('tr').remove();toast('任务已删除（示意）')">删 除</button>
+    </div></td>
+  </tr>`).join('')||'<tr><td colspan="10" class="text-center text-gray-400 text-xs py-8">没有符合条件的任务</td></tr>';
+}
+function openRunRecords(){document.getElementById('modal-runrecords').classList.remove('hidden')}
+function closeRunRecords(){document.getElementById('modal-runrecords').classList.add('hidden')}
 
 /* ================= 智能体管理 ================= */
 function renderAgents(){
@@ -1236,11 +1450,43 @@ function renderPdGroups(){
     <div class="flex items-center gap-3 p-3 rounded-xl border border-gray-100 text-[12.5px]">
       <span class="text-base">💬</span>
       <div class="flex-1"><div class="font-semibold">${g[0]}</div><div class="text-[11px] text-gray-400">${g[1]}</div></div>
+      <button class="tag ${getFsResp(g[0])==='new'?'bg-violet-100 text-violet-700':'bg-gray-100 text-gray-500'} hover:!ring-1 hover:ring-violet-300" title="点击配置该群响应方式" onclick="openFsGroupCfg('${g[0]}')">${getFsResp(g[0])==='new'?'新消息时回复 ⚙':'被@时回复 ⚙'}</button>
       <span class="tag bg-emerald-100 text-emerald-700">${g[2]}</span>
       <button class="text-[11px] text-gray-400 hover:text-red-400" onclick="unbindGroup(${i})">解绑</button>
     </div>`).join('')||'<div class="py-8 text-center text-gray-400 text-[12.5px]">暂无关联群，点击右上角「一键创建并关联」或「绑定群」</div>';
 }
 function unbindGroup(i){const n=pdGroups[i][0];pdGroups.splice(i,1);renderPdGroups();toast('已解绑「'+n+'」，KA 主理智能体已退出该群')}
+
+/* ================= 飞书群响应方式配置（按群） ================= */
+let fsRespCfg={}, fsCfgTarget='';
+function getFsResp(g){return fsRespCfg[g]||fsRespCfg['__default__']||'at'}
+function openAppSetting(){renderAsFeishuList();document.getElementById('modal-appsetting').classList.remove('hidden')}
+function closeAppSetting(){document.getElementById('modal-appsetting').classList.add('hidden')}
+function renderAsFeishuList(){
+  document.getElementById('as-feishu-cnt').textContent=joinedGroups.length;
+  document.getElementById('as-feishu-list').innerHTML=joinedGroups.map(g=>`
+  <div class="flex items-center gap-2.5 px-3 py-2 rounded-xl border border-gray-100 text-[12px]">
+    <span>💬</span><span class="flex-1 truncate">${g}</span>
+    <span class="tag ${getFsResp(g)==='new'?'bg-violet-100 text-violet-700':'bg-gray-100 text-gray-500'}">${getFsResp(g)==='new'?'新消息时回复':'被@时回复'}</span>
+    <button class="btn-o !py-0.5 !px-2.5 text-[11px]" onclick="openFsGroupCfg('${g}')">设置</button>
+  </div>`).join('');
+}
+function openFsGroupCfg(g){
+  fsCfgTarget=g;
+  document.getElementById('fsgroup-name').textContent=g==='__default__'?'配置默认响应方式（未单独设置的群生效）':'配置群「'+g+'」的响应方式';
+  const v=getFsResp(g);
+  document.getElementById('fs-resp-at').checked=v!=='new';
+  document.getElementById('fs-resp-new').checked=v==='new';
+  document.getElementById('modal-fsgroupcfg').classList.remove('hidden');
+}
+function closeFsGroupCfg(){document.getElementById('modal-fsgroupcfg').classList.add('hidden')}
+function saveFsGroupCfg(){
+  const v=document.getElementById('fs-resp-new').checked?'new':'at';
+  fsRespCfg[fsCfgTarget]=v;closeFsGroupCfg();
+  if(!document.getElementById('modal-appsetting').classList.contains('hidden'))renderAsFeishuList();
+  if(!document.getElementById('pg-projdetail').classList.contains('hidden'))renderPdGroups();
+  toast(fsCfgTarget==='__default__'?'默认响应方式已更新':'「'+fsCfgTarget+'」响应方式已更新：'+(v==='new'?'群内新增消息时回复':'被@时回复'));
+}
 /* 绑定微信群：从当前智能体已加入的群中搜索选择 */
 function openBindGroup(){document.getElementById('bg-search').value='';renderBgList();document.getElementById('modal-bindgroup').classList.remove('hidden')}
 function closeBindGroup(){document.getElementById('modal-bindgroup').classList.add('hidden')}
@@ -1648,6 +1894,7 @@ function renderWbTasks(){
     (list.length?`<div class="text-[11px] text-gray-400 font-semibold">我的待办 ${list.length}</div>${mineHtml}`:'')+
     (follow.length?`<div class="text-[11px] text-gray-400 font-semibold ${list.length?'mt-4':''}">我转交 · 跟进中 ${follow.length} <span class="font-normal">智能体自动盯，进展主动告知</span></div>${followHtml}`:'')+
     (!list.length&&!follow.length?'<div class="text-center text-gray-400 text-xs py-6">待办已清空 🎉</div>':'');
+  if(!document.getElementById('pg-runs').classList.contains('hidden'))renderRunMine();
 }
 function wbPanelDone(id){wbMarkDone(id,null,true)}
 
