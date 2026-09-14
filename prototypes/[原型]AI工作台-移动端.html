@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>AI 工作台 · 移动端</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+<style>
+  *{-webkit-tap-highlight-color:transparent;box-sizing:border-box}
+  body{font-family:'Noto Sans SC',sans-serif;background:#e9e7f2;margin:0;height:100vh;overflow:hidden;color:#1f2937}
+  .hidden{display:none!important}
+  /* 手机外壳：桌面 / demo iframe 中居中展示，真机窄屏自动铺满 */
+  #shell{height:100vh;display:flex;align-items:center;justify-content:center;padding:14px}
+  #phone{width:390px;height:min(844px,100%);background:#f7f7fb;border-radius:38px;border:1px solid #ddd6fe;
+    box-shadow:0 18px 50px rgba(40,20,90,.22);position:relative;overflow:hidden;display:flex;flex-direction:column}
+  @media (max-width:520px){#shell{padding:0}#phone{width:100%;height:100%;border-radius:0;border:0;box-shadow:none}}
+  .statusbar{height:26px;background:#fff;display:flex;align-items:center;justify-content:space-between;
+    padding:0 18px;font-size:10.5px;color:#9ca3af;font-weight:600;flex-shrink:0}
+  /* 页面：单列，底部留出 tab 栏 */
+  .mv-page{position:absolute;left:0;right:0;top:26px;bottom:56px;display:flex;flex-direction:column;background:#f7f7fb}
+  .mv-head{flex-shrink:0;background:#fff;border-bottom:1px solid #f0eefa;padding:9px 12px;display:flex;align-items:center;gap:8px}
+  .mv-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+  /* 底部 tab（触控区 56px） */
+  .tabbar{position:absolute;left:0;right:0;bottom:0;height:56px;background:#fff;border-top:1px solid #f0eefa;display:flex;z-index:30}
+  .tb{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+    font-size:10px;color:#9ca3af;cursor:pointer;font-weight:600;position:relative}
+  .tb .ic{font-size:18px;line-height:1}
+  .tb.on{color:#7C3AED}
+  .tb .dot{position:absolute;top:5px;right:calc(50% - 19px);min-width:15px;height:15px;border-radius:99px;
+    background:#ef4444;color:#fff;font-size:9px;line-height:15px;text-align:center;font-weight:700;padding:0 3px}
+  .card{background:#fff;border:1px solid #f0eefa;border-radius:14px}
+  .tag{font-size:10px;padding:2px 7px;border-radius:99px;font-weight:700;white-space:nowrap;display:inline-block}
+  .btn-p{background:#7C3AED;color:#fff;border-radius:11px;font-size:13.5px;font-weight:700;padding:11px 16px;min-height:44px}
+  .btn-o{border:1px solid #ddd6fe;color:#7C3AED;background:#fff;border-radius:11px;font-size:13px;font-weight:700;padding:10px 14px;min-height:44px}
+  .chip{flex-shrink:0;padding:7px 12px;border-radius:99px;font-size:11.5px;font-weight:600;background:#fff;
+    border:1px solid #eceafc;color:#6b7280;min-height:34px;cursor:pointer}
+  .chip.on{background:#7C3AED;border-color:#7C3AED;color:#fff}
+  .seg{display:flex;background:#f1eefb;border-radius:11px;padding:3px;gap:2px}
+  .seg span{flex:1;text-align:center;padding:8px 0;font-size:12px;font-weight:600;color:#6b7280;border-radius:9px;cursor:pointer}
+  .seg span.on{background:#fff;color:#6d28d9;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+  .xscroll{display:flex;gap:7px;overflow-x:auto}
+  .xscroll::-webkit-scrollbar{display:none}
+  /* 底部 sheet 取代桌面弹窗 */
+  .sheet-bg{position:absolute;inset:0;background:rgba(24,18,48,.42);z-index:40;display:flex;align-items:flex-end}
+  .sheet{background:#fff;width:100%;border-radius:20px 20px 0 0;max-height:90%;display:flex;flex-direction:column;
+    animation:up .26s cubic-bezier(.3,1,.4,1) both}
+  @keyframes up{from{transform:translateY(100%)}to{transform:none}}
+  .grab{width:36px;height:4px;border-radius:99px;background:#e5e0f5;margin:9px auto 2px}
+  .sheet-h{padding:6px 16px 10px;display:flex;align-items:center;gap:8px;border-bottom:1px solid #f5f3fb;flex-shrink:0}
+  .sheet-b{overflow-y:auto;padding:14px 16px}
+  .sheet-f{padding:10px 16px 16px;border-top:1px solid #f5f3fb;display:flex;gap:8px;flex-shrink:0}
+  /* 抽屉：切换智能体伙伴（取代桌面 200px 纵向栏） */
+  .drawer-bg{position:absolute;inset:0;background:rgba(24,18,48,.42);z-index:45;display:flex}
+  .drawer{width:270px;background:#fff;height:100%;display:flex;flex-direction:column;animation:rt .24s ease both}
+  @keyframes rt{from{transform:translateX(-100%)}to{transform:none}}
+  /* 全屏预览：取代桌面常驻「工作区渲染区」分栏 */
+  .fs{position:absolute;inset:0;background:#fff;z-index:50;display:flex;flex-direction:column}
+  .inp{width:100%;border:1px solid #eceafc;border-radius:11px;padding:11px 12px;font-size:13px;background:#fbfaff;min-height:44px}
+  .inp:focus{outline:2px solid #ddd6fe;background:#fff}
+  .lb{font-size:11.5px;font-weight:700;color:#6b7280;margin-bottom:5px;display:block}
+  .mv-body::-webkit-scrollbar,.sheet-b::-webkit-scrollbar{width:0}
+  .typing::after{content:'▍';animation:blink 1s infinite;color:#7C3AED}
+  @keyframes blink{50%{opacity:0}}
+  .cut2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  #toast{position:absolute;left:50%;top:44px;transform:translateX(-50%);z-index:70;background:#1f1b2e;color:#fff;
+    padding:9px 15px;border-radius:11px;font-size:12px;font-weight:600;max-width:86%;text-align:center;animation:tin .25s both}
+  @keyframes tin{from{opacity:0;transform:translate(-50%,-8px)}to{opacity:1;transform:translate(-50%,0)}}
+</style>
+</head>
+<body>
+<div id="shell"><div id="phone">
+  <div class="statusbar"><span>9:41</span><span>AI 工作台 · 移动端</span><span>📶 100%</span></div>
+
+  <!-- ========== TAB 1：会话 ========== -->
+  <div class="mv-page" id="p-chat">
+    <!-- 顶栏：当前智能体 + 抽屉入口（桌面 200px 智能体纵向栏在移动端收进抽屉） -->
+    <div class="mv-head">
+      <button class="w-9 h-9 rounded-xl bg-violet-50 text-violet-600 text-[15px] font-bold flex items-center justify-center shrink-0" onclick="openDrawer()">☰</button>
+      <div class="flex items-center gap-2 min-w-0 flex-1 cursor-pointer" onclick="openDrawer()">
+        <span id="ch-avatar" class="shrink-0"></span>
+        <div class="min-w-0">
+          <div class="text-[13.5px] font-bold truncate flex items-center gap-1"><span id="ch-nick">路书</span><span class="text-[9px] text-gray-300">▾</span></div>
+          <div class="text-[10px] text-gray-400 truncate" id="ch-full">路书（销售AI）</div>
+        </div>
+      </div>
+      <button class="w-9 h-9 rounded-xl bg-gray-50 text-gray-400 text-[14px] flex items-center justify-center shrink-0" onclick="toast('新建会话（示意）')">✎</button>
+    </div>
+    <!-- 项目上下文横幅 -->
+    <div id="ch-projbar" class="hidden shrink-0 px-3 py-1.5 bg-violet-50 border-b border-violet-100 flex items-center gap-2 text-[11px]">
+      <span class="tag bg-violet-600 text-white">项目上下文</span>
+      <span class="font-bold truncate" id="ch-projname"></span>
+      <button class="ml-auto text-gray-400 shrink-0" onclick="exitProject()">退出 ✕</button>
+    </div>
+    <div class="mv-body px-3 pt-2.5 pb-1" id="ch-scroll">
+      <!-- 我的工作看板：移动端折叠为一张卡，默认收起 -->
+      <div class="rounded-2xl border border-violet-200 bg-gradient-to-br from-violet-50 to-fuchsia-50/50 overflow-hidden mb-2.5">
+        <div class="flex items-center gap-1.5 px-3 py-2.5" onclick="toggleBoard()">
+          <span class="text-[13px]">📊</span>
+          <span class="text-[12px] font-bold text-violet-700">我的工作看板</span>
+          <select id="bd-sel" class="text-[10px] font-normal border border-violet-200 rounded-md px-1 py-0.5 bg-white/70 text-violet-600" onchange="switchBoard(this.value)" onclick="event.stopPropagation()"></select>
+          <span class="ml-auto text-[10.5px] text-violet-500 font-bold" id="bd-arrow">展开 ▾</span>
+        </div>
+        <div id="bd-inner" class="hidden">
+          <div class="px-3 pb-2.5 grid grid-cols-2 gap-2" id="bd-tiles"></div>
+        </div>
+        <!-- 任务中心分区：常驻统计条，点击进任务 tab -->
+        <div class="border-t border-violet-100 px-3 py-2 flex items-center gap-2" onclick="go('task')">
+          <span class="text-[11.5px] font-bold text-gray-600">📋 任务中心</span>
+          <span class="text-[10.5px] text-gray-500" id="bd-taskstat"></span>
+          <span class="ml-auto text-[10.5px] text-violet-500 font-bold">全部 ›</span>
+        </div>
+      </div>
+      <!-- 当前智能体快捷动作：横向滑动，不换行挤压 -->
+      <div class="xscroll pb-2" id="ch-quick"></div>
+      <!-- 消息流 -->
+      <div id="ch-msgs"></div>
+    </div>
+    <!-- 输入条 -->
+    <div class="shrink-0 border-t border-gray-100 bg-white px-2.5 py-2">
+      <div id="ch-atpop" class="hidden mx-1 mb-2 border border-gray-200 rounded-xl max-h-[150px] overflow-y-auto"></div>
+      <div class="flex items-end gap-1.5">
+        <button class="w-9 h-9 rounded-xl bg-gray-50 text-gray-400 text-[15px] shrink-0" onclick="toast('附件上传（示意）')">📎</button>
+        <button class="w-9 h-9 rounded-xl bg-gray-50 text-violet-500 text-[14px] font-bold shrink-0" onclick="atTrigger()">@</button>
+        <input id="ch-input" class="flex-1 min-w-0 border border-gray-200 rounded-2xl px-3.5 text-[13px] bg-gray-50/70 focus:outline-violet-200" style="height:40px" placeholder="发消息，@ 切换智能体" onkeydown="if(event.key==='Enter')send()" oninput="atSync()">
+        <button class="w-10 h-10 rounded-xl bg-violet-600 text-white text-[15px] shrink-0" onclick="send()">➤</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== TAB 2：任务（任务中心处理人视角） ========== -->
+  <div class="mv-page hidden" id="p-task">
+    <div class="mv-head">
+      <div class="flex-1 min-w-0">
+        <div class="text-[14.5px] font-black">任务中心</div>
+        <div class="text-[10px] text-gray-400">处理人视角 · 条目制拉平，子任务独立成条</div>
+      </div>
+      <button class="px-3 h-9 rounded-xl bg-violet-600 text-white text-[12px] font-bold shrink-0" onclick="openNew()">+ 新建</button>
+    </div>
+    <div class="shrink-0 bg-white border-b border-gray-100 px-3 pb-2.5 pt-0.5">
+      <div class="seg mb-2" id="tk-seg"></div>
+      <div class="xscroll mb-2" id="tk-chips"></div>
+      <input id="tk-kw" class="w-full border border-gray-200 rounded-xl px-3 text-[12.5px] bg-gray-50/70 focus:outline-violet-200" style="height:36px" placeholder="搜索任务名称 / 编号" oninput="renderTasks()">
+    </div>
+    <div class="mv-body px-3 py-2.5" id="tk-list"></div>
+  </div>
+
+  <!-- ========== TAB 3：空间 ========== -->
+  <div class="mv-page hidden" id="p-space">
+    <div class="mv-head">
+      <div class="flex-1"><div class="text-[14.5px] font-black">我的空间</div>
+      <div class="text-[10px] text-gray-400">能力空间 · 看板与文档</div></div>
+    </div>
+    <div class="mv-body px-3 py-2.5 space-y-2.5" id="sp-body"></div>
+  </div>
+
+  <!-- ========== TAB 4：我的 ========== -->
+  <div class="mv-page hidden" id="p-me">
+    <div class="mv-body">
+      <div class="px-4 pt-5 pb-6 bg-gradient-to-br from-violet-600 to-fuchsia-500 text-white">
+        <div class="flex items-center gap-3">
+          <div class="w-14 h-14 rounded-2xl bg-white/25 flex items-center justify-center text-[22px] font-black">罗</div>
+          <div class="min-w-0">
+            <div class="text-[17px] font-black">罗紫函</div>
+            <div class="text-[11.5px] opacity-90 mt-0.5">销售 · 管理员 · 智能体 55 个</div>
+          </div>
+        </div>
+        <div class="grid grid-cols-3 gap-2 mt-4 text-center">
+          <div class="bg-white/15 rounded-xl py-2"><div class="text-[17px] font-black" id="me-open">0</div><div class="text-[10px] opacity-90">待处理</div></div>
+          <div class="bg-white/15 rounded-xl py-2"><div class="text-[17px] font-black" id="me-trans">0</div><div class="text-[10px] opacity-90">我转交</div></div>
+          <div class="bg-white/15 rounded-xl py-2"><div class="text-[17px] font-black" id="me-done">0</div><div class="text-[10px] opacity-90">已完成</div></div>
+        </div>
+      </div>
+      <div class="px-3 py-3 space-y-2.5">
+        <div class="card overflow-hidden">
+          <div class="flex items-center gap-2.5 px-3.5 py-3 border-b border-gray-50" onclick="openDash()"><span>📊</span><span class="text-[13px] font-semibold">经营看板</span><span class="ml-auto text-gray-300 text-[13px]">›</span></div>
+          <div class="flex items-center gap-2.5 px-3.5 py-3 border-b border-gray-50" onclick="toast('移动端暂不提供智能体平台配置，请到桌面端操作')"><span>⚙</span><span class="text-[13px] font-semibold">智能体平台</span><span class="ml-auto text-[10px] text-gray-400">桌面端</span></div>
+          <div class="flex items-center gap-2.5 px-3.5 py-3 border-b border-gray-50" onclick="toast('消息通知设置（示意）')"><span>🔔</span><span class="text-[13px] font-semibold">消息通知</span><span class="ml-auto text-gray-300 text-[13px]">›</span></div>
+          <div class="flex items-center gap-2.5 px-3.5 py-3" onclick="toast('账号与安全（示意）')"><span>🔐</span><span class="text-[13px] font-semibold">账号与安全</span><span class="ml-auto text-gray-300 text-[13px]">›</span></div>
+        </div>
+        <div class="card p-3.5">
+          <div class="text-[12.5px] font-bold mb-1.5">📱 移动端说明</div>
+          <p class="text-[11.5px] text-gray-500 leading-relaxed">移动端聚焦「随手处理」：看会话、办任务、查文档。智能体配置、任务类型配置、业务对接配置、用户管理等平台侧能力仍在桌面端完成。</p>
+        </div>
+        <p class="text-center text-[10px] text-gray-300 py-2">AI 工作台 移动端 · 移动版 2026-09-13</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 底部 tab ========== -->
+  <div class="tabbar">
+    <div class="tb on" id="tb-chat" onclick="go('chat')"><span class="ic">💬</span><span>会话</span></div>
+    <div class="tb" id="tb-task" onclick="go('task')"><span class="ic">📋</span><span>任务</span><span class="dot hidden" id="tb-task-dot">0</span></div>
+    <div class="tb" id="tb-space" onclick="go('space')"><span class="ic">▦</span><span>空间</span></div>
+    <div class="tb" id="tb-me" onclick="go('me')"><span class="ic">👤</span><span>我的</span></div>
+  </div>
+
+  <!-- ========== 抽屉：智能体伙伴 ========== -->
+  <div class="drawer-bg hidden" id="drawer" onclick="if(event.target===this)closeDrawer()">
+    <div class="drawer">
+      <div class="px-3.5 pt-4 pb-2.5 border-b border-gray-100 flex items-center gap-2">
+        <span class="text-[13.5px] font-black">🤝 智能体伙伴</span>
+        <button class="ml-auto w-8 h-8 rounded-xl border border-gray-200 text-gray-400 text-[14px]" onclick="toast('添加智能体（示意）')">+</button>
+      </div>
+      <div class="flex-1 overflow-y-auto p-2 space-y-1" id="dw-list"></div>
+      <div class="p-2.5 border-t border-gray-100">
+        <button class="w-full py-3 rounded-xl bg-gray-900 text-white text-[12.5px] font-bold" onclick="toast('AI 能力广场（示意）')">⚡ 去 AI 能力广场</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 底部 sheet（取代桌面弹窗） ========== -->
+  <div class="sheet-bg hidden" id="sheet" onclick="if(event.target===this)closeSheet()">
+    <div class="sheet">
+      <div class="grab" onclick="closeSheet()"></div>
+      <div class="sheet-h"><div class="text-[14px] font-black flex-1 min-w-0" id="sh-title"></div>
+        <button class="w-8 h-8 rounded-lg text-gray-300 text-[15px]" onclick="closeSheet()">✕</button></div>
+      <div class="sheet-b" id="sh-body"></div>
+      <div class="sheet-f hidden" id="sh-foot"></div>
+    </div>
+  </div>
+
+  <!-- ========== 全屏预览（取代桌面工作区渲染区分栏） ========== -->
+  <div class="fs hidden" id="fs">
+    <div class="shrink-0 flex items-center gap-2 px-3 py-2.5 border-b border-gray-100">
+      <button class="w-9 h-9 rounded-xl bg-gray-50 text-gray-500 text-[15px]" onclick="closeFs()">←</button>
+      <div class="min-w-0 flex-1"><div class="text-[13.5px] font-bold truncate" id="fs-title"></div>
+        <div class="text-[10px] text-gray-400 truncate" id="fs-sub"></div></div>
+      <button class="w-9 h-9 rounded-xl bg-gray-50 text-gray-400 text-[14px]" onclick="toast('分享（示意）')">⤴</button>
+    </div>
+    <iframe id="fs-frame" class="flex-1 w-full border-0"></iframe>
+  </div>
+</div></div>
+
+<script>
+/* ================= 数据（与桌面整合版同源示例数据，按移动端裁剪） ================= */
+const ME='罗紫函';
+const AGENT_PROFILE={'路书（销售AI）':'路书','KA 主理智能体':'主理','解决方案生成':'方案','报价Agent':'报价','客成助手':'客成','技术诊断助手':'诊断','智能客服-CASE单':'客服'};
+let myApps=['路书（销售AI）','解决方案生成','报价Agent'];
+let currentAgent='路书（销售AI）', curProject=null;
+function agentNick(n){return AGENT_PROFILE[n]||String(n||'智能体').replace(/[（(].*?[）)]/g,'').slice(0,4)}
+function agentHash(s){let h=2166136261>>>0;for(let i=0;i<String(s).length;i++){h^=String(s).charCodeAt(i);h=Math.imul(h,16777619)>>>0}h^=h>>>15;h=Math.imul(h,2246822507)>>>0;h^=h>>>13;h=Math.imul(h,3266489909)>>>0;h^=h>>>16;return h>>>0}
+const AGENT_HUES=[262,226,190,168,145,38,22,350,330,288];
+function agentAvatar(name,size=34){
+  const known=Object.keys(AGENT_PROFILE).indexOf(name);
+  const i=known>=0?known:agentHash(name)%30, hue=AGENT_HUES[i%10], pat=i%3;
+  const c1=`hsl(${hue} 72% 62%)`,c2=`hsl(${(hue+28)%360} 68% 44%)`,c3=`hsl(${hue} 90% 92%)`,id='av'+agentHash(name).toString(36);
+  const inner=[`<path d="M11 35 L31 15 L31 35 Z" fill="${c3}" opacity=".92"/><circle cx="17.5" cy="17.5" r="6" fill="#fff" opacity=".85"/>`,
+    `<circle cx="24" cy="24" r="13" fill="none" stroke="#fff" stroke-width="3.6" opacity=".85"/><circle cx="24" cy="24" r="5" fill="${c3}"/>`,
+    `<rect x="10" y="10" width="13" height="13" rx="3.5" fill="#fff" opacity=".85"/><rect x="25" y="25" width="13" height="13" rx="3.5" fill="${c3}" opacity=".95"/><rect x="25" y="10" width="13" height="13" rx="3.5" fill="#fff" opacity=".35"/>`][pat];
+  return `<svg viewBox="0 0 48 48" width="${size}" height="${size}" class="shrink-0 rounded-full"><defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${c1}"/><stop offset="1" stop-color="${c2}"/></linearGradient></defs><circle cx="24" cy="24" r="24" fill="url(#${id})"/>${inner}</svg>`;
+}
+
+/* 任务：处理人视角条目制拉平——归属我的主任务与归属我的子任务各成一条，
+   子任务条目带 parent（上级任务标题），不展示上级的完整详情 */
+let TASKS=[
+  {id:482317,t:'客户提供调度系统数据字典',ty:'项目空间 › 项目协作 › 项目行动项',proj:'远航物流·智能调度',src:'群聊识别 · 远航-智能调度项目组群',by:'KA 主理智能体',due:'逾期 1 天',ug:'overdue',prio:'高',v:'mine',done:false,
+   desc:'客户提供调度系统全量数据字典，含运单/车辆/司机三张主表',agents:['KA 主理智能体','解决方案生成'],
+   tl:[['07-27 14:02','群消息识别创建：王磊「客户数据字典本周内要补给我」'],['07-27 14:02','已同步飞书待办 @罗紫函'],['07-28 18:00','标记逾期，已升级提醒项目经理 刘洋']]},
+  {id:719304,t:'确认一页纸方案 v3 定稿',ty:'项目空间 › 项目协作 › 项目行动项',proj:'远航物流·智能调度',src:'skill 产出 · 任务拆解',by:'KA 主理智能体',due:'今日到期',ug:'today',prio:'中',v:'mine',done:false,
+   desc:'确认 V3 版一页纸方案的报价与交付周期表述',agents:['KA 主理智能体','报价Agent'],
+   tl:[['07-27 16:42','任务拆解 skill 产出，经项目经理确认下发'],['07-27 16:42','已同步飞书待办 · 备注「等待 罗紫函 确认」']]},
+  {id:617452,t:'客户报障：司机端定位漂移（工单#4821）',ty:'服务一条链 › 售后工单 › 故障处理',proj:null,src:'外部系统 · 客服工单',by:'智能客服-CASE单',due:'08-25 截止',ug:'normal',prio:'高',v:'mine',done:false,node:'客户成功',sla:'剩 1.5h',
+   desc:'KA 客户报障司机端定位漂移，安抚+诊断并行',agents:['客成助手','技术诊断助手'],
+   tl:[['08-23 09:12','客服系统工单#4821 推入，命中「客服工单流转」'],['08-23 09:14','智能客服-CASE单 首轮答复，判定客户情绪=负面 → 流转客成'],['08-23 10:30','客成助手 生成安抚话术草稿（待确认）']]},
+  {id:376208,t:'平台登录验证码收不到（工单#4817）',ty:'服务一条链 › 售后工单 › 故障处理',proj:null,src:'外部系统 · 客服工单',by:'智能客服-CASE单',due:'逾期 1 天',ug:'overdue',prio:'中',v:'mine',done:false,node:'技术',sla:'超 2h',
+   desc:'平台登录验证码收不到，技术节点 SLA 已超',agents:['技术诊断助手'],
+   tl:[['08-21 16:20','工单推入 → 技术节点'],['08-23 16:20','节点 SLA 24h 超时，已提醒处理人池'],['08-23 18:20','连续超时，升级提醒节点负责人 刘洋']]},
+  /* 子任务条目：主任务处理人是张工，我只承担其中一个子任务 */
+  {id:8945313,t:'客户侧结论同步',ty:'服务一条链 › 售后工单 › 异常投诉',proj:'远航物流·智能调度',src:'子任务 · 由主任务拆解',by:'张工（技术）',due:'08-25 截止',ug:'today',prio:'高',v:'mine',done:false,parent:'KA 客户投诉：里程统计偏差（工单#4798）',
+   desc:'待算法结论出后同步客户决策人',agents:['客成助手'],
+   tl:[['08-22 15:30','主任务拆解出本子任务，处理人 罗紫函'],['08-23 11:20','技术诊断助手 初判为里程算法边界 case']]},
+  {id:5832,t:'整理远航调度二期报价口径',ty:'营销管理 › 销售管理 › 方案支持',proj:'远航物流·智能调度',src:'智能体创建 · 报价Agent',by:'报价Agent',due:'08-29 截止',ug:'normal',prio:'中',v:'trans',done:false,to:'刘洋',tst:'进行中',nudge:0,
+   desc:'核对冷链设备费与年服务费口径，输出可对外报价区间',agents:['报价Agent'],
+   tl:[['08-26 10:15','报价Agent 输出报价草案，需财务口径复核'],['08-26 10:20','罗紫函 转交给 刘洋 复核报价口径'],['08-26 14:30','刘洋 已开始处理，预计 08-28 回传']]},
+  {id:6401,t:'新景昌车队安全方案客户侧确认',ty:'项目空间 › 项目协作 › 项目行动项',proj:null,src:'群聊识别 · 新景昌-车队安全项目群',by:'KA 主理智能体',due:'08-30 截止',ug:'normal',prio:'低',v:'trans',done:false,to:'陈静',tst:'待处理',nudge:1,
+   desc:'方案增补安全培训章节后交客户侧确认',agents:['解决方案生成'],
+   tl:[['08-25 16:35','群消息识别创建：客户要求方案增补安全培训章节'],['08-25 16:40','罗紫函 转交给 陈静 补充章节'],['08-27 09:10','罗紫函 第 1 次催办']]},
+  {id:8945,t:'KA 客户投诉：里程统计偏差（工单#4798）',ty:'服务一条链 › 售后工单 › 异常投诉',proj:'远航物流·智能调度',src:'外部系统 · 客服工单',by:'智能客服-CASE单',due:'08-25 截止',ug:'today',prio:'高',v:'watch',done:false,node:'技术',sla:'剩 6h',hd:'张工（技术）',
+   desc:'KA 客户投诉里程统计偏差，算法排查中',agents:[],
+   tl:[['08-22 14:05','工单推入，客户等级=KA → 客成安抚'],['08-22 15:30','客成确认问题属实，流转技术节点'],['08-22 15:30','你已关注此任务，状态变化将主动告知']]},
+  {id:471028,t:'徐州聚鸿拜访复盘报告归档',ty:'营销管理 › 销售管理 › 管理派单',proj:null,src:'智能体创建 · 路书（销售AI）',by:'路书（销售AI）',due:'08-20 截止',ug:'normal',prio:'中',v:'done',done:true,doneAt:'08-20 10:12',
+   desc:'拜访复盘报告复核并归档至客户知识空间',agents:[],
+   tl:[['08-19 13:37','路书（销售AI）生成拜访复盘报告'],['08-20 10:12','罗紫函 复核后归档，任务办结']]},
+  {id:518647,t:'远航一页纸方案 v3 定稿同步项目群',ty:'项目空间 › 项目协作 › 项目行动项',proj:'远航物流·智能调度',src:'skill 产出 · 任务拆解',by:'KA 主理智能体',due:'08-22 截止',ug:'normal',prio:'高',v:'done',done:true,doneAt:'08-22 09:05',
+   desc:'一页纸方案 v3 定稿并同步项目群与决策人',agents:[],
+   tl:[['08-21 16:42','方案 v3 定稿，沉淀至项目空间'],['08-22 09:05','罗紫函 同步项目群并通知决策人，任务办结']]},
+];
+const UG={overdue:{tag:'bg-red-100 text-red-600',txt:'逾期'},today:{tag:'bg-amber-100 text-amber-700',txt:'今日'},normal:{tag:'bg-gray-100 text-gray-500',txt:'正常'}};
+const PRIO={高:'bg-red-50 text-red-500',中:'bg-amber-50 text-amber-600',低:'bg-gray-100 text-gray-400'};
+/* 看板：与桌面整合版同源 */
+const BOARDS={
+  'bd-sales':{name:'销售看板',tiles:[
+    {k:'open',icon:'📌',label:'待处理任务',unit:'条',ask:'把待处理任务按逾期优先列给我'},
+    {k:'over',icon:'⏰',label:'逾期任务',unit:'条',ask:'逾期任务为什么卡住了'},
+    {k:'proj',icon:'🗂',label:'在跟项目',unit:'个',ask:'在跟项目最新进展'},
+    {k:'win',icon:'💰',label:'本月预计签约',unit:'万',ask:'本月预计签约拆解到项目'}]},
+  'bd-cs':{name:'客成看板',tiles:[
+    {k:'sla',icon:'⚠️',label:'SLA 临期',unit:'条',ask:'SLA 临期工单谁在处理'},
+    {k:'over',icon:'⏰',label:'超时节点',unit:'条',ask:'超时节点的升级记录'},
+    {k:'ka',icon:'⭐',label:'KA 在途工单',unit:'条',ask:'KA 在途工单风险排序'},
+    {k:'nps',icon:'📈',label:'本周满意度',unit:'分',ask:'满意度下降的原因'}]},
+  'bd-pm':{name:'项目看板',tiles:[
+    {k:'act',icon:'✅',label:'行动项待办',unit:'条',ask:'行动项待办按项目分组'},
+    {k:'risk',icon:'🚩',label:'风险项',unit:'个',ask:'当前风险项与应对'},
+    {k:'doc',icon:'📄',label:'待确认交付物',unit:'份',ask:'待确认交付物卡在谁那里'},
+    {k:'mile',icon:'🎯',label:'本周里程碑',unit:'个',ask:'本周里程碑达成情况'}]},
+};
+let curBoard='bd-sales', boardOpen=false;
+function tileVal(k){
+  const mine=TASKS.filter(t=>t.v==='mine'&&!t.done);
+  switch(k){
+    case 'open':return mine.length; case 'over':return TASKS.filter(t=>!t.done&&t.ug==='overdue').length;
+    case 'proj':return 3; case 'win':return 186;
+    case 'sla':return TASKS.filter(t=>!t.done&&t.sla&&t.sla.startsWith('剩')).length;
+    case 'ka':return TASKS.filter(t=>!t.done&&/KA|投诉/.test(t.t)).length; case 'nps':return 8.4;
+    case 'act':return TASKS.filter(t=>!t.done&&t.ty.includes('项目行动项')).length;
+    case 'risk':return 2; case 'doc':return 3; case 'mile':return 1;
+  }
+  return 0;
+}
+/* ================= 壳层：toast / tab / 抽屉 / sheet / 全屏 ================= */
+let toastTimer=null;
+function toast(msg){
+  document.getElementById('toast')?.remove();
+  const d=document.createElement('div'); d.id='toast'; d.textContent=msg;
+  document.getElementById('phone').appendChild(d);
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>d.remove(),2000);
+}
+const TABS=['chat','task','space','me'];
+let curTab='chat';
+function go(tab){
+  curTab=tab;
+  TABS.forEach(x=>{
+    document.getElementById('p-'+x).classList.toggle('hidden',x!==tab);
+    document.getElementById('tb-'+x).classList.toggle('on',x===tab);
+  });
+  if(tab==='task')renderTasks();
+  if(tab==='space')renderSpace();
+  if(tab==='me')renderMe();
+}
+function openDrawer(){renderDrawer();document.getElementById('drawer').classList.remove('hidden')}
+function closeDrawer(){document.getElementById('drawer').classList.add('hidden')}
+function openSheet(title,body,foot){
+  document.getElementById('sh-title').innerHTML=title;
+  document.getElementById('sh-body').innerHTML=body;
+  const f=document.getElementById('sh-foot');
+  f.innerHTML=foot||''; f.classList.toggle('hidden',!foot);
+  document.getElementById('sheet').classList.remove('hidden');
+  document.getElementById('sh-body').scrollTop=0;
+}
+function closeSheet(){document.getElementById('sheet').classList.add('hidden')}
+function openFs(title,sub,html){
+  document.getElementById('fs-title').textContent=title;
+  document.getElementById('fs-sub').textContent=sub||'';
+  document.getElementById('fs-frame').srcdoc=html;
+  document.getElementById('fs').classList.remove('hidden');
+}
+function closeFs(){document.getElementById('fs').classList.add('hidden')}
+/* ================= TAB1 会话 ================= */
+const ALL_AGENTS=['路书（销售AI）','KA 主理智能体','解决方案生成','报价Agent','客成助手','技术诊断助手','智能客服-CASE单'];
+const AGENT_DESC={'路书（销售AI）':'拜访路书 · 客户情报 · 复盘','KA 主理智能体':'KA 项目统筹 · 群消息识别',
+  '解决方案生成':'一页纸方案 · 标书素材','报价Agent':'报价区间 · 口径核对','客成助手':'安抚话术 · 满意度',
+  '技术诊断助手':'故障定位 · 根因分析','智能客服-CASE单':'工单首答 · 情绪判定'};
+function renderDrawer(){
+  document.getElementById('dw-list').innerHTML=ALL_AGENTS.map(n=>{
+    const on=n===currentAgent, mine=myApps.includes(n);
+    const cnt=TASKS.filter(t=>!t.done&&t.by===n).length;
+    return `<div class="flex items-center gap-2.5 px-2.5 py-2.5 rounded-xl ${on?'bg-violet-50 border border-violet-200':'border border-transparent'}" onclick="switchAgent('${n}')">
+      ${agentAvatar(n,34)}
+      <div class="min-w-0 flex-1">
+        <div class="text-[12.5px] font-bold truncate ${on?'text-violet-700':''}">${agentNick(n)}${mine?'':'<span class="tag bg-gray-100 text-gray-400 ml-1">未添加</span>'}</div>
+        <div class="text-[10px] text-gray-400 truncate">${AGENT_DESC[n]}</div>
+      </div>
+      ${cnt?`<span class="tag bg-red-100 text-red-500 shrink-0">${cnt}</span>`:''}
+    </div>`;
+  }).join('');
+}
+function switchAgent(n){
+  currentAgent=n; if(!myApps.includes(n))myApps.push(n);
+  MSGS=[{r:'a',x:GREET[n]||`我是${agentNick(n)}，可以直接把需求发我。`}];
+  closeDrawer(); renderChatHead(); renderQuick(); renderMsgs(); toast('已切换到 '+agentNick(n));
+}
+function renderChatHead(){
+  document.getElementById('ch-avatar').innerHTML=agentAvatar(currentAgent,34);
+  document.getElementById('ch-nick').textContent=agentNick(currentAgent);
+  document.getElementById('ch-full').textContent=currentAgent;
+  const bar=document.getElementById('ch-projbar');
+  bar.classList.toggle('hidden',!curProject);
+  if(curProject)document.getElementById('ch-projname').textContent=curProject;
+}
+function toggleBoard(){
+  boardOpen=!boardOpen;
+  document.getElementById('bd-inner').classList.toggle('hidden',!boardOpen);
+  document.getElementById('bd-arrow').textContent=boardOpen?'收起 ▴':'展开 ▾';
+  if(boardOpen)renderTiles();
+}
+function switchBoard(k){curBoard=k;renderTiles();toast('已切换到 '+BOARDS[k].name)}
+function renderTiles(){
+  const sel=document.getElementById('bd-sel');
+  if(!sel.options.length)sel.innerHTML=Object.entries(BOARDS).map(([k,b])=>`<option value="${k}">${b.name}</option>`).join('');
+  sel.value=curBoard;
+  document.getElementById('bd-tiles').innerHTML=BOARDS[curBoard].tiles.map(t=>
+    `<div class="bg-white/85 rounded-xl px-2.5 py-2 border border-violet-100" onclick="askTile('${t.ask}')">
+      <div class="text-[10px] text-gray-500 flex items-center gap-1"><span>${t.icon}</span><span class="truncate">${t.label}</span></div>
+      <div class="text-[18px] font-black text-violet-700 leading-tight mt-0.5">${tileVal(t.k)}<span class="text-[10px] font-bold text-gray-400 ml-0.5">${t.unit}</span></div>
+    </div>`).join('');
+  const mine=TASKS.filter(t=>t.v==='mine'&&!t.done).length, over=TASKS.filter(t=>!t.done&&t.ug==='overdue').length;
+  document.getElementById('bd-taskstat').textContent=`待处理 ${mine} · 逾期 ${over}`;
+}
+function askTile(q){go('chat');document.getElementById('ch-input').value=q;send()}
+const QUICK={'路书（销售AI）':['今日拜访路书','客户情报速查','拜访复盘'],'KA 主理智能体':['项目进展汇总','群消息待办','决策人梳理'],
+  '解决方案生成':['生成一页纸方案','标书素材检索'],'报价Agent':['报价区间测算','口径核对'],'客成助手':['安抚话术','满意度分析'],
+  '技术诊断助手':['故障定位','根因分析'],'智能客服-CASE单':['工单首答','情绪判定']};
+function renderQuick(){
+  document.getElementById('ch-quick').innerHTML=(QUICK[currentAgent]||['能力介绍']).map(q=>
+    `<button class="chip shrink-0" onclick="document.getElementById('ch-input').value='${q}';send()">${q}</button>`).join('')
+    +`<button class="chip shrink-0" onclick="openProjPick()">🗂 进入项目</button>`;
+}
+const GREET={'路书（销售AI）':'我是路书，可以帮你排今日拜访、查客户情报、做拜访复盘。也能直接问我待处理任务。',
+  'KA 主理智能体':'我是 KA 主理，负责项目统筹与群消息识别转任务。','解决方案生成':'我是方案助手，可生成一页纸方案与标书素材。',
+  '报价Agent':'我是报价助手，可测算报价区间并核对口径。','客成助手':'我是客成助手，负责安抚话术与满意度跟踪。',
+  '技术诊断助手':'我是诊断助手，负责故障定位与根因分析。','智能客服-CASE单':'我是客服助手，负责工单首答与情绪判定。'};
+let MSGS=[{r:'a',x:GREET['路书（销售AI）']}];
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function renderMsgs(){
+  document.getElementById('ch-msgs').innerHTML=MSGS.map((m,i)=>{
+    if(m.r==='u')return `<div class="flex justify-end mb-2.5"><div class="max-w-[80%] bg-violet-600 text-white rounded-2xl rounded-br-md px-3 py-2 text-[12.5px] leading-relaxed">${esc(m.x)}</div></div>`;
+    const body=m.card?m.card:`<div class="text-[12.5px] leading-relaxed ${m.typing?'typing':''}">${m.x?esc(m.x):''}</div>`;
+    return `<div class="flex gap-2 mb-2.5">${agentAvatar(m.ag||currentAgent,28)}
+      <div class="max-w-[84%] min-w-0"><div class="text-[9.5px] text-gray-400 mb-1">${agentNick(m.ag||currentAgent)}</div>
+      <div class="bg-white border border-gray-100 rounded-2xl rounded-tl-md px-3 py-2 shadow-sm">${body}</div></div></div>`;
+  }).join('');
+  const sc=document.getElementById('ch-scroll'); sc.scrollTop=sc.scrollHeight;
+}
+function taskCard(list,note){
+  return `<div class="text-[12px] font-semibold mb-2">${note}</div>`+list.map(t=>{
+    const u=UG[t.ug];
+    return `<div class="border border-gray-100 rounded-xl p-2.5 mb-1.5 bg-gray-50/60" onclick="openTask(${t.id})">
+      <div class="flex items-start gap-1.5"><span class="tag ${u.tag} shrink-0 mt-0.5">${u.txt}</span>
+        <span class="text-[12px] font-bold leading-snug flex-1 min-w-0">${t.t}</span></div>
+      <div class="text-[10px] text-gray-400 mt-1 truncate">#${t.id} · ${t.due}${t.sla?' · SLA '+t.sla:''}</div>
+    </div>`;
+  }).join('')+`<div class="flex gap-1.5 mt-1"><button class="chip" onclick="go('task')">去任务中心</button><button class="chip" onclick="toast('已按逾期优先重排')">按逾期排序</button></div>`;
+}
+function send(){
+  const el=document.getElementById('ch-input'), txt=el.value.trim(); if(!txt)return;
+  el.value=''; document.getElementById('ch-atpop').classList.add('hidden');
+  MSGS.push({r:'u',x:txt});
+  const ag=currentAgent;
+  MSGS.push({r:'a',ag,x:'正在思考',typing:true}); renderMsgs();
+  const idx=MSGS.length-1;
+  setTimeout(()=>{
+    MSGS[idx]=reply(txt,ag); renderMsgs();
+  },700);
+}
+function reply(q,ag){
+  if(/任务|待办|逾期|待处理/.test(q)){
+    const list=TASKS.filter(t=>t.v==='mine'&&!t.done).sort((a,b)=>(a.ug==='overdue'?0:1)-(b.ug==='overdue'?0:1));
+    return {r:'a',ag,card:taskCard(list,`你名下在办 ${list.length} 条，逾期 ${list.filter(t=>t.ug==='overdue').length} 条：`)};
+  }
+  if(/方案|一页纸/.test(q))return {r:'a',ag,card:`<div class="text-[12.5px] leading-relaxed mb-2">已生成《远航物流·智能调度 一页纸方案 v3》草稿，含痛点、方案架构、实施节奏、报价区间四段。</div>
+    <button class="btn-p w-full text-[12px]" onclick="openDoc('one')">全屏查看方案</button>`};
+  if(/报价/.test(q))return {r:'a',ag,card:`<div class="text-[12.5px] leading-relaxed mb-1.5">冷链设备费按 12 台核算，年服务费按二期规模上浮 18%，可对外区间 <b class="text-violet-700">168–206 万</b>。</div>
+    <div class="text-[10.5px] text-gray-400">口径待财务复核，已转交 刘洋。</div>`};
+  if(/项目|进展/.test(q))return {r:'a',ag,card:`<div class="text-[12.5px] leading-relaxed mb-2">远航物流·智能调度：方案 v3 待定稿，数据字典逾期 1 天，本周里程碑 1 个。</div>
+    <button class="chip" onclick="go('space')">看项目空间</button>`};
+  return {r:'a',ag,x:`收到。关于「${q}」，我会结合${curProject?'项目「'+curProject+'」的':''}知识库与历史任务给出建议；需要我直接建任务跟进吗？`};
+}
+/* @ 提及：移动端用输入框上方浮层，选中即切换智能体 */
+function atTrigger(){
+  const el=document.getElementById('ch-input');
+  if(!el.value.endsWith('@'))el.value+='@';
+  el.focus(); atSync();
+}
+function atSync(){
+  const el=document.getElementById('ch-input'), pop=document.getElementById('ch-atpop');
+  const m=el.value.match(/@([^@\s]*)$/);
+  if(!m){pop.classList.add('hidden');return}
+  const kw=m[1], hit=ALL_AGENTS.filter(n=>!kw||n.includes(kw)||agentNick(n).includes(kw));
+  if(!hit.length){pop.classList.add('hidden');return}
+  pop.innerHTML=hit.map(n=>`<div class="flex items-center gap-2 px-2.5 py-2 border-b border-gray-50 bg-white" onclick="atPick('${n}')">
+    ${agentAvatar(n,26)}<div class="min-w-0"><div class="text-[12px] font-bold truncate">${agentNick(n)}</div>
+    <div class="text-[9.5px] text-gray-400 truncate">${AGENT_DESC[n]}</div></div></div>`).join('');
+  pop.classList.remove('hidden');
+}
+function atPick(n){
+  const el=document.getElementById('ch-input');
+  el.value=el.value.replace(/@([^@\s]*)$/,'');
+  document.getElementById('ch-atpop').classList.add('hidden');
+  switchAgent(n);
+}
+const PROJECTS=[
+  {n:'远航物流·智能调度',s:'方案 v3 待定稿 · 行动项 2 条',kb:'远航物流知识库',grp:'远航-智能调度项目组群',
+   files:['远航调度现状调研.md','一页纸方案 v3.html','数据字典待补清单.xlsx']},
+  {n:'新景昌·车队安全',s:'方案待客户确认 · 行动项 1 条',kb:'新景昌知识库',grp:'新景昌-车队安全项目群',
+   files:['车队安全方案 v2.docx','安全培训章节草稿.md']},
+  {n:'徐州聚鸿·运力优化',s:'商机跟进中 · 复盘已归档',kb:'聚鸿知识库',grp:'—',
+   files:['拜访复盘报告.md']},
+];
+function openProjPick(){
+  openSheet('进入项目上下文',PROJECTS.map(p=>`<div class="card p-3 mb-2" onclick="enterProject('${p.n}')">
+    <div class="text-[13px] font-bold">${p.n}</div><div class="text-[11px] text-gray-400 mt-0.5">${p.s}</div>
+    <div class="text-[10px] text-gray-400 mt-1">📚 ${p.kb} · 💬 ${p.grp}</div></div>`).join('')
+    +(curProject?`<button class="btn-o w-full text-[12px] mt-1" onclick="exitProject();closeSheet()">退出当前项目上下文</button>`:''));
+}
+function enterProject(n){
+  curProject=n; closeSheet(); renderChatHead();
+  MSGS.push({r:'a',ag:currentAgent,x:`已进入项目「${n}」上下文，后续回答会优先使用该项目知识库与群消息记录。`});
+  renderMsgs(); toast('已进入 '+n);
+}
+function exitProject(){curProject=null;renderChatHead();toast('已退出项目上下文')}
+/* ================= TAB2 任务中心 ================= */
+const VIEWS=[['mine','我处理的'],['trans','我转交'],['watch','我关注'],['done','已完成']];
+const CHIPS=[['all','全部'],['overdue','逾期'],['today','今日'],['sub','子任务'],['sla','SLA 临期']];
+let tkView='mine', tkChip='all';
+function setView(v){tkView=v;tkChip='all';renderTasks()}
+function setChip(c){tkChip=c;renderTasks()}
+function renderTasks(){
+  const kw=(document.getElementById('tk-kw').value||'').trim();
+  document.getElementById('tk-seg').innerHTML=VIEWS.map(([v,n])=>{
+    const c=TASKS.filter(t=>t.v===v).length;
+    return `<span class="${v===tkView?'on':''}" onclick="setView('${v}')">${n}<span class="text-[9.5px] opacity-60 ml-0.5">${c}</span></span>`;
+  }).join('');
+  document.getElementById('tk-chips').innerHTML=CHIPS.map(([c,n])=>
+    `<button class="chip shrink-0 ${c===tkChip?'on':''}" onclick="setChip('${c}')">${n}</button>`).join('');
+  let list=TASKS.filter(t=>t.v===tkView);
+  if(tkChip==='overdue')list=list.filter(t=>t.ug==='overdue');
+  if(tkChip==='today')list=list.filter(t=>t.ug==='today');
+  if(tkChip==='sub')list=list.filter(t=>t.parent);
+  if(tkChip==='sla')list=list.filter(t=>t.sla);
+  if(kw)list=list.filter(t=>t.t.includes(kw)||String(t.id).includes(kw));
+  const box=document.getElementById('tk-list');
+  box.innerHTML=list.length?list.map(taskRow).join(''):
+    `<div class="text-center text-[12px] text-gray-400 py-14">没有符合条件的任务<div class="text-[10.5px] text-gray-300 mt-1">换个归属视角或清掉筛选条件试试</div></div>`;
+  const dot=document.getElementById('tb-task-dot'), n=TASKS.filter(t=>t.v==='mine'&&!t.done).length;
+  dot.textContent=n; dot.classList.toggle('hidden',!n);
+}
+function tyShort(ty){const p=ty.split(' › ');return p[p.length-1]}
+function taskRow(t){
+  const u=UG[t.ug];
+  const act=t.v==='mine'?`<button class="chip on shrink-0" onclick="event.stopPropagation();openHandle(${t.id})">处理</button>
+      <button class="chip shrink-0" onclick="event.stopPropagation();openTransfer(${t.id})">转交</button>`
+    :t.v==='trans'?`<button class="chip shrink-0" onclick="event.stopPropagation();nudge(${t.id})">催办${t.nudge?' ('+t.nudge+')':''}</button>
+      <button class="chip shrink-0" onclick="event.stopPropagation();takeBack(${t.id})">收回</button>`:'';
+  return `<div class="card p-3 mb-2" onclick="openTask(${t.id})">
+    <div class="flex items-start gap-1.5">
+      <span class="tag ${u.tag} shrink-0 mt-0.5">${u.txt}</span>
+      <span class="tag ${PRIO[t.prio]} shrink-0 mt-0.5">${t.prio}</span>
+      <div class="text-[13px] font-bold leading-snug flex-1 min-w-0 ${t.done?'text-gray-400 line-through':''}">${t.t}</div>
+    </div>
+    ${t.parent?`<div class="mt-1.5 text-[10px] text-violet-600 bg-violet-50 rounded-md px-1.5 py-1 truncate">↳ 子任务 · 上级：${t.parent}</div>`:''}
+    <div class="mt-1.5 text-[10.5px] text-gray-500 space-y-0.5">
+      <div class="truncate">🏷 ${tyShort(t.ty)}${t.proj?' · '+t.proj:''}</div>
+      <div class="truncate">⏱ ${t.done?'办结 '+t.doneAt:t.due}${t.sla?' · 节点 '+t.node+' SLA '+t.sla:''}</div>
+      ${t.v==='trans'?`<div class="truncate">➡ 已转交 ${t.to} · ${t.tst}</div>`:''}
+      ${t.v==='watch'?`<div class="truncate">👤 当前处理人 ${t.hd}</div>`:''}
+    </div>
+    ${act?`<div class="flex gap-1.5 mt-2">${act}<span class="ml-auto text-[10px] text-gray-300 self-center">#${t.id}</span></div>`
+      :`<div class="text-[10px] text-gray-300 mt-1.5 text-right">#${t.id}</div>`}
+  </div>`;
+}
+function T(id){return TASKS.find(t=>t.id===id)}
+function kv(k,v){return `<div class="flex gap-2 py-1.5 border-b border-gray-50 last:border-0"><span class="w-[62px] shrink-0 text-[11px] text-gray-400">${k}</span><span class="text-[12px] flex-1 min-w-0 break-words">${v}</span></div>`}
+function openTask(id){
+  const t=T(id), u=UG[t.ug];
+  const body=`
+    <div class="flex items-start gap-1.5 mb-2">
+      <span class="tag ${u.tag} shrink-0 mt-0.5">${u.txt}</span><span class="tag ${PRIO[t.prio]} shrink-0 mt-0.5">${t.prio}</span>
+      <div class="text-[13.5px] font-bold leading-snug flex-1 min-w-0">${t.t}</div>
+    </div>
+    ${t.parent?`<div class="text-[10.5px] text-violet-700 bg-violet-50 border border-violet-100 rounded-lg px-2 py-1.5 mb-2">
+      ↳ 本条是子任务，上级任务「${t.parent}」由 ${t.by} 处理，你只负责本条<div class="text-[10px] text-violet-400 mt-0.5">上级任务详情不在此展示</div></div>`:''}
+    <div class="card px-3 py-1 mb-2.5">
+      ${kv('任务编号','#'+t.id)}${kv('任务类型',t.ty)}${kv('说明',t.desc)}
+      ${t.proj?kv('所属项目',t.proj):''}${kv('来源',t.src)}${kv('创建方',t.by)}
+      ${kv('时间',t.done?'办结 '+t.doneAt:t.due)}
+      ${t.node?kv('当前节点',t.node+' · SLA '+t.sla):''}
+      ${t.v==='trans'?kv('转交',t.to+' · '+t.tst+(t.nudge?' · 已催办 '+t.nudge+' 次':'')):''}
+      ${t.v==='watch'?kv('处理人',t.hd):''}
+      ${t.agents&&t.agents.length?kv('可用智能体',t.agents.map(a=>`<span class="tag bg-violet-50 text-violet-600 mr-1">${agentNick(a)}</span>`).join('')):''}
+    </div>
+    <div class="text-[12px] font-bold mb-1.5">处理时间线</div>
+    <div class="card p-3">${t.tl.map(([d,x],i)=>`<div class="flex gap-2 ${i<t.tl.length-1?'pb-2.5':''}">
+      <div class="shrink-0 flex flex-col items-center pt-1"><span class="w-1.5 h-1.5 rounded-full bg-violet-500"></span>${i<t.tl.length-1?'<span class="flex-1 w-px bg-violet-100 mt-1"></span>':''}</div>
+      <div class="min-w-0"><div class="text-[10px] text-gray-400">${d}</div><div class="text-[11.5px] leading-snug">${x}</div></div></div>`).join('')}</div>`;
+  const foot=t.done?`<button class="btn-o w-full text-[12.5px]" onclick="closeSheet()">关闭</button>`
+    :t.v==='mine'?`<button class="btn-o flex-1 text-[12.5px]" onclick="openTransfer(${id})">转交</button>
+      <button class="btn-o flex-1 text-[12.5px]" onclick="openAssign(${id})">指派智能体</button>
+      <button class="btn-p flex-1 text-[12.5px]" onclick="openHandle(${id})">处理</button>`
+    :t.v==='trans'?`<button class="btn-o flex-1 text-[12.5px]" onclick="nudge(${id})">催办</button>
+      <button class="btn-p flex-1 text-[12.5px]" onclick="takeBack(${id})">收回</button>`
+    :`<button class="btn-o flex-1 text-[12.5px]" onclick="toast('已取消关注（示意）')">取消关注</button>
+      <button class="btn-p flex-1 text-[12.5px]" onclick="go('chat');closeSheet();toast('已带入会话追问')">去会话追问</button>`;
+  openSheet('任务详情',body,`<div class="flex gap-2">${foot}</div>`);
+}
+function openHandle(id){
+  const t=T(id);
+  openSheet('处理任务',`
+    <div class="text-[12.5px] font-bold mb-1">${t.t}</div>
+    <div class="text-[10.5px] text-gray-400 mb-3">#${t.id} · ${tyShort(t.ty)}</div>
+    <label class="lb">处理结论</label>
+    <textarea id="hd-note" class="inp" rows="4" placeholder="填写处理结论，办结后会写回任务时间线">${t.parent?'已同步客户决策人，客户确认接受算法修正方案。':''}</textarea>
+    <label class="lb mt-3">办结后</label>
+    <div class="space-y-1.5">
+      <label class="flex items-center gap-2 text-[12px]"><input type="checkbox" id="hd-notify" checked class="w-4 h-4 accent-violet-600"><span>通知任务创建方与关注人</span></label>
+      <label class="flex items-center gap-2 text-[12px]"><input type="checkbox" id="hd-kb" class="w-4 h-4 accent-violet-600"><span>结论沉淀到${t.proj?'项目':''}知识库</span></label>
+    </div>
+    ${t.parent?'<div class="text-[10.5px] text-gray-400 mt-3">本条办结不会自动办结上级任务，上级由 '+t.by+' 判断。</div>':'<div class="text-[10.5px] text-gray-400 mt-3">本任务办结后，其下级任务将自动完成并关闭。</div>'}`,
+    `<div class="flex gap-2"><button class="btn-o flex-1 text-[12.5px]" onclick="closeSheet()">取消</button>
+      <button class="btn-p flex-1 text-[12.5px]" onclick="doHandle(${id})">确认办结</button></div>`);
+}
+function doHandle(id){
+  const t=T(id), note=(document.getElementById('hd-note').value||'').trim();
+  if(!note){toast('请先填写处理结论');return}
+  const now='09-13 '+new Date().toTimeString().slice(0,5);
+  t.done=true; t.v='done'; t.doneAt=now; t.ug='normal';
+  t.tl.push([now,`${ME} 办结：${note}`]);
+  if(document.getElementById('hd-kb').checked)t.tl.push([now,'结论已沉淀到知识库']);
+  closeSheet(); renderTasks(); renderMe(); toast('任务已办结'+(document.getElementById('hd-notify')?.checked?'，已通知创建方':''));
+}
+function openTransfer(id){
+  const t=T(id);
+  openSheet('转交任务',`
+    <div class="text-[12.5px] font-bold mb-3">${t.t}</div>
+    <label class="lb">转交给</label>
+    <div class="grid grid-cols-2 gap-1.5 mb-3" id="tf-who">
+      ${['刘洋（项目经理）','陈静（客成）','张工（技术）','王莉（财务）'].map((p,i)=>
+        `<button class="chip ${i===0?'on':''}" onclick="pickWho(this)">${p}</button>`).join('')}
+    </div>
+    <label class="lb">转交说明</label>
+    <textarea id="tf-note" class="inp" rows="3" placeholder="说明转交原因，对方会在任务里看到"></textarea>
+    <div class="text-[10.5px] text-gray-400 mt-2.5">转交后任务归属人变更，本条会移入「我转交」，你仍可催办或收回。</div>`,
+    `<div class="flex gap-2"><button class="btn-o flex-1 text-[12.5px]" onclick="closeSheet()">取消</button>
+      <button class="btn-p flex-1 text-[12.5px]" onclick="doTransfer(${id})">确认转交</button></div>`);
+}
+function pickWho(el){[...el.parentNode.children].forEach(x=>x.classList.remove('on'));el.classList.add('on')}
+function doTransfer(id){
+  const t=T(id), who=document.querySelector('#tf-who .on')?.textContent||'刘洋（项目经理）';
+  const note=(document.getElementById('tf-note').value||'').trim();
+  const now='09-13 '+new Date().toTimeString().slice(0,5);
+  t.v='trans'; t.to=who.replace(/（.*?）/,''); t.tst='待处理'; t.nudge=0;
+  t.tl.push([now,`${ME} 转交给 ${who}${note?'：'+note:''}`]);
+  closeSheet(); tkView='trans'; renderTasks(); renderMe(); toast('已转交给 '+t.to);
+}
+function openAssign(id){
+  const t=T(id), opts=t.agents&&t.agents.length?t.agents:['路书（销售AI）','解决方案生成'];
+  openSheet('指派智能体',`
+    <div class="text-[12.5px] font-bold mb-3">${t.t}</div>
+    <label class="lb">选择智能体</label>
+    <div class="space-y-1.5 mb-3" id="as-who">
+      ${opts.map((a,i)=>`<div class="flex items-center gap-2.5 border rounded-xl px-2.5 py-2 ${i===0?'border-violet-300 bg-violet-50 on':'border-gray-200'}" onclick="pickWho(this)">
+        ${agentAvatar(a,30)}<div class="min-w-0"><div class="text-[12.5px] font-bold truncate">${agentNick(a)}</div>
+        <div class="text-[10px] text-gray-400 truncate">${AGENT_DESC[a]||'执行任务并回写结果'}</div></div></div>`).join('')}
+    </div>
+    <label class="lb">交办说明</label>
+    <textarea id="as-note" class="inp" rows="3" placeholder="告诉智能体要产出什么"></textarea>
+    <div class="text-[10.5px] text-amber-600 bg-amber-50 rounded-lg px-2 py-1.5 mt-2.5">⚠ 智能体执行结果需要你确认后才写入任务，不会直接办结。</div>`,
+    `<div class="flex gap-2"><button class="btn-o flex-1 text-[12.5px]" onclick="closeSheet()">取消</button>
+      <button class="btn-p flex-1 text-[12.5px]" onclick="doAssign(${id})">派给智能体</button></div>`);
+}
+function doAssign(id){
+  const t=T(id), ag=document.querySelector('#as-who .on .font-bold')?.textContent||'智能体';
+  const now='09-13 '+new Date().toTimeString().slice(0,5);
+  t.tl.push([now,`${ME} 指派 ${ag} 执行`]);
+  closeSheet(); toast('已派给 '+ag+'，结果回写后需你确认');
+  setTimeout(()=>{
+    t.tl.push([now,`${ag} 执行完成，结果待 ${ME} 确认`]);
+    openConfirm(id,ag);
+  },1400);
+}
+function openConfirm(id,ag){
+  const t=T(id);
+  openSheet('确认智能体结果',`
+    <div class="text-[12.5px] font-bold mb-2">${t.t}</div>
+    <div class="card p-3 text-[12px] leading-relaxed">
+      <div class="text-[10.5px] text-gray-400 mb-1">${ag} 产出</div>
+      已按任务要求完成：核对了历史同类客户口径，补齐缺失字段，输出结论草稿一份，建议下一步同步对接人确认。
+    </div>
+    <div class="text-[10.5px] text-gray-400 mt-2.5">确认后结果写入任务时间线；驳回会退回智能体重做。</div>`,
+    `<div class="flex gap-2"><button class="btn-o flex-1 text-[12.5px]" onclick="rejectAI(${id},'${ag}')">驳回重做</button>
+      <button class="btn-p flex-1 text-[12.5px]" onclick="acceptAI(${id},'${ag}')">确认采纳</button></div>`);
+}
+function acceptAI(id,ag){
+  const t=T(id), now='09-13 '+new Date().toTimeString().slice(0,5);
+  t.tl.push([now,`${ME} 确认采纳 ${ag} 的结果`]);
+  closeSheet(); renderTasks(); toast('已采纳，结果写入任务');
+}
+function rejectAI(id,ag){
+  const t=T(id), now='09-13 '+new Date().toTimeString().slice(0,5);
+  t.tl.push([now,`${ME} 驳回 ${ag} 的结果，要求重做`]);
+  closeSheet(); toast('已驳回，' + ag + ' 将重新执行');
+}
+function nudge(id){
+  const t=T(id), now='09-13 '+new Date().toTimeString().slice(0,5);
+  t.nudge=(t.nudge||0)+1; t.tl.push([now,`${ME} 第 ${t.nudge} 次催办 ${t.to}`]);
+  closeSheet(); renderTasks(); toast(`已催办 ${t.to}（第 ${t.nudge} 次）`);
+}
+function takeBack(id){
+  const t=T(id);
+  openSheet('收回任务',`<div class="text-[12.5px] font-bold mb-2">${t.t}</div>
+    <div class="text-[12px] text-gray-500 leading-relaxed">收回后任务归属人变回你（${ME}），${t.to} 将收到通知，其已填写的处理记录保留在时间线中。</div>`,
+    `<div class="flex gap-2"><button class="btn-o flex-1 text-[12.5px]" onclick="closeSheet()">取消</button>
+      <button class="btn-p flex-1 text-[12.5px]" onclick="doTakeBack(${id})">确认收回</button></div>`);
+}
+function doTakeBack(id){
+  const t=T(id), old=t.to, now='09-13 '+new Date().toTimeString().slice(0,5);
+  t.v='mine'; t.tl.push([now,`${ME} 从 ${old} 处收回任务`]); delete t.to; delete t.tst;
+  closeSheet(); tkView='mine'; renderTasks(); renderMe(); toast('已收回，任务回到你名下');
+}
+const TYPES=['营销管理 › 销售管理 › 管理派单','项目空间 › 项目协作 › 项目行动项','服务一条链 › 售后工单 › 故障处理'];
+function openNew(){
+  openSheet('新建任务',`
+    <label class="lb">任务名称</label>
+    <input id="nw-t" class="inp" placeholder="一句话说清要做什么">
+    <label class="lb mt-3">任务类型</label>
+    <select id="nw-ty" class="inp">${TYPES.map(x=>`<option>${x}</option>`).join('')}</select>
+    <label class="lb mt-3">所属项目（可选）</label>
+    <select id="nw-proj" class="inp"><option value="">不关联项目</option>${PROJECTS.map(p=>`<option>${p.n}</option>`).join('')}</select>
+    <div class="flex gap-2 mt-3">
+      <div class="flex-1"><label class="lb">截止</label><input id="nw-due" class="inp" type="date" value="2026-09-20"></div>
+      <div class="w-[104px]"><label class="lb">优先级</label><select id="nw-prio" class="inp"><option>高</option><option selected>中</option><option>低</option></select></div>
+    </div>
+    <label class="lb mt-3">处理人</label>
+    <div class="grid grid-cols-2 gap-1.5" id="nw-who">
+      ${['我自己（罗紫函）','刘洋（项目经理）','陈静（客成）','张工（技术）'].map((p,i)=>
+        `<button class="chip ${i===0?'on':''}" onclick="pickWho(this)">${p}</button>`).join('')}
+    </div>
+    <label class="lb mt-3">说明</label>
+    <textarea id="nw-desc" class="inp" rows="3" placeholder="补充背景与交付要求"></textarea>`,
+    `<div class="flex gap-2"><button class="btn-o flex-1 text-[12.5px]" onclick="closeSheet()">取消</button>
+      <button class="btn-p flex-1 text-[12.5px]" onclick="doNew()">创建任务</button></div>`);
+}
+function doNew(){
+  const t=(document.getElementById('nw-t').value||'').trim();
+  if(!t){toast('请先填写任务名称');return}
+  const who=document.querySelector('#nw-who .on')?.textContent||'我自己（罗紫函）';
+  const mine=who.startsWith('我自己'), due=document.getElementById('nw-due').value;
+  const now='09-13 '+new Date().toTimeString().slice(0,5);
+  const task={id:Math.floor(100000+Math.random()*900000),t,ty:document.getElementById('nw-ty').value,
+    proj:document.getElementById('nw-proj').value||null,src:'手动创建 · 移动端',by:ME,
+    due:due.slice(5).replace('-','-')+' 截止',ug:'normal',prio:document.getElementById('nw-prio').value,
+    v:mine?'mine':'trans',done:false,desc:(document.getElementById('nw-desc').value||'').trim()||'（未填写说明）',
+    agents:[],tl:[[now,`${ME} 在移动端手动创建任务`]]};
+  if(!mine){task.to=who.replace(/（.*?）/,'');task.tst='待处理';task.nudge=0;task.tl.push([now,`指定处理人 ${who}`])}
+  TASKS.unshift(task);
+  closeSheet(); tkView=mine?'mine':'trans'; tkChip='all'; go('task'); renderMe();
+  toast(mine?'任务已创建，在你名下':'任务已创建并派给 '+task.to);
+}
+/* ================= TAB3 空间 ================= */
+const KBS=[{n:'公司知识仓库',s:'制度 / 产品白皮书 / 案例库',c:128},{n:'我的知识库',s:'个人素材与话术沉淀',c:36}];
+const SKILLS=[['拜访路书生成','路书（销售AI）'],['一页纸方案','解决方案生成'],['报价区间测算','报价Agent'],['工单根因分析','技术诊断助手']];
+const DOCS=[{k:'one',n:'远航一页纸方案 v3.html',s:'解决方案生成 · 09-11 更新'},
+  {k:'rep',n:'徐州聚鸿拜访复盘.html',s:'路书（销售AI） · 08-19 生成'}];
+let spOpen={};
+function renderSpace(){
+  document.getElementById('sp-body').innerHTML=`
+    <div class="card p-3.5">
+      <div class="text-[12.5px] font-bold mb-2">📚 知识库</div>
+      ${KBS.map(k=>`<div class="flex items-center gap-2 py-2 border-b border-gray-50 last:border-0" onclick="toast('打开 ${k.n}（示意）')">
+        <div class="min-w-0 flex-1"><div class="text-[12.5px] font-semibold truncate">${k.n}</div>
+        <div class="text-[10.5px] text-gray-400 truncate">${k.s}</div></div>
+        <span class="tag bg-gray-100 text-gray-500 shrink-0">${k.c} 篇</span></div>`).join('')}
+    </div>
+    <div class="card p-3.5">
+      <div class="flex items-center mb-2"><span class="text-[12.5px] font-bold">🗂 项目空间</span>
+        <span class="ml-auto text-[10.5px] text-violet-500 font-bold" onclick="toast('新建项目请到桌面端')">+ 新建</span></div>
+      ${PROJECTS.map((p,i)=>`<div class="border border-gray-100 rounded-xl mb-1.5 last:mb-0 overflow-hidden">
+        <div class="px-2.5 py-2 flex items-center gap-2" onclick="spToggle(${i})">
+          <div class="min-w-0 flex-1"><div class="text-[12.5px] font-semibold truncate">${p.n}</div>
+          <div class="text-[10.5px] text-gray-400 truncate">${p.s}</div></div>
+          <span class="text-[10px] text-violet-500 font-bold shrink-0">${spOpen[i]?'收起 ▴':'展开 ▾'}</span></div>
+        ${spOpen[i]?`<div class="px-2.5 pb-2.5 bg-gray-50/70 border-t border-gray-100 pt-2">
+          <div class="text-[10.5px] text-gray-500 mb-1.5">📚 ${p.kb} · 💬 ${p.grp}</div>
+          ${p.files.map(f=>`<div class="flex items-center gap-1.5 text-[11.5px] py-1" onclick="event.stopPropagation();openFile('${f}')">
+            <span class="text-gray-300">📄</span><span class="truncate">${f}</span></div>`).join('')}
+          <div class="flex gap-1.5 mt-2"><button class="chip" onclick="event.stopPropagation();enterProject('${p.n}');go('chat')">进入会话</button>
+            <button class="chip" onclick="event.stopPropagation();spTasks('${p.n}')">项目任务</button></div></div>`:''}
+      </div>`).join('')}
+    </div>
+    <div class="card p-3.5">
+      <div class="text-[12.5px] font-bold mb-2">⚡ 集成技能</div>
+      <div class="flex flex-wrap gap-1.5">${SKILLS.map(([s,a])=>
+        `<button class="chip" onclick="switchAgent('${a}');go('chat')">${s}</button>`).join('')}</div>
+    </div>
+    <div class="card p-3.5">
+      <div class="flex items-center mb-2"><span class="text-[12.5px] font-bold">📊 我的看板</span>
+        <span class="ml-auto text-[10.5px] text-violet-500 font-bold" onclick="openDash()">全部 ›</span></div>
+      <div class="grid grid-cols-2 gap-2">${BOARDS[curBoard].tiles.map(t=>
+        `<div class="bg-gray-50 rounded-xl px-2.5 py-2" onclick="askTile('${t.ask}')">
+          <div class="text-[10px] text-gray-500 truncate">${t.icon} ${t.label}</div>
+          <div class="text-[17px] font-black text-violet-700 leading-tight">${tileVal(t.k)}<span class="text-[10px] text-gray-400 ml-0.5">${t.unit}</span></div></div>`).join('')}</div>
+    </div>
+    <div class="card p-3.5">
+      <div class="text-[12.5px] font-bold mb-2">📄 生成的文档</div>
+      ${DOCS.map(d=>`<div class="flex items-center gap-2 py-2 border-b border-gray-50 last:border-0" onclick="openDoc('${d.k}')">
+        <div class="min-w-0 flex-1"><div class="text-[12.5px] font-semibold truncate">${d.n}</div>
+        <div class="text-[10.5px] text-gray-400 truncate">${d.s}</div></div>
+        <span class="text-[10.5px] text-violet-500 font-bold shrink-0">全屏 ›</span></div>`).join('')}
+      <div class="text-[10.5px] text-gray-400 mt-2">移动端没有常驻渲染分栏，文档以全屏页打开。</div>
+    </div>`;
+}
+function spToggle(i){spOpen[i]=!spOpen[i];renderSpace()}
+function spTasks(n){go('task');tkView='mine';tkChip='all';document.getElementById('tk-kw').value='';renderTasks();toast('已定位 '+n+' 相关任务')}
+function openFile(f){openFs(f,'项目空间文件 · 只读预览',DOC_HTML('rep',f))}
+function openDoc(k){const d=DOCS.find(x=>x.k===k)||DOCS[0];openFs(d.n,d.s,DOC_HTML(k,d.n))}
+function DOC_HTML(k,name){
+  const css=`body{margin:0;padding:16px 14px 30px;font:13px/1.75 -apple-system,'PingFang SC',sans-serif;color:#1f2937}
+    h1{font-size:17px;margin:0 0 4px}h2{font-size:13.5px;margin:18px 0 6px;color:#6D28D9}
+    .m{color:#9ca3af;font-size:11px;margin-bottom:14px}ul{padding-left:18px;margin:6px 0}
+    table{width:100%;border-collapse:collapse;font-size:12px;margin-top:6px}
+    td,th{border:1px solid #ede9fe;padding:6px 8px;text-align:left}th{background:#f5f3ff;color:#6D28D9}`;
+  const one=`<h1>远航物流 · 智能调度 一页纸方案 v3</h1><div class="m">解决方案生成 · 2026-09-11 · 移动端只读预览</div>
+    <h2>一、客户痛点</h2><ul><li>调度依赖人工经验，空驶率高</li><li>里程统计口径与客户结算存在偏差</li><li>冷链温控异常缺少实时告警</li></ul>
+    <h2>二、方案架构</h2><ul><li>调度引擎：运力池 + 时空约束求解</li><li>数据层：运单/车辆/司机三张主表打通</li><li>告警层：温控与里程双阈值告警</li></ul>
+    <h2>三、实施节奏</h2><table><tr><th>阶段</th><th>周期</th><th>交付</th></tr>
+    <tr><td>数据接入</td><td>3 周</td><td>数据字典与清洗规则</td></tr><tr><td>引擎试跑</td><td>4 周</td><td>调度建议准确率报告</td></tr>
+    <tr><td>上线陪跑</td><td>2 周</td><td>操作手册与培训</td></tr></table>
+    <h2>四、报价区间</h2><p>冷链设备费按 12 台核算，年服务费按二期规模上浮 18%，可对外区间 <b>168–206 万</b>（口径待财务复核）。</p>`;
+  const rep=`<h1>${name}</h1><div class="m">路书（销售AI）生成 · 移动端只读预览</div>
+    <h2>一、拜访要点</h2><ul><li>决策链：运营副总（决策人）→ 调度主管（使用方）→ IT（评估方）</li><li>关注点集中在结算口径与上线陪跑</li></ul>
+    <h2>二、待办产出</h2><ul><li>补充里程口径说明页</li><li>安排调度主管试用演示</li></ul>
+    <h2>三、结论</h2><p>客户认可方案方向，进入报价口径确认阶段，建议两周内完成决策人会面。</p>`;
+  return `<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>${css}</style></head><body>${k==='one'?one:rep}</body></html>`;
+}
+function openDash(){
+  openSheet('经营看板',Object.entries(BOARDS).map(([k,b])=>`<div class="card p-3 mb-2">
+    <div class="text-[12.5px] font-bold mb-2">${b.name}</div>
+    <div class="grid grid-cols-2 gap-2">${b.tiles.map(t=>`<div class="bg-gray-50 rounded-xl px-2.5 py-2" onclick="closeSheet();askTile('${t.ask}')">
+      <div class="text-[10px] text-gray-500 truncate">${t.icon} ${t.label}</div>
+      <div class="text-[17px] font-black text-violet-700 leading-tight">${tileVal(t.k)}<span class="text-[10px] text-gray-400 ml-0.5">${t.unit}</span></div></div>`).join('')}</div>
+    </div>`).join('')+`<div class="text-[10.5px] text-gray-400">点看板指标可直接向智能体追问口径与明细。看板的名称、数据源与查询规则在桌面端技能库配置。</div>`);
+}
+/* ================= TAB4 我的 ================= */
+function renderMe(){
+  document.getElementById('me-open').textContent=TASKS.filter(t=>t.v==='mine'&&!t.done).length;
+  document.getElementById('me-trans').textContent=TASKS.filter(t=>t.v==='trans').length;
+  document.getElementById('me-done').textContent=TASKS.filter(t=>t.done).length;
+}
+/* ================= 初始化 ================= */
+renderChatHead(); renderQuick(); renderMsgs(); renderTiles(); renderTasks(); renderMe();
+go('chat');
+</script>
+</body>
+</html>
+
