@@ -1763,57 +1763,18 @@
   </div>
 </div>
 
-<!-- ===== 数据表：新建三选 ===== -->
-<div id="modal-dtnew" class="hidden fixed inset-0 z-50 modal-bg flex items-center justify-center" onclick="if(event.target===this)closeDtNew()">
-  <div class="bg-white rounded-2xl w-[600px] p-6 fade-in">
-    <div class="flex items-center justify-between mb-1"><h3 class="font-bold">添加数据表</h3><button class="text-gray-400 hover:text-gray-600" onclick="closeDtNew()">✕</button></div>
-    <p class="text-[11.5px] text-gray-400 mb-3">两类数据表的区别在于数据归属：谁维护、智能体能不能写。</p>
-    <div class="grid grid-cols-2 resp-grid-2 gap-3">
-      <div class="card card-asset p-4 cursor-pointer hover:border-violet-300 transition" onclick="pickDtKind('upload')">
-        <div class="text-[20px]">📄</div>
-        <div class="text-[13px] font-bold mt-1.5">上传数据表</div>
-        <div class="text-[11px] text-gray-500 leading-relaxed mt-1">上传 Excel / CSV，平台解析表头生成字段。数据存在平台内，由人工维护编辑。适合目标值、映射口径这类人定的表。</div>
-        <div class="text-[10.5px] text-gray-400 mt-2">智能体：只读</div>
-      </div>
-      <div class="card card-asset p-4 cursor-pointer hover:border-violet-300 transition" onclick="pickDtKind('custom')">
-        <div class="text-[20px]">✏️</div>
-        <div class="text-[13px] font-bold mt-1.5">自定义数据表</div>
-        <div class="text-[11px] text-gray-500 leading-relaxed mt-1">在平台内声明字段建表，由智能体在执行过程中写入。适合情报表、风险台账这类需要持续沉淀的表。</div>
-        <div class="text-[10.5px] text-violet-600 mt-2 font-semibold">智能体：可写（改/删需确认）</div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ===== 数据表：待确认队列 ===== -->
-<div id="modal-dtpend" class="hidden fixed inset-0 z-50 modal-bg flex items-center justify-center" onclick="if(event.target===this)closeDtPending()">
-  <div class="bg-white rounded-2xl w-[720px] p-6 fade-in max-h-[90vh] overflow-y-auto">
-    <div class="flex items-center justify-between mb-1"><h3 class="font-bold">智能体提交的修改与删除</h3><button class="text-gray-400 hover:text-gray-600" onclick="closeDtPending()">✕</button></div>
-    <p class="text-[11.5px] text-gray-400 mb-4">新增已直接生效，不在此列。修改与删除不可逆，需确认后才落表。</p>
-    <div id="dtp-body" class="space-y-3"></div>
-    <div class="flex items-center gap-2 mt-5 pt-4 border-t border-gray-100">
-      <span class="text-[11px] text-gray-400" id="dtp-count"></span>
-      <div class="ml-auto flex gap-2">
-        <button class="btn-o" onclick="dtRejectAll()">全部驳回</button>
-        <button class="btn-p" onclick="dtApproveAll()">全部通过</button>
-      </div>
-    </div>
-  </div>
-</div>
-
 <!-- ===== 数据表：分享与授权 ===== -->
 <div id="modal-dtshare" class="hidden fixed inset-0 z-50 modal-bg flex items-center justify-center" onclick="if(event.target===this)closeDtShare()">
   <div class="bg-white rounded-2xl w-[680px] p-6 fade-in max-h-[90vh] overflow-y-auto">
     <div class="flex items-center justify-between mb-1"><h3 class="font-bold" id="dts-title">分享与授权</h3><button class="text-gray-400 hover:text-gray-600" onclick="closeDtShare()">✕</button></div>
-    <p class="text-[11.5px] text-gray-400 mb-4">上段决定谁能用这张表，下段决定哪些智能体能取数。</p>
-    <label class="text-[12px] font-semibold text-gray-600 block mb-1.5">可用范围</label>
+    <label class="text-[12px] font-semibold text-gray-600 block mb-1.5 mt-4">可用范围</label>
     <div class="flex items-center gap-5 mb-4">
       <label class="flex items-center gap-1.5 text-[12.5px] cursor-pointer"><input type="radio" name="dts-scope" value="auth" class="accent-violet-600" onchange="dtsSetScope('auth')"><span>授权可用</span></label>
       <label class="flex items-center gap-1.5 text-[12.5px] cursor-pointer"><input type="radio" name="dts-scope" value="public" class="accent-violet-600" onchange="dtsSetScope('public')"><span>公开可用</span></label>
     </div>
     <div id="dts-auth-wrap">
       <label class="text-[12px] font-semibold text-gray-600 block mb-1.5"><span class="text-red-400">*</span> 选择授权对象
-        <span class="text-[11px] text-gray-400 font-normal ml-1">来自飞书组织架构 · 勾选部门即授权该部门全员</span></label>
+        <span class="text-[11px] text-gray-400 font-normal ml-1">来自飞书组织架构 · 勾选二级部门即授权该部门全员</span></label>
       <input id="dts-kw" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-[12.5px] focus:outline-violet-300" placeholder="搜索部门或人员" oninput="renderDtsUsers()">
       <div id="dts-users" class="border border-gray-200 border-t-0 rounded-b-lg max-h-[200px] overflow-y-auto -mt-0.5"></div>
       <label class="text-[12px] font-semibold text-gray-600 block mb-1.5 mt-4">分配权限</label>
@@ -1826,7 +1787,6 @@
       <span id="dts-count" class="text-violet-600 cursor-pointer hover:underline font-semibold" onclick="dtsToggleGranted()">0</span>
     </div>
     <div id="dts-granted" class="hidden mt-2 border border-gray-100 rounded-lg divide-y divide-gray-100 max-h-[140px] overflow-y-auto"></div>
-    <div id="dts-body" class="space-y-4 mt-5 pt-4 border-t border-gray-100"></div>
     <div class="flex justify-end gap-2 mt-5 pt-4 border-t border-gray-100">
       <button class="btn-o" onclick="closeDtShare()">关 闭</button>
       <button class="btn-p" onclick="saveDtShare()">确 定</button>
@@ -1891,7 +1851,7 @@
     </div>
     <div id="bds-auth-wrap">
       <label class="text-[12px] font-semibold text-gray-600 block mb-1.5"><span class="text-red-400">*</span> 选择授权对象
-        <span class="text-[11px] text-gray-400 font-normal ml-1">来自飞书组织架构 · 勾选部门即授权该部门全员</span></label>
+        <span class="text-[11px] text-gray-400 font-normal ml-1">来自飞书组织架构 · 勾选二级部门即授权该部门全员</span></label>
       <input id="bds-kw" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-[12.5px] focus:outline-violet-300" placeholder="搜索部门或人员" oninput="renderBdsUsers()">
       <div id="bds-users" class="border border-gray-200 border-t-0 rounded-b-lg max-h-[200px] overflow-y-auto -mt-0.5"></div>
       <label class="text-[12px] font-semibold text-gray-600 block mb-1.5 mt-4">分配权限</label>
@@ -2321,7 +2281,7 @@ const VERSIONS = [
   {v:'v22', date:'2026-09-03', title:'任务执行子任务可操作 + 报价Agent skill 表单闭环', desc:'三处待办均可展开并处理子任务、一键转智能体会话；新增报价Agent：skill 生成表单 → 提交回传 → 智能体出报价单。', file:'versions/[原型]AI基础设施平台-整合版-v22-2026-09-03.html'},
   {v:'v23', date:'2026-09-09', title:'智能体伙伴纵向栏 + 每个智能体独立会话 + 收藏体系收敛', desc:'工作台布局重构：智能体伙伴改最左纵向栏、每个智能体独立会话、收藏统一收敛为「我的看板」，下线流程看板。', file:'versions/[原型]AI基础设施平台-整合版-v23-2026-09-09.html'},
   {v:'v24', date:'2026-09-10', title:'任务执行统一「处理」动作 + 子任务权限与主任务自动完成', desc:'主子任务统一「处理」动作（可选人工或智能体执行），处理权限按归属收敛，子任务全部完成时主任务自动办结。', file:'versions/[原型]AI基础设施平台-整合版-v24-2026-09-10.html'},
-  {v:'工作版', date:'2026-10-14', title:'在 1.1 正式版基础上继续迭代', desc:'当前在改的版本，以 1.1 正式版为起点。本次：数据表收敛为上传/自定义两类并自动生成字段，建表与详情改独占页面；看板增筛选，数据维度按维度配执行方式与更新时间；字段表只留业务语义六列，分享弹窗增分享到人。', file:'SELF'},
+  {v:'工作版', date:'2026-10-16', title:'在 1.1 正式版基础上继续迭代', desc:'当前在改的版本，以 1.1 正式版为起点。本次：数据表不再分形态，改按智能体应用权限四档管能力、权限只在建表时选；建表收敛为单页配置、文件改选填，待确认队列下线改直接生效；分享弹窗只管分享到人，授权对象改二级部门 + 人。', file:'SELF'},
   {v:'智能体平台任务中心1.1', date:'2026-09-18', release:true, title:'评审调整：处理动作与任务配置收敛，列表改日期筛选，办结为终态', desc:'任务中心 1.1 正式版（已冻结）。处理动作与任务配置收敛，列表改日期筛选（默认近 3 个月），办结为终态，子任务只在本层添加、可派智能体执行；平台我的任务增手动新建入口，扩展字段收为统一字段、格式同备注。', file:'versions/[原型]AI基础设施平台-整合版-智能体平台任务中心1.1-2026-09-18.html'},
   {v:'智能体平台任务中心1.0', date:'2026-09-15', release:true, title:'任务中心正式版：任务执行闭环 + 任务配置以权限取代审核', desc:'任务中心 1.0 正式版（已冻结）。任务执行：主子任务统一「处理」动作、转交跟进、按任务类型筛选、飞书待办同步状态（已同步 / 未开启同步 / 同步失败可重试）、任务删除（创建人 / 管理员 / 任务类型管理者三者任一可删，级联子任务并撤回待办）。任务配置：新增用户管理与功能权限树，任务类型与业务对接去掉备案审核改为保存即生效 + 测试模式 + 连通性校验，派单由业务系统定义，订阅智能体可选填。', file:'versions/[原型]AI基础设施平台-整合版-智能体平台任务中心1.0-2026-09-15.html'},
   {v:'移动版', date:'2026-09-13', title:'AI 工作台移动端适配', desc:'四个底部页签承载工作台：会话（智能体抽屉 + 折叠看板）、任务（处理人视角 + 抽屉式处理/转交/新建）、空间、我的。', file:'[原型]AI工作台-移动端.html'},
@@ -2408,21 +2368,21 @@ const PAGE_SPECS={
   fields:'工具名称、功能说明、使用状态、授权状态、关联智能体。',
   logic:'新增入口在列表右上角；筛选逻辑与 Skills 页签一致。'},
 'skills-table':{name:'智能体平台 · 技能库 · 数据表',
-  desc:'智能体可读写的结构化数据，收敛为「上传数据表」与「自定义数据表」两类，列表为表格形态。',
-  fields:'数据表名称、形态、字段数、数据行数、写入权限、更新人、更新时间、操作。',
-  logic:'「+ 添加数据表」在列表右上角，点击先选形态再进入独占建表页；表名点击进入数据表详情页。'},
+  desc:'智能体可读写的结构化数据，不再区分上传表与自定义表，一张表按智能体应用权限决定能被怎么用，列表为表格形态。',
+  fields:'数据表、智能体应用权限、使用状态、关联智能体、应用授权、创建人、更新时间、操作。',
+  logic:'「+ 添加数据表」在列表右上角，点击直接进入独占建表配置页，不再先选形态；表名点击进入数据表详情页。智能体应用权限为只读 / 可读写 / 可读写改 / 可读写改删四档递进，后一档包含前一档的动作。'},
 'skills-board':{name:'智能体平台 · 技能库 · 看板配置',
   desc:'工作台看板的配置侧，看板分工作看板与经营看板两类，含内容配置与分享范围配置。列表上方有看板类型、可用范围与名称搜索三项筛选。',
   fields:'筛选项：看板类型（工作看板 / 经营看板）、可用范围（公开可用 / 授权可用）、看板名称搜索。卡片：看板名称、看板类型、可用范围、启停开关、执行智能体、数据维度、创建人与时间、已授权人数、操作。工作看板配置的每个数据维度：图标、维度名称、单位、查询输入、执行方式、执行对象、更新时间。',
   logic:'新建入口在列表右上角；筛选条为看板专用，与技能库共用筛选条不互通，条件在会话内保持，切开其他页签再回来不丢；筛选无结果时提示换条件或重置；可见范围为授权可用时需维护授权名单与权限档位；候选用户取平台用户列表，用户停用或删除时授权记录同步失效并重新计数；工作台侧按权限过滤可见看板。工作看板的执行方式与更新时间按维度各自配置，不做看板级统一：执行方式选数据表直接查询时需指定数据表，未选不允许保存；选智能体执行时可指定智能体，留空继承看板默认执行智能体；更新时间支持每日 / 每工作日 / 每月加时间点，各维度互不影响，看板层只展示汇总口径。工作台点维度统一进入会话，数据表直接查询的维度由联动智能体读该表作答并在气泡标注取数来源。经营看板无数据维度，更新时间仍是看板级。'},
 'dt-new':{name:'智能体平台 · 新建数据表',
-  desc:'独占页面的建表流程：选形态 → 完善名称与描述 → 选字段生成方式 → 进入详情页校对字段。',
-  fields:'数据表名称、数据表描述、写入权限；上传类另有数据文件；自定义类另有字段生成方式（自动生成 / 手动添加）。字段只含字段名、类型、中文名、数据示例、业务含义、枚举说明。',
-  logic:'页头只留返回按钮，进入后技能库标题与页签整块隐藏；自定义类保存时自动建唯一键「记录编号」，选自动生成则按表名与描述命中规则补一组字段（含更新时间），保存后直接进详情页校对；上传文件受 50MB / 5000 行限制。'},
+  desc:'独占页面的单页建表配置：基本信息 → 智能体应用权限 → 初始化数据（选填）→ 进入详情页校对字段。',
+  fields:'基本信息：数据表名称（必填）、数据表描述（必填）。智能体应用权限（必填）：只读 / 可读写 / 可读写改 / 可读写改删，默认可读写。初始化数据（选填）：数据文件；未传文件时出字段生成方式（自动生成 / 手动添加）。字段只含字段名、类型、中文名、数据示例、业务含义、枚举说明。',
+  logic:'页头只留返回按钮，进入后技能库标题与页签整块隐藏；校验顺序为名称 → 描述，文件非必填；传了文件按表头解析生成字段，不传文件按字段生成方式处理——自动生成按表名与描述命中规则补一组字段（含更新时间），手动添加只建空表；权限非只读时自动建唯一键「记录编号」，只读表不建键，档位保存后不在平台侧改；上传文件受 50MB / 5000 行限制。保存后直接进详情页校对。'},
 'dt-detail':{name:'智能体平台 · 数据表详情',
   desc:'单张数据表的字段、查询口径与数据内容，字段描述是智能体理解该表的依据。',
-  fields:'字段名、类型、中文名、数据示例、业务含义、枚举说明；自定义表另有操作列。页签另有查询口径与数据。',
-  logic:'页头只留返回按钮；字段只描述业务语义，不再配置对智能体可见 / 可筛选 / 可聚合与确认状态，解析或声明后即可被查询；自定义表字段可改名、可新增与删除，唯一键行不可删除，改其中文名时唯一键标记同步更新，至少保留一个字段；上传表字段来自文件表头。分享与授权弹窗分两段：上段分享到人，可用范围选授权可用时从飞书组织架构勾选部门或人员并分配可使用 / 可管理，勾部门即授权全员，选公开可用时人员区置灰且名单清空，授权可用且名单为空不允许保存；下段为授权智能体、读写档位与行级权限，读写档位只对自定义表可选。'},
+  fields:'字段名、类型、中文名、数据示例、业务含义、枚举说明、操作。页签为字段及描述、查询口径、数据，开了写权限的表另有写入记录。',
+  logic:'页头只留返回按钮；字段只描述业务语义，不再配置对智能体可见 / 可筛选 / 可聚合与确认状态，解析或声明后即可被查询；所有表的字段都可改名、可新增与删除，数据页单元格可直接编辑，唯一键行不可删除，改其中文名时唯一键标记同步更新，至少保留一个字段；有源文件的表可重新解析字段与上传新版本。写入记录与唯一键只在权限非只读时出现，智能体按档位直接写入、不再进待确认队列，留痕以一次执行为批次并可整批撤销。智能体应用权限在建表时选定，详情页与列表只做只读展示，调整入口后续挪到智能体侧，本期不做。分享与授权弹窗只管分享到人：可用范围选授权可用时从飞书组织架构勾选部门或人员并分配可使用 / 可管理，组织树为一级部门分组 + 二级部门 + 人三层，勾选粒度是二级部门与人、勾二级部门即授权该部门全员，无归属部门的人平铺在树的最后，选公开可用时人员区置灰且名单清空，授权可用且名单为空不允许保存。关联智能体为被引用情况的只读展示，不在此处增删。'},
 'flow-skill':{name:'智能体平台 · 流程型技能详情',
   desc:'流程型技能的骨架视图：节点编排、节点智能体与在途任务概况。',
   fields:'流程名称、节点数、流程负责人、执行说明、在途任务数、各节点配置。',
@@ -2789,8 +2749,7 @@ const MCP_ITEMS=[
    scope: public=公开可用（全员可用）/ auth=授权可用（仅 grants 内用户可用）  */
 function F(n,t,cn,mean,o){return Object.assign({n,t,cn,mean,smp:'',enums:''},o||{})}
 const DATA_TABLES=[
-  /* ---------- 上传数据表 ---------- */
-  {id:'dt-target',icon:'🎯',kind:'upload',name:'月度目标值表',src:'月度目标_2026Q3.xlsx',srcType:'上传文件',sync:'ok',syncNote:'手工维护',syncAt:'2026-09-25 14:20',rowCnt:'96',limit:0,
+  {id:'dt-target',icon:'🎯',name:'月度目标值表',src:'月度目标_2026Q3.xlsx',srcType:'上传文件',sync:'ok',syncNote:'手工维护',syncAt:'2026-09-25 14:20',rowCnt:'96',limit:0,
    desc:'各销售的月度签约目标值，按月维护。目标完成率类指标的分母来源，销管每月初上传一次。',
    agents:['路书（销售AI）','KA 主理智能体'],wperm:'read',by:'销售管理部',at:'2026-09-25 14:20',refs:19,auth:'授权可用',use:'使用中',
    scope:'auth',grants:[{name:'罗紫函',perm:'可管理'},{name:'任思宇',perm:'可使用'},{name:'郝可欣',perm:'可使用'}],
@@ -2805,7 +2764,7 @@ const DATA_TABLES=[
      {name:'我的当月目标',params:'销售姓名 · 月份',rule:'销售姓名=当前用户 且 月份=指定月',refs:'路书（销售AI）'},
      {name:'团队目标合计',params:'所属团队 · 月份',rule:'按团队与月份过滤后 SUM(目标金额)',refs:'—'},
    ]},
-  {id:'dt-map',icon:'🗂',icon2:'',kind:'upload',name:'客户分级映射表',src:'客户分级口径_v3.csv',srcType:'上传文件',sync:'ok',syncNote:'手工维护',syncAt:'2026-09-12 10:05',rowCnt:'12',limit:0,
+  {id:'dt-map',icon:'🗂',icon2:'',name:'客户分级映射表',src:'客户分级口径_v3.csv',srcType:'上传文件',sync:'ok',syncNote:'手工维护',syncAt:'2026-09-12 10:05',rowCnt:'12',limit:0,
    desc:'客户分级的判定口径：年度合同额区间对应的分级档位，以及各档位的服务承诺。口径由客成中心维护。',
    agents:['客成助手'],wperm:'read',by:'陈静',at:'2026-09-12 10:05',refs:7,auth:'授权可用',use:'使用中',
    scope:'public',grants:[],
@@ -2819,10 +2778,9 @@ const DATA_TABLES=[
    queries:[
      {name:'按合同额判分级',params:'年度合同额',rule:'返回合同额落在区间内的分级档位与服务承诺',refs:'客成助手'},
    ]},
-  /* ---------- 自定义数据表 ---------- */
-  {id:'dt-comp',icon:'🔍',kind:'custom',name:'竞对情报表',src:'平台内自建',srcType:'自定义',sync:'ok',syncNote:'智能体自动更新',syncAt:'2026-09-29 07:30',rowCnt:'148',limit:0,pk:'情报编号',
+  {id:'dt-comp',icon:'🔍',name:'竞对情报表',src:'平台内自建',srcType:'自定义',sync:'ok',syncNote:'智能体自动更新',syncAt:'2026-09-29 07:30',rowCnt:'148',limit:0,pk:'情报编号',
    desc:'智能体在调研与拜访复盘过程中沉淀的竞对情报：竞对名称、客户、交锋场景、竞对报价、我方胜负、关键差异点。非结构化发现的结构化落表。',
-   agents:['KA 主理智能体','路书（销售AI）'],wperm:'full',by:'罗紫函',at:'2026-08-28 16:40',refs:31,auth:'授权可用',use:'使用中',
+   agents:['KA 主理智能体','路书（销售AI）'],wperm:'rwud',by:'罗紫函',at:'2026-08-28 16:40',refs:31,auth:'授权可用',use:'使用中',
    scope:'auth',grants:[{name:'罗紫函',perm:'可管理'},{name:'何伟文',perm:'可使用'}],
    fields:[
      F('intel_no','文本','情报编号','唯一键，智能体写入时自动生成',{smp:'CI-0148'}),
@@ -2841,19 +2799,14 @@ const DATA_TABLES=[
      {name:'某竞对的交锋记录',params:'竞对名称 · 时间范围',rule:'竞对名称=指定值，按时间倒序',refs:'KA 主理智能体'},
      {name:'竞对胜负分布',params:'竞对名称 · 场景',rule:'按竞对与场景分组 COUNT，区分胜负',refs:'KA 主理智能体'},
    ],
-   pending:[
-     {id:'p1',act:'改',row:'CI-0146',field:'关键差异点',before:'对方打包了 BI 模块',after:'对方打包了 BI 模块，我方需补齐；客户另提到实施周期我方长 2 周',agent:'KA 主理智能体',at:'2026-09-29 07:30',why:'从新会话 C-2101 中补充到该客户的第二个决策因素'},
-     {id:'p2',act:'改',row:'CI-0147',field:'竞对报价',before:'820000',after:'790000',agent:'路书（销售AI）',at:'2026-09-29 07:28',why:'客户在复盘会中更正了此前口述的报价数字'},
-     {id:'p3',act:'删',row:'CI-0132',field:'整行',before:'蓝鲸科技 / 诚通建材 / 方案比稿 / 胜',after:'—',agent:'KA 主理智能体',at:'2026-09-28 19:04',why:'经核对该条与 CI-0129 重复，属同一次交锋'},
-   ],
    writes:[
      {batch:'B-2026092907',agent:'KA 主理智能体',at:'2026-09-29 07:30',conv:'C-2101',cnt:'新增 2 条',detail:['新增 CI-0148 蓝鲸科技 / 远航物流','新增 CI-0147 蓝鲸科技 / 华胜制造']},
      {batch:'B-2026092816',agent:'路书（销售AI）',at:'2026-09-28 16:12',conv:'C-2093',cnt:'新增 1 条',detail:['新增 CI-0146 恒通软件 / 明远零售']},
      {batch:'B-2026092611',agent:'KA 主理智能体',at:'2026-09-26 11:40',conv:'C-2090',cnt:'新增 5 条',detail:['新增 CI-0141 ~ CI-0145，来源季度竞对调研']},
    ]},
-  {id:'dt-risk',icon:'⚠️',kind:'custom',name:'客户风险台账',src:'平台内自建',srcType:'自定义',sync:'ok',syncNote:'智能体自动更新',syncAt:'2026-09-29 09:10',rowCnt:'37',limit:0,pk:'风险编号',
+  {id:'dt-risk',icon:'⚠️',name:'客户风险台账',src:'平台内自建',srcType:'自定义',sync:'ok',syncNote:'智能体自动更新',syncAt:'2026-09-29 09:10',rowCnt:'37',limit:0,pk:'风险编号',
    desc:'跨系统汇总的客户风险台账：智能体定期扫描 case 逾期、续费临近、项目高风险、长期未跟进四类信号，归到客户维度形成风险清单。',
-   agents:['客成助手','KA 主理智能体'],wperm:'add',by:'李娜',at:'2026-09-05 11:20',refs:23,auth:'授权可用',use:'使用中',
+   agents:['客成助手','KA 主理智能体'],wperm:'rw',by:'李娜',at:'2026-09-05 11:20',refs:23,auth:'授权可用',use:'使用中',
    scope:'auth',grants:[{name:'何伟文',perm:'可管理'},{name:'木明',perm:'可使用'},{name:'王磊',perm:'可使用'}],
    fields:[
      F('risk_no','文本','风险编号','唯一键，智能体写入时自动生成',{smp:'RK-0037'}),
@@ -2861,7 +2814,7 @@ const DATA_TABLES=[
      F('risk_type','枚举','风险类型','风险信号来源分类',{enums:'售后积压 / 续费临近 / 交付风险 / 跟进停滞',smp:'交付风险'}),
      F('level','枚举','风险等级','综合判定的风险高低',{enums:'高 / 中 / 低',smp:'高'}),
      F('signal','文本','触发信号','智能体判定该风险的依据说明',{smp:'项目逾期任务 6 个，阶段停留在实施超 30 天'}),
-     F('cs_owner','文本','客成负责人','风险处置责任人，行级权限按此字段过滤',{smp:'李娜'}),
+     F('cs_owner','文本','客成负责人','风险处置责任人，按人汇总风险时用这个字段',{smp:'李娜'}),
      F('found_at','日期','发现时间','智能体扫描到该风险的时间',{smp:'2026-09-29'}),
      F('handled','布尔','是否已处置','人工确认风险已闭环',{smp:'否'}),
    ],
@@ -2872,18 +2825,22 @@ const DATA_TABLES=[
      {name:'我负责的未处置风险',params:'客成负责人 · 风险等级',rule:'客成负责人=当前用户 且 是否已处置=否',refs:'客成助手'},
      {name:'风险类型分布',params:'时间范围 · 客成负责人',rule:'按风险类型分组 COUNT',refs:'客成助手'},
    ],
-   pending:[],
    writes:[
      {batch:'B-2026092909',agent:'客成助手',at:'2026-09-29 09:10',conv:'定时任务',cnt:'新增 3 条',detail:['新增 RK-0037 远航物流 交付风险','新增 RK-0036 明远零售 续费临近','新增 RK-0035 华胜制造 售后积压']},
      {batch:'B-2026092809',agent:'客成助手',at:'2026-09-28 09:10',conv:'定时任务',cnt:'新增 2 条',detail:['新增 RK-0034、RK-0033']},
    ]},
 ];
-const DT_KINDS={
-  upload:{label:'上传数据表',cls:'bg-amber-100 text-amber-700',tip:'上传文件生成，数据由人工在平台内维护。字段结构由表头解析'},
-  custom:{label:'自定义数据表',cls:'bg-violet-100 text-violet-700',tip:'平台内自建，字段由人声明。智能体可写入：新增自主，修改与删除需人工确认'},
-};
-const DT_WPERM={read:'只读',add:'可增',full:'可增改删'};
-function dtPendCnt(t){return (t.pending||[]).length}
+/* 智能体应用权限：四档递进，后一档包含前一档的动作。只读表不生成唯一键，也没有写入记录 */
+const DT_WPERM={read:'只读',rw:'可读写',rwu:'可读写改',rwud:'可读写改删'};
+const DT_WPERM_OPTS=[
+  ['read','只读 — 只能查，不能写'],
+  ['rw','可读写 — 可新增行'],
+  ['rwu','可读写改 — 可新增与修改'],
+  ['rwud','可读写改删 — 可新增、修改与删除'],
+];
+const DT_WPERM_CLS={read:'bg-gray-100 text-gray-600',rw:'bg-sky-50 text-sky-700',rwu:'bg-violet-100 text-violet-700',rwud:'bg-amber-100 text-amber-700'};
+function dtCanWrite(t){return (t.wperm||'read')!=='read'}
+function dtHasFile(t){return t.srcType==='上传文件'}
 function toolItems(){
   const meta=[
     {icon:'📤',agents:['KA 主理智能体','解决方案生成'],by:'平台团队',at:'2026-07-20 10:05',refs:64,auth:'授权可用',use:'使用中'},
@@ -2949,7 +2906,7 @@ function skPaneHead(title,note,tab,extra){
 let dtPage=1;
 const DT_PER=10;
 function renderDtPane(tbl){
-  const head=skPaneHead('数据表','字段结构与查询口径的统一定义处 · 配置给深度智能体后可查询分析，自定义表还可由智能体自动更新','table');
+  const head=skPaneHead('数据表','字段结构与查询口径的统一定义处 · 配置给深度智能体后可查询分析，开了写权限的表还可由智能体自动更新','table');
   if(!tbl.length)return head+skEmpty('数据表');
   const pages=Math.max(1,Math.ceil(tbl.length/DT_PER));
   if(dtPage>pages)dtPage=pages;
@@ -2959,7 +2916,7 @@ function renderDtPane(tbl){
     <table class="w-full text-[12.5px]">
       <thead><tr class="text-left text-gray-400 border-b border-gray-100 bg-gray-50/60">
         <th class="px-4 py-3 font-medium min-w-[220px]">数据表</th>
-        <th class="px-3 py-3 font-medium whitespace-nowrap">形态</th>
+        <th class="px-3 py-3 font-medium whitespace-nowrap">智能体应用权限</th>
         <th class="px-3 py-3 font-medium whitespace-nowrap">使用状态</th>
         <th class="px-3 py-3 font-medium min-w-[150px]">关联智能体</th>
         <th class="px-3 py-3 font-medium whitespace-nowrap">应用授权</th>
@@ -2993,21 +2950,19 @@ function dtPager(total,pages){
 }
 function dtGoPage(p){dtPage=p;renderSkillLib()}
 function dtRow(t){
-  const m=DT_KINDS[t.kind]||{label:t.kind,cls:'bg-gray-100 text-gray-600'};
   const authCls=t.auth==='授权可用'?'bg-emerald-50 text-emerald-600':'bg-amber-50 text-amber-600';
   const used=t.use==='使用中';
   const useCls=used?'bg-emerald-50 text-emerald-600 border-emerald-200':'bg-sky-50 text-sky-600 border-sky-200';
-  const pc=dtPendCnt(t);
+  const wp=t.wperm||'read';
   return `<tr class="border-b border-gray-50 last:border-0 hover:bg-violet-50/30 transition align-top">
     <td class="px-4 py-3">
       <div class="flex items-center gap-1.5">
         <span class="text-[13px] leading-5">${t.icon}</span>
         <span class="text-violet-600 font-semibold cursor-pointer hover:underline" onclick="openDtDetail('${t.id}')">${t.name}</span>
-        ${pc?`<span class="tag bg-red-50 text-red-600">${pc} 笔待确认</span>`:''}
       </div>
       <p class="text-[11px] text-gray-400 leading-relaxed mt-1 max-w-[320px] sk-desc">${t.desc}</p>
     </td>
-    <td class="px-3 py-3"><span class="tag ${m.cls} whitespace-nowrap" title="${m.tip||''}">${m.label}</span></td>
+    <td class="px-3 py-3"><span class="tag ${DT_WPERM_CLS[wp]} whitespace-nowrap">${DT_WPERM[wp]}</span></td>
     <td class="px-3 py-3"><span class="text-[10.5px] font-semibold px-1.5 py-0.5 rounded border ${useCls} whitespace-nowrap">${used?'已使用':'未使用'}</span></td>
     <td class="px-3 py-3 text-gray-600 text-[11.5px]">${t.agents.length?t.agents.join('、'):'--'}</td>
     <td class="px-3 py-3"><span class="tag ${authCls} whitespace-nowrap">${t.auth}</span></td>
@@ -3291,42 +3246,88 @@ function bdsSetScope(s){
   renderBdsUsers();renderBdsGranted();
 }
 /* 飞书组织架构（示意）：部门可整体授权，展开后按人员勾选 */
+/* 飞书组织架构：一级部门 → 二级部门 → 人。一级部门只做分组标题，勾选粒度是二级部门与人 */
 const FS_ORG=[
-  {id:'d-mkt',name:'营销中心',members:['罗紫函','任思宇','郝可欣']},
-  {id:'d-svc',name:'服务中心',members:['何伟文','木明']},
-  {id:'d-dlv',name:'交付中心',members:['王磊']},
+  {id:'d-mkt',name:'营销中心',subs:[
+    {id:'d-mkt-ka',name:'KA 销售部',members:['罗紫函','任思宇']},
+    {id:'d-mkt-ops',name:'营销运营部',members:['郝可欣']},
+  ]},
+  {id:'d-svc',name:'服务中心',subs:[
+    {id:'d-svc-cs',name:'客户成功部',members:['何伟文']},
+    {id:'d-svc-sup',name:'服务支持部',members:['木明']},
+  ]},
+  {id:'d-dlv',name:'交付中心',subs:[
+    {id:'d-dlv-pm',name:'交付管理部',members:['王磊']},
+  ]},
 ];
-let shOpenDept=['d-mkt'],shPickDept=[];
+/* 不在任何部门下的人，平铺列在组织树最后 */
+const FS_NO_DEPT=['刘洋'];
+function fsSubMembers(id){
+  for(const d of FS_ORG){const s=d.subs.find(x=>x.id===id);if(s)return s.members}
+  return [];
+}
+let shOpenDept=['d-mkt-ka'],shPickDept=[];
 function bdsToggleDept(id){
   shOpenDept=shOpenDept.includes(id)?shOpenDept.filter(x=>x!==id):[...shOpenDept,id];
   renderBdsUsers();
 }
 function deptUser(name){return users.find(u=>u.name===name)||{name,acct:''}}
-function renderBdsUsers(){
-  const kw=(document.getElementById('bds-kw').value||'').trim().toLowerCase();
-  const rows=FS_ORG.map(d=>{
-    const hit=d.name.toLowerCase().includes(kw);
-    const ms=d.members.filter(n=>!kw||hit||n.toLowerCase().includes(kw)||deptUser(n).acct.includes(kw));
-    if(kw&&!hit&&!ms.length)return '';
-    const open=shOpenDept.includes(d.id)||(kw&&ms.length);
-    const allHas=d.members.every(n=>shGrants.some(g=>g.name===n));
-    return `<div class="border-b border-gray-50 last:border-0">
-      <div class="flex items-center gap-2 px-3 py-2 text-[12.5px] hover:bg-violet-50/40">
-        <span class="text-gray-400 cursor-pointer w-3 text-[10px]" onclick="bdsToggleDept('${d.id}')">${open?'▾':'▸'}</span>
-        <input type="checkbox" class="accent-violet-600" ${allHas?'disabled checked':''} ${shPickDept.includes(d.id)?'checked':''} onchange="bdsToggleDeptPick('${d.id}',this.checked)">
-        <span class="font-semibold ${allHas?'text-gray-300':''}">🏢 ${d.name}</span>
-        <span class="text-[10.5px] text-gray-400">${d.members.length} 人</span>
-        ${allHas?'<span class="text-[10.5px] text-gray-400 ml-auto">全员已授权</span>':''}
+/* 组织架构选择器：一级部门分组 → 二级部门可勾 → 人可勾，无部门的人平铺在最后。
+   dts（数据表分享）与 bds（看板授权）共用这段渲染，差别只在 pfx 与各自的状态数组 */
+function orgPickerHTML(pfx,st){
+  const kw=(document.getElementById(pfx+'-kw').value||'').trim().toLowerCase();
+  const isGranted=n=>st.grants.some(g=>g.name===n);
+  const mHit=n=>!kw||n.toLowerCase().includes(kw)||deptUser(n).acct.includes(kw);
+  const groups=FS_ORG.map(d=>{
+    const dHit=d.name.toLowerCase().includes(kw);
+    const subs=d.subs.map(s=>{
+      const sHit=dHit||s.name.toLowerCase().includes(kw);
+      const ms=s.members.filter(n=>!kw||sHit||mHit(n));
+      if(kw&&!sHit&&!ms.length)return '';
+      const open=st.open.includes(s.id)||(kw&&ms.length);
+      const allHas=s.members.length>0&&s.members.every(isGranted);
+      const picked=st.pickDept.includes(s.id);
+      return `<div class="border-t border-gray-50 first:border-0">
+        <div class="flex items-center gap-2 pl-6 pr-3 py-2 text-[12px] hover:bg-violet-50/40">
+          <span class="text-gray-400 cursor-pointer w-3 text-[10px]" onclick="${pfx}ToggleDept('${s.id}')">${open?'▾':'▸'}</span>
+          <input type="checkbox" class="accent-violet-600" ${allHas?'disabled checked':''} ${picked?'checked':''} onchange="${pfx}ToggleDeptPick('${s.id}',this.checked)">
+          <span class="font-semibold ${allHas?'text-gray-300':''}">${s.name}</span>
+          <span class="text-[10.5px] text-gray-400">${s.members.length} 人</span>
+          ${allHas?'<span class="text-[10.5px] text-gray-400 ml-auto">全员已授权</span>':''}
+        </div>
+        ${open?ms.map(n=>orgMemberRow(pfx,st,n,picked,'pl-14')).join(''):''}
+      </div>`;
+    }).join('');
+    if(!subs)return '';
+    const cnt=d.subs.reduce((a,s)=>a+s.members.length,0);
+    return `<div class="border-b border-gray-100 last:border-0">
+      <div class="flex items-center gap-2 px-3 py-2 text-[12.5px] bg-gray-50/70">
+        <span class="font-bold">🏢 ${d.name}</span>
+        <span class="text-[10.5px] text-gray-400">${d.subs.length} 个部门 · ${cnt} 人</span>
       </div>
-      ${open?ms.map(n=>{
-        const u=deptUser(n),has=shGrants.some(g=>g.name===n),byDept=shPickDept.includes(d.id);
-        return `<label class="flex items-center gap-2 pl-10 pr-3 py-1.5 text-[12px] cursor-pointer hover:bg-violet-50/60 ${has?'text-gray-300':''}">
-          <input type="checkbox" class="accent-violet-600" ${has||byDept?'disabled':''} ${has||byDept||shPick.includes(n)?'checked':''} onchange="bdsTogglePick('${n}',this.checked)">
-          <span>${n}</span><span class="text-[10.5px] text-gray-400">${u.acct}</span>
-          ${has?'<span class="text-[10.5px] text-gray-400 ml-auto">已授权</span>':byDept?'<span class="text-[10.5px] text-violet-400 ml-auto">随部门</span>':''}
-        </label>`}).join(''):''}
-    </div>`}).join('');
-  document.getElementById('bds-users').innerHTML=rows||'<div class="px-3 py-3 text-[11.5px] text-gray-300">没有匹配的部门或人员</div>';
+      ${subs}
+    </div>`;
+  }).join('');
+  const loose=FS_NO_DEPT.filter(mHit);
+  const looseBlock=loose.length?`<div class="border-b border-gray-100 last:border-0">
+    <div class="flex items-center gap-2 px-3 py-2 text-[12.5px] bg-gray-50/70">
+      <span class="font-bold text-gray-500">未归属部门</span>
+      <span class="text-[10.5px] text-gray-400">${FS_NO_DEPT.length} 人</span>
+    </div>
+    ${loose.map(n=>orgMemberRow(pfx,st,n,false,'pl-6')).join('')}
+  </div>`:'';
+  return (groups+looseBlock)||'<div class="px-3 py-3 text-[11.5px] text-gray-300">没有匹配的部门或人员</div>';
+}
+function orgMemberRow(pfx,st,n,byDept,pad){
+  const u=deptUser(n),has=st.grants.some(g=>g.name===n);
+  return `<label class="flex items-center gap-2 ${pad} pr-3 py-1.5 text-[12px] cursor-pointer hover:bg-violet-50/60 ${has?'text-gray-300':''}">
+    <input type="checkbox" class="accent-violet-600" ${has||byDept?'disabled':''} ${has||byDept||st.pick.includes(n)?'checked':''} onchange="${pfx}TogglePick('${n}',this.checked)">
+    <span>${n}</span><span class="text-[10.5px] text-gray-400">${u.acct}</span>
+    ${has?'<span class="text-[10.5px] text-gray-400 ml-auto">已授权</span>':byDept?'<span class="text-[10.5px] text-violet-400 ml-auto">随部门</span>':''}
+  </label>`;
+}
+function renderBdsUsers(){
+  document.getElementById('bds-users').innerHTML=orgPickerHTML('bds',{grants:shGrants,pick:shPick,pickDept:shPickDept,open:shOpenDept});
 }
 function bdsToggleDeptPick(id,on){
   shPickDept=on?[...new Set([...shPickDept,id])]:shPickDept.filter(x=>x!==id);
@@ -3337,7 +3338,7 @@ function bdsTogglePick(n,on){
 }
 /* 勾选的部门展开为人员名单，与单选人员合并去重 */
 function bdsPickedNames(){
-  const fromDept=shPickDept.flatMap(id=>(FS_ORG.find(d=>d.id===id)||{members:[]}).members);
+  const fromDept=shPickDept.flatMap(id=>fsSubMembers(id));
   return [...new Set([...fromDept,...shPick])];
 }
 function bdsToggleGranted(){
@@ -3676,14 +3677,13 @@ function closeDtDetail(){
 function showDtTab(t){dtTab=t;renderDtDetail()}
 function renderDtDetail(){
   const t=dtGet();if(!t)return;
-  const pc=dtPendCnt(t);
   const tabs=[['fields','字段及描述'],['queries','查询口径'],['data','数据']];
-  if(t.kind==='custom')tabs.push(['writes','写入记录']);
+  if(dtCanWrite(t))tabs.push(['writes','写入记录']);
+  if(!tabs.some(x=>x[0]===dtTab))dtTab='fields';
   document.getElementById('dt-detail-body').innerHTML=
-    dtHeadCard(t)+dtAlert(t)+dtPendBar(t,pc)
+    dtHeadCard(t)+dtAlert(t)
     +`<div class="border-b border-gray-200 mb-4">${tabs.map(x=>
-      `<span class="rtab ${dtTab===x[0]?'active':''}" onclick="showDtTab('${x[0]}')">${x[1]}${
-        x[0]==='writes'&&pc?` <span class="tag bg-red-100 text-red-600 ml-1">${pc}</span>`:''}</span>`).join('')}</div>`
+      `<span class="rtab ${dtTab===x[0]?'active':''}" onclick="showDtTab('${x[0]}')">${x[1]}</span>`).join('')}</div>`
     +{fields:dtFieldsTab,queries:dtQueriesTab,data:dtDataTab,writes:dtWritesTab}[dtTab](t);
 }
 function dtHeadCard(t){
@@ -3693,10 +3693,10 @@ function dtHeadCard(t){
       <span class="text-[17px]">${t.icon}</span>
       <span class="font-bold text-[15px]">${t.name}</span>
       <span class="tag ${authCls}">${t.auth}</span>
-      ${t.kind==='custom'?`<span class="tag bg-violet-100 text-violet-700">智能体${DT_WPERM[t.wperm]}</span>`:'<span class="tag bg-gray-100 text-gray-500">智能体只读</span>'}
+      <span class="tag ${DT_WPERM_CLS[t.wperm||'read']}">智能体${DT_WPERM[t.wperm||'read']}</span>
       <div class="ml-auto flex gap-2">
-        ${t.kind!=='custom'?`<button class="btn-o !py-1 !px-3 text-[11px]" onclick="dtReparse()">重新解析字段</button>`:''}
-        ${t.kind==='upload'?`<button class="btn-o !py-1 !px-3 text-[11px]" onclick="toast('上传新版本文件（示意）：表头变化时会提示字段差异并要求确认')">上传新版本</button>`:''}
+        ${dtHasFile(t)?`<button class="btn-o !py-1 !px-3 text-[11px]" onclick="dtReparse()">重新解析字段</button>
+        <button class="btn-o !py-1 !px-3 text-[11px]" onclick="toast('上传新版本文件（示意）：表头变化时会提示字段差异并要求确认')">上传新版本</button>`:''}
         <button class="btn-o !py-1 !px-3 text-[11px]" onclick="openDtShare()">分享与授权</button>
       </div>
     </div>
@@ -3704,9 +3704,11 @@ function dtHeadCard(t){
     <div class="grid grid-cols-5 gap-3 mt-3">
       <div class="rounded-xl bg-gray-50 p-2.5"><div class="text-[10.5px] text-gray-400">接入方式</div><div class="text-[12px] font-bold mt-0.5">${t.srcType}</div><div class="text-[10px] text-gray-400 truncate" title="${t.src}">${t.src}</div></div>
       <div class="rounded-xl bg-gray-50 p-2.5"><div class="text-[10.5px] text-gray-400">数据量</div><div class="text-[12px] font-bold mt-0.5">${t.rowCnt} 行</div><div class="text-[10px] text-gray-400">${t.syncNote}</div></div>
-      <div class="rounded-xl bg-gray-50 p-2.5"><div class="text-[10.5px] text-gray-400">字段</div><div class="text-[12px] font-bold mt-0.5">${(t.fields||[]).length} 个</div><div class="text-[10px] text-gray-400">${t.kind==='custom'?'由你声明':'按表头解析'}</div></div>
+      <div class="rounded-xl bg-gray-50 p-2.5"><div class="text-[10.5px] text-gray-400">字段</div><div class="text-[12px] font-bold mt-0.5">${(t.fields||[]).length} 个</div><div class="text-[10px] text-gray-400">${dtHasFile(t)?'按表头解析':'由你声明'}</div></div>
       <div class="rounded-xl bg-gray-50 p-2.5"><div class="text-[10.5px] text-gray-400">查询口径</div><div class="text-[12px] font-bold mt-0.5">${(t.queries||[]).length} 个</div><div class="text-[10px] text-gray-400">被引用 ${t.refs} 次</div></div>
-      <div class="rounded-xl bg-gray-50 p-2.5"><div class="text-[10.5px] text-gray-400">${t.kind==='custom'?'唯一键':'最近同步'}</div><div class="text-[12px] font-bold mt-0.5">${t.kind==='custom'?t.pk:t.syncAt.split(' ')[0]}</div><div class="text-[10px] text-gray-400">${t.kind==='custom'?'改/删按此定位行':t.syncAt.split(' ')[1]}</div></div>
+      ${dtCanWrite(t)
+        ?`<div class="rounded-xl bg-gray-50 p-2.5"><div class="text-[10.5px] text-gray-400">唯一键</div><div class="text-[12px] font-bold mt-0.5">${t.pk||'记录编号'}</div><div class="text-[10px] text-gray-400">写入按此定位行</div></div>`
+        :`<div class="rounded-xl bg-gray-50 p-2.5"><div class="text-[10.5px] text-gray-400">最近更新</div><div class="text-[12px] font-bold mt-0.5">${(t.syncAt||t.at||'—').split(' ')[0]}</div><div class="text-[10px] text-gray-400">${(t.syncAt||t.at||' ').split(' ')[1]||'只读表无写入'}</div></div>`}
     </div>
     <div class="text-[11px] text-gray-400 mt-2.5">关联智能体：${t.agents.join('、')||'—'}</div>
   </div>`;
@@ -3719,23 +3721,16 @@ function dtAlert(t){
     <button class="btn-o !py-1 !px-3 text-[11px]" onclick="toast('重新测试连接（示意）')">重新连接</button></div>`;
   return '';
 }
-function dtPendBar(t,pc){
-  if(!pc)return '';
-  return `<div class="rounded-xl bg-violet-50 border border-violet-200 p-3 mb-3 flex items-center gap-2">
-    <span class="text-[13px]">🤖</span>
-    <div class="flex-1"><div class="text-[12px] font-bold text-violet-700">智能体提交了 ${pc} 笔修改/删除，待你确认</div>
-    <div class="text-[11px] text-violet-600 mt-0.5">新增已直接生效；修改与删除不可逆，需人工确认后才落表。未确认期间智能体读到的仍是原值。</div></div>
-    <button class="btn-p !py-1 !px-3 text-[11px]" onclick="openDtPending()">逐笔确认</button></div>`;
-}
 function dtFieldsTab(t){
-  const srcNote={upload:'字段名、类型、数据示例由表头和采样行解析得出，中文名与业务含义由模型生成，可直接改',
-    custom:'字段由你声明。新增字段后建议补齐业务含义，否则智能体只能靠字段名猜'}[t.kind];
+  const srcNote=dtHasFile(t)
+    ?'字段名、类型、数据示例由表头和采样行解析得出，中文名与业务含义由模型生成，可直接改'
+    :'字段由你声明。新增字段后建议补齐业务含义，否则智能体只能靠字段名猜';
   return `<div class="card overflow-hidden">
     <div class="flex items-center gap-2 px-4 py-2.5 border-b border-gray-100">
       <span class="text-[12px] font-bold">字段及描述</span>
       <span class="text-[10.5px] text-gray-400">${srcNote}</span>
       <div class="ml-auto flex gap-2">
-        ${t.kind==='custom'?`<button class="btn-o !py-1 !px-3 text-[11px]" onclick="dtAddField()">+ 添加字段</button>`:''}
+        <button class="btn-o !py-1 !px-3 text-[11px]" onclick="dtAddField()">+ 添加字段</button>
       </div>
     </div>
     <table class="w-full text-[11.5px]">
@@ -3746,33 +3741,31 @@ function dtFieldsTab(t){
         <th class="text-left px-2 py-2 font-semibold w-24">数据示例</th>
         <th class="text-left px-2 py-2 font-semibold">业务含义</th>
         <th class="text-left px-2 py-2 font-semibold w-40">枚举说明</th>
-        ${t.kind==='custom'?'<th class="text-left px-2 py-2 font-semibold w-14">操作</th>':''}
+        <th class="text-left px-2 py-2 font-semibold w-14">操作</th>
       </tr></thead>
       <tbody>${(t.fields||[]).map((f,i)=>dtFieldRow(t,f,i)).join('')}</tbody>
     </table>
   </div>`;
 }
 function dtFieldRow(t,f,i){
-  const pk=t.kind==='custom'&&f.cn===t.pk;
-  const custom=t.kind==='custom';
+  const pk=dtCanWrite(t)&&f.cn===t.pk;
   return `<tr class="border-t border-gray-50">
-    <td class="px-3 py-2">${custom
-      ?`<div class="flex items-center gap-1">
-          <input class="w-full bg-transparent border-b border-dashed border-gray-200 focus:outline-none focus:border-violet-400 font-mono text-[10.5px] text-gray-600" value="${f.n}" onchange="dtSetFieldName(${i},this.value)">
-          ${pk?'<span class="tag bg-violet-100 text-violet-700 shrink-0">唯一键</span>':''}
-        </div>`
-      :`<span class="font-mono text-[10.5px] text-gray-600">${f.n}</span>`}</td>
+    <td class="px-3 py-2">
+      <div class="flex items-center gap-1">
+        <input class="w-full bg-transparent border-b border-dashed border-gray-200 focus:outline-none focus:border-violet-400 font-mono text-[10.5px] text-gray-600" value="${f.n}" onchange="dtSetFieldName(${i},this.value)">
+        ${pk?'<span class="tag bg-violet-100 text-violet-700 shrink-0">唯一键</span>':''}
+      </div></td>
     <td class="px-2 py-2 text-gray-400">${f.t}</td>
     <td class="px-2 py-2"><input class="w-full bg-transparent border-b border-dashed border-gray-200 focus:outline-none focus:border-violet-400 text-[11.5px]" value="${f.cn}" onchange="dtSetField(${i},'cn',this.value)"></td>
     <td class="px-2 py-2 text-gray-400 text-[10.5px] truncate max-w-[110px]" title="${f.smp||''}">${f.smp||'—'}</td>
     <td class="px-2 py-2"><input class="w-full bg-transparent border-b border-dashed border-gray-200 focus:outline-none focus:border-violet-400 text-[11.5px]" value="${f.mean}" onchange="dtSetField(${i},'mean',this.value)"></td>
     <td class="px-2 py-2"><input class="w-full bg-transparent border-b border-dashed border-gray-200 focus:outline-none focus:border-violet-400 text-[10.5px] text-gray-500" value="${f.enums||''}" placeholder="${f.t==='枚举'?'列出取值及业务解释':'—'}" onchange="dtSetField(${i},'enums',this.value)"></td>
-    ${custom?`<td class="px-2 py-2">${pk
-      ?'<span class="text-[10px] text-gray-300" title="唯一键字段不可删除，智能体改/删行靠它定位">—</span>'
-      :`<span class="text-[10px] text-red-500 font-semibold cursor-pointer hover:underline" onclick="dtDelField(${i})">删 除</span>`}</td>`:''}
+    <td class="px-2 py-2">${pk
+      ?'<span class="text-[10px] text-gray-300" title="唯一键字段不可删除，智能体写入靠它定位行">—</span>'
+      :`<span class="text-[10px] text-red-500 font-semibold cursor-pointer hover:underline" onclick="dtDelField(${i})">删 除</span>`}</td>
   </tr>`;
 }
-/* 字段名改写：自定义表允许；唯一键字段的中文名跟 t.pk 联动 */
+/* 唯一键字段的中文名跟 t.pk 联动 */
 function dtSetFieldName(i,v){
   const t=dtGet(),f=t.fields[i];
   const nv=(v||'').trim().replace(/\s+/g,'_');
@@ -3789,7 +3782,7 @@ function dtDelField(i){
 }
 function dtSetField(i,k,v){
   const t=dtGet();
-  if(k==='cn'&&t.kind==='custom'&&t.fields[i].cn===t.pk)t.pk=v;
+  if(k==='cn'&&dtCanWrite(t)&&t.fields[i].cn===t.pk)t.pk=v;
   t.fields[i][k]=v;
   renderDtDetail();
 }
@@ -3835,7 +3828,7 @@ function dtQueriesTab(t){
     <div class="grid grid-cols-2 gap-3 mt-2.5">
       <div class="rounded-xl bg-gray-50 p-3 text-[11px] text-gray-600 space-y-1">
         <div>· 只读：自由查询不具备写入能力</div>
-        <div>· 行级权限跟随登录人，取数接口二次校验</div>
+        <div>· 取数按可用范围与授权名单二次校验</div>
       </div>
       <div class="rounded-xl bg-gray-50 p-3">
         <label class="text-[11px] font-semibold text-gray-600 block mb-1.5">单次查询返回行数上限</label>
@@ -3858,13 +3851,12 @@ function dtAddQuery(){
 }
 function dtDataTab(t){
   const vf=(t.fields||[]);
-  const editable=t.kind==='upload';
   return `<div class="card overflow-hidden">
     <div class="flex items-center gap-2 px-4 py-2.5 border-b border-gray-100">
       <span class="text-[12px] font-bold">数据</span>
-      <span class="text-[10.5px] text-gray-400">${editable?'人工维护，单元格可直接编辑':'智能体自动更新，人工可校正。灰底行为智能体写入'} · 共 ${t.rowCnt} 行</span>
+      <span class="text-[10.5px] text-gray-400">${dtCanWrite(t)?'人工可直接编辑，智能体按权限写入':'人工可直接编辑，智能体只读'} · 共 ${t.rowCnt} 行</span>
       <div class="ml-auto flex gap-2">
-        ${editable?`<button class="btn-o !py-1 !px-3 text-[11px]" onclick="toast('新增一行（示意）')">+ 新增行</button>`:''}
+        <button class="btn-o !py-1 !px-3 text-[11px]" onclick="toast('新增一行（示意）')">+ 新增行</button>
         <button class="btn-o !py-1 !px-3 text-[11px]" onclick="toast('导出当前数据（示意）')">导出</button>
       </div>
     </div>
@@ -3874,63 +3866,27 @@ function dtDataTab(t){
         <th class="px-2 py-2 w-16"></th>
       </tr></thead>
       <tbody>${(t.rows||[]).map((r,ri)=>`
-        <tr class="border-t border-gray-50 ${t.kind==='custom'?'bg-gray-50/50':''}">
-          ${vf.map((f,ci)=>`<td class="px-3 py-2">${editable
-            ?`<input class="w-full bg-transparent border-b border-dashed border-transparent hover:border-gray-200 focus:outline-none focus:border-violet-400 text-[11.5px]" value="${r[ci]??''}" onchange="toast('已修改「${f.cn}」（示意）')">`
-            :`<span class="text-gray-600">${r[ci]??'—'}</span>`}</td>`).join('')}
+        <tr class="border-t border-gray-50">
+          ${vf.map((f,ci)=>`<td class="px-3 py-2"><input class="w-full bg-transparent border-b border-dashed border-transparent hover:border-gray-200 focus:outline-none focus:border-violet-400 text-[11.5px]" value="${r[ci]??''}" onchange="toast('已修改「${f.cn}」（示意）')"></td>`).join('')}
           <td class="px-2 py-2 text-center text-[10.5px]">
-            <span class="text-gray-300 hover:text-red-500 cursor-pointer" onclick="toast('${t.kind==='custom'?'人工删除该行会记入操作日志（示意）':'删除该行（示意）'}')">删除</span>
+            <span class="text-gray-300 hover:text-red-500 cursor-pointer" onclick="toast('人工删除该行会记入操作日志（示意）')">删除</span>
           </td>
         </tr>`).join('')}
       </tbody>
     </table>
-    ${t.kind==='custom'?`<div class="px-4 py-2.5 bg-violet-50/40 text-[10.5px] text-violet-700 border-t border-gray-100">
-      唯一键「${t.pk}」是智能体定位行的依据。智能体新增时自动生成，修改与删除按此键匹配——没有唯一键就只能整表覆盖，所以自定义表建表时默认带一个，可在「字段及描述」里改名。
+    ${dtCanWrite(t)?`<div class="px-4 py-2.5 bg-violet-50/40 text-[10.5px] text-violet-700 border-t border-gray-100">
+      唯一键「${t.pk}」是智能体定位行的依据。智能体新增时自动生成，修改与删除按此键匹配——没有唯一键就只能整表覆盖，所以开了写权限的表一定带一个，可在「字段及描述」里改名。
     </div>`:''}
   </div>`;
 }
 function dtWritesTab(t){
-  const pc=dtPendCnt(t);
-  return `<div class="card overflow-hidden mb-3">
-    <div class="flex items-center gap-2 px-4 py-2.5 border-b border-gray-100">
-      <span class="text-[12px] font-bold">待确认的修改与删除</span>
-      <span class="text-[10.5px] text-gray-400">新增自主生效，改/删需人工确认</span>
-      ${pc?`<button class="btn-p !py-1 !px-3 text-[11px] ml-auto" onclick="openDtPending()">逐笔确认（${pc}）</button>`:''}
-    </div>
-    ${pc?`<table class="w-full text-[11.5px]">
-      <thead class="bg-gray-50 text-gray-400 text-[10.5px]"><tr>
-        <th class="text-left px-3 py-2 font-semibold w-12">动作</th>
-        <th class="text-left px-2 py-2 font-semibold w-20">定位行</th>
-        <th class="text-left px-2 py-2 font-semibold w-20">字段</th>
-        <th class="text-left px-2 py-2 font-semibold">变更前 → 变更后</th>
-        <th class="text-left px-2 py-2 font-semibold w-28">提交智能体</th>
-        <th class="px-2 py-2 w-24"></th>
-      </tr></thead>
-      <tbody>${t.pending.map(p=>`
-        <tr class="border-t border-gray-50">
-          <td class="px-3 py-2"><span class="tag ${p.act==='删'?'bg-red-100 text-red-600':'bg-amber-100 text-amber-700'}">${p.act}</span></td>
-          <td class="px-2 py-2 font-mono text-[10.5px] text-gray-600">${p.row}</td>
-          <td class="px-2 py-2 text-gray-500">${p.field}</td>
-          <td class="px-2 py-2">
-            <div class="text-[10.5px] text-gray-400 line-through">${p.before}</div>
-            <div class="text-[11px] text-gray-700 mt-0.5">${p.after}</div>
-            <div class="text-[10px] text-violet-600 mt-0.5">理由：${p.why}</div>
-          </td>
-          <td class="px-2 py-2 text-[10.5px] text-gray-500">${p.agent}<div class="text-[10px] text-gray-300">${p.at}</div></td>
-          <td class="px-2 py-2 text-center text-[10.5px] space-x-2">
-            <span class="text-violet-600 hover:underline cursor-pointer" onclick="dtApprove('${p.id}')">通过</span>
-            <span class="text-gray-400 hover:text-red-500 cursor-pointer" onclick="dtReject('${p.id}')">驳回</span>
-          </td>
-        </tr>`).join('')}
-      </tbody></table>`
-      :'<div class="text-center text-[11px] text-gray-300 py-8">没有待确认的修改或删除</div>'}
-  </div>
-  <div class="card overflow-hidden">
+  const ws=t.writes||[];
+  return `<div class="card overflow-hidden">
     <div class="flex items-center gap-2 px-4 py-2.5 border-b border-gray-100">
       <span class="text-[12px] font-bold">已生效的写入记录</span>
-      <span class="text-[10.5px] text-gray-400">按一次执行为批次留痕，可整批撤销</span>
+      <span class="text-[10.5px] text-gray-400">智能体按权限直接写入，按一次执行为批次留痕，可整批撤销</span>
     </div>
-    <div class="divide-y divide-gray-50">${(t.writes||[]).map(w=>`
+    ${ws.length?`<div class="divide-y divide-gray-50">${ws.map(w=>`
       <div class="px-4 py-3 flex items-start gap-3">
         <div class="flex-1">
           <div class="flex items-center gap-2">
@@ -3946,7 +3902,8 @@ function dtWritesTab(t){
     </div>
     <div class="px-4 py-2.5 bg-gray-50 text-[10.5px] text-gray-500 border-t border-gray-100">
       深度智能体是循环执行的，一次跑偏可能连续写十几条，所以撤销以「一次执行」为单位，不逐条撤。
-    </div>
+    </div>`
+    :'<div class="text-center text-[11px] text-gray-300 py-10">智能体还没写过这张表</div>'}
   </div>`;
 }
 function dtRollback(b){
@@ -3955,66 +3912,8 @@ function dtRollback(b){
   const w=t.writes[i];t.writes.splice(i,1);renderDtDetail();
   toast(`已撤销批次 ${b}（${w.cnt}），数据回到该批次写入前的状态`);
 }
-/* ===== 待确认队列 ===== */
-function openDtPending(){document.getElementById('modal-dtpend').classList.remove('hidden');renderDtPending()}
-function closeDtPending(){document.getElementById('modal-dtpend').classList.add('hidden');renderDtDetail()}
-function renderDtPending(){
-  const t=dtGet(),ps=t.pending||[];
-  document.getElementById('dtp-count').textContent=`共 ${ps.length} 笔待确认`;
-  document.getElementById('dtp-body').innerHTML=ps.length?ps.map(p=>`
-    <div class="border border-gray-100 rounded-xl p-3">
-      <div class="flex items-center gap-2">
-        <span class="tag ${p.act==='删'?'bg-red-100 text-red-600':'bg-amber-100 text-amber-700'}">${p.act==='删'?'删除整行':'修改'}</span>
-        <span class="text-[11.5px] font-semibold font-mono">${p.row}</span>
-        ${p.field!=='整行'?`<span class="text-[11px] text-gray-500">· ${p.field}</span>`:''}
-        <span class="text-[10.5px] text-gray-400 ml-auto">${p.agent} · ${p.at}</span>
-      </div>
-      <div class="mt-2 grid grid-cols-2 gap-2">
-        <div class="rounded-lg bg-gray-50 p-2">
-          <div class="text-[10px] text-gray-400 mb-0.5">变更前</div>
-          <div class="text-[11px] text-gray-600">${p.before}</div>
-        </div>
-        <div class="rounded-lg ${p.act==='删'?'bg-red-50':'bg-emerald-50'} p-2">
-          <div class="text-[10px] text-gray-400 mb-0.5">变更后</div>
-          <div class="text-[11px] ${p.act==='删'?'text-red-600':'text-emerald-700'}">${p.act==='删'?'该行将被删除':p.after}</div>
-        </div>
-      </div>
-      <div class="text-[10.5px] text-violet-600 mt-2">智能体给的理由：${p.why}</div>
-      <div class="flex gap-2 mt-2.5">
-        <button class="btn-p !py-1 !px-3 text-[11px]" onclick="dtApprove('${p.id}')">通过</button>
-        <button class="btn-o !py-1 !px-3 text-[11px]" onclick="dtReject('${p.id}')">驳回</button>
-      </div>
-    </div>`).join(''):'<div class="text-center text-[11.5px] text-gray-300 py-8">没有待确认的修改或删除</div>';
-}
-function dtTakePend(id){
-  const t=dtGet(),i=(t.pending||[]).findIndex(p=>p.id===id);
-  if(i<0)return null;
-  return t.pending.splice(i,1)[0];
-}
-function dtApprove(id){
-  const t=dtGet(),p=dtTakePend(id);if(!p)return;
-  (t.writes=t.writes||[]).unshift({batch:'B-'+Date.now().toString().slice(-10),agent:p.agent,at:p.at,conv:'人工确认',
-    cnt:p.act==='删'?'删除 1 条':'修改 1 条',detail:[`${p.act==='删'?'删除':'修改'} ${p.row}${p.field!=='整行'?' · '+p.field:''}`]});
-  renderDtPending();renderDtDetail();
-  toast(`已通过：${p.row} ${p.act==='删'?'已删除':'已更新'}，记入写入记录可撤销`);
-}
-function dtReject(id){
-  const p=dtTakePend(id);if(!p)return;
-  renderDtPending();renderDtDetail();
-  toast(`已驳回：${p.row} 保持原值，并告知${p.agent}不要重复提交`);
-}
-function dtApproveAll(){
-  const t=dtGet(),n=(t.pending||[]).length;
-  (t.pending||[]).slice().forEach(p=>dtApprove(p.id));
-  toast(`已通过全部 ${n} 笔`);
-}
-function dtRejectAll(){
-  const t=dtGet(),n=(t.pending||[]).length;
-  t.pending=[];renderDtPending();renderDtDetail();
-  toast(`已驳回全部 ${n} 笔，数据保持原值`);
-}
 /* ===== 分享与授权：分享到人（部门树）+ 授权智能体 ===== */
-let dtsScope='auth',dtsGrants=[],dtsPick=[],dtsPickDept=[],dtsOpenDept=['d-mkt'];
+let dtsScope='auth',dtsGrants=[],dtsPick=[],dtsPickDept=[],dtsOpenDept=['d-mkt-ka'];
 function openDtShare(id){
   if(id)curDt=id;
   const t=dtGet();
@@ -4026,7 +3925,7 @@ function openDtShare(id){
   document.getElementById('dts-granted').classList.add('hidden');
   document.querySelectorAll('input[name="dts-scope"]').forEach(r=>r.checked=r.value===dtsScope);
   document.getElementById('modal-dtshare').classList.remove('hidden');
-  dtsSetScope(dtsScope);renderDtShare();
+  dtsSetScope(dtsScope);
 }
 function closeDtShare(){document.getElementById('modal-dtshare').classList.add('hidden')}
 function dtsSetScope(s){
@@ -4041,30 +3940,7 @@ function dtsToggleDept(id){
   renderDtsUsers();
 }
 function renderDtsUsers(){
-  const kw=(document.getElementById('dts-kw').value||'').trim().toLowerCase();
-  const rows=FS_ORG.map(d=>{
-    const hit=d.name.toLowerCase().includes(kw);
-    const ms=d.members.filter(n=>!kw||hit||n.toLowerCase().includes(kw)||deptUser(n).acct.includes(kw));
-    if(kw&&!hit&&!ms.length)return '';
-    const open=dtsOpenDept.includes(d.id)||(kw&&ms.length);
-    const allHas=d.members.every(n=>dtsGrants.some(g=>g.name===n));
-    return `<div class="border-b border-gray-50 last:border-0">
-      <div class="flex items-center gap-2 px-3 py-2 text-[12.5px] hover:bg-violet-50/40">
-        <span class="text-gray-400 cursor-pointer w-3 text-[10px]" onclick="dtsToggleDept('${d.id}')">${open?'▾':'▸'}</span>
-        <input type="checkbox" class="accent-violet-600" ${allHas?'disabled checked':''} ${dtsPickDept.includes(d.id)?'checked':''} onchange="dtsToggleDeptPick('${d.id}',this.checked)">
-        <span class="font-semibold ${allHas?'text-gray-300':''}">🏢 ${d.name}</span>
-        <span class="text-[10.5px] text-gray-400">${d.members.length} 人</span>
-        ${allHas?'<span class="text-[10.5px] text-gray-400 ml-auto">全员已授权</span>':''}
-      </div>
-      ${open?ms.map(n=>{
-        const u=deptUser(n),has=dtsGrants.some(g=>g.name===n),byDept=dtsPickDept.includes(d.id);
-        return `<label class="flex items-center gap-2 pl-10 pr-3 py-1.5 text-[12px] cursor-pointer hover:bg-violet-50/60 ${has?'text-gray-300':''}">
-          <input type="checkbox" class="accent-violet-600" ${has||byDept?'disabled':''} ${has||byDept||dtsPick.includes(n)?'checked':''} onchange="dtsTogglePick('${n}',this.checked)">
-          <span>${n}</span><span class="text-[10.5px] text-gray-400">${u.acct}</span>
-          ${has?'<span class="text-[10.5px] text-gray-400 ml-auto">已授权</span>':byDept?'<span class="text-[10.5px] text-violet-400 ml-auto">随部门</span>':''}
-        </label>`}).join(''):''}
-    </div>`}).join('');
-  document.getElementById('dts-users').innerHTML=rows||'<div class="px-3 py-3 text-[11.5px] text-gray-300">没有匹配的部门或人员</div>';
+  document.getElementById('dts-users').innerHTML=orgPickerHTML('dts',{grants:dtsGrants,pick:dtsPick,pickDept:dtsPickDept,open:dtsOpenDept});
 }
 function dtsToggleDeptPick(id,on){
   dtsPickDept=on?[...new Set([...dtsPickDept,id])]:dtsPickDept.filter(x=>x!==id);
@@ -4074,7 +3950,7 @@ function dtsTogglePick(n,on){
   dtsPick=on?[...new Set([...dtsPick,n])]:dtsPick.filter(x=>x!==n);
 }
 function dtsPickedNames(){
-  const fromDept=dtsPickDept.flatMap(id=>(FS_ORG.find(d=>d.id===id)||{members:[]}).members);
+  const fromDept=dtsPickDept.flatMap(id=>fsSubMembers(id));
   return [...new Set([...fromDept,...dtsPick])];
 }
 function dtsToggleGranted(){
@@ -4094,46 +3970,6 @@ function renderDtsGranted(){
 function dtsRevoke(i){
   dtsGrants.splice(i,1);renderDtsGranted();renderDtsUsers();
 }
-function renderDtShare(){
-  const t=dtGet();
-  document.getElementById('dts-title').textContent=`分享与授权 · ${t.name}`;
-  const allAgents=['路书（销售AI）','客成助手','KA 主理智能体','解决方案生成','报价 Agent'];
-  document.getElementById('dts-body').innerHTML=`
-    <div>
-      <label class="text-[12px] font-semibold text-gray-600 block mb-1.5">授权智能体</label>
-      <div class="border border-gray-100 rounded-xl p-2.5 space-y-1.5">
-        ${allAgents.map(a=>`<label class="flex items-center gap-2 text-[12px] text-gray-600">
-          <input type="checkbox" class="accent-violet-600" ${t.agents.includes(a)?'checked':''} onchange="dtToggleAgent('${a}',this.checked)">${a}</label>`).join('')}
-      </div>
-    </div>
-    <div>
-      <label class="text-[12px] font-semibold text-gray-600 block mb-1.5">读写档位</label>
-      ${t.kind==='custom'?`
-        <select class="w-full border border-gray-200 rounded-lg px-3 py-2 text-[13px] focus:outline-violet-300" onchange="dtSetWperm(this.value)">
-          <option value="read" ${t.wperm==='read'?'selected':''}>只读 — 智能体只能查，不能写</option>
-          <option value="add" ${t.wperm==='add'?'selected':''}>可增 — 可自主新增，不能改删</option>
-          <option value="full" ${t.wperm==='full'?'selected':''}>可增改删 — 新增自主，改/删进待确认队列</option>
-        </select>
-        <p class="text-[11px] text-violet-600 mt-1.5 leading-relaxed">无论哪个档位，修改与删除都不会直接落表，一律先进待确认队列。这一条不可配置。</p>`
-      :`<div class="rounded-xl bg-gray-50 p-3 text-[12px] text-gray-500">只读（${DT_KINDS[t.kind].label}不支持智能体写入）</div>`}
-    </div>
-    <div>
-      <label class="text-[12px] font-semibold text-gray-600 block mb-1.5">行级权限</label>
-      <div class="rounded-xl bg-gray-50 p-3">
-        <div class="text-[12px] text-gray-600">按字段跟随登录人过滤</div>
-        <div class="text-[11px] text-gray-400 mt-1">当前按「${(t.fields||[]).find(f=>/负责人|受理人|归属|经理/.test(f.cn))?.cn||'未设置'}」过滤。取数接口会二次校验，前端过滤不作为唯一防线。</div>
-      </div>
-    </div>`;
-}
-function dtToggleAgent(a,on){
-  const t=dtGet();
-  if(on){if(!t.agents.includes(a))t.agents.push(a)}
-  else t.agents=t.agents.filter(x=>x!==a);
-}
-function dtSetWperm(v){
-  const t=dtGet();t.wperm=v;
-  toast(v==='full'?'已设为可增改删：新增自主生效，改/删仍需人工确认':v==='add'?'已设为可增：智能体只能新增':'已设为只读');
-}
 function saveDtShare(){
   const t=dtGet(),picked=dtsPickedNames();
   if(dtsScope==='auth'&&!dtsGrants.length&&!picked.length){toast('请至少选择一个部门或人员');return}
@@ -4141,24 +3977,24 @@ function saveDtShare(){
   if(dtsScope==='auth')picked.forEach(n=>{if(!dtsGrants.some(g=>g.name===n))dtsGrants.push({name:n,perm})});
   t.scope=dtsScope;t.grants=dtsScope==='public'?[]:dtsGrants;
   closeDtShare();renderDtDetail();
-  toast(`「${t.name}」授权已保存：${dtsScope==='public'?'全员可用':`${t.grants.length} 人`} · ${t.agents.length} 个智能体 · ${DT_WPERM[t.wperm]}`);
+  toast(`「${t.name}」授权已保存：${dtsScope==='public'?'全员可用':`${t.grants.length} 人可用`}`);
 }
-/* ===== 新建数据表 ===== */
-let dtNewKind='upload';
-function openDtNew(){document.getElementById('modal-dtnew').classList.remove('hidden')}
-function closeDtNew(){document.getElementById('modal-dtnew').classList.add('hidden')}
-function pickDtKind(k){dtNewKind=k;dtcFileList=[];closeDtNew();openDtCfg()}
+/* ===== 新建数据表：单页配置 ===== */
+function openDtNew(){openDtCfg()}
 function openDtCfg(){
+  dtcFileList=[];dtGenMode='auto';
   document.getElementById('dt-new-body').innerHTML=`
     <div class="card p-5">
       <div class="text-[12px] font-bold border-l-[3px] border-violet-500 pl-2 mb-4">基本信息</div>
-      <div class="space-y-4">${dtcName(
-        {upload:'如 月度目标值表',custom:'如 竞对情报表'}[dtNewKind])}</div>
+      <div class="space-y-4">${dtcName()}</div>
     </div>
     <div class="card p-5 mt-3.5">
-      <div class="text-[12px] font-bold border-l-[3px] border-violet-500 pl-2 mb-4">${
-        {upload:'数据文件',custom:'字段与写入'}[dtNewKind]}</div>
-      <div class="space-y-4">${{upload:dtcUpload,custom:dtcCustom}[dtNewKind]()}</div>
+      <div class="text-[12px] font-bold border-l-[3px] border-violet-500 pl-2 mb-4">智能体应用权限</div>
+      <div class="space-y-4">${dtcWperm()}</div>
+    </div>
+    <div class="card p-5 mt-3.5">
+      <div class="text-[12px] font-bold border-l-[3px] border-violet-500 pl-2 mb-4">初始化数据<span class="text-[11px] text-gray-400 font-normal ml-2">选填</span></div>
+      <div class="space-y-4">${dtcInit()}</div>
     </div>
     <div class="flex justify-end gap-2 mt-4">
       <button class="btn-o" onclick="closeDtNewPage()">取 消</button>
@@ -4177,11 +4013,11 @@ function closeDtNewPage(){
   document.getElementById('skill-listview').classList.remove('hidden');
   renderSkillLib();
 }
-function dtcName(ph){
+function dtcName(){
   return `<div class="flex gap-3">
     <label class="text-[12px] font-semibold text-gray-600 w-24 text-right pt-2 shrink-0"><span class="text-red-400">*</span> 数据表名称</label>
     <div class="flex-1">
-      <input id="dtc-name" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-[13px] focus:outline-violet-300" placeholder="${ph}">
+      <input id="dtc-name" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-[13px] focus:outline-violet-300" placeholder="如 竞对情报表">
     </div></div>
   <div class="flex gap-3">
     <label class="text-[12px] font-semibold text-gray-600 w-24 text-right pt-2 shrink-0"><span class="text-red-400">*</span> 数据表描述</label>
@@ -4189,8 +4025,20 @@ function dtcName(ph){
       <textarea id="dtc-desc" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-[12.5px] h-24 focus:outline-violet-300" placeholder="这张表是干什么的、包含哪些内容、口径归谁定"></textarea>
     </div></div>`;
 }
-function dtcUpload(){
+function dtcWperm(){
+  return `<select id="dtc-wperm" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-[13px] focus:outline-violet-300">
+    ${DT_WPERM_OPTS.map(o=>`<option value="${o[0]}" ${o[0]==='rw'?'selected':''}>${o[1]}</option>`).join('')}
+  </select>`;
+}
+function dtcInit(){
   const R=s=>`<span class="text-red-500 font-semibold">${s}</span>`;
+  const opt=(k,t,d)=>`<div class="gen-opt card p-3 cursor-pointer border transition ${k==='auto'?'border-violet-400 bg-violet-50/50':'border-gray-200'}" data-gen="${k}" onclick="pickDtGen('${k}')">
+    <div class="flex items-center gap-1.5">
+      <span class="gen-dot text-[12px] ${k==='auto'?'text-violet-600':'text-gray-300'}">${k==='auto'?'●':'○'}</span>
+      <span class="text-[12.5px] font-bold">${t}</span>
+    </div>
+    <p class="text-[11px] text-gray-500 leading-relaxed mt-1.5">${d}</p>
+  </div>`;
   return `<div class="border-l-[3px] border-red-400 bg-red-50/40 rounded-r-lg px-3 py-2.5 flex gap-2">
     <span class="text-red-500 text-[12px] leading-relaxed">!</span>
     <p class="text-[11px] text-gray-600 leading-relaxed">提醒：单次分析支持上传${R('大小不超过50MB')}的一个文件或多个文件，总计 sheet 数不超过 10 个。
@@ -4198,15 +4046,18 @@ function dtcUpload(){
   </div>
   <div>
     <button class="text-[12px] text-violet-600 font-semibold hover:underline" onclick="toast('下载模板（示意）：按模板格式整理后再上传，首行为字段名')">⤓ 下载模板</button>
-    <span class="text-[11px] text-gray-400 ml-3">需要按照格式导入数据，现支持 EXCEL、CSV</span>
+    <span class="text-[11px] text-gray-400 ml-3">现支持 EXCEL、CSV</span>
   </div>
   <div>
     <div class="border border-dashed border-gray-200 rounded-lg py-3 text-center cursor-pointer hover:border-violet-300 text-[12.5px] text-violet-600" onclick="dtcPickFile()">＋ 上传文件</div>
-    <p class="text-[10.5px] text-gray-400 mt-1">最多可上传10个文件，每个文件不超过50MB</p>
     <div id="dtc-files" class="mt-2 space-y-1"></div>
   </div>
-  <div class="rounded-lg bg-violet-50/50 p-3 text-[11px] text-violet-700 leading-relaxed">
-    确定后会解析表头生成字段：字段名、类型、数据示例由文件推断，中文名与业务含义由模型生成草稿，到详情页确认后才对智能体生效。</div>`;
+  <div id="dtc-gen"><label class="text-[12px] font-semibold text-gray-600 block mb-1.5">字段生成方式</label>
+    <div class="grid grid-cols-2 resp-grid-2 gap-3">
+      ${opt('auto','自动生成字段','按上面填的表名与描述推断字段名、中文名与业务含义示例，生成后进入详情页逐条改。')}
+      ${opt('manual','手动添加','只建空表，进入详情页后自己逐个加字段。')}
+    </div>
+  </div>`;
 }
 let dtcFileList=[];
 function dtcPickFile(){
@@ -4217,6 +4068,8 @@ function dtcPickFile(){
 function dtcDelFile(i){dtcFileList.splice(i,1);renderDtcFiles()}
 function renderDtcFiles(){
   const b=document.getElementById('dtc-files');if(!b)return;
+  const g=document.getElementById('dtc-gen');
+  if(g)g.classList.toggle('hidden',dtcFileList.length>0);
   b.innerHTML=dtcFileList.map((f,i)=>`<div class="flex items-center gap-2 text-[11.5px] bg-gray-50 rounded-lg px-2.5 py-1.5">
     <span>📄</span><span class="text-gray-600">${f.name}</span><span class="text-gray-400 text-[10.5px]">${f.size}</span>
     <button class="ml-auto text-gray-400 hover:text-red-500" onclick="dtcDelFile(${i})">✕</button></div>`).join('');
@@ -4233,31 +4086,7 @@ function pickDtGen(m){
     el.querySelector('.gen-dot').className='gen-dot text-[12px] '+(on?'text-violet-600':'text-gray-300');
   });
 }
-function dtcCustom(){
-  dtGenMode='auto';
-  const opt=(k,t,d)=>`<div class="gen-opt card p-3 cursor-pointer border transition ${k==='auto'?'border-violet-400 bg-violet-50/50':'border-gray-200'}" data-gen="${k}" onclick="pickDtGen('${k}')">
-    <div class="flex items-center gap-1.5">
-      <span class="gen-dot text-[12px] ${k==='auto'?'text-violet-600':'text-gray-300'}">${k==='auto'?'●':'○'}</span>
-      <span class="text-[12.5px] font-bold">${t}</span>
-    </div>
-    <p class="text-[11px] text-gray-500 leading-relaxed mt-1.5">${d}</p>
-  </div>`;
-  return `
-  <div id="dtc-gen"><label class="text-[12px] font-semibold text-gray-600 block mb-1.5"><span class="text-red-400">*</span> 字段生成方式</label>
-    <div class="grid grid-cols-2 resp-grid-2 gap-3">
-      ${opt('auto','自动生成字段','按上面填的表名与描述推断字段名、中文名与业务含义示例，生成后进入编辑页逐条改。')}
-      ${opt('manual','手动添加','只建空表，进入编辑页后自己逐个加字段。')}
-    </div>
-  </div>
-  <div><label class="text-[12px] font-semibold text-gray-600 block mb-1.5">智能体写入档位</label>
-    <select id="dtc-wperm" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-[13px] focus:outline-violet-300">
-      <option value="add">可增 — 只能新增（建议先用这档）</option>
-      <option value="full">可增改删 — 新增自主，改/删进待确认队列</option>
-      <option value="read">只读 — 先建表，暂不开放写入</option>
-    </select>
-  </div>`;
-}
-/* 自动生成字段（示意）：按表名与描述命中关键词，给一组字段草稿，全部标为待确认，进编辑页改 */
+/* 自动生成字段（示意）：按表名与描述命中关键词，给一组字段草稿，进详情页改 */
 const DT_GEN_RULES=[
   {kw:['竞对','竞品','对手','情报'],fs:[['competitor','文本','竞对名称','这条情报涉及的竞争对手'],['intel_type','枚举','情报类型','情报归类，枚举见说明','报价变动/新品发布/人员变动/渠道动作'],['content','文本','情报内容','情报正文，建议写清来源与时间'],['impact','枚举','影响程度','对我方的影响判断','高/中/低'],['happen_at','日期','发生日期','情报对应的事件发生时间']]},
   {kw:['客户','商机','线索','crm'],fs:[['cust_name','文本','客户名称','客户主体名称，与 CRM 口径一致'],['industry','文本','所属行业','客户所在行业'],['stage','枚举','所处阶段','商机推进阶段','初步接触/方案沟通/商务谈判/已签约/已流失'],['amount','数值','预计金额','预计成交金额，单位元'],['owner','文本','负责人','跟进该客户的负责人']]},
@@ -4277,34 +4106,30 @@ function dtGenFields(name,desc){
 function saveDtNew(){
   const name=(document.getElementById('dtc-name')||{}).value?.trim();
   if(!name){toast('请填写数据表名称');return}
-  if(!(document.getElementById('dtc-desc')||{}).value?.trim()){toast('请填写数据表描述：模型靠这段判断该不该调用这张表');return}
-  if(dtNewKind==='upload'&&!dtcFileList.length){toast('请先上传数据文件');return}
-  const icon={upload:'📄',custom:'✏️'}[dtNewKind];
-  const t={id:'dt-'+Date.now().toString().slice(-6),icon,kind:dtNewKind,name,
-    src:dtNewKind==='custom'?'平台内自建':'新上传文件',
-    srcType:dtNewKind==='custom'?'自定义':'上传文件',
-    sync:'ok',syncNote:dtNewKind==='custom'?'智能体自动更新':'手工维护',
-    syncAt:bzStamp(),rowCnt:'0',limit:0,
-    pk:dtNewKind==='custom'?'记录编号':'',
-    desc:(document.getElementById('dtc-desc')||{}).value.trim(),
-    agents:[],wperm:dtNewKind==='custom'?((document.getElementById('dtc-wperm')||{}).value||'add'):'read',
+  const desc=(document.getElementById('dtc-desc')||{}).value?.trim();
+  if(!desc){toast('请填写数据表描述：模型靠这段判断该不该调用这张表');return}
+  const wperm=(document.getElementById('dtc-wperm')||{}).value||'rw';
+  const hasFile=dtcFileList.length>0,canWrite=wperm!=='read';
+  const t={id:'dt-'+Date.now().toString().slice(-6),icon:hasFile?'📄':'✏️',name,desc,
+    src:hasFile?'新上传文件':'平台内自建',
+    srcType:hasFile?'上传文件':'自定义',
+    sync:'ok',syncNote:canWrite?'智能体自动更新':'手工维护',
+    syncAt:bzStamp(),rowCnt:hasFile?'96':'0',limit:0,
+    pk:canWrite?'记录编号':'',
+    agents:[],wperm,
     by:ME,at:bzStamp(),refs:0,auth:'待授权',use:'未使用',
     scope:'auth',grants:[],
-    fields:[],queries:[],rows:[],pending:[],writes:[]};
-  if(dtNewKind==='custom'){
-    t.fields.push(F('record_no','文本',t.pk,'唯一键，智能体写入时自动生成，改/删按此键定位行',{smp:'自动生成'}));
-    if(dtGenMode==='auto')t.fields=t.fields.concat(dtGenFields(name,t.desc));
-  }
-  if(dtNewKind!=='custom'){
-    t.fields=[F('col_1','文本','字段一','模型按表头生成，请核对',{smp:'示例值'}),
-              F('col_2','数值','字段二','模型按表头生成，请核对',{smp:'1280'}),
-              F('col_3','日期','字段三','模型按表头生成，请核对',{smp:'2026-09-20'})];
-    t.rowCnt=dtNewKind==='upload'?'96':'—';
-  }
+    fields:[],queries:[],rows:[],writes:[]};
+  if(canWrite)t.fields.push(F('record_no','文本','记录编号','整行的唯一标识，智能体写入时按此定位行',{smp:'自动生成'}));
+  if(hasFile)t.fields=t.fields.concat([
+    F('col_1','文本','字段一','模型按表头生成，请核对',{smp:'示例值'}),
+    F('col_2','数值','字段二','模型按表头生成，请核对',{smp:'1280'}),
+    F('col_3','日期','字段三','模型按表头生成，请核对',{smp:'2026-09-20'})]);
+  else if(dtGenMode==='auto')t.fields=t.fields.concat(dtGenFields(name,desc));
   DATA_TABLES.push(t);
   document.getElementById('dt-newview').classList.add('hidden');
   dtcFileList=[];
-  toast(dtNewKind!=='custom'
+  toast(hasFile
     ?`「${name}」已创建，已解析出 ${t.fields.length} 个字段，可在「字段及描述」里核对`
     :dtGenMode==='auto'
       ?`「${name}」已创建，按表名与描述生成 ${t.fields.length} 个字段，可直接改`
