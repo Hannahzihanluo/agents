@@ -1702,32 +1702,24 @@
   <div class="bg-white rounded-2xl w-[900px] p-6 fade-in max-h-[90vh] overflow-y-auto">
     <div class="flex items-center justify-between mb-1"><h3 class="font-bold" id="bdc-title">看板配置</h3><button class="text-gray-400 hover:text-gray-600" onclick="closeBoardCfg()">✕</button></div>
     <div class="mb-3"></div>
-    <div class="grid grid-cols-4 resp-grid-4 gap-3 mb-3">
+    <div class="grid grid-cols-3 resp-grid-3 gap-3 mb-4">
       <div>
         <label class="text-[12px] font-semibold text-gray-600 block mb-1.5">看板名称 <span class="text-red-400">*</span></label>
         <input id="bdc-name" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-[12.5px] focus:outline-violet-300">
       </div>
       <div>
-        <label class="text-[12px] font-semibold text-gray-600 block mb-1.5">所属角色 <span class="text-red-400">*</span></label>
-        <input id="bdc-role" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-[12.5px] focus:outline-violet-300" placeholder="如 销售 / 客户成功">
-      </div>
-      <div>
-        <label class="text-[12px] font-semibold text-gray-600 block mb-1.5">默认执行智能体 <span class="text-red-400">*</span></label>
-        <select id="bdc-agent" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-[12.5px] bg-white focus:outline-violet-300" onchange="bdcAgentChange(this.value)"></select>
-      </div>
-      <div>
         <label class="text-[12px] font-semibold text-gray-600 block mb-1.5">联动智能体</label>
         <select id="bdc-link" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-[12.5px] bg-white focus:outline-violet-300" onchange="cfgLinkPick(this.value)"></select>
       </div>
-    </div>
-    <div class="grid grid-cols-4 resp-grid-4 gap-3 mb-4">
       <div>
         <label class="text-[12px] font-semibold text-gray-600 block mb-1.5">启用</label>
         <div class="flex items-center gap-2 pt-2"><span id="bdc-enabled" class="sw" onclick="this.classList.toggle('off')"></span><span id="bdc-trigtext" class="text-[11px] text-gray-400"></span></div>
       </div>
     </div>
+    <div id="bdc-utrig" class="border border-gray-100 rounded-xl p-3 mb-4"></div>
     <div class="flex items-center mb-2">
       <span class="text-[12px] font-semibold text-gray-600">数据维度</span>
+      <span id="bdc-dimcnt" class="text-[10.5px] text-gray-400 ml-1.5"></span>
       <button class="btn-o !py-1 !px-3 text-[11px] ml-auto" onclick="bdcAddTile()">+ 添加维度</button>
     </div>
     <div class="border border-gray-100 rounded-xl overflow-hidden">
@@ -1799,14 +1791,10 @@
   <div class="bg-white rounded-2xl w-[880px] p-6 fade-in max-h-[90vh] overflow-y-auto">
     <div class="flex items-center justify-between mb-1"><h3 class="font-bold" id="bzc-title">经营看板配置</h3><button class="text-gray-400 hover:text-gray-600" onclick="closeBzBoard()">✕</button></div>
     <div class="mb-3"></div>
-    <div class="grid grid-cols-4 resp-grid-4 gap-3 mb-4">
+    <div class="grid grid-cols-3 resp-grid-3 gap-3 mb-4">
       <div>
         <label class="text-[12px] font-semibold text-gray-600 block mb-1.5">看板名称 <span class="text-red-400">*</span></label>
         <input id="bzc-name" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-[12.5px] focus:outline-violet-300">
-      </div>
-      <div>
-        <label class="text-[12px] font-semibold text-gray-600 block mb-1.5">所属角色</label>
-        <input id="bzc-role" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-[12.5px] focus:outline-violet-300" placeholder="如 管理层 / 销售管理">
       </div>
       <div>
         <label class="text-[12px] font-semibold text-gray-600 block mb-1.5">执行智能体 <span class="text-red-400">*</span></label>
@@ -2281,7 +2269,7 @@ const VERSIONS = [
   {v:'v22', date:'2026-09-03', title:'任务执行子任务可操作 + 报价Agent skill 表单闭环', desc:'三处待办均可展开并处理子任务、一键转智能体会话；新增报价Agent：skill 生成表单 → 提交回传 → 智能体出报价单。', file:'versions/[原型]AI基础设施平台-整合版-v22-2026-09-03.html'},
   {v:'v23', date:'2026-09-09', title:'智能体伙伴纵向栏 + 每个智能体独立会话 + 收藏体系收敛', desc:'工作台布局重构：智能体伙伴改最左纵向栏、每个智能体独立会话、收藏统一收敛为「我的看板」，下线流程看板。', file:'versions/[原型]AI基础设施平台-整合版-v23-2026-09-09.html'},
   {v:'v24', date:'2026-09-10', title:'任务执行统一「处理」动作 + 子任务权限与主任务自动完成', desc:'主子任务统一「处理」动作（可选人工或智能体执行），处理权限按归属收敛，子任务全部完成时主任务自动办结。', file:'versions/[原型]AI基础设施平台-整合版-v24-2026-09-10.html'},
-  {v:'工作版', date:'2026-10-16', title:'在 1.1 正式版基础上继续迭代', desc:'当前在改的版本，以 1.1 正式版为起点。本次：数据表不再分形态，改按智能体应用权限四档管能力、权限只在建表时选；建表收敛为单页配置、文件改选填，待确认队列下线改直接生效；分享弹窗只管分享到人，授权对象改二级部门 + 人。', file:'SELF'},
+  {v:'工作版', date:'2026-10-16', title:'在 1.1 正式版基础上继续迭代', desc:'以 1.1 正式版为起点。本次：数据表按智能体应用权限四档管能力、档位建表时定，建表收敛为单页；分享只管分享到人、授权对象改二级部门 + 人，入口只留列表页；看板维度支持数据表 / 智能体 / MCP 三种执行方式，更新时间统一配在看板上（一次性 / 重复 + 截止时间），工作看板只配联动智能体、维度上限 12 个，两类看板去掉所属角色。', file:'SELF'},
   {v:'智能体平台任务中心1.1', date:'2026-09-18', release:true, title:'评审调整：处理动作与任务配置收敛，列表改日期筛选，办结为终态', desc:'任务中心 1.1 正式版（已冻结）。处理动作与任务配置收敛，列表改日期筛选（默认近 3 个月），办结为终态，子任务只在本层添加、可派智能体执行；平台我的任务增手动新建入口，扩展字段收为统一字段、格式同备注。', file:'versions/[原型]AI基础设施平台-整合版-智能体平台任务中心1.1-2026-09-18.html'},
   {v:'智能体平台任务中心1.0', date:'2026-09-15', release:true, title:'任务中心正式版：任务执行闭环 + 任务配置以权限取代审核', desc:'任务中心 1.0 正式版（已冻结）。任务执行：主子任务统一「处理」动作、转交跟进、按任务类型筛选、飞书待办同步状态（已同步 / 未开启同步 / 同步失败可重试）、任务删除（创建人 / 管理员 / 任务类型管理者三者任一可删，级联子任务并撤回待办）。任务配置：新增用户管理与功能权限树，任务类型与业务对接去掉备案审核改为保存即生效 + 测试模式 + 连通性校验，派单由业务系统定义，订阅智能体可选填。', file:'versions/[原型]AI基础设施平台-整合版-智能体平台任务中心1.0-2026-09-15.html'},
   {v:'移动版', date:'2026-09-13', title:'AI 工作台移动端适配', desc:'四个底部页签承载工作台：会话（智能体抽屉 + 折叠看板）、任务（处理人视角 + 抽屉式处理/转交/新建）、空间、我的。', file:'[原型]AI工作台-移动端.html'},
@@ -2373,8 +2361,8 @@ const PAGE_SPECS={
   logic:'「+ 添加数据表」在列表右上角，点击直接进入独占建表配置页，不再先选形态；表名点击进入数据表详情页。智能体应用权限为只读 / 可读写 / 可读写改 / 可读写改删四档递进，后一档包含前一档的动作。'},
 'skills-board':{name:'智能体平台 · 技能库 · 看板配置',
   desc:'工作台看板的配置侧，看板分工作看板与经营看板两类，含内容配置与分享范围配置。列表上方有看板类型、可用范围与名称搜索三项筛选。',
-  fields:'筛选项：看板类型（工作看板 / 经营看板）、可用范围（公开可用 / 授权可用）、看板名称搜索。卡片：看板名称、看板类型、可用范围、启停开关、执行智能体、数据维度、创建人与时间、已授权人数、操作。工作看板配置的每个数据维度：图标、维度名称、单位、查询输入、执行方式、执行对象、更新时间。',
-  logic:'新建入口在列表右上角；筛选条为看板专用，与技能库共用筛选条不互通，条件在会话内保持，切开其他页签再回来不丢；筛选无结果时提示换条件或重置；可见范围为授权可用时需维护授权名单与权限档位；候选用户取平台用户列表，用户停用或删除时授权记录同步失效并重新计数；工作台侧按权限过滤可见看板。工作看板的执行方式与更新时间按维度各自配置，不做看板级统一：执行方式选数据表直接查询时需指定数据表，未选不允许保存；选智能体执行时可指定智能体，留空继承看板默认执行智能体；更新时间支持每日 / 每工作日 / 每月加时间点，各维度互不影响，看板层只展示汇总口径。工作台点维度统一进入会话，数据表直接查询的维度由联动智能体读该表作答并在气泡标注取数来源。经营看板无数据维度，更新时间仍是看板级。'},
+  fields:'筛选项：看板类型（工作看板 / 经营看板）、可用范围（公开可用 / 授权可用）、看板名称搜索。卡片：看板名称、看板类型、可用范围、启停开关、执行智能体、数据维度、创建人与时间、已授权人数、操作。工作看板配置的每个数据维度：图标、维度名称、单位、查询输入、执行方式、执行对象（数据表 / 智能体 / MCP + MCP 工具）、更新时间（仅智能体执行）。',
+  logic:'新建入口在列表右上角；筛选条为看板专用，与技能库共用筛选条不互通，条件在会话内保持，切开其他页签再回来不丢；筛选无结果时提示换条件或重置；可见范围为授权可用时需维护授权名单与权限档位；候选用户取平台用户列表，用户停用或删除时授权记录同步失效并重新计数；工作台侧按权限过滤可见看板。工作看板的执行方式按维度各自配置，分数据表执行 / 智能体执行 / MCP 执行三种：选数据表执行时需指定数据表；选智能体执行时需指定执行智能体；选 MCP 执行时需先选 MCP 服务再选该服务下的 MCP 工具，工具清单来自服务端声明的能力清单，未选 MCP 时工具下拉置灰，换 MCP 时已选工具清空；必填未选不允许保存。更新时间统一配在看板上（触发时间 + 一次性 / 重复，重复分按天 / 按周 / 按月，按天可勾仅工作日，重复需填截止时间），只管住智能体执行的维度，数据表执行与 MCP 执行在点维度时实时取数；有智能体执行的维度时触发时间与截止时间必填。工作看板只配联动智能体，默认取维度所选的执行智能体，手动改过后不再自动跟随；数据维度上限 12 个。工作台点维度统一进入会话，数据表执行与 MCP 执行的维度由联动智能体取数作答并在气泡标注取数来源。经营看板无数据维度，更新时间仍是看板级。两类看板都不设所属角色。'},
 'dt-new':{name:'智能体平台 · 新建数据表',
   desc:'独占页面的单页建表配置：基本信息 → 智能体应用权限 → 初始化数据（选填）→ 进入详情页校对字段。',
   fields:'基本信息：数据表名称（必填）、数据表描述（必填）。智能体应用权限（必填）：只读 / 可读写 / 可读写改 / 可读写改删，默认可读写。初始化数据（选填）：数据文件；未传文件时出字段生成方式（自动生成 / 手动添加）。字段只含字段名、类型、中文名、数据示例、业务含义、枚举说明。',
@@ -2382,7 +2370,7 @@ const PAGE_SPECS={
 'dt-detail':{name:'智能体平台 · 数据表详情',
   desc:'单张数据表的字段、查询口径与数据内容，字段描述是智能体理解该表的依据。',
   fields:'字段名、类型、中文名、数据示例、业务含义、枚举说明、操作。页签为字段及描述、查询口径、数据，开了写权限的表另有写入记录。',
-  logic:'页头只留返回按钮；字段只描述业务语义，不再配置对智能体可见 / 可筛选 / 可聚合与确认状态，解析或声明后即可被查询；所有表的字段都可改名、可新增与删除，数据页单元格可直接编辑，唯一键行不可删除，改其中文名时唯一键标记同步更新，至少保留一个字段；有源文件的表可重新解析字段与上传新版本。写入记录与唯一键只在权限非只读时出现，智能体按档位直接写入、不再进待确认队列，留痕以一次执行为批次并可整批撤销。智能体应用权限在建表时选定，详情页与列表只做只读展示，调整入口后续挪到智能体侧，本期不做。分享与授权弹窗只管分享到人：可用范围选授权可用时从飞书组织架构勾选部门或人员并分配可使用 / 可管理，组织树为一级部门分组 + 二级部门 + 人三层，勾选粒度是二级部门与人、勾二级部门即授权该部门全员，无归属部门的人平铺在树的最后，选公开可用时人员区置灰且名单清空，授权可用且名单为空不允许保存。关联智能体为被引用情况的只读展示，不在此处增删。'},
+  logic:'页头只留返回按钮；字段只描述业务语义，不再配置对智能体可见 / 可筛选 / 可聚合与确认状态，解析或声明后即可被查询；所有表的字段都可改名、可新增与删除，数据页单元格可直接编辑，唯一键行不可删除，改其中文名时唯一键标记同步更新，至少保留一个字段。写入记录与唯一键只在权限非只读时出现，智能体按档位直接写入、不再进待确认队列，留痕以一次执行为批次并可整批撤销。智能体应用权限在建表时选定，详情页与列表只做只读展示，调整入口后续挪到智能体侧，本期不做。分享入口只在数据表列表页，详情页不提供。分享弹窗只管分享到人：可用范围选授权可用时从飞书组织架构勾选部门或人员并分配可使用 / 可管理，组织树为一级部门分组 + 二级部门 + 人三层，勾选粒度是二级部门与人、勾二级部门即授权该部门全员，无归属部门的人平铺在树的最后，选公开可用时人员区置灰且名单清空，授权可用且名单为空不允许保存。关联智能体为被引用情况的只读展示，不在此处增删。查询口径表只有口径名称、参数、过滤与聚合规则三列。'},
 'flow-skill':{name:'智能体平台 · 流程型技能详情',
   desc:'流程型技能的骨架视图：节点编排、节点智能体与在途任务概况。',
   fields:'流程名称、节点数、流程负责人、执行说明、在途任务数、各节点配置。',
@@ -2735,12 +2723,12 @@ const levelCfg={
 
 /* ===== 技能库：五 tab（Skills / MCP / 工具 / 数据表 / 看板） ===== */
 const MCP_ITEMS=[
-  {icon:'🧩',name:'CRM MCP Server',desc:'对接销售 CRM 的标准 MCP 服务，暴露商机查询、客户档案读取、阶段推进、跟进记录写入四类能力，权限跟随登录人的 CRM 数据范围。',agents:['路书（销售AI）','KA 主理智能体'],by:'张伟',at:'2026-08-14 10:22',refs:37,auth:'授权可用',use:'使用中'},
-  {icon:'🎫',name:'天润客服 MCP',desc:'天润 case 单系统 MCP 封装，支持 case 列表查询、单据详情、状态回写与工单转任务，客成侧所有取数统一走这里。',agents:['客成助手'],by:'李娜',at:'2026-08-20 15:04',refs:24,auth:'授权可用',use:'使用中'},
-  {icon:'📚',name:'知识库检索 MCP',desc:'企业知识空间语义检索服务，按客户/项目空间做权限隔离，返回片段带出处链接，供智能体做引用回答。',agents:['KA 主理智能体','解决方案生成','客成助手'],by:'平台团队',at:'2026-07-28 09:41',refs:96,auth:'授权可用',use:'使用中'},
-  {icon:'📅',name:'飞书日程 MCP',desc:'读写飞书日历：查空闲时段、创建会议、拉参会人。用于拜访排期与项目例会自动预约。',agents:['路书（销售AI）'],by:'王强',at:'2026-09-01 11:36',refs:8,auth:'授权可用',use:'未使用'},
-  {icon:'🏢',name:'企业微信 MCP',desc:'企微外部群与客户联系人接口，支持群消息发送、客户标签读取。当前仅测试环境开通，等待安全评审。',agents:[],by:'陈静',at:'2026-09-08 17:12',refs:0,auth:'待授权',use:'未使用'},
-  {icon:'📊',name:'BI 指标 MCP',desc:'数据中台指标服务，按指标编码取值并支持维度下钻，工作看板的口径统一从这里拉取。',agents:['KA 主理智能体','客成助手','路书（销售AI）'],by:'平台团队',at:'2026-08-30 14:08',refs:52,auth:'授权可用',use:'使用中'},
+  {icon:'🧩',name:'CRM MCP Server',desc:'对接销售 CRM 的标准 MCP 服务，暴露商机查询、客户档案读取、阶段推进、跟进记录写入四类能力，权限跟随登录人的 CRM 数据范围。',tools:['商机查询','客户档案读取','阶段推进','跟进记录写入'],agents:['路书（销售AI）','KA 主理智能体'],by:'张伟',at:'2026-08-14 10:22',refs:37,auth:'授权可用',use:'使用中'},
+  {icon:'🎫',name:'天润客服 MCP',desc:'天润 case 单系统 MCP 封装，支持 case 列表查询、单据详情、状态回写与工单转任务，客成侧所有取数统一走这里。',tools:['case 列表查询','case 单详情','状态回写','工单转任务'],agents:['客成助手'],by:'李娜',at:'2026-08-20 15:04',refs:24,auth:'授权可用',use:'使用中'},
+  {icon:'📚',name:'知识库检索 MCP',desc:'企业知识空间语义检索服务，按客户/项目空间做权限隔离，返回片段带出处链接，供智能体做引用回答。',tools:['语义检索','片段出处查询'],agents:['KA 主理智能体','解决方案生成','客成助手'],by:'平台团队',at:'2026-07-28 09:41',refs:96,auth:'授权可用',use:'使用中'},
+  {icon:'📅',name:'飞书日程 MCP',desc:'读写飞书日历：查空闲时段、创建会议、拉参会人。用于拜访排期与项目例会自动预约。',tools:['查空闲时段','创建会议','拉参会人'],agents:['路书（销售AI）'],by:'王强',at:'2026-09-01 11:36',refs:8,auth:'授权可用',use:'未使用'},
+  {icon:'🏢',name:'企业微信 MCP',desc:'企微外部群与客户联系人接口，支持群消息发送、客户标签读取。当前仅测试环境开通，等待安全评审。',tools:['群消息发送','客户标签读取'],agents:[],by:'陈静',at:'2026-09-08 17:12',refs:0,auth:'待授权',use:'未使用'},
+  {icon:'📊',name:'BI 指标 MCP',desc:'数据中台指标服务，按指标编码取值并支持维度下钻，工作看板的口径统一从这里拉取。',tools:['指标取值','维度下钻','指标元信息查询'],agents:['KA 主理智能体','客成助手','路书（销售AI）'],by:'平台团队',at:'2026-08-30 14:08',refs:52,auth:'授权可用',use:'使用中'},
 ];
 /* ===== 数据表模型 =====
    kind: upload=上传数据表（平台内，人工维护） / custom=自定义数据表（平台内，智能体可写）
@@ -2829,6 +2817,168 @@ const DATA_TABLES=[
      {batch:'B-2026092909',agent:'客成助手',at:'2026-09-29 09:10',conv:'定时任务',cnt:'新增 3 条',detail:['新增 RK-0037 远航物流 交付风险','新增 RK-0036 明远零售 续费临近','新增 RK-0035 华胜制造 售后积压']},
      {batch:'B-2026092809',agent:'客成助手',at:'2026-09-28 09:10',conv:'定时任务',cnt:'新增 2 条',detail:['新增 RK-0034、RK-0033']},
    ]},
+  {id:'dt-opp',icon:'💼',name:'商机台账',src:'CRM 同步',srcType:'系统同步',sync:'ok',syncNote:'每日 06:00 同步 CRM',syncAt:'2026-10-16 06:00',rowCnt:'412',limit:0,
+   desc:'从 CRM 同步的在跟商机：客户、阶段、预计金额、下一节点与归属销售。销售看板的商机类维度取数来源。',
+   agents:['路书（销售AI）','KA 主理智能体'],wperm:'read',by:'销售运营',at:'2026-10-16 06:00',refs:34,auth:'授权可用',use:'使用中',
+   scope:'public',grants:[],
+   fields:[
+     F('opp_no','文本','商机编号','CRM 侧商机唯一标识',{smp:'OP-20261016-07'}),
+     F('cust_name','文本','客户名称','商机归属客户',{smp:'远航物流'}),
+     F('stage','枚举','商机阶段','CRM 阶段编码',{enums:'CR1 / CR2 / CR3 / CR4 / CR5',smp:'CR4'}),
+     F('amount','数值','预计金额','预计签约金额，单位万元',{smp:'300'}),
+     F('next_node','文本','下一节点','推进该商机的下一个动作',{smp:'07-31 汇报会'}),
+     F('owner','文本','归属销售','商机负责人，按人汇总业绩时用这个字段',{smp:'张伟'}),
+   ],
+   rows:[['OP-20261016-07','远航物流','CR4','300','07-31 汇报会','张伟'],
+         ['OP-20261016-06','明远零售','CR3','220','方案二轮沟通','李娜'],
+         ['OP-20261016-05','华胜制造','CR5','180','已签约待回款','王强']],
+   queries:[
+     {name:'我的在跟商机',params:'归属销售 · 阶段',rule:'归属销售=当前用户 且 阶段≠CR5，按阶段倒序',refs:'路书（销售AI）'},
+     {name:'阶段加权预测',params:'时间范围 · 团队',rule:'按阶段加权系数汇总预计金额',refs:'路书（销售AI）'},
+   ]},
+  {id:'dt-pay',icon:'💰',name:'合同回款表',src:'CRM 同步',srcType:'系统同步',sync:'ok',syncNote:'每日 06:30 同步 CRM',syncAt:'2026-10-16 06:30',rowCnt:'268',limit:0,
+   desc:'已签合同的回款计划与到账情况：合同金额、分期节点、已回款、账期逾期天数。回款类指标与风险扫描的来源。',
+   agents:['路书（销售AI）','客成助手'],wperm:'read',by:'财务共享',at:'2026-10-16 06:30',refs:21,auth:'授权可用',use:'使用中',
+   scope:'auth',grants:[{name:'罗紫函',perm:'可管理'},{name:'李娜',perm:'可使用'}],
+   fields:[
+     F('contract_no','文本','合同编号','合同唯一标识',{smp:'HT-2026-0318'}),
+     F('cust_name','文本','客户名称','合同签约客户',{smp:'华胜制造'}),
+     F('amount','数值','合同金额','合同总额，单位万元',{smp:'180'}),
+     F('paid','数值','已回款','累计到账金额，单位万元',{smp:'108'}),
+     F('due_date','日期','本期应收日','当期回款节点日期',{smp:'2026-10-20'}),
+     F('overdue_days','数值','逾期天数','已过应收日未到账的天数，未逾期为 0',{smp:'0'}),
+   ],
+   rows:[['HT-2026-0318','华胜制造','180','108','2026-10-20','0'],
+         ['HT-2026-0295','明远零售','260','130','2026-09-30','16'],
+         ['HT-2026-0271','远航物流','420','420','2026-08-15','0']],
+   queries:[
+     {name:'逾期回款清单',params:'归属销售 · 逾期天数下限',rule:'逾期天数>指定值，按逾期天数倒序',refs:'路书（销售AI）'},
+     {name:'本月应收合计',params:'月份 · 团队',rule:'本期应收日落在指定月内，SUM(合同金额-已回款)',refs:'—'},
+   ]},
+  {id:'dt-case',icon:'🎫',name:'工单处理记录',src:'天润客服系统',srcType:'系统同步',sync:'ok',syncNote:'每 30 分钟增量同步',syncAt:'2026-10-16 10:30',rowCnt:'1,826',limit:0,
+   desc:'天润客服的 case 单明细：客户、优先级、受理人、状态与解决时长。售后积压类风险信号与客成看板的取数来源。',
+   agents:['客成助手','智能客服-CASE单'],wperm:'read',by:'客服系统对接',at:'2026-10-16 10:30',refs:29,auth:'授权可用',use:'使用中',
+   scope:'public',grants:[],
+   fields:[
+     F('case_no','文本','工单编号','天润侧 case 唯一标识',{smp:'CS-20261016-0214'}),
+     F('cust_name','文本','客户名称','报单客户',{smp:'华胜制造'}),
+     F('priority','枚举','优先级','天润侧优先级定义',{enums:'P0 / P1 / P2 / P3',smp:'P0'}),
+     F('status','枚举','处理状态','当前流转状态',{enums:'待受理 / 处理中 / 待客户确认 / 已关闭',smp:'处理中'}),
+     F('assignee','文本','受理人','当前责任人',{smp:'木明'}),
+     F('solve_hours','数值','解决时长','从受理到关闭的小时数，未关闭为空',{smp:'6.5'}),
+   ],
+   rows:[['CS-20261016-0214','华胜制造','P0','处理中','木明','—'],
+         ['CS-20261016-0208','明远零售','P2','已关闭','王磊','6.5'],
+         ['CS-20261015-0197','远航物流','P1','待客户确认','木明','—']],
+   queries:[
+     {name:'我的未关闭工单',params:'受理人 · 优先级',rule:'受理人=当前用户 且 状态≠已关闭',refs:'客成助手'},
+     {name:'P0 逾期统计',params:'时间范围 · 客户',rule:'优先级=P0 且 解决时长>SLA 承诺时长',refs:'客成助手'},
+   ]},
+  {id:'dt-visit',icon:'📍',name:'拜访记录表',src:'平台内自建',srcType:'自定义',sync:'ok',syncNote:'智能体自动更新',syncAt:'2026-10-15 18:40',rowCnt:'533',limit:0,pk:'拜访编号',
+   desc:'拜访复盘智能体从录音与会议记录中结构化落表的拜访记录：客户、参与人、议题、客户关注点与待办。',
+   agents:['拜访复盘报告','路书（销售AI）'],wperm:'rw',by:'罗紫函',at:'2026-10-15 18:40',refs:17,auth:'授权可用',use:'使用中',
+   scope:'auth',grants:[{name:'罗紫函',perm:'可管理'},{name:'张伟',perm:'可使用'},{name:'任思宇',perm:'可使用'}],
+   fields:[
+     F('visit_no','文本','拜访编号','唯一键，智能体写入时自动生成',{smp:'VS-0533'}),
+     F('cust_name','文本','客户名称','被拜访客户',{smp:'远航物流'}),
+     F('visit_at','日期','拜访日期','实际拜访日期',{smp:'2026-10-15'}),
+     F('attendees','文本','客户参与人','客户侧参会人与职位',{smp:'王总（信息中心主任）'}),
+     F('topic','文本','主要议题','本次拜访谈的主题',{smp:'二期方案与预算排期'}),
+     F('concern','文本','客户关注点','智能体从记录中提炼的客户顾虑',{smp:'担心实施期影响旺季作业'}),
+     F('todo','文本','我方待办','拜访产出的跟进事项',{smp:'10-20 前出分期实施方案'}),
+   ],
+   rows:[['VS-0533','远航物流','2026-10-15','王总（信息中心主任）','二期方案与预算排期','担心实施期影响旺季作业','10-20 前出分期实施方案'],
+         ['VS-0532','明远零售','2026-10-14','李经理（运营部）','门店数据看板需求','关心与现有 BI 的数据打通','补充接口对接说明'],
+         ['VS-0531','华胜制造','2026-10-12','赵主管（IT）','验收与上线节奏','要求保留旧系统并行一个月','出并行方案与切换预案']],
+   queries:[
+     {name:'某客户的拜访历史',params:'客户名称 · 时间范围',rule:'客户名称=指定值，按拜访日期倒序',refs:'路书（销售AI）'},
+     {name:'待办未闭环的拜访',params:'归属销售 · 时间范围',rule:'我方待办非空且未标记闭环',refs:'路书（销售AI）'},
+   ],
+   writes:[
+     {batch:'B-2026101518',agent:'拜访复盘报告',at:'2026-10-15 18:40',conv:'C-2141',cnt:'新增 1 条',detail:['新增 VS-0533 远航物流 二期方案与预算排期']},
+     {batch:'B-2026101418',agent:'拜访复盘报告',at:'2026-10-14 18:05',conv:'C-2137',cnt:'新增 1 条',detail:['新增 VS-0532 明远零售 门店数据看板需求']},
+   ]},
+  {id:'dt-proj',icon:'🏗',name:'交付项目台账',src:'平台内自建',srcType:'自定义',sync:'ok',syncNote:'项目空间同步',syncAt:'2026-10-16 09:00',rowCnt:'64',limit:0,pk:'项目编号',
+   desc:'在交付项目的阶段、里程碑、逾期任务数与交付负责人。项目空间的进度数据汇总到表，供交付看板与风险扫描取数。',
+   agents:['KA 主理智能体'],wperm:'rwu',by:'交付管理部',at:'2026-10-16 09:00',refs:12,auth:'授权可用',use:'使用中',
+   scope:'auth',grants:[{name:'何伟文',perm:'可管理'},{name:'郝可欣',perm:'可使用'}],
+   fields:[
+     F('proj_no','文本','项目编号','唯一键，与项目空间一一对应',{smp:'PJ-0064'}),
+     F('cust_name','文本','客户名称','项目所属客户',{smp:'远航物流'}),
+     F('stage','枚举','项目阶段','当前所处阶段',{enums:'启动 / 实施 / 验收 / 已结项',smp:'实施'}),
+     F('milestone','文本','下一里程碑','最近的交付节点与计划日期',{smp:'10-25 UAT 开始'}),
+     F('overdue_tasks','数值','逾期任务数','项目空间内已逾期未完成的任务数',{smp:'6'}),
+     F('pm','文本','交付负责人','项目经理',{smp:'何伟文'}),
+   ],
+   rows:[['PJ-0064','远航物流','实施','10-25 UAT 开始','6','何伟文'],
+         ['PJ-0063','华胜制造','验收','10-20 验收评审','1','郝可欣'],
+         ['PJ-0061','明远零售','实施','10-30 接口联调','0','何伟文']],
+   queries:[
+     {name:'我负责的项目进度',params:'交付负责人 · 项目阶段',rule:'交付负责人=当前用户 且 阶段≠已结项',refs:'KA 主理智能体'},
+     {name:'高风险项目清单',params:'逾期任务数下限',rule:'逾期任务数>指定值，按逾期数倒序',refs:'KA 主理智能体'},
+   ],
+   writes:[
+     {batch:'B-2026101609',agent:'KA 主理智能体',at:'2026-10-16 09:00',conv:'定时任务',cnt:'更新 4 条',detail:['更新 PJ-0064 逾期任务数 4→6','更新 PJ-0063 阶段 实施→验收']},
+   ]},
+  {id:'dt-price',icon:'🏷',name:'产品报价基准表',src:'产品报价基准_v6.xlsx',srcType:'上传文件',sync:'ok',syncNote:'手工维护',syncAt:'2026-09-30 15:10',rowCnt:'58',limit:0,
+   desc:'各产品模块的标准报价、折扣底线与适用条件。报价智能体出价时的基准来源，折扣底线由商务负责人维护。',
+   agents:['报价Agent','解决方案生成'],wperm:'read',by:'商务部',at:'2026-09-30 15:10',refs:26,auth:'授权可用',use:'使用中',
+   scope:'auth',grants:[{name:'罗紫函',perm:'可管理'},{name:'何伟文',perm:'可使用'},{name:'张伟',perm:'可使用'}],
+   fields:[
+     F('sku','文本','产品模块','报价单元名称',{smp:'仓储管理模块'}),
+     F('list_price','数值','标准报价','未打折的报价，单位元',{smp:'180000'}),
+     F('floor_rate','数值','折扣底线','可下探的最低折扣率，低于此需审批',{smp:'0.75'}),
+     F('bill_mode','枚举','计费方式','该模块的计费口径',{enums:'一次性 / 年订阅 / 按量',smp:'年订阅'}),
+     F('condition','文本','适用条件','适用的客户规模或场景限制',{smp:'仓库数 ≤ 10，超出按量加购'}),
+   ],
+   rows:[['仓储管理模块','180000','0.75','年订阅','仓库数 ≤ 10，超出按量加购'],
+         ['运输调度模块','220000','0.80','年订阅','车辆数 ≤ 200'],
+         ['数据看板模块','60000','0.70','一次性','需同时采购任一业务模块']],
+   queries:[
+     {name:'按模块查报价',params:'产品模块',rule:'返回标准报价、折扣底线与计费方式',refs:'报价Agent'},
+     {name:'组合报价测算',params:'模块清单 · 折扣率',rule:'按清单汇总标准报价并校验折扣是否触底',refs:'报价Agent'},
+   ]},
+  {id:'dt-churn',icon:'📉',name:'流失客户归因表',src:'平台内自建',srcType:'自定义',sync:'ok',syncNote:'智能体自动更新',syncAt:'2026-10-10 16:20',rowCnt:'43',limit:0,pk:'归因编号',
+   desc:'已流失或未续约客户的归因记录：流失时点、合同规模、归因分类与可改进点。由客成助手在续约失败后结构化落表。',
+   agents:['客成助手'],wperm:'rwud',by:'陈静',at:'2026-10-10 16:20',refs:8,auth:'待授权',use:'未使用',
+   scope:'auth',grants:[{name:'陈静',perm:'可管理'}],
+   fields:[
+     F('churn_no','文本','归因编号','唯一键，智能体写入时自动生成',{smp:'CH-0043'}),
+     F('cust_name','文本','客户名称','流失客户',{smp:'兴海贸易'}),
+     F('churn_at','日期','流失时点','合同到期未续或提前终止的日期',{smp:'2026-09-30'}),
+     F('amount','数值','原合同金额','流失前的年度合同额，单位万元',{smp:'120'}),
+     F('reason','枚举','归因分类','流失主因',{enums:'预算收缩 / 竞对替换 / 交付不满 / 需求变化 / 联系人变动',smp:'竞对替换'}),
+     F('improve','文本','可改进点','复盘得出的我方可改进处',{smp:'续约沟通启动过晚，决策人未触达'}),
+   ],
+   rows:[['CH-0043','兴海贸易','2026-09-30','120','竞对替换','续约沟通启动过晚，决策人未触达'],
+         ['CH-0042','安达仓储','2026-08-31','85','预算收缩','未提供降配续约方案'],
+         ['CH-0041','永信食品','2026-07-31','60','交付不满','实施期更换过两次项目经理']],
+   queries:[
+     {name:'归因分类分布',params:'时间范围',rule:'按归因分类分组 COUNT 与金额合计',refs:'客成助手'},
+     {name:'流失金额合计',params:'时间范围 · 客户分级',rule:'按时间与分级过滤后 SUM(原合同金额)',refs:'—'},
+   ],
+   writes:[
+     {batch:'B-2026101016',agent:'客成助手',at:'2026-10-10 16:20',conv:'C-2128',cnt:'新增 1 条',detail:['新增 CH-0043 兴海贸易 竞对替换']},
+   ]},
+  {id:'dt-sla',icon:'📐',name:'服务 SLA 达成表',src:'天润客服系统',srcType:'系统同步',sync:'err',syncNote:'同步中断，最近一次失败',syncAt:'2026-10-14 03:00',rowCnt:'912',limit:0,
+   desc:'按月统计的服务 SLA 达成情况：响应达成率、解决达成率与超时单量，按客户分级与受理团队两个口径汇总。',
+   agents:['客成助手'],wperm:'read',by:'客服系统对接',at:'2026-10-14 03:00',refs:5,auth:'待授权',use:'未使用',
+   scope:'auth',grants:[],
+   fields:[
+     F('period','文本','统计月份','格式 YYYY-MM',{smp:'2026-09'}),
+     F('level','枚举','客户分级','与客户分级映射表对齐',{enums:'SKA / KA / 普通',smp:'KA'}),
+     F('team','文本','受理团队','工单受理团队',{smp:'华东客服组'}),
+     F('resp_rate','数值','响应达成率','按分级承诺时限计算的响应达成率',{smp:'0.96'}),
+     F('solve_rate','数值','解决达成率','按分级承诺时限计算的解决达成率',{smp:'0.91'}),
+     F('timeout_cnt','数值','超时单量','当月超出承诺时限的工单数',{smp:'14'}),
+   ],
+   rows:[['2026-09','SKA','华东客服组','0.99','0.97','2'],
+         ['2026-09','KA','华东客服组','0.96','0.91','14'],
+         ['2026-09','普通','华南客服组','0.93','0.88','31']],
+   queries:[
+     {name:'某月 SLA 达成',params:'统计月份 · 客户分级',rule:'按月份与分级返回响应与解决达成率',refs:'客成助手'},
+     {name:'超时单量趋势',params:'时间范围 · 受理团队',rule:'按月分组 SUM(超时单量)',refs:'—'},
+   ]},
 ];
 /* 智能体应用权限：四档递进，后一档包含前一档的动作。只读表不生成唯一键，也没有写入记录 */
 const DT_WPERM={read:'只读',rw:'可读写',rwu:'可读写改',rwud:'可读写改删'};
@@ -2894,7 +3044,7 @@ const SK_ADD_LABEL={skills:'+ 添加技能',mcp:'+ 添加 MCP',tool:'+ 添加工
 function skPaneHead(title,note,tab,extra){
   return `<div class="flex items-start gap-3 mb-3">
     <div class="flex-1 min-w-0">
-      <div class="text-[11.5px] font-bold text-gray-400">${title} <span class="font-normal">${note}</span></div>
+      ${title?`<div class="text-[11.5px] font-bold text-gray-400">${title}${note?` <span class="font-normal">${note}</span>`:''}</div>`:''}
     </div>
     <div class="flex items-center gap-3 shrink-0">
       ${extra||''}
@@ -2997,7 +3147,7 @@ function funcSkillItems(){
 function skAllAgents(){
   const s=new Set();
   [...MCP_ITEMS,...DATA_TABLES,...toolItems(),...funcSkillItems(),...flowAsItems()].forEach(i=>(i.agents||[]).forEach(a=>s.add(a)));
-  BOARDS.forEach(b=>s.add(b.agent));
+  BOARDS.forEach(b=>{if(b.agent)s.add(b.agent);if(b.linkAgent)s.add(b.linkAgent)});
   return [...s];
 }
 function skFillAgentSel(){
@@ -3058,7 +3208,7 @@ function bdKindTag(b){
 /* 卡片：名称 + 类型/可用范围标签 + 描述框 + 执行智能体 + 数据维度标签（不带数量）+ 作者时间 + 操作 */
 function bdCfgCard(b){
   const biz=b.kind==='biz',dims=b.dims||[];
-  const desc=biz?(b.input||'—'):`更新 ${dimsFreqText(b)}，${dims.length?'每个维度各自配置执行方式与更新时间，点维度在会话中展开':'尚未配置数据维度'}`;
+  const desc=biz?(b.input||'—'):`更新 ${dimsFreqText(b)}，${dims.length?'每个维度各自配置执行方式，点维度在会话中展开':'尚未配置数据维度'}`;
   return `<div class="card p-4 flex flex-col">
     <div class="flex items-start gap-2">
       <span class="text-[15px] leading-5">${biz?'📈':'📊'}</span>
@@ -3068,17 +3218,17 @@ function bdCfgCard(b){
     </div>
     <p class="sk-desc text-[11px] text-gray-400 mt-2 leading-relaxed">${desc}</p>
     <span class="text-[10.5px] text-violet-600 cursor-pointer hover:underline self-start mt-0.5" onclick="skToggleDesc(this)">展开</span>
-    <div class="text-[10.5px] text-gray-400 mt-2 truncate" title="${b.agent}">执行智能体：${agentNick(b.agent)}${biz?'':` · 联动 ${agentNick(boardLink(b))}`}</div>
+    <div class="text-[10.5px] text-gray-400 mt-2 truncate" title="${biz?b.agent:boardLink(b)}">${biz?`执行智能体：${agentNick(b.agent)}`:`联动智能体：${agentNick(boardLink(b))}`}</div>
     ${biz?`<div class="text-[10.5px] text-gray-400 mt-1.5">更新 ${boardFreq(b)} · 最近产出 ${b.updated||'—'}</div>`
       :`<div class="flex items-center gap-1 mt-1.5 flex-wrap">${dims.map(t=>`
-        <span class="tag bg-gray-100 text-gray-500 !text-[10px]" title="查询输入：${attrEsc(t.q)}&#10;取数方式：${attrEsc(dimSrcText(b,t))}&#10;更新时间：${dimTrigText(t)}">${t.icon} ${t.label}</span>`).join('')
+        <span class="tag bg-gray-100 text-gray-500 !text-[10px]" title="查询输入：${attrEsc(t.q)}&#10;取数方式：${attrEsc(dimSrcText(b,t))}&#10;更新时间：${dimNeedsTrig(t)?utrigText(b):'实时取数'}">${t.icon} ${t.label}</span>`).join('')
         ||'<span class="text-[10.5px] text-gray-300">暂无数据维度</span>'}</div>`}
     <div class="flex items-center gap-2 mt-2 text-[10px] text-gray-300">
       <span>@${b.by||'—'}</span><span>${b.at||'—'}</span>
       <span class="ml-auto">${b.scope==='public'?'全员可见':`已授权 ${(b.grants||[]).length} 人`}</span>
     </div>
     <div class="flex items-center mt-2.5 pt-2.5 border-t border-gray-100 text-[10.5px]">
-      <span class="text-violet-600 cursor-pointer hover:underline font-semibold" onclick="openBdPub('${b.id}')">预览发布</span>
+      <span class="text-violet-600 cursor-pointer hover:underline font-semibold" onclick="openBdPub('${b.id}')">${isPub(b)?'预览更新':'预览发布'}</span>
       <span class="ml-auto flex items-center gap-3">
         <span class="text-violet-600 cursor-pointer hover:underline" onclick="${biz?`openBzBoard('${b.id}')`:`openBoardCfg('${b.id}')`}">编辑</span>
         <span class="text-violet-600 cursor-pointer hover:underline" onclick="openBoardShare('${b.id}')">分享</span>
@@ -3094,7 +3244,7 @@ function renderBoardCfgList(){
   const empty=filtered
     ?'<div class="col-span-3 text-[11.5px] text-gray-300 text-center py-10 border border-dashed border-gray-200 rounded-xl">没有符合筛选条件的看板，换个条件或点「重置」</div>'
     :'<div class="col-span-3 text-[11.5px] text-gray-300 text-center py-10 border border-dashed border-gray-200 rounded-xl">暂无看板，点右上「+ 新建看板」创建</div>';
-  el.innerHTML=skPaneHead('看板','工作看板按角色分发到 AI 工作台，经营看板进聚合页 · 取数口径来自数据表','board')
+  el.innerHTML=skPaneHead('','','board')
     +bdFilterBar()
     +`<div class="grid grid-cols-3 resp-grid-3 gap-3.5">${list.map(b=>bdCfgCard(b)).join('')||empty}</div>`;
 }
@@ -3106,7 +3256,7 @@ function toggleBoardEnabled(id){
     const who=b.scope==='public'?'全员':`已授权的 ${(b.grants||[]).length} 人`;
     const extra=biz
       ?`\n停用后：${where}不再展示，定时重算（${boardFreq(b)}）暂停，发布记录保留。`
-      :`\n停用后：${where}不再出现本看板，${(b.dims||[]).length} 个数据维度停止按各自的更新时间重算，联动智能体 ${agentNick(boardLink(b))} 不再响应本看板追问。`;
+      :`\n停用后：${where}不再出现本看板，智能体执行的维度停止按看板更新时间重算，联动智能体 ${agentNick(boardLink(b))} 不再响应本看板追问。`;
     if(!confirm(`确认停用${biz?'经营':'工作'}看板「${b.name}」？\n\n影响范围：${who}。${extra}\n配置与授权名单保留，可随时重新启用。`))return;
   }
   b.enabled=!b.enabled;
@@ -3124,7 +3274,7 @@ function openBdPub(id){
   document.getElementById('bdpub-name').textContent=b.name;
   document.getElementById('bdpub-meta').textContent=biz
     ?`由 ${agentNick(b.agent)} 整块生成 · 更新 ${boardFreq(b)} · 最近产出 ${b.updated||'尚未生成'}`
-    :`${(b.dims||[]).length} 个数据维度 · 默认执行智能体 ${agentNick(b.agent)} · 更新 ${dimsFreqText(b)}`;
+    :`${(b.dims||[]).length} 个数据维度 · 联动智能体 ${agentNick(boardLink(b))} · 更新 ${dimsFreqText(b)}`;
   document.getElementById('bdpub-where').textContent=biz
     ?'下面是发布后在 AI 工作台「经营看板」里的显示样式'
     :'下面是发布后在 AI 工作台顶部「我的工作看板」里的显示样式';
@@ -3164,7 +3314,7 @@ function renderBdPubBody(b){
             <div class="text-[9.5px] text-gray-400 truncate mt-0.5">${v.sub}</div>
           </div>`}).join('')
           ||'<div class="text-[10.5px] text-gray-400 py-2">尚未配置数据维度，发布后工作台里这块是空的</div>'}</div>
-        <div class="text-[9.5px] text-gray-400 mt-1.5 px-0.5">维度口径、执行方式与更新时间在「技能库 · 看板」按维度配置 · 更新 ${dimsFreqText(b)} · 点任一维度即在会话中展开查询 · 联动智能体 ${agentNick(boardLink(b))} 可直接追问本看板数据</div>
+        <div class="text-[9.5px] text-gray-400 mt-1.5 px-0.5">维度口径与执行方式在「技能库 · 看板」按维度配置 · 更新 ${dimsFreqText(b)} · 点任一维度即在会话中展开查询 · 联动智能体 ${agentNick(boardLink(b))} 可直接追问本看板数据</div>
       </div>
     </div>
   </div>`;
@@ -3376,18 +3526,18 @@ function openBoardCfg(id){
   const src=id?BOARDS.find(b=>b.id===id):null;
   cfgBoardId=id;
   cfgBoard=src?JSON.parse(JSON.stringify(src))
-    :{id:'bd-'+Date.now(),kind:'work',name:'新建工作看板',role:'',agent:skAllAgents()[0]||'KA 主理智能体',enabled:true,
+    :{id:'bd-'+Date.now(),kind:'work',name:'新建工作看板',enabled:true,
       scope:'auth',grants:[{name:ME,perm:'可管理'}],linkAgent:'',
+      utrig:{at:'',kind:'repeat',unit:'day',workday:true,dows:[1],dom:1,until:''},
       by:ME,at:bzStamp(),dims:[]};
   cfgBoard.kind='work';cfgBoard.dims=cfgBoard.dims||[];
-  cfgBoard.dims.forEach(d=>{d.exec=dimExec(d);d.tbl=d.tbl||'';d.trig=dimTrig(d)});
-  cfgBoard.linkAgent=cfgBoard.linkAgent||cfgBoard.agent;
+  cfgBoard.dims.forEach(d=>{d.exec=dimExec(d);d.tbl=d.tbl||'';d.mcp=d.mcp||'';d.mcpTool=d.mcpTool||''});
+  cfgBoard.utrig=boardUtrig(cfgBoard);
+  cfgBoard.linkAgent=cfgBoard.linkAgent||dimsDefaultAgent(cfgBoard)||skAllAgents()[0]||'';
   document.getElementById('bdc-title').textContent=src?`工作看板配置 · ${src.name}`:'新建工作看板';
   document.getElementById('bdc-name').value=cfgBoard.name;
-  document.getElementById('bdc-role').value=cfgBoard.role;
-  document.getElementById('bdc-agent').innerHTML=skAllAgents().map(a=>`<option value="${a}"${a===cfgBoard.agent?' selected':''}>${a}</option>`).join('');
   document.getElementById('bdc-enabled').classList.toggle('off',!cfgBoard.enabled);
-  renderCfgTiles();renderCfgLink();
+  renderCfgUtrig();renderCfgTiles();renderCfgLink();
   document.getElementById('modal-boardcfg').classList.remove('hidden');
 }
 /* 触发时间选择器：模式 / 几号（仅每月）/ 时间点，三处共用 */
@@ -3403,28 +3553,67 @@ function trigDomVis(p,t){
   const w=document.getElementById(p+'-dom-wrap')||document.getElementById(p+'-trigdom');
   if(w)w.classList.toggle('invisible',t.mode!=='month');
 }
-/* 联动智能体：单选，默认跟随执行智能体；未发布到 AI 工作台的给提示 */
+/* 联动智能体：单选，默认取维度所选的执行智能体；未发布到 AI 工作台的给提示 */
 function renderCfgLink(){
-  const pub=wbAgentList();
+  const pub=wbAgentList(),def=dimsDefaultAgent(cfgBoard);
   document.getElementById('bdc-link').innerHTML=skAllAgents().map(a=>
-    `<option value="${a}"${a===cfgBoard.linkAgent?' selected':''}>${agentNick(a)}${a===cfgBoard.agent?'（默认）':''}${pub.includes(a)?'':' · 未发布'}</option>`).join('');
+    `<option value="${a}"${a===cfgBoard.linkAgent?' selected':''}>${agentNick(a)}${a===def?'（维度执行智能体）':''}${pub.includes(a)?'':' · 未发布'}</option>`).join('');
 }
 function cfgLinkPick(a){
-  cfgBoard.linkAgent=a;
+  cfgBoard.linkAgent=a;cfgBoard.linkManual=true;
   if(!wbAgentList().includes(a))toast(`「${agentNick(a)}」尚未发布到 AI 工作台，发布后联动才生效`);
   renderCfgLink();
 }
-/* 默认执行智能体变更：联动智能体若仍是旧默认则一起跟走 */
-function bdcAgentChange(v){
-  const old=cfgBoard.agent;cfgBoard.agent=v;
-  if(!cfgBoard.linkAgent||cfgBoard.linkAgent===old)cfgBoard.linkAgent=v;
-  renderCfgTiles();renderCfgLink();
+/* 维度换执行智能体时，没手动改过的联动智能体跟着走 */
+function cfgSyncLink(){
+  if(cfgBoard.linkManual)return;
+  const a=dimsDefaultAgent(cfgBoard);
+  if(a&&a!==cfgBoard.linkAgent){cfgBoard.linkAgent=a;renderCfgLink()}
 }
 function closeBoardCfg(){document.getElementById('modal-boardcfg').classList.add('hidden')}
-/* 启用开关旁的文案：汇总各维度的更新时间 */
+/* 启用开关旁的文案：看板的更新口径 */
 function cfgFreqText(){
   const tx=document.getElementById('bdc-trigtext');
   if(tx)tx.textContent=cfgBoard.dims.length?`更新 ${dimsFreqText(cfgBoard)}`:'';
+}
+function cfgAgentDims(){return (cfgBoard.dims||[]).filter(dimNeedsTrig)}
+/* 更新时间统一配在看板上，管住所有智能体执行的维度 */
+function renderCfgUtrig(){
+  const el=document.getElementById('bdc-utrig');if(!el)return;
+  const t=cfgBoard.utrig=boardUtrig(cfgBoard),rpt=t.kind==='repeat';
+  const lab=s=>`<span class="text-[11.5px] font-semibold text-gray-600 shrink-0">${s}</span><span class="text-red-400 text-[11px] shrink-0">*</span>`;
+  const dt=(f,v)=>`<input type="datetime-local" class="border border-gray-200 rounded-lg px-2 py-1.5 text-[12px] focus:outline-violet-300" value="${v}" onchange="cfgUtrigSet('${f}',this.value)">`;
+  el.innerHTML=`<div class="flex items-center gap-2 mb-2.5">
+      <span class="text-[12px] font-semibold text-gray-600">更新时间</span>
+      <span class="text-[10.5px] text-gray-400">统一管本看板所有智能体执行的维度${cfgAgentDims().length?'':'（当前没有智能体执行的维度）'}</span>
+    </div>
+    <div class="flex items-center gap-2 mb-2.5">${lab('触发时间')}${dt('at',t.at)}</div>
+    <div class="flex items-center gap-2 mb-2.5">${lab('类型')}
+      <label class="flex items-center gap-1.5 text-[12px] cursor-pointer ml-1"><input type="radio" name="bdc-utkind" class="accent-violet-600"${rpt?'':' checked'} onchange="cfgUtrigSet('kind','once')">一次性</label>
+      <label class="flex items-center gap-1.5 text-[12px] cursor-pointer"><input type="radio" name="bdc-utkind" class="accent-violet-600"${rpt?' checked':''} onchange="cfgUtrigSet('kind','repeat')">重复</label>
+    </div>
+    ${rpt?`<div class="border border-gray-100 rounded-xl bg-gray-50/60 p-2.5 mb-2.5">
+      <div class="flex items-center gap-1 mb-2">${RPT_UNITS.map(([v,l])=>
+        `<span class="px-3 py-1 rounded-lg text-[11.5px] cursor-pointer ${v===t.unit?'bg-white font-semibold text-violet-700 shadow-sm':'text-gray-500 hover:text-gray-700'}" onclick="cfgUtrigSet('unit','${v}')">${l}</span>`).join('')}</div>
+      ${t.unit==='week'
+        ?`<div class="flex items-center gap-1.5 flex-wrap">${WEEK_DAYS.map(([v,l])=>
+            `<span class="w-7 h-7 rounded-lg text-[11.5px] flex items-center justify-center cursor-pointer ${t.dows.includes(v)?'bg-violet-600 text-white':'bg-white border border-gray-200 text-gray-500'}" onclick="cfgUtrigDow(${v})">${l}</span>`).join('')}</div>`
+        :t.unit==='month'
+        ?`<div class="flex items-center gap-1.5 text-[12px] text-gray-500">每月
+            <select class="border border-gray-200 rounded-lg px-2 py-1 text-[12px] bg-white" onchange="cfgUtrigSet('dom',+this.value)">${Array.from({length:28},(_,i)=>i+1).map(d=>`<option value="${d}"${d===t.dom?' selected':''}>${d}</option>`).join('')}</select>日</div>`
+        :`<label class="flex items-center gap-1.5 text-[12px] cursor-pointer"><input type="checkbox" class="accent-violet-600"${t.workday?' checked':''} onchange="cfgUtrigSet('workday',this.checked)">仅工作日执行（跳过周末）</label>`}
+    </div>
+    <div class="flex items-center gap-2">${lab('截止时间')}${dt('until',t.until)}</div>`:''}`;
+}
+function cfgUtrigSet(f,v){
+  const t=cfgBoard.utrig=boardUtrig(cfgBoard);t[f]=v;
+  renderCfgUtrig();renderCfgTiles();
+}
+function cfgUtrigDow(d){
+  const t=cfgBoard.utrig=boardUtrig(cfgBoard);
+  t.dows=t.dows.includes(d)?t.dows.filter(x=>x!==d):[...t.dows,d].sort();
+  if(!t.dows.length)t.dows=[d];
+  renderCfgUtrig();renderCfgTiles();
 }
 function renderCfgTiles(){
   document.getElementById('bdc-tiles').innerHTML=cfgBoard.dims.map((t,i)=>`
@@ -3446,38 +3635,58 @@ function renderCfgTiles(){
     </div>
     <div id="dimpv-${i}" class="hidden px-2.5 py-2 bg-violet-50/40 text-[11px] text-gray-600"></div>`).join('')
     ||'<div class="text-[11.5px] text-gray-300 text-center py-6">暂无数据维度，点右上「+ 添加维度」</div>';
+  const c=document.getElementById('bdc-dimcnt');
+  if(c)c.textContent=`${cfgBoard.dims.length} / ${DIM_MAX}`;
   cfgFreqText();
 }
-/* 维度第二行：执行方式 + 执行对象（数据表／智能体）+ 该维度自己的更新时间 */
+/* 维度第二行：执行方式 + 执行对象（数据表／智能体／MCP）+ 取数时机回显 */
 function cfgDimRow2(t,i){
   const lab=s=>`<span class="text-[10.5px] text-gray-400 shrink-0">${s}</span>`;
-  const sel=(on,opts,cur)=>`<select class="text-[11px] border border-gray-200 rounded px-1 py-1 bg-white" onchange="${on}">${opts}</select>`;
-  const ex=dimExec(t),tg=dimTrig(t);
-  const obj=ex==='table'
-    ? lab('数据表')+sel(`cfgDimTbl(${i},this.value)`,
-        `<option value=""${t.tbl?'':' selected'}>请选择</option>`
-        +DATA_TABLES.map(x=>`<option value="${x.id}"${x.id===t.tbl?' selected':''}>${x.name}</option>`).join(''))
-    : lab('智能体')+sel(`cfgTileSet(${i},'agent',this.value)`,
-        `<option value=""${t.agent?'':' selected'}>默认（${agentNick(cfgBoard.agent)}）</option>`
-        +skAllAgents().map(a=>`<option value="${a}"${a===t.agent?' selected':''}>${agentNick(a)}</option>`).join(''));
+  const sel=(on,opts)=>`<select class="text-[11px] border border-gray-200 rounded px-1 py-1 bg-white" onchange="${on}">${opts}</select>`;
+  const ex=dimExec(t);
+  let obj='';
+  if(ex==='table'){
+    obj=lab('数据表')+sel(`cfgDimTbl(${i},this.value)`,
+      `<option value=""${t.tbl?'':' selected'}>请选择</option>`
+      +DATA_TABLES.map(x=>`<option value="${x.id}"${x.id===t.tbl?' selected':''}>${x.name}</option>`).join(''));
+  }else if(ex==='mcp'){
+    const tools=mcpToolsOf(t.mcp);
+    obj=lab('MCP')+sel(`cfgDimMcp(${i},this.value)`,
+        `<option value=""${t.mcp?'':' selected'}>请选择</option>`
+        +MCP_ITEMS.map(m=>`<option value="${m.name}"${m.name===t.mcp?' selected':''}>${m.name}</option>`).join(''))
+      +lab('MCP 工具')
+      +`<select class="text-[11px] border border-gray-200 rounded px-1 py-1 ${t.mcp?'bg-white':'bg-gray-50 text-gray-300'}"${t.mcp?'':' disabled'} onchange="cfgDimMcpTool(${i},this.value)">`
+        +`<option value=""${t.mcpTool?'':' selected'}>${t.mcp?'请选择':'先选 MCP'}</option>`
+        +tools.map(x=>`<option value="${x}"${x===t.mcpTool?' selected':''}>${x}</option>`).join('')
+      +`</select>`;
+  }else{
+    obj=lab('智能体')+sel(`cfgDimAgentPick(${i},this.value)`,
+      `<option value=""${t.agent?'':' selected'}>请选择</option>`
+      +skAllAgents().map(a=>`<option value="${a}"${a===t.agent?' selected':''}>${agentNick(a)}</option>`).join(''));
+  }
+  const trig=dimNeedsTrig(t)
+    ? `<span class="text-[10.5px] text-gray-400 shrink-0">按看板更新时间 ${utrigText(cfgBoard)}</span>`
+    : `<span class="text-[10.5px] text-gray-300 shrink-0">点维度时实时取数</span>`;
   return `<div class="flex items-center gap-1.5 flex-wrap mt-1.5 pl-[58px]">
     ${lab('执行方式')}${sel(`cfgDimExec(${i},this.value)`,DIM_EXECS.map(([v,l])=>`<option value="${v}"${v===ex?' selected':''}>${l}</option>`).join(''))}
     ${obj}
-    ${lab('更新时间')}${sel(`cfgDimTrig(${i},'mode',this.value)`,TRIG_MODES.map(([v,l])=>`<option value="${v}"${v===tg.mode?' selected':''}>${l}</option>`).join(''))}
-    ${tg.mode==='month'?sel(`cfgDimTrig(${i},'dom',+this.value)`,Array.from({length:28},(_,n)=>n+1).map(d=>`<option value="${d}"${d===(tg.dom||1)?' selected':''}>${d} 日</option>`).join('')):''}
-    <input type="time" class="text-[11px] border border-gray-200 rounded px-1 py-1" value="${tg.time||'09:00'}" onchange="cfgDimTrig(${i},'time',this.value)">
+    ${trig}
   </div>`;
 }
 function cfgDimExec(i,v){
   const d=cfgBoard.dims[i];d.exec=v;
   if(v==='table'&&!d.tbl)d.tbl='';
-  renderCfgTiles();
+  if(v==='mcp'){d.mcp=d.mcp||'';d.mcpTool=d.mcpTool||''}
+  renderCfgTiles();cfgSyncLink();
+}
+/* 维度选执行智能体：联动智能体没手动改过时跟着第一个智能体执行的维度走 */
+function cfgDimAgentPick(i,v){
+  cfgBoard.dims[i].agent=v;renderCfgTiles();cfgSyncLink();
 }
 function cfgDimTbl(i,v){cfgBoard.dims[i].tbl=v;renderCfgTiles()}
-function cfgDimTrig(i,f,v){
-  const d=cfgBoard.dims[i];d.trig=dimTrig(d);d.trig[f]=v;
-  renderCfgTiles();
-}
+/* 换 MCP 时清掉已选工具：工具清单跟着服务走，留着会对不上 */
+function cfgDimMcp(i,v){const d=cfgBoard.dims[i];d.mcp=v;d.mcpTool='';renderCfgTiles()}
+function cfgDimMcpTool(i,v){cfgBoard.dims[i].mcpTool=v;renderCfgTiles()}
 function cfgTileSet(i,f,v){cfgBoard.dims[i][f]=v;if(f==='icon')cfgBoard.dims[i].iconManual=true}
 /* 维度名称变更：图标未被手动改过时跟随自动匹配 */
 function cfgDimName(i,v){
@@ -3494,7 +3703,7 @@ function cfgDimPreview(i){
     const v=tileVal(d);
     el.innerHTML=`<b>${d.icon} ${d.label}</b> = <span class="font-bold ${v.color}">${v.val}</span> ${d.unit}
       <span class="text-gray-400 ml-2">${v.sub}</span>
-      <div class="text-[10.5px] text-gray-400 mt-1">${dimSrcText(cfgBoard,d)} · 更新 ${dimTrigText(d)} · 口径「${d.q}」</div>`;
+      <div class="text-[10.5px] text-gray-400 mt-1">${dimSrcText(cfgBoard,d)} · ${dimNeedsTrig(d)?`更新 ${utrigText(cfgBoard)}`:'实时取数'} · 口径「${d.q}」</div>`;
   },600);
 }
 function cfgTileDel(i){cfgBoard.dims.splice(i,1);renderCfgTiles()}
@@ -3503,22 +3712,33 @@ function cfgTileMove(i,d){
   [t[i],t[j]]=[t[j],t[i]];renderCfgTiles();
 }
 function bdcAddTile(){
-  cfgBoard.dims.push({k:'t'+Date.now(),icon:'📌',label:'',unit:'项',q:'',exec:'agent',agent:'',tbl:'',trig:{mode:'day',dom:1,time:'09:00'}});
+  if(cfgBoard.dims.length>=DIM_MAX){toast(`一个工作看板最多 ${DIM_MAX} 个数据维度，删掉用不到的再加`);return}
+  cfgBoard.dims.push({k:'t'+Date.now(),icon:'📌',label:'',unit:'项',q:'',exec:'agent',agent:'',tbl:'',mcp:'',mcpTool:''});
   renderCfgTiles();
 }
 function saveBoardCfg(){
   const name=document.getElementById('bdc-name').value.trim();
   if(!name){toast('请填写看板名称');return}
   cfgBoard.name=name;
-  cfgBoard.role=document.getElementById('bdc-role').value.trim()||'未分配';
-  cfgBoard.agent=document.getElementById('bdc-agent').value;
-  cfgBoard.linkAgent=document.getElementById('bdc-link').value||cfgBoard.agent;
+  cfgBoard.linkAgent=document.getElementById('bdc-link').value||dimsDefaultAgent(cfgBoard);
+  cfgBoard.agent=cfgBoard.linkAgent;
   cfgBoard.enabled=!document.getElementById('bdc-enabled').classList.contains('off');
   cfgBoard.by=cfgBoard.by||ME;cfgBoard.at=bzStamp();
   const bad=cfgBoard.dims.find(d=>!d.label.trim()||!d.q.trim());
   if(bad){toast('数据维度的维度名称与查询输入都要填');return}
+  const noAg=cfgBoard.dims.find(d=>dimExec(d)==='agent'&&!d.agent);
+  if(noAg){toast(`维度「${noAg.label}」选的是智能体执行，请先选择执行智能体`);return}
   const noTbl=cfgBoard.dims.find(d=>dimExec(d)==='table'&&!d.tbl);
-  if(noTbl){toast(`维度「${noTbl.label}」选的是数据表直接查询，请先选择数据表`);return}
+  if(noTbl){toast(`维度「${noTbl.label}」选的是数据表执行，请先选择数据表`);return}
+  const noMcp=cfgBoard.dims.find(d=>dimExec(d)==='mcp'&&!d.mcp);
+  if(noMcp){toast(`维度「${noMcp.label}」选的是 MCP 执行，请先选择 MCP`);return}
+  const noTool=cfgBoard.dims.find(d=>dimExec(d)==='mcp'&&!d.mcpTool);
+  if(noTool){toast(`维度「${noTool.label}」请选择 MCP 工具`);return}
+  const ut=cfgBoard.utrig=boardUtrig(cfgBoard);
+  if(cfgAgentDims().length){
+    if(!ut.at){toast('有智能体执行的维度，请先填更新时间的触发时间');return}
+    if(ut.kind==='repeat'&&!ut.until){toast('重复更新需要填截止时间');return}
+  }
   if(cfgBoardId){
     const i=BOARDS.findIndex(b=>b.id===cfgBoardId);BOARDS[i]=cfgBoard;
   }else BOARDS.push(cfgBoard);
@@ -3533,14 +3753,13 @@ function openBzBoard(id){
   const src=id?BOARDS.find(b=>b.id===id):null;
   bzId=id;
   bzBoard=src?JSON.parse(JSON.stringify(src))
-    :{id:'bz-'+Date.now(),kind:'biz',name:'新建经营看板',role:'',agent:skAllAgents()[0]||'KA 主理智能体',
+    :{id:'bz-'+Date.now(),kind:'biz',name:'新建经营看板',agent:skAllAgents()[0]||'KA 主理智能体',
       enabled:true,scope:'auth',grants:[{name:ME,perm:'可管理'}],input:'',pub:'draft',
       trig:{mode:'day',dom:1,time:'08:00'},by:ME,at:bzStamp(),updated:'',preview:''};
   bzBoard.kind='biz';bzBoard.trig=bzBoard.trig||{mode:'day',dom:1,time:'08:00'};
   bzBoard.pub=bzBoard.pub||'draft';
   document.getElementById('bzc-title').textContent=src?`经营看板配置 · ${src.name}`:'新建经营看板';
   document.getElementById('bzc-name').value=bzBoard.name;
-  document.getElementById('bzc-role').value=bzBoard.role||'';
   document.getElementById('bzc-agent').innerHTML=skAllAgents().map(a=>`<option value="${a}"${a===bzBoard.agent?' selected':''}>${a}</option>`).join('');
   fillTrigUI('bzc',bzBoard.trig);
   document.getElementById('bzc-input').value=bzBoard.input||'';
@@ -3597,7 +3816,6 @@ function saveBzBoard(){
   const inp=document.getElementById('bzc-input').value.trim();
   if(!inp){toast('请填写看板输入');return}
   bzBoard.name=name;bzBoard.input=inp;
-  bzBoard.role=document.getElementById('bzc-role').value.trim()||'未分配';
   bzBoard.agent=document.getElementById('bzc-agent').value;
   bzBoard.trig.time=document.getElementById('bzc-trigtime').value||'08:00';
   bzBoard.freq=trigText(bzBoard.trig);
@@ -3613,7 +3831,7 @@ function pickBoardKind(k){closeBoardNew();k==='biz'?openBzBoard(null):openBoardC
 function skillAdd(tab){
   const k=tab||skTab;
   const map={skills:'新建技能：选「流程型」进入流程编排（触发器 + 节点/路由/SLA）',mcp:'添加 MCP Server：填服务地址与鉴权，平台自动拉取能力清单',
-    tool:'添加工具：定义入参出参与调用方式，授权后可挂到智能体',table:'添加数据表：选择数据源与同步策略，同步后可作为看板取数口径',board:'新建看板：配置名称、所属角色、执行智能体与指标磁贴'};
+    tool:'添加工具：定义入参出参与调用方式，授权后可挂到智能体',table:'添加数据表：选择数据源与同步策略，同步后可作为看板取数口径',board:'新建看板：配置名称、联动智能体、更新时间与数据维度'};
   if(k==='board'){document.getElementById('modal-boardnew').classList.remove('hidden');return}
   if(k==='table'){openDtNew();return}
   toast(map[k]+'（示意）');
@@ -3694,11 +3912,6 @@ function dtHeadCard(t){
       <span class="font-bold text-[15px]">${t.name}</span>
       <span class="tag ${authCls}">${t.auth}</span>
       <span class="tag ${DT_WPERM_CLS[t.wperm||'read']}">智能体${DT_WPERM[t.wperm||'read']}</span>
-      <div class="ml-auto flex gap-2">
-        ${dtHasFile(t)?`<button class="btn-o !py-1 !px-3 text-[11px]" onclick="dtReparse()">重新解析字段</button>
-        <button class="btn-o !py-1 !px-3 text-[11px]" onclick="toast('上传新版本文件（示意）：表头变化时会提示字段差异并要求确认')">上传新版本</button>`:''}
-        <button class="btn-o !py-1 !px-3 text-[11px]" onclick="openDtShare()">分享与授权</button>
-      </div>
     </div>
     <p class="text-[11.5px] text-gray-500 mt-2 leading-relaxed">${t.desc}</p>
     <div class="grid grid-cols-5 gap-3 mt-3">
@@ -3792,10 +4005,6 @@ function dtAddField(){
   t.fields.push(F('new_field_'+n,'文本','新字段'+n,'请补充业务含义，否则智能体只能靠字段名猜',{smp:'—'}));
   renderDtDetail();toast('已添加字段，补齐业务含义后智能体才能准确理解');
 }
-function dtReparse(){
-  toast('重新解析字段（示意）：结构从表头重新读取，中文名与业务含义由模型生成，可直接改');
-  renderDtDetail();
-}
 function dtQueriesTab(t){
   return `<div class="card overflow-hidden mb-3">
     <div class="flex items-center gap-2 px-4 py-2.5 border-b border-gray-100">
@@ -3808,7 +4017,6 @@ function dtQueriesTab(t){
         <th class="text-left px-3 py-2 font-semibold w-40">口径名称</th>
         <th class="text-left px-2 py-2 font-semibold w-36">参数</th>
         <th class="text-left px-2 py-2 font-semibold">过滤与聚合规则</th>
-        <th class="text-left px-2 py-2 font-semibold w-40">被引用</th>
         <th class="px-2 py-2 w-10"></th>
       </tr></thead>
       <tbody>${(t.queries||[]).length?(t.queries||[]).map((q,i)=>`
@@ -3816,9 +4024,8 @@ function dtQueriesTab(t){
           <td class="px-3 py-2"><input class="w-full bg-transparent border-b border-dashed border-gray-200 focus:outline-none focus:border-violet-400 text-[11.5px] font-semibold" value="${q.name}" onchange="dtSetQuery(${i},'name',this.value)"></td>
           <td class="px-2 py-2"><input class="w-full bg-transparent border-b border-dashed border-gray-200 focus:outline-none focus:border-violet-400 text-[11px] text-gray-500" value="${q.params}" onchange="dtSetQuery(${i},'params',this.value)"></td>
           <td class="px-2 py-2"><input class="w-full bg-transparent border-b border-dashed border-gray-200 focus:outline-none focus:border-violet-400 text-[11px] text-gray-500" value="${q.rule}" onchange="dtSetQuery(${i},'rule',this.value)"></td>
-          <td class="px-2 py-2 text-[10.5px] text-gray-400">${q.refs}</td>
           <td class="px-2 py-2 text-center"><span class="text-gray-300 hover:text-red-500 cursor-pointer text-[11px]" onclick="dtDelQuery(${i})">✕</span></td>
-        </tr>`).join(''):'<tr><td colspan="5" class="text-center text-[11px] text-gray-300 py-8">暂无查询口径，智能体只能走自由查询。点右上「+ 添加口径」固化高频问法</td></tr>'}
+        </tr>`).join(''):'<tr><td colspan="4" class="text-center text-[11px] text-gray-300 py-8">暂无查询口径，智能体只能走自由查询。点右上「+ 添加口径」固化高频问法</td></tr>'}
       </tbody>
     </table>
   </div>
@@ -3840,8 +4047,7 @@ function dtQueriesTab(t){
 }
 function dtSetQuery(i,k,v){dtGet().queries[i][k]=v;toast('查询口径已更新')}
 function dtDelQuery(i){
-  const t=dtGet(),q=t.queries[i];
-  if(q.refs&&q.refs!=='—'){toast(`「${q.name}」正被 ${q.refs} 引用，需先解除引用再删除`);return}
+  const t=dtGet();
   t.queries.splice(i,1);renderDtDetail();toast('口径已删除');
 }
 function dtAddQuery(){
@@ -7639,48 +7845,52 @@ function caseList(){return wbTasks.filter(t=>/售后工单/.test(t.type))}
    scope：public=公开可用（全员可见）/ auth=授权可用（仅 grants 内用户可见）；grants 见 liveBoards 过滤 */
 /* 看板分两类：kind='work' 工作看板（数据维度 + 联动智能体，进工作台「我的工作看板」）
    kind='biz'  经营看板（一句看板输入交给执行智能体整块生成，进「经营看板」聚合页）
-   维度字段：图标 icon / 维度名称 label / 查询输入 q / 执行方式 exec（'agent' 智能体执行｜'table' 数据表直接查询）
-     exec='agent' 时取执行智能体 agent（空则继承看板默认）；exec='table' 时取数据表 tbl
-     更新时间按维度各自配置：trig={mode:'day'|'work'|'month',dom,time}
-   经营看板的更新时间仍是看板级（trig/freq），它没有数据维度
-   联动智能体 linkAgent 单值，默认取执行智能体 */
+   维度字段：图标 icon / 维度名称 label / 查询输入 q / 执行方式 exec（'table' 数据表执行｜'agent' 智能体执行｜'mcp' MCP 执行）
+     exec='agent' 时取执行智能体 agent；exec='table' 时取数据表 tbl；exec='mcp' 时取服务名 mcp 与工具名 mcpTool
+   工作看板的更新时间统一配在看板上：utrig={at 触发时间,kind 'once'|'repeat',unit 'day'|'week'|'month',workday,dows,dom,until 截止时间}
+     只管智能体执行的维度，数据表执行与 MCP 执行点维度时实时取数；维度数上限 DIM_MAX
+   经营看板的更新时间是看板级的 trig/freq，它没有数据维度
+   联动智能体 linkAgent 单值，默认取维度所选的执行智能体 */
 const BOARDS=[
-  {id:'bd-sales',kind:'work',name:'销售看板',role:'销售',agent:'路书（销售AI）',enabled:true,scope:'public',grants:[],
+  {id:'bd-sales',kind:'work',name:'销售看板',agent:'路书（销售AI）',enabled:true,scope:'public',grants:[],
    linkAgent:'路书（销售AI）',
+   utrig:{at:'2026-10-19T08:30',kind:'repeat',unit:'day',workday:true,dows:[1],dom:1,until:'2026-12-31T18:00'},
    pub:'live',pubAt:'2026-08-18 10:25',pubBy:'张伟',
    by:'张伟',at:'2026-08-18 10:20',dims:[
-    {k:'opp',icon:'🎯',label:'跟进中商机',unit:'个',q:'我负责的、阶段在 CR2–CR4 且未签约的商机有哪些？各自阶段和金额',exec:'agent',agent:'',tbl:'',trig:{mode:'work',dom:1,time:'08:30'}},
-    {k:'perf',icon:'💰',label:'业绩数据',unit:'万',q:'我本月签约业绩合计多少？距月目标 500 万还差多少',exec:'table',agent:'',tbl:'dt-target',trig:{mode:'day',dom:1,time:'09:00'}},
-    {k:'rate',icon:'📈',label:'目标完成率',unit:'%',q:'按现在的商机漏斗，我这个月目标能不能完成？缺口怎么补',exec:'agent',agent:'KA 主理智能体',tbl:'',trig:{mode:'work',dom:1,time:'08:30'}},
-    {k:'wait',icon:'📞',label:'待跟进客户',unit:'项',q:'我还有哪些客户待跟进？帮我排一下今天的跟进顺序',exec:'agent',agent:'',tbl:'',trig:{mode:'work',dom:1,time:'08:30'}},
+    {k:'opp',icon:'🎯',label:'跟进中商机',unit:'个',q:'我负责的、阶段在 CR2–CR4 且未签约的商机有哪些？各自阶段和金额',exec:'agent',agent:'路书（销售AI）',tbl:''},
+    {k:'perf',icon:'💰',label:'业绩数据',unit:'万',q:'我本月签约业绩合计多少？距月目标 500 万还差多少',exec:'table',agent:'',tbl:'dt-target'},
+    {k:'rate',icon:'📈',label:'目标完成率',unit:'%',q:'按现在的商机漏斗，我这个月目标能不能完成？缺口怎么补',exec:'mcp',agent:'',tbl:'',mcp:'BI 指标 MCP',mcpTool:'指标取值'},
+    {k:'wait',icon:'📞',label:'待跟进客户',unit:'项',q:'我还有哪些客户待跟进？帮我排一下今天的跟进顺序',exec:'agent',agent:'路书（销售AI）',tbl:''},
   ]},
-  {id:'bd-cs',kind:'work',name:'客户成功看板',role:'客户成功',agent:'客成助手',enabled:true,scope:'auth',
+  {id:'bd-cs',kind:'work',name:'客户成功看板',agent:'客成助手',enabled:true,scope:'auth',
    grants:[{name:'罗紫函',perm:'可管理'},{name:'何伟文',perm:'可使用'}],
    linkAgent:'客成助手',
+   utrig:{at:'2026-10-19T09:30',kind:'repeat',unit:'day',workday:true,dows:[1],dom:1,until:'2026-12-31T18:00'},
    pub:'live',pubAt:'2026-08-22 15:10',pubBy:'李娜',
    by:'李娜',at:'2026-08-22 15:06',dims:[
-    {k:'cust',icon:'🤝',label:'在服客户',unit:'家',q:'我作为客成负责人、分级在 SKA/KA 的客户有哪些？哪些客情要重点关注',exec:'table',agent:'',tbl:'dt-map',trig:{mode:'day',dom:1,time:'09:00'}},
-    {k:'case',icon:'🎫',label:'待处理 case',unit:'单',q:'我受理中未关闭的 case 有哪些？按紧急度排一下',exec:'agent',agent:'',tbl:'',trig:{mode:'day',dom:1,time:'09:00'}},
-    {k:'sla',icon:'⏱',label:'SLA 达成率',unit:'%',q:'客成节点这周 SLA 达成情况怎么样？超时的都卡在哪',exec:'agent',agent:'',tbl:'',trig:{mode:'work',dom:1,time:'09:30'}},
-    {k:'ai',icon:'🤖',label:'AI 自助率',unit:'%',q:'客成节点的 AI 自助率和一次通过率怎么样？还有哪些能交给智能体',exec:'agent',agent:'KA 主理智能体',tbl:'',trig:{mode:'day',dom:1,time:'09:00'}},
+    {k:'cust',icon:'🤝',label:'在服客户',unit:'家',q:'我作为客成负责人、分级在 SKA/KA 的客户有哪些？哪些客情要重点关注',exec:'table',agent:'',tbl:'dt-map'},
+    {k:'case',icon:'🎫',label:'待处理 case',unit:'单',q:'我受理中未关闭的 case 有哪些？按紧急度排一下',exec:'mcp',agent:'',tbl:'',mcp:'天润客服 MCP',mcpTool:'case 列表查询'},
+    {k:'sla',icon:'⏱',label:'SLA 达成率',unit:'%',q:'客成节点这周 SLA 达成情况怎么样？超时的都卡在哪',exec:'agent',agent:'客成助手',tbl:''},
+    {k:'ai',icon:'🤖',label:'AI 自助率',unit:'%',q:'客成节点的 AI 自助率和一次通过率怎么样？还有哪些能交给智能体',exec:'agent',agent:'KA 主理智能体',tbl:''},
   ]},
-  {id:'bd-pm',kind:'work',name:'项目经理看板',role:'项目经理',agent:'KA 主理智能体',enabled:true,scope:'auth',
+  {id:'bd-pm',kind:'work',name:'项目经理看板',agent:'KA 主理智能体',enabled:true,scope:'auth',
    grants:[{name:'王磊',perm:'可使用'}],
    linkAgent:'KA 主理智能体',
+   utrig:{at:'2026-10-19T08:00',kind:'repeat',unit:'week',workday:true,dows:[1,3,5],dom:1,until:'2026-12-31T18:00'},
    pub:'live',pubAt:'2026-08-06 13:35',pubBy:'王强',
    by:'王强',at:'2026-08-06 13:30',dims:[
-    {k:'proj',icon:'📁',label:'在管项目',unit:'个',q:'我在管的、未结项的项目进展怎么样？哪些需要我今天介入',exec:'agent',agent:'',tbl:'',trig:{mode:'work',dom:1,time:'08:00'}},
-    {k:'over',icon:'⏰',label:'逾期任务',unit:'项',q:'我在管项目里已过截止时间且未完成的任务有哪些？责任人分别是谁',exec:'agent',agent:'',tbl:'',trig:{mode:'work',dom:1,time:'08:00'}},
-    {k:'risk',icon:'🚨',label:'高风险项目',unit:'个',q:'我在管项目里风险等级为高的是哪几个？风险点和应对建议',exec:'table',agent:'',tbl:'dt-risk',trig:{mode:'day',dom:1,time:'08:00'}},
-    {k:'week',icon:'✅',label:'本周完成',unit:'项',q:'本周我在管项目完成了哪些事？给我一份周度小结',exec:'agent',agent:'',tbl:'',trig:{mode:'work',dom:1,time:'18:00'}},
+    {k:'proj',icon:'📁',label:'在管项目',unit:'个',q:'我在管的、未结项的项目进展怎么样？哪些需要我今天介入',exec:'agent',agent:'KA 主理智能体',tbl:''},
+    {k:'over',icon:'⏰',label:'逾期任务',unit:'项',q:'我在管项目里已过截止时间且未完成的任务有哪些？责任人分别是谁',exec:'agent',agent:'KA 主理智能体',tbl:''},
+    {k:'risk',icon:'🚨',label:'高风险项目',unit:'个',q:'我在管项目里风险等级为高的是哪几个？风险点和应对建议',exec:'table',agent:'',tbl:'dt-risk'},
+    {k:'week',icon:'✅',label:'本周完成',unit:'项',q:'本周我在管项目完成了哪些事？给我一份周度小结',exec:'agent',agent:'KA 主理智能体',tbl:''},
   ]},
   /* 经营看板：整块生成式，无维度磁贴；pub=live 才进 AI 工作台聚合页 */
-  {id:'bz-global',kind:'biz',name:'集团经营总览',role:'管理层',agent:'KA 主理智能体',enabled:true,scope:'public',grants:[],
+  {id:'bz-global',kind:'biz',name:'集团经营总览',agent:'KA 主理智能体',enabled:true,scope:'public',grants:[],
    input:'按业务域汇总本月签约额、回款额、在管项目数与高风险项目，做成一页带趋势图的经营总览看板，突出同比与环比变化',
    trig:{mode:'day',dom:1,time:'07:30'},freq:'每日 07:30',by:'平台团队',at:'2026-09-12 09:40',
    pub:'live',pubAt:'2026-09-12 14:20',pubBy:'罗紫函',
    updated:'2026-09-29 07:30',preview:'指标卡 6 个 + 业务域趋势图 + 高风险项目明细表'},
-  {id:'bz-crm',kind:'biz',name:'CRM 商机漏斗看板',role:'销售管理',agent:'路书（销售AI）',enabled:true,scope:'auth',
+  {id:'bz-crm',kind:'biz',name:'CRM 商机漏斗看板',agent:'路书（销售AI）',enabled:true,scope:'auth',
    grants:[{name:'罗紫函',perm:'可管理'},{name:'任思宇',perm:'可使用'}],
    input:'把全量商机按 CR 阶段做成漏斗，列出各阶段停留时长超均值的商机与负责人，底部给出本月预测签约额',
    trig:{mode:'month',dom:1,time:'08:00'},freq:'每月 1 日 08:00',by:'张伟',at:'2026-09-15 11:02',
@@ -7700,24 +7910,53 @@ function trigText(t){
 }
 function boardFreq(b){return b.freq||(b.trig?trigText(b.trig):dimsFreqText(b))}
 function boardLink(b){return b.linkAgent||b.agent}
-/* ---- 维度级执行方式与更新时间 ---- */
-const DIM_EXECS=[['agent','智能体执行'],['table','数据表直接查询']];
-function dimTrig(d){return (d&&d.trig)||{mode:'day',dom:1,time:'09:00'}}
-function dimTrigText(d){return trigText(dimTrig(d))}
-function dimExec(d){return (d&&d.exec)==='table'?'table':'agent'}
+/* ---- 维度级执行方式 ---- */
+const DIM_EXECS=[['table','数据表执行'],['agent','智能体执行'],['mcp','MCP 执行']];
+const DIM_MAX=12;
+function dimExec(d){const v=(d&&d.exec)||'';return v==='table'||v==='mcp'?v:'agent'}
+/* ---- 看板级更新时间：触发时间 + 一次性／重复（按天／按周／按月）+ 截止时间 ----
+   统一管住本看板所有智能体执行的维度；数据表执行与 MCP 执行点维度时实时取数，不受它约束 */
+const RPT_UNITS=[['day','按天重复'],['week','按周重复'],['month','按月重复']];
+const WEEK_DAYS=[[1,'一'],[2,'二'],[3,'三'],[4,'四'],[5,'五'],[6,'六'],[0,'日']];
+function boardUtrig(b){
+  const t=(b&&b.utrig)||{};
+  return {at:t.at||'',kind:t.kind==='once'?'once':'repeat',unit:['day','week','month'].includes(t.unit)?t.unit:'day',
+    workday:t.workday!==false,dows:(t.dows&&t.dows.length?t.dows:[1]),dom:t.dom||1,until:t.until||''};
+}
+function utrigText(b){
+  const t=boardUtrig(b);
+  const hm=t.at?t.at.split('T')[1]||'':'';
+  if(!t.at)return '未配置';
+  if(t.kind==='once')return `一次性 ${t.at.replace('T',' ')}`;
+  if(t.unit==='week')return `每周 ${t.dows.map(d=>(WEEK_DAYS.find(w=>w[0]===d)||[,''])[1]).join('、')} ${hm}`;
+  if(t.unit==='month')return `每月 ${t.dom} 日 ${hm}`;
+  return `${t.workday?'每工作日':'每日'} ${hm}`;
+}
+/* 维度所选的执行智能体：取第一个智能体执行的维度，作为联动智能体的默认值 */
+function dimsDefaultAgent(b){
+  const d=(b.dims||[]).find(x=>dimExec(x)==='agent'&&x.agent);
+  return d?d.agent:'';
+}
 function dtNameOf(id){const t=DATA_TABLES.find(x=>x.id===id);return t?t.name:''}
-/* 看板整体的更新时间口径：各维度一致时给具体时间，不一致时说明按维度分别配置 */
+/* MCP 的能力清单由服务端声明，这里按服务名取工具列表 */
+function mcpToolsOf(name){const m=MCP_ITEMS.find(x=>x.name===name);return (m&&m.tools)||[]}
+/* 只有智能体执行受看板更新时间约束：数据表与 MCP 在点维度时实时取数 */
+function dimNeedsTrig(d){return dimExec(d)==='agent'}
+/* 看板整体的更新时间口径 */
 function dimsFreqText(b){
   const ds=b.dims||[];
   if(!ds.length)return '未配置维度';
-  const u=[...new Set(ds.map(dimTrigText))];
-  return u.length===1?u[0]:`按维度分别配置（${u.length} 种）`;
+  const ag=ds.filter(dimNeedsTrig);
+  if(!ag.length)return '实时取数';
+  const base=utrigText(b);
+  return ag.length===ds.length?base:`${base}，其余维度实时取数`;
 }
-/* 维度的取数来源文案：数据表直接查询给表名，智能体执行给智能体 */
+/* 维度的取数来源文案：数据表给表名，MCP 给服务名与工具名，智能体给智能体 */
 function dimSrcText(b,d){
-  return dimExec(d)==='table'
-    ?`数据表「${dtNameOf(d.tbl)||'未选择'}」直接查询`
-    :`${agentNick(dimAgent(b,d))} 执行${d.agent?'':'（继承看板默认）'}`;
+  const ex=dimExec(d);
+  if(ex==='table')return `数据表「${dtNameOf(d.tbl)||'未选择'}」直接查询`;
+  if(ex==='mcp')return `MCP「${d.mcp||'未选择'}」· 工具「${d.mcpTool||'未选择'}」`;
+  return `${agentNick(dimAgent(b,d))} 执行`;
 }
 /* 图标自动匹配：按维度名称关键词命中，未命中给默认 */
 const ICON_RULES=[[/商机|漏斗|线索/,'🎯'],[/业绩|签约|金额|回款|营收/,'💰'],[/率|达成|占比/,'📈'],
@@ -7727,7 +7966,7 @@ const ICON_RULES=[[/商机|漏斗|线索/,'🎯'],[/业绩|签约|金额|回款|
 function autoIcon(name){const r=ICON_RULES.find(([re])=>re.test(name||''));return r?r[1]:'📌'}
 function workBoards(){return BOARDS.filter(b=>b.kind!=='biz')}
 function bizBoards(){return BOARDS.filter(b=>b.kind==='biz')}
-function dimAgent(b,d){return d.agent||b.agent}
+function dimAgent(b,d){return d.agent||boardLink(b)}
 /* 磁贴取值：原型内按 mock 数据现算，数据源/查询规则为配置项（悬浮可见） */
 const TILE_VAL={
   opp(){const ing=oppList().filter(o=>!o.signed);return {val:ing.length,sub:`预计 ${ing.reduce((s,o)=>s+o.amt,0)} 万 · CR2–CR4`,color:'text-violet-700'}},
@@ -7762,7 +8001,7 @@ function boardVisible(b,who){return b.scope==='public'||!!boardGrant(b,who)}
 function liveBoards(){return workBoards().filter(b=>b.enabled&&isPub(b)&&boardVisible(b))}
 function liveBizBoards(){return bizBoards().filter(b=>b.enabled&&isPub(b)&&boardVisible(b))}
 function curBoard(){return liveBoards().find(b=>b.id===curBoardId)||liveBoards()[0]}
-function roleAgent(){const b=curBoard();return b?b.agent:'KA 主理智能体'}
+function roleAgent(){const b=curBoard();return b?boardLink(b):'KA 主理智能体'}
 function renderBoard(){
   const sel=document.getElementById('wb-board-role-sel');
   if(!sel)return;
@@ -7777,36 +8016,39 @@ function renderBoard(){
   const dims=b.dims||[],cols=Math.min(Math.max(dims.length,1),4);
   document.getElementById('wb-board-metrics').innerHTML=
     `<div class="grid gap-1.5" style="grid-template-columns:repeat(${cols},minmax(0,1fr))">${dims.map(t=>{const v=tileVal(t);return `
-      <button class="text-left px-2 py-1.5 rounded-lg bg-white/70 border border-violet-100 hover:border-violet-300 hover:bg-white transition-colors group" title="查询输入：${attrEsc(t.q)}&#10;取数方式：${attrEsc(dimSrcText(b,t))}&#10;更新时间：${dimTrigText(t)}" onclick="wbBoardAsk('${t.k}')">
+      <button class="text-left px-2 py-1.5 rounded-lg bg-white/70 border border-violet-100 hover:border-violet-300 hover:bg-white transition-colors group" title="查询输入：${attrEsc(t.q)}&#10;取数方式：${attrEsc(dimSrcText(b,t))}&#10;更新时间：${dimNeedsTrig(t)?utrigText(b):'实时取数'}" onclick="wbBoardAsk('${t.k}')">
         <div class="text-[10px] text-gray-500 truncate">${t.icon} ${t.label}</div>
         <div class="flex items-baseline gap-0.5 mt-0.5"><span class="text-[17px] font-bold leading-none ${v.color}">${v.val}</span><span class="text-[9.5px] text-gray-400">${t.unit}</span></div>
         <div class="text-[9.5px] text-gray-400 truncate mt-0.5">${v.sub}</div>
       </button>`}).join('')}</div>
-    <div class="text-[9.5px] text-gray-400 mt-1.5 px-0.5">维度口径、执行方式与更新时间在「技能库 · 看板」按维度配置 · 更新 ${dimsFreqText(b)} · 点任一维度即在会话中展开查询 · 联动智能体 ${agentNick(boardLink(b))} 可直接追问本看板数据</div>`;
+    <div class="text-[9.5px] text-gray-400 mt-1.5 px-0.5">维度口径与执行方式在「技能库 · 看板」按维度配置 · 更新 ${dimsFreqText(b)} · 点任一维度即在会话中展开查询 · 联动智能体 ${agentNick(boardLink(b))} 可直接追问本看板数据</div>`;
 }
 function switchBoard(id){
   const b=liveBoards().find(x=>x.id===id);
   if(!b||id===curBoardId)return;
   curBoardId=id;renderBoard();
-  toast(`已切换到「${b.name}」，对口智能体 ${agentNick(b.agent)}`);
+  toast(`已切换到「${b.name}」，对口智能体 ${agentNick(boardLink(b))}`);
 }
-/* 点维度 → 智能体执行的切到该维度执行智能体，数据表直接查询的切到联动智能体读表作答；都以「查询输入」发问 */
+/* 点维度 → 智能体执行的切到该维度执行智能体；数据表执行与 MCP 执行切到联动智能体取数作答；都以「查询输入」发问 */
 function wbBoardAsk(k){
   const b=curBoard();if(!b)return;
   const t=(b.dims||[]).find(x=>x.k===k);if(!t)return;
   const m={k,label:t.icon+' '+t.label,q:t.q};
-  const tbl=dimExec(t)==='table';
-  const ag=tbl?boardLink(b):dimAgent(b,t);
+  const ex=dimExec(t),tbl=ex==='table',mcp=ex==='mcp';
+  const ag=(tbl||mcp)?boardLink(b):dimAgent(b,t);
   if(!wbAgentList().includes(ag)){myApps.push(ag);renderAppChips();}
   if(ag!==currentAgent)switchAgent(ag);
   wbShowSession();
   const chat=wbChatEl();
   chat.insertAdjacentHTML('beforeend',`<div class="flex gap-3 mb-4 flex-row-reverse"><div class="w-8 h-8 rounded-full bg-violet-600 text-white flex items-center justify-center shrink-0 text-sm">罗</div><div class="bg-violet-600 text-white rounded-xl rounded-tr-none px-4 py-3 text-[13px] max-w-lg">${m.q}<div class="text-[10px] opacity-70 mt-1">来自我的工作看板 · ${m.label.slice(2)}</div></div></div>`);
   const tid='bd-'+Date.now();
-  const wait=tbl?`正在从数据表「${dtNameOf(t.tbl)||'未选择'}」取数…`:`正在查询${b.name} · ${t.label} 维度数据…`;
+  const wait=tbl?`正在从数据表「${dtNameOf(t.tbl)||'未选择'}」取数…`
+    :mcp?`正在通过 MCP「${t.mcp||'未选择'}」的「${t.mcpTool||'未选择'}」取数…`
+    :`正在查询${b.name} · ${t.label} 维度数据…`;
   chat.insertAdjacentHTML('beforeend',`<div class="flex gap-3 mb-4" id="${tid}"><div class="w-8 h-8 shrink-0">${agentAvatarSvg(ag,32)}</div><div><div class="text-[11px] text-gray-400 mb-1" title="${ag}">${agentNick(ag)} 刚刚</div><div class="bd-bubble bg-gray-50 rounded-xl rounded-tl-none px-4 py-3 text-[13px] text-gray-700 max-w-lg typing">${wait}</div></div></div>`);
   chat.scrollTop=chat.scrollHeight;
-  const srcNote=tbl?`<div class="text-[11px] text-gray-400 mb-2">已从数据表「${dtNameOf(t.tbl)||'未选择'}」取数</div>`:'';
+  const srcNote=tbl?`<div class="text-[11px] text-gray-400 mb-2">已从数据表「${dtNameOf(t.tbl)||'未选择'}」取数</div>`
+    :mcp?`<div class="text-[11px] text-gray-400 mb-2">已通过 MCP「${t.mcp||'未选择'}」· 工具「${t.mcpTool||'未选择'}」取数</div>`:'';
   setTimeout(()=>{
     const box=document.getElementById(tid);if(!box)return;
     const bb=box.querySelector('.bd-bubble');
@@ -8325,7 +8567,7 @@ function dashGroups(){
   const projItems=[{name:'全局看板',tag:'全部',icon:'🌐',global:true}]
     .concat(projects.filter(p=>p.type!=='个人项目').map(p=>({name:p.name,tag:p.type==='SKA项目'?'SKA':'KA',icon:p.type==='SKA项目'?'⭐':'📁',projId:p.id})));
   /* 技能库-看板里配置并启用的经营看板，按可见范围过滤后进这里 */
-  const bizItems=liveBizBoards().map(b=>({name:b.name,tag:b.role,icon:'📈',bizId:b.id}));
+  const bizItems=liveBizBoards().map(b=>({name:b.name,tag:'经营',icon:'📈',bizId:b.id}));
   return [
     {title:'我的看板',mine:true,items:[]},
     ...(bizItems.length?[{title:'经营看板（技能库配置）',items:bizItems}]:[]),
