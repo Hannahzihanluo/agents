@@ -1369,7 +1369,7 @@
     </div>
 
     <div class="mb-1">
-      <label class="text-[12px] font-semibold text-gray-600 block mb-1.5">执行方式 <span class="text-red-400">*</span></label>
+      <label class="text-[12px] font-semibold text-gray-600 block mb-1.5">执行方式 <span id="rt-mode-req" class="text-red-400">*</span><span id="rt-mode-opt" class="hidden text-gray-400 font-normal">（选填，不选则静默执行，结果只进输出方式所选看板）</span></label>
       <div class="flex gap-5 text-[12.5px] text-gray-700 mb-2">
         <label class="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" id="rt-mode-notify" checked class="accent-violet-600" onchange="rtModeChange()"> 任务通知</label>
         <label class="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" id="rt-mode-user" class="accent-violet-600" onchange="rtModeChange()"> 指定用户</label>
@@ -1751,6 +1751,67 @@
         <div class="text-[13px] font-bold mt-1.5">经营看板</div>
         <div class="text-[11px] text-gray-500 leading-relaxed mt-1">一句看板输入交给执行智能体整块生成看板产物，配置里可预览调试。启用后进「经营看板」聚合页。</div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 数据表：新增二选 + 上传文件 ===== -->
+<div id="modal-dtnew" class="hidden fixed inset-0 z-50 modal-bg flex items-center justify-center" onclick="if(event.target===this)closeDtNew()">
+  <div class="bg-white rounded-2xl w-[560px] p-6 fade-in">
+    <div class="flex items-center justify-between mb-1">
+      <h3 class="font-bold" id="dtn-title">新增数据表</h3>
+      <button class="text-gray-400 hover:text-gray-600" onclick="closeDtNew()">✕</button>
+    </div>
+    <!-- 第一步：选形态 -->
+    <div id="dtn-step1" class="grid grid-cols-2 gap-3 mt-4">
+      <div class="card card-asset p-4 cursor-pointer hover:border-violet-300 transition" onclick="pickDtKind('upload')">
+        <div class="text-[20px]">📄</div>
+        <div class="text-[13px] font-bold mt-1.5">上传文件</div>
+        <div class="text-[11px] text-gray-500 leading-relaxed mt-1">已有 Excel / CSV，上传后平台解析表头与采样行，表名与描述自动填好，进配置页核对即可。</div>
+      </div>
+      <div class="card card-asset p-4 cursor-pointer hover:border-violet-300 transition" onclick="pickDtKind('custom')">
+        <div class="text-[20px]">✏️</div>
+        <div class="text-[13px] font-bold mt-1.5">自定义数据表</div>
+        <div class="text-[11px] text-gray-500 leading-relaxed mt-1">手上没有现成文件，先声明表名、描述与字段，建成空表由智能体往里写。</div>
+      </div>
+    </div>
+    <!-- 第二步：上传文件 -->
+    <div id="dtn-step2" class="hidden mt-4">
+      <div class="border-l-[3px] border-red-400 bg-red-50/40 rounded-r-lg px-3 py-2.5 flex gap-2 mb-3">
+        <span class="text-red-500 text-[12px] leading-relaxed">!</span>
+        <p class="text-[11px] text-gray-600 leading-relaxed">提醒：单次支持上传<span class="text-red-500 font-semibold">大小不超过50MB</span>的一个文件或多个文件，总计 sheet 数不超过 10 个。
+          每个 sheet <span class="text-red-500 font-semibold">行数不超过5000行且列数不超过100列</span>，若超出的数据将会<span class="text-red-500 font-semibold">自动截断</span>。</p>
+      </div>
+      <div class="mb-2">
+        <button class="text-[12px] text-violet-600 font-semibold hover:underline" onclick="toast('下载模板（示意）：按模板格式整理后再上传，首行为字段名')">⤓ 下载模板</button>
+        <span class="text-[11px] text-gray-400 ml-3">现支持 EXCEL、CSV</span>
+      </div>
+      <div class="border border-dashed border-gray-200 rounded-lg py-6 text-center cursor-pointer hover:border-violet-300 text-[12.5px] text-violet-600" onclick="dtnPickFile()">＋ 上传文件</div>
+      <div id="dtn-files" class="mt-2 space-y-1"></div>
+      <div class="flex justify-end gap-2 mt-5 pt-4 border-t border-gray-100">
+        <button class="btn-o" onclick="dtnBack()">上一步</button>
+        <button class="btn-p" onclick="dtnToCfg()">下一步</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 数据表：编辑基本信息 ===== -->
+<div id="modal-dtedit" class="hidden fixed inset-0 z-50 modal-bg flex items-center justify-center" onclick="if(event.target===this)closeDtEdit()">
+  <div class="bg-white rounded-2xl w-[560px] p-6 fade-in">
+    <div class="flex items-center justify-between mb-1">
+      <h3 class="font-bold">编辑数据表</h3>
+      <button class="text-gray-400 hover:text-gray-600" onclick="closeDtEdit()">✕</button>
+    </div>
+    <label class="text-[12px] font-semibold text-gray-600 block mb-1.5 mt-4"><span class="text-red-400">*</span> 数据表名称</label>
+    <input id="dte-name" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-[12.5px] focus:outline-violet-300">
+    <label class="text-[12px] font-semibold text-gray-600 block mb-1.5 mt-4"><span class="text-red-400">*</span> 数据表描述</label>
+    <textarea id="dte-desc" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-[12.5px] h-24 focus:outline-violet-300"></textarea>
+    <label class="text-[12px] font-semibold text-gray-600 block mb-1.5 mt-4"><span class="text-red-400">*</span> 智能体应用权限</label>
+    <select id="dte-wperm" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-[12.5px] focus:outline-violet-300 bg-white"></select>
+    <div class="flex justify-end gap-2 mt-5 pt-4 border-t border-gray-100">
+      <button class="btn-o" onclick="closeDtEdit()">取 消</button>
+      <button class="btn-p" onclick="saveDtEdit()">确 定</button>
     </div>
   </div>
 </div>
@@ -2269,7 +2330,8 @@ const VERSIONS = [
   {v:'v22', date:'2026-09-03', title:'任务执行子任务可操作 + 报价Agent skill 表单闭环', desc:'三处待办均可展开并处理子任务、一键转智能体会话；新增报价Agent：skill 生成表单 → 提交回传 → 智能体出报价单。', file:'versions/[原型]AI基础设施平台-整合版-v22-2026-09-03.html'},
   {v:'v23', date:'2026-09-09', title:'智能体伙伴纵向栏 + 每个智能体独立会话 + 收藏体系收敛', desc:'工作台布局重构：智能体伙伴改最左纵向栏、每个智能体独立会话、收藏统一收敛为「我的看板」，下线流程看板。', file:'versions/[原型]AI基础设施平台-整合版-v23-2026-09-09.html'},
   {v:'v24', date:'2026-09-10', title:'任务执行统一「处理」动作 + 子任务权限与主任务自动完成', desc:'主子任务统一「处理」动作（可选人工或智能体执行），处理权限按归属收敛，子任务全部完成时主任务自动办结。', file:'versions/[原型]AI基础设施平台-整合版-v24-2026-09-10.html'},
-  {v:'工作版', date:'2026-10-16', title:'在 1.1 正式版基础上继续迭代', desc:'以 1.1 正式版为起点。本次：数据表按智能体应用权限四档管能力、档位建表时定，建表收敛为单页；分享只管分享到人、授权对象改二级部门 + 人，入口只留列表页；看板维度支持数据表 / 智能体 / MCP 三种执行方式，更新时间统一配在看板上（一次性 / 重复 + 截止时间），工作看板只配联动智能体、维度上限 12 个，两类看板去掉所属角色。', file:'SELF'},
+  {v:'工作版', date:'2026-10-21', title:'在 Agent 平台 261021 版本基础上继续迭代', desc:'当前在改的版本，内容以 Agent 平台 261021 版本为起点，新改动随时更新在这里。定稿后再冻结为下一个正式版。', file:'SELF'},
+  {v:'Agent平台261021版本', date:'2026-10-21', release:true, title:'数据表能力成型：新增两选与上传解析、编辑收到详情页、分享到人', desc:'Agent 平台 261021 正式版（已冻结）。数据表新增先选上传文件 / 自定义，上传后表名描述自动解析填充；编辑入口收到详情页，可改应用权限；字段表收为业务语义六列，分享改分享到人；看板更新时间收到看板级；任务执行的执行方式在事件触发下转为选填。', file:'versions/[原型]AI基础设施平台-整合版-Agent平台261021版本-2026-10-21.html'},
   {v:'智能体平台任务中心1.1', date:'2026-09-18', release:true, title:'评审调整：处理动作与任务配置收敛，列表改日期筛选，办结为终态', desc:'任务中心 1.1 正式版（已冻结）。处理动作与任务配置收敛，列表改日期筛选（默认近 3 个月），办结为终态，子任务只在本层添加、可派智能体执行；平台我的任务增手动新建入口，扩展字段收为统一字段、格式同备注。', file:'versions/[原型]AI基础设施平台-整合版-智能体平台任务中心1.1-2026-09-18.html'},
   {v:'智能体平台任务中心1.0', date:'2026-09-15', release:true, title:'任务中心正式版：任务执行闭环 + 任务配置以权限取代审核', desc:'任务中心 1.0 正式版（已冻结）。任务执行：主子任务统一「处理」动作、转交跟进、按任务类型筛选、飞书待办同步状态（已同步 / 未开启同步 / 同步失败可重试）、任务删除（创建人 / 管理员 / 任务类型管理者三者任一可删，级联子任务并撤回待办）。任务配置：新增用户管理与功能权限树，任务类型与业务对接去掉备案审核改为保存即生效 + 测试模式 + 连通性校验，派单由业务系统定义，订阅智能体可选填。', file:'versions/[原型]AI基础设施平台-整合版-智能体平台任务中心1.0-2026-09-15.html'},
   {v:'移动版', date:'2026-09-13', title:'AI 工作台移动端适配', desc:'四个底部页签承载工作台：会话（智能体抽屉 + 折叠看板）、任务（处理人视角 + 抽屉式处理/转交/新建）、空间、我的。', file:'[原型]AI工作台-移动端.html'},
@@ -2280,7 +2342,7 @@ function isEmbed(){return /[?&]embed=1\b/.test(location.search)}
 function renderVersionList(){
   const tbody=document.getElementById('ver-tbody');
   /* 工作版置顶，正式版与移动版紧随其后（命名版本不参与 vNN 排序），其余按版本号倒序 */
-  const PIN=[LATEST_VER,'智能体平台任务中心1.1','智能体平台任务中心1.0','移动版'];
+  const PIN=[LATEST_VER,'Agent平台261021版本','智能体平台任务中心1.1','智能体平台任务中心1.0','移动版'];
   const sorted=[...VERSIONS].sort((a,b)=>{
     const pa=PIN.indexOf(a.v),pb=PIN.indexOf(b.v);
     if(pa>=0||pb>=0)return (pa<0?9:pa)-(pb<0?9:pb);
@@ -2342,7 +2404,7 @@ const PAGE_SPECS={
 'runs-agent':{name:'智能体平台 · 任务执行 · Agent | 执行任务',
   desc:'智能体侧的定时与触发类任务管理，区分会话创建与后台创建，可查看每条任务的执行记录。',
   fields:'名称、触发方式、执行方式、创建方式、执行内容、执行智能体、状态、更新人、更新时间、操作。',
-  logic:'按启用状态 / 创建方式 / 智能体 / 名称组合筛选；新建任务走弹窗配置；已过期或已停用的任务不再触发；执行记录按任务维度留存。'},
+  logic:'按启用状态 / 创建方式 / 智能体 / 名称组合筛选；新建任务走弹窗配置；已过期或已停用的任务不再触发；执行记录按任务维度留存。执行方式在定时触发下必填，在事件触发下为选填，不选时记为静默执行，结果只进「输出方式」所选看板。'},
 'skills-skills':{name:'智能体平台 · 技能库 · Skills',
   desc:'智能体可复用能力的沉淀，分流程型（多节点流转，有独占详情页）与功能型（单点能力）两类。',
   fields:'技能名称、形态、节点数 / 负责人、使用状态、授权状态、关联智能体。',
@@ -2358,19 +2420,19 @@ const PAGE_SPECS={
 'skills-table':{name:'智能体平台 · 技能库 · 数据表',
   desc:'智能体可读写的结构化数据，不再区分上传表与自定义表，一张表按智能体应用权限决定能被怎么用，列表为表格形态。',
   fields:'数据表、智能体应用权限、使用状态、关联智能体、应用授权、创建人、更新时间、操作。',
-  logic:'「+ 添加数据表」在列表右上角，点击直接进入独占建表配置页，不再先选形态；表名点击进入数据表详情页。智能体应用权限为只读 / 可读写 / 可读写改 / 可读写改删四档递进，后一档包含前一档的动作。'},
+  logic:'「+ 添加数据表」在列表右上角，点击先出弹窗二选上传文件 / 自定义数据表：选上传文件在弹窗内传文件，再进配置页，表名与描述按解析结果自动填好；选自定义数据表直接进配置页。表名点击进入数据表详情页。列表「编辑」与表名一样进数据表详情页。智能体应用权限为只读 / 可读写 / 可读写改 / 可读写改删四档递进，后一档包含前一档的动作，在详情页头卡「编辑」里改。'},
 'skills-board':{name:'智能体平台 · 技能库 · 看板配置',
   desc:'工作台看板的配置侧，看板分工作看板与经营看板两类，含内容配置与分享范围配置。列表上方有看板类型、可用范围与名称搜索三项筛选。',
   fields:'筛选项：看板类型（工作看板 / 经营看板）、可用范围（公开可用 / 授权可用）、看板名称搜索。卡片：看板名称、看板类型、可用范围、启停开关、执行智能体、数据维度、创建人与时间、已授权人数、操作。工作看板配置的每个数据维度：图标、维度名称、单位、查询输入、执行方式、执行对象（数据表 / 智能体 / MCP + MCP 工具）、更新时间（仅智能体执行）。',
   logic:'新建入口在列表右上角；筛选条为看板专用，与技能库共用筛选条不互通，条件在会话内保持，切开其他页签再回来不丢；筛选无结果时提示换条件或重置；可见范围为授权可用时需维护授权名单与权限档位；候选用户取平台用户列表，用户停用或删除时授权记录同步失效并重新计数；工作台侧按权限过滤可见看板。工作看板的执行方式按维度各自配置，分数据表执行 / 智能体执行 / MCP 执行三种：选数据表执行时需指定数据表；选智能体执行时需指定执行智能体；选 MCP 执行时需先选 MCP 服务再选该服务下的 MCP 工具，工具清单来自服务端声明的能力清单，未选 MCP 时工具下拉置灰，换 MCP 时已选工具清空；必填未选不允许保存。更新时间统一配在看板上（触发时间 + 一次性 / 重复，重复分按天 / 按周 / 按月，按天可勾仅工作日，重复需填截止时间），只管住智能体执行的维度，数据表执行与 MCP 执行在点维度时实时取数；有智能体执行的维度时触发时间与截止时间必填。工作看板只配联动智能体，默认取维度所选的执行智能体，手动改过后不再自动跟随；数据维度上限 12 个。工作台点维度统一进入会话，数据表执行与 MCP 执行的维度由联动智能体取数作答并在气泡标注取数来源。经营看板无数据维度，更新时间仍是看板级。两类看板都不设所属角色。'},
-'dt-new':{name:'智能体平台 · 新建数据表',
-  desc:'独占页面的单页建表配置：基本信息 → 智能体应用权限 → 初始化数据（选填）→ 进入详情页校对字段。',
-  fields:'基本信息：数据表名称（必填）、数据表描述（必填）。智能体应用权限（必填）：只读 / 可读写 / 可读写改 / 可读写改删，默认可读写。初始化数据（选填）：数据文件；未传文件时出字段生成方式（自动生成 / 手动添加）。字段只含字段名、类型、中文名、数据示例、业务含义、枚举说明。',
-  logic:'页头只留返回按钮，进入后技能库标题与页签整块隐藏；校验顺序为名称 → 描述，文件非必填；传了文件按表头解析生成字段，不传文件按字段生成方式处理——自动生成按表名与描述命中规则补一组字段（含更新时间），手动添加只建空表；权限非只读时自动建唯一键「记录编号」，只读表不建键，档位保存后不在平台侧改；上传文件受 50MB / 5000 行限制。保存后直接进详情页校对。'},
+'dt-new':{name:'智能体平台 · 新增数据表',
+  desc:'先在弹窗里二选形态（上传文件 / 自定义数据表），再进独占页面配置：基本信息 → 智能体应用权限 → 数据文件或字段生成方式 → 进入详情页校对字段。',
+  fields:'弹窗：上传文件 / 自定义数据表二选，选上传文件时弹窗内出上传区（下载模板、文件列表、50MB / 10 sheet / 5000 行限制提醒）。配置页：数据表名称（必填）、数据表描述（必填）、智能体应用权限（必填，默认可读写）。上传形态出「数据文件」区（已传文件、已解析字段数、重新选择文件），自定义形态出「字段生成方式」区（自动生成 / 手动添加）。字段只含字段名、类型、中文名、数据示例、业务含义、枚举说明。',
+  logic:'弹窗选上传文件后分两步：传文件 → 下一步进配置页，未传文件不允许下一步，可回上一步换形态；解析结果把数据表名称与描述自动填入配置页，两项仍可改，字段按表头与采样行解析。选自定义数据表跳过上传直接进配置页，按字段生成方式处理——自动生成按表名与描述命中规则补一组字段（含更新时间），手动添加只建空表。配置页页头只留返回按钮，进入后技能库标题与页签整块隐藏；校验顺序为名称 → 描述；权限非只读时自动建唯一键「记录编号」，只读表不建键。保存后直接进详情页校对。'},
 'dt-detail':{name:'智能体平台 · 数据表详情',
   desc:'单张数据表的字段、查询口径与数据内容，字段描述是智能体理解该表的依据。',
   fields:'字段名、类型、中文名、数据示例、业务含义、枚举说明、操作。页签为字段及描述、查询口径、数据，开了写权限的表另有写入记录。',
-  logic:'页头只留返回按钮；字段只描述业务语义，不再配置对智能体可见 / 可筛选 / 可聚合与确认状态，解析或声明后即可被查询；所有表的字段都可改名、可新增与删除，数据页单元格可直接编辑，唯一键行不可删除，改其中文名时唯一键标记同步更新，至少保留一个字段。写入记录与唯一键只在权限非只读时出现，智能体按档位直接写入、不再进待确认队列，留痕以一次执行为批次并可整批撤销。智能体应用权限在建表时选定，详情页与列表只做只读展示，调整入口后续挪到智能体侧，本期不做。分享入口只在数据表列表页，详情页不提供。分享弹窗只管分享到人：可用范围选授权可用时从飞书组织架构勾选部门或人员并分配可使用 / 可管理，组织树为一级部门分组 + 二级部门 + 人三层，勾选粒度是二级部门与人、勾二级部门即授权该部门全员，无归属部门的人平铺在树的最后，选公开可用时人员区置灰且名单清空，授权可用且名单为空不允许保存。关联智能体为被引用情况的只读展示，不在此处增删。查询口径表只有口径名称、参数、过滤与聚合规则三列。'},
+  logic:'页头只留返回按钮；字段只描述业务语义，不再配置对智能体可见 / 可筛选 / 可聚合与确认状态，解析或声明后即可被查询；所有表的字段都可改名、可新增与删除，数据页单元格可直接编辑，唯一键行不可删除，改其中文名时唯一键标记同步更新，至少保留一个字段。写入记录与唯一键只在权限非只读时出现，智能体按档位直接写入、不再进待确认队列，留痕以一次执行为批次并可整批撤销。智能体应用权限、数据表名称与描述可改：入口是详情页头卡的「编辑」，三项在同一个弹窗里改，名称与描述必填，列表「编辑」与表名都只进详情页；权限由只读提到可写时自动补唯一键「记录编号」并把维护方式改为智能体自动更新，由可写收回只读时写入记录页签隐藏、维护方式改回手工维护，已写入的数据不动。分享入口只在数据表列表页，详情页不提供。分享弹窗只管分享到人：可用范围选授权可用时从飞书组织架构勾选部门或人员并分配可使用 / 可管理，组织树为一级部门分组 + 二级部门 + 人三层，勾选粒度是二级部门与人、勾二级部门即授权该部门全员，无归属部门的人平铺在树的最后，选公开可用时人员区置灰且名单清空，授权可用且名单为空不允许保存。关联智能体为被引用情况的只读展示，不在此处增删。查询口径表只有口径名称、参数、过滤与聚合规则三列。'},
 'flow-skill':{name:'智能体平台 · 流程型技能详情',
   desc:'流程型技能的骨架视图：节点编排、节点智能体与在途任务概况。',
   fields:'流程名称、节点数、流程负责人、执行说明、在途任务数、各节点配置。',
@@ -3912,6 +3974,7 @@ function dtHeadCard(t){
       <span class="font-bold text-[15px]">${t.name}</span>
       <span class="tag ${authCls}">${t.auth}</span>
       <span class="tag ${DT_WPERM_CLS[t.wperm||'read']}">智能体${DT_WPERM[t.wperm||'read']}</span>
+      <button class="btn-o !py-0.5 !px-2 text-[11px] ml-auto" onclick="openDtEdit()">编 辑</button>
     </div>
     <p class="text-[11.5px] text-gray-500 mt-2 leading-relaxed">${t.desc}</p>
     <div class="grid grid-cols-5 gap-3 mt-3">
@@ -4185,13 +4248,102 @@ function saveDtShare(){
   closeDtShare();renderDtDetail();
   toast(`「${t.name}」授权已保存：${dtsScope==='public'?'全员可用':`${t.grants.length} 人可用`}`);
 }
-/* ===== 新建数据表：单页配置 ===== */
-function openDtNew(){openDtCfg()}
+/* ===== 新增数据表 =====
+   第一步弹窗选形态：upload=上传文件（解析后自动填表名与描述）/ custom=自定义数据表
+   upload 走「选形态 → 传文件 → 配置页（表名描述已填好）」，custom 直接进配置页 */
+let dtcKind='custom',dtcFileList=[],dtcParsed=null,dtGenMode='auto';
+/* 上传解析结果（示意）：按文件轮取一份，模拟平台从表头与采样行解析出的表名、描述与字段 */
+const DT_PARSE_SAMPLES=[
+  {file:'竞对报价情报_2026Q3.xlsx',name:'竞对报价情报表',
+   desc:'按客户记录各竞对的报价与交锋结果，含场景、报价金额与关键差异点。来源为销售在拜访复盘中整理的 Q3 情报汇总表。',
+   fields:[['competitor','文本','竞对名称','这条情报涉及的竞争对手','蓝鲸科技',''],
+     ['cust_name','文本','客户名称','发生交锋的客户','远航物流',''],
+     ['scene','枚举','交锋场景','在哪个环节遇到该竞对','方案比稿','方案比稿 / 商务议价 / 续约挖单 / POC 对比'],
+     ['rival_price','数值','竞对报价','竞对给客户的报价，单位元','820000',''],
+     ['result','枚举','我方胜负','该次交锋结果','未决','胜 / 负 / 未决'],
+     ['key_diff','文本','关键差异点','客户决策时提到的差异点','对方主打低价，我方强调交付能力','']]},
+  {file:'月度签约目标_2026Q4.xlsx',name:'月度签约目标表',
+   desc:'各销售按月的签约目标值与团队归属，目标完成率类指标的分母来源。由销管每月初维护一次。',
+   fields:[['sales_name','文本','销售姓名','目标归属人，与业绩流水表的归属销售对齐','张伟',''],
+     ['period','文本','月份','格式 YYYY-MM','2026-10',''],
+     ['target_amount','数值','目标金额','该销售当月签约目标，单位万元','500',''],
+     ['team','文本','所属团队','销售团队归属，用于团队维度汇总','华东一区','']]},
+  {file:'客户分级口径_v4.csv',name:'客户分级映射表',
+   desc:'客户分级的判定口径：年度合同额区间对应的分级档位，以及各档位的服务承诺。口径由客成中心维护。',
+   fields:[['level','枚举','分级档位','客户分级名称','SKA','SKA / KA / 普通'],
+     ['amount_min','数值','年合同额下限','该档位的年度合同额下限，单位万元','1000',''],
+     ['amount_max','数值','年合同额上限','上限，留空表示无上限','—',''],
+     ['sla_promise','文本','服务承诺','该档位对应的响应与解决时限承诺','P0 响应 15 分钟 / 解决 4 小时','']]},
+];
+let dtSampleIdx=0;
+function openDtNew(){
+  dtcKind='custom';dtcFileList=[];dtcParsed=null;dtGenMode='auto';dtcDraft=null;
+  document.getElementById('dtn-title').textContent='新增数据表';
+  document.getElementById('dtn-step1').classList.remove('hidden');
+  document.getElementById('dtn-step2').classList.add('hidden');
+  document.getElementById('dtn-files').innerHTML='';
+  document.getElementById('modal-dtnew').classList.remove('hidden');
+}
+function closeDtNew(){
+  document.getElementById('modal-dtnew').classList.add('hidden');
+  /* 从配置页叠上来换文件又放弃的：刷新文件区，已填的表名描述与权限保留 */
+  if(!document.getElementById('dt-newview').classList.contains('hidden')){
+    dtcDraft=dtcGrabDraft();openDtCfg();dtcDraft=null;
+  }
+}
+/* 配置页重渲染时暂存已填内容，避免叠弹窗换文件把输入冲掉 */
+let dtcDraft=null;
+function dtcGrabDraft(){
+  const g=id=>(document.getElementById(id)||{}).value;
+  const name=g('dtc-name');
+  if(name===undefined)return null;
+  return {name,desc:g('dtc-desc'),wperm:g('dtc-wperm')};
+}
+function pickDtKind(k){
+  dtcKind=k;
+  if(k==='custom'){closeDtNew();openDtCfg();return}
+  document.getElementById('dtn-title').textContent='上传文件';
+  document.getElementById('dtn-step1').classList.add('hidden');
+  document.getElementById('dtn-step2').classList.remove('hidden');
+  renderDtnFiles();
+}
+function dtnBack(){
+  document.getElementById('dtn-title').textContent='新增数据表';
+  document.getElementById('dtn-step2').classList.add('hidden');
+  document.getElementById('dtn-step1').classList.remove('hidden');
+}
+function dtnPickFile(){
+  if(dtcFileList.length>=10){toast('最多上传 10 个文件');return}
+  const s=DT_PARSE_SAMPLES[dtSampleIdx%DT_PARSE_SAMPLES.length];
+  if(!dtcFileList.length)dtcParsed=s;
+  dtcFileList.push({name:s.file,size:(2+Math.random()*8).toFixed(1)+'MB'});
+  dtSampleIdx++;
+  renderDtnFiles();
+  toast('选择文件（示意）：首行作为字段名，平台按采样行推断类型');
+}
+function dtnDelFile(i){
+  dtcFileList.splice(i,1);
+  if(!dtcFileList.length)dtcParsed=null;
+  renderDtnFiles();
+}
+function renderDtnFiles(){
+  const b=document.getElementById('dtn-files');if(!b)return;
+  b.innerHTML=dtcFileList.map((f,i)=>`<div class="flex items-center gap-2 text-[11.5px] bg-gray-50 rounded-lg px-2.5 py-1.5">
+    <span>📄</span><span class="text-gray-600">${f.name}</span><span class="text-gray-400 text-[10.5px]">${f.size}</span>
+    <button class="ml-auto text-gray-400 hover:text-red-500" onclick="dtnDelFile(${i})">✕</button></div>`).join('');
+}
+function dtnToCfg(){
+  if(!dtcFileList.length){toast('请先上传文件');return}
+  closeDtNew();openDtCfg();
+  toast(`已解析「${dtcParsed.file}」：表名与描述自动填好，共 ${dtcParsed.fields.length} 个字段，请核对`);
+}
+/* 配置页：按形态出不同区块。upload 出已传文件与解析字段数，custom 出字段生成方式 */
 function openDtCfg(){
-  dtcFileList=[];dtGenMode='auto';
+  const up=dtcKind==='upload';
   document.getElementById('dt-new-body').innerHTML=`
     <div class="card p-5">
-      <div class="text-[12px] font-bold border-l-[3px] border-violet-500 pl-2 mb-4">基本信息</div>
+      <div class="text-[12px] font-bold border-l-[3px] border-violet-500 pl-2 mb-4">基本信息${up
+        ?'<span class="text-[11px] text-gray-400 font-normal ml-2">已按上传文件解析填充，可直接改</span>':''}</div>
       <div class="space-y-4">${dtcName()}</div>
     </div>
     <div class="card p-5 mt-3.5">
@@ -4199,8 +4351,8 @@ function openDtCfg(){
       <div class="space-y-4">${dtcWperm()}</div>
     </div>
     <div class="card p-5 mt-3.5">
-      <div class="text-[12px] font-bold border-l-[3px] border-violet-500 pl-2 mb-4">初始化数据<span class="text-[11px] text-gray-400 font-normal ml-2">选填</span></div>
-      <div class="space-y-4">${dtcInit()}</div>
+      <div class="text-[12px] font-bold border-l-[3px] border-violet-500 pl-2 mb-4">${up?'数据文件':'字段生成方式'}</div>
+      <div class="space-y-4">${up?dtcFileCard():dtcInit()}</div>
     </div>
     <div class="flex justify-end gap-2 mt-4">
       <button class="btn-o" onclick="closeDtNewPage()">取 消</button>
@@ -4220,67 +4372,61 @@ function closeDtNewPage(){
   renderSkillLib();
 }
 function dtcName(){
+  const p=dtcKind==='upload'&&dtcParsed?dtcParsed:null;
+  const name=dtcDraft?dtcDraft.name:(p?p.name:'');
+  const desc=dtcDraft?dtcDraft.desc:(p?p.desc:'');
   return `<div class="flex gap-3">
     <label class="text-[12px] font-semibold text-gray-600 w-24 text-right pt-2 shrink-0"><span class="text-red-400">*</span> 数据表名称</label>
     <div class="flex-1">
-      <input id="dtc-name" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-[13px] focus:outline-violet-300" placeholder="如 竞对情报表">
+      <input id="dtc-name" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-[13px] focus:outline-violet-300" placeholder="如 竞对情报表" value="${name||''}">
     </div></div>
   <div class="flex gap-3">
     <label class="text-[12px] font-semibold text-gray-600 w-24 text-right pt-2 shrink-0"><span class="text-red-400">*</span> 数据表描述</label>
     <div class="flex-1">
-      <textarea id="dtc-desc" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-[12.5px] h-24 focus:outline-violet-300" placeholder="这张表是干什么的、包含哪些内容、口径归谁定"></textarea>
+      <textarea id="dtc-desc" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-[12.5px] h-24 focus:outline-violet-300" placeholder="这张表是干什么的、包含哪些内容、口径归谁定">${desc||''}</textarea>
     </div></div>`;
 }
+/* upload 形态的配置页：只回显已传文件与解析字段数，改文件回到弹窗第二步 */
+function dtcFileCard(){
+  const n=(dtcParsed&&dtcParsed.fields.length)||0;
+  return `<div class="space-y-1">${dtcFileList.map(f=>`
+    <div class="flex items-center gap-2 text-[11.5px] bg-gray-50 rounded-lg px-2.5 py-1.5">
+      <span>📄</span><span class="text-gray-600">${f.name}</span><span class="text-gray-400 text-[10.5px]">${f.size}</span>
+    </div>`).join('')}</div>
+  <div class="flex items-center gap-3">
+    <span class="text-[11.5px] text-gray-500">已解析 <span class="font-semibold text-gray-700">${n}</span> 个字段，建表后可在「字段及描述」里核对与增删</span>
+    <button class="text-[12px] text-violet-600 font-semibold hover:underline ml-auto" onclick="dtcReFile()">重新选择文件</button>
+  </div>`;
+}
+/* 配置页上叠弹窗换文件，配置页不收起，关掉弹窗仍回到配置页 */
+function dtcReFile(){
+  document.getElementById('dtn-title').textContent='上传文件';
+  document.getElementById('dtn-step1').classList.add('hidden');
+  document.getElementById('dtn-step2').classList.remove('hidden');
+  document.getElementById('modal-dtnew').classList.remove('hidden');
+  renderDtnFiles();
+}
 function dtcWperm(){
+  const cur=(dtcDraft&&dtcDraft.wperm)||'rw';
   return `<select id="dtc-wperm" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-[13px] focus:outline-violet-300">
-    ${DT_WPERM_OPTS.map(o=>`<option value="${o[0]}" ${o[0]==='rw'?'selected':''}>${o[1]}</option>`).join('')}
+    ${DT_WPERM_OPTS.map(o=>`<option value="${o[0]}" ${o[0]===cur?'selected':''}>${o[1]}</option>`).join('')}
   </select>`;
 }
 function dtcInit(){
-  const R=s=>`<span class="text-red-500 font-semibold">${s}</span>`;
-  const opt=(k,t,d)=>`<div class="gen-opt card p-3 cursor-pointer border transition ${k==='auto'?'border-violet-400 bg-violet-50/50':'border-gray-200'}" data-gen="${k}" onclick="pickDtGen('${k}')">
+  const opt=(k,t,d)=>`<div class="gen-opt card p-3 cursor-pointer border transition ${k===dtGenMode?'border-violet-400 bg-violet-50/50':'border-gray-200'}" data-gen="${k}" onclick="pickDtGen('${k}')">
     <div class="flex items-center gap-1.5">
-      <span class="gen-dot text-[12px] ${k==='auto'?'text-violet-600':'text-gray-300'}">${k==='auto'?'●':'○'}</span>
+      <span class="gen-dot text-[12px] ${k===dtGenMode?'text-violet-600':'text-gray-300'}">${k===dtGenMode?'●':'○'}</span>
       <span class="text-[12.5px] font-bold">${t}</span>
     </div>
     <p class="text-[11px] text-gray-500 leading-relaxed mt-1.5">${d}</p>
   </div>`;
-  return `<div class="border-l-[3px] border-red-400 bg-red-50/40 rounded-r-lg px-3 py-2.5 flex gap-2">
-    <span class="text-red-500 text-[12px] leading-relaxed">!</span>
-    <p class="text-[11px] text-gray-600 leading-relaxed">提醒：单次分析支持上传${R('大小不超过50MB')}的一个文件或多个文件，总计 sheet 数不超过 10 个。
-      每个 sheet ${R('行数不超过5000行且列数不超过100列')}，若超出的数据将会${R('自动截断')}。</p>
-  </div>
-  <div>
-    <button class="text-[12px] text-violet-600 font-semibold hover:underline" onclick="toast('下载模板（示意）：按模板格式整理后再上传，首行为字段名')">⤓ 下载模板</button>
-    <span class="text-[11px] text-gray-400 ml-3">现支持 EXCEL、CSV</span>
-  </div>
-  <div>
-    <div class="border border-dashed border-gray-200 rounded-lg py-3 text-center cursor-pointer hover:border-violet-300 text-[12.5px] text-violet-600" onclick="dtcPickFile()">＋ 上传文件</div>
-    <div id="dtc-files" class="mt-2 space-y-1"></div>
-  </div>
-  <div id="dtc-gen"><label class="text-[12px] font-semibold text-gray-600 block mb-1.5">字段生成方式</label>
+  return `<div id="dtc-gen">
     <div class="grid grid-cols-2 resp-grid-2 gap-3">
       ${opt('auto','自动生成字段','按上面填的表名与描述推断字段名、中文名与业务含义示例，生成后进入详情页逐条改。')}
       ${opt('manual','手动添加','只建空表，进入详情页后自己逐个加字段。')}
     </div>
   </div>`;
 }
-let dtcFileList=[];
-function dtcPickFile(){
-  if(dtcFileList.length>=10){toast('最多上传 10 个文件');return}
-  dtcFileList.push({name:`数据表模板_${dtcFileList.length+1}.xlsx`,size:(2+Math.random()*8).toFixed(1)+'MB'});
-  renderDtcFiles();toast('选择文件（示意）：首行作为字段名，平台按采样行推断类型');
-}
-function dtcDelFile(i){dtcFileList.splice(i,1);renderDtcFiles()}
-function renderDtcFiles(){
-  const b=document.getElementById('dtc-files');if(!b)return;
-  const g=document.getElementById('dtc-gen');
-  if(g)g.classList.toggle('hidden',dtcFileList.length>0);
-  b.innerHTML=dtcFileList.map((f,i)=>`<div class="flex items-center gap-2 text-[11.5px] bg-gray-50 rounded-lg px-2.5 py-1.5">
-    <span>📄</span><span class="text-gray-600">${f.name}</span><span class="text-gray-400 text-[10.5px]">${f.size}</span>
-    <button class="ml-auto text-gray-400 hover:text-red-500" onclick="dtcDelFile(${i})">✕</button></div>`).join('');
-}
-let dtGenMode='auto';
 function pickDtGen(m){
   dtGenMode=m;
   document.querySelectorAll('#dtc-gen .gen-opt').forEach(el=>{
@@ -4315,9 +4461,9 @@ function saveDtNew(){
   const desc=(document.getElementById('dtc-desc')||{}).value?.trim();
   if(!desc){toast('请填写数据表描述：模型靠这段判断该不该调用这张表');return}
   const wperm=(document.getElementById('dtc-wperm')||{}).value||'rw';
-  const hasFile=dtcFileList.length>0,canWrite=wperm!=='read';
+  const hasFile=dtcKind==='upload'&&dtcFileList.length>0,canWrite=wperm!=='read';
   const t={id:'dt-'+Date.now().toString().slice(-6),icon:hasFile?'📄':'✏️',name,desc,
-    src:hasFile?'新上传文件':'平台内自建',
+    src:hasFile?dtcFileList.map(f=>f.name).join('、'):'平台内自建',
     srcType:hasFile?'上传文件':'自定义',
     sync:'ok',syncNote:canWrite?'智能体自动更新':'手工维护',
     syncAt:bzStamp(),rowCnt:hasFile?'96':'0',limit:0,
@@ -4327,20 +4473,51 @@ function saveDtNew(){
     scope:'auth',grants:[],
     fields:[],queries:[],rows:[],writes:[]};
   if(canWrite)t.fields.push(F('record_no','文本','记录编号','整行的唯一标识，智能体写入时按此定位行',{smp:'自动生成'}));
-  if(hasFile)t.fields=t.fields.concat([
-    F('col_1','文本','字段一','模型按表头生成，请核对',{smp:'示例值'}),
-    F('col_2','数值','字段二','模型按表头生成，请核对',{smp:'1280'}),
-    F('col_3','日期','字段三','模型按表头生成，请核对',{smp:'2026-09-20'})]);
+  if(hasFile)t.fields=t.fields.concat((dtcParsed?dtcParsed.fields:[])
+    .map(([n,ty,cn,mean,smp,enums])=>F(n,ty,cn,mean,{smp:smp||'—',enums:enums||''})));
   else if(dtGenMode==='auto')t.fields=t.fields.concat(dtGenFields(name,desc));
   DATA_TABLES.push(t);
   document.getElementById('dt-newview').classList.add('hidden');
-  dtcFileList=[];
+  dtcFileList=[];dtcParsed=null;
   toast(hasFile
     ?`「${name}」已创建，已解析出 ${t.fields.length} 个字段，可在「字段及描述」里核对`
     :dtGenMode==='auto'
       ?`「${name}」已创建，按表名与描述生成 ${t.fields.length} 个字段，可直接改`
       :`「${name}」已创建，请在「字段及描述」里添加字段`);
   openDtDetail(t.id);
+}
+/* ===== 编辑数据表：智能体应用权限 + 表名描述 =====
+   入口只在详情页头卡；列表「编辑」进详情页 */
+function openDtEdit(){
+  const t=dtGet();if(!t)return;
+  document.getElementById('dte-name').value=t.name;
+  document.getElementById('dte-desc').value=t.desc;
+  document.getElementById('dte-wperm').innerHTML=DT_WPERM_OPTS.map(o=>
+    `<option value="${o[0]}" ${o[0]===(t.wperm||'read')?'selected':''}>${o[1]}</option>`).join('');
+  document.getElementById('modal-dtedit').classList.remove('hidden');
+}
+function closeDtEdit(){document.getElementById('modal-dtedit').classList.add('hidden')}
+function saveDtEdit(){
+  const t=dtGet();if(!t)return;
+  const name=document.getElementById('dte-name').value.trim();
+  if(!name){toast('请填写数据表名称');return}
+  const desc=document.getElementById('dte-desc').value.trim();
+  if(!desc){toast('请填写数据表描述：模型靠这段判断该不该调用这张表');return}
+  const wperm=document.getElementById('dte-wperm').value;
+  const was=t.wperm||'read',turnOn=was==='read'&&wperm!=='read',turnOff=was!=='read'&&wperm==='read';
+  t.name=name;t.desc=desc;t.wperm=wperm;
+  /* 从只读开写：补唯一键，智能体写入靠它定位行 */
+  if(turnOn){
+    if(!t.pk)t.pk='记录编号';
+    if(!t.fields.some(f=>f.cn===t.pk))
+      t.fields.unshift(F('record_no','文本',t.pk,'整行的唯一标识，智能体写入时按此定位行',{smp:'自动生成'}));
+    t.syncNote='智能体自动更新';
+  }
+  if(turnOff)t.syncNote='手工维护';
+  closeDtEdit();renderDtDetail();
+  toast(turnOn?`「${name}」已保存：权限提到${DT_WPERM[wperm]}，已补唯一键「${t.pk}」`
+    :turnOff?`「${name}」已保存：权限收回只读，智能体不再写入这张表`
+    :`「${name}」已保存`);
 }
 function renderSkillPane(){
   const mcp=MCP_ITEMS.filter(skMatch),tool=toolItems().filter(skMatch),tbl=DATA_TABLES.filter(skMatch);
@@ -5556,6 +5733,9 @@ function rtTrigChange(){
   const ev=document.getElementById('rt-trig').value==='事件触发';
   document.getElementById('rt-event-box').classList.toggle('hidden',!ev);
   document.getElementById('rt-timer-box').classList.toggle('hidden',ev);
+  /* 事件触发的结果可以只落看板，执行方式转选填 */
+  document.getElementById('rt-mode-req').classList.toggle('hidden',ev);
+  document.getElementById('rt-mode-opt').classList.toggle('hidden',!ev);
 }
 function rtSpanChange(){
   const end=document.querySelector('input[name="rt-span"]:checked').value==='截止';
@@ -5615,9 +5795,11 @@ function confirmRaTask(){
   const modes=[];
   if(document.getElementById('rt-mode-notify').checked)modes.push('任务通知');
   if(document.getElementById('rt-mode-user').checked)modes.push('指定用户');
-  if(!modes.length){toast('请选择执行方式');return}
+  /* 定时触发必须给出执行方式；事件触发可以不选，记为静默执行 */
+  if(!modes.length&&trig!=='事件触发'){toast('请选择执行方式');return}
   const chans=[...document.querySelectorAll('.rt-chan:checked')].map(c=>c.value);
-  agentRunTasks.unshift({name,trig:trigLabel,mode:modes.join(' / ')+(chans.length?`（${chans.join('、')}）`:''),
+  agentRunTasks.unshift({name,trig:trigLabel,
+    mode:modes.length?modes.join(' / ')+(chans.length?`（${chans.join('、')}）`:''):'静默执行',
     create:'后台',exec:execText,agent,
     status:document.querySelector('input[name="rt-status"]:checked').value==='已启用'?'已启用':'已停用',
     updater:'罗紫函',time:new Date().toISOString().slice(0,19).replace('T',' ')});
