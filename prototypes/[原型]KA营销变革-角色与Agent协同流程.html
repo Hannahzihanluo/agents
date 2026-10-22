@@ -112,6 +112,16 @@
   .gaterow{background:#fffdf4;border:1px solid #fde68a;border-radius:12px;padding:8px 10px;}
   .aidel{font-size:9px;font-weight:700;color:#4929e2;background:#f0ebff;
          border:1px solid #e0d8f7;border-radius:5px;padding:0 5px;line-height:16px;}
+  .ioband{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:-4px 0 12px;}
+  .ioc{border:1px solid #ececf2;border-radius:12px;padding:9px 11px;background:#fff;}
+  .iok{font-size:10px;font-weight:700;border-radius:5px;padding:0 6px;
+       line-height:17px;border:1px solid;}
+  .iok-in{color:#0f766e;background:#eafaf7;border-color:#c7ece5;}
+  .iok-out{color:#92400e;background:#fff7e6;border-color:#ffe0a3;}
+  .ios{font-size:11px;font-weight:700;color:#2d235a;}
+  .iot{font-size:10.5px;line-height:16px;color:#5c6270;margin-top:5px;}
+  .ionote{font-size:10.5px;line-height:16px;color:#5c568a;background:#fcfbff;
+          border:1px dashed #e0d8f7;border-radius:10px;padding:7px 11px;margin-bottom:12px;}
 </style>
 </head>
 <body class="min-h-screen">
@@ -132,7 +142,7 @@
     <div class="flowwrap hidden" id="flow"></div>
     <div class="flowwrap hidden" id="rolev"></div>
   </div>
-  <div class="text-[10.5px] text-[#8284A4] mt-3">v10 · 更新于 2026-10-22</div>
+  <div class="text-[10.5px] text-[#8284A4] mt-3">v11 · 更新于 2026-10-22</div>
 </div>
 <script>
 const STAGES=[
@@ -535,7 +545,28 @@ function laneRows(r){
   });
   return rows;
 }
-const RV=['bd','pe'].map(id=>ROLES.find(r=>r.id===id));
+const RV=ROLES.slice();
+const RINFO={
+ bd:{ein:'线索进入打分池即在场，确认目标名单并约到上门',
+      eout:'续约与增购谈定，增购线索回流准商机进入下一轮',
+      note:'全程在场，并主判经营决策判断一与判断三'},
+ pe:{ein:'判断一放行、投入方案资源后介入，建项目空间写入项目目标',
+     eout:'主持交接评审、确认交接包完整度后移交客户成功',
+     note:'项目负责人，统筹方案到赢单，主判经营决策判断二'},
+ sol:{ein:'随方案工程进场，承接现场勘察与技术可行性判断',
+      eout:'非标场景实施交付的现场疑难问题定位收口后退出',
+      note:'技术兜底角色，在调研、POC 调试、实施支持三处介入'},
+ cs:{ein:'POC 阶段进场，主导设备安装与现场实施',
+     eout:'不退出，持续交付阶段常态承接经营复盘与续约配合',
+     note:'从 POC 实施一路带到上线与长期经营'},
+ ops:{ein:'实施交付阶段进场，承接上门安装与割接上线',
+      eout:'上线完成即退出，持续交付转为客服 Agent 自动巡检',
+      note:'介入最窄，只在上线动作期间在场'},
+ svc:{ein:'标准场景上线后进场，承接初期使用问题',
+      eout:'不退出，持续交付阶段常态承接工单与疑难升级',
+      note:'上线后长期值守，疑难问题向上升级'}
+};
+const SNO={}; STAGES.forEach(s=>{if(!s.gate) SNO[s.n]=s.no;});
 let rsel=RV[0].id;
 function renderRole(){
   const r=RV.find(x=>x.id===rsel);
@@ -558,6 +589,27 @@ function renderRole(){
       <span class="rstat">Agent 代办 <b>${nAi}</b></span>
       <span class="rstat">主判关卡 <b>${nGate}</b></span>
     </div></div>`;
+  const own=rows.filter(x=>x.mine);
+  const f=own[0],l=own[own.length-1];
+  const ri=RINFO[r.id]||{};
+  const pt=(e,lbl,cls)=>`
+    <div class="ioc">
+      <div class="flex items-center gap-2 flex-wrap">
+        <span class="iok ${cls}">${lbl}</span>
+        <span class="ios">阶段 ${SNO[e.stage]||'—'} · ${esc(e.stage)}</span>
+        ${e.br?`<span class="hbr">${esc(e.br)}</span>`:''}
+      </div>
+      <div class="iot">${esc(e.txt)}</div>
+    </div>`;
+  if(f&&l){
+    const one=f.stage===l.stage&&f.br===l.br;
+    h+=`<div class="ioband" style="${one?'grid-template-columns:1fr':''}">
+          ${pt({stage:f.stage,br:f.br,txt:ri.ein||''},'进入','iok-in')}
+          ${one?'':pt({stage:l.stage,br:l.br,txt:ri.eout||''},'退出','iok-out')}
+        </div>
+        ${one&&ri.eout?`<div class="ionote"><b class="text-[#92400e]">退出 · </b>${esc(ri.eout)}</div>`:''}
+        ${ri.note?`<div class="ionote">${esc(ri.note)}</div>`:''}`;
+  }
   let prev='';
   rows.forEach(row=>{
     if(row.gate){
