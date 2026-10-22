@@ -31,6 +31,8 @@
               border-radius:999px;padding:0 6px;line-height:16px;display:inline-block;}
   .concl{background:#fff;border:1px solid #fde68a;border-radius:10px;padding:7px 8px;
          box-shadow:0 2px 8px rgba(180,83,9,.06);}
+  .concl-flex{background:#fff;border:1px dashed #cfc3f5;border-radius:10px;padding:7px 8px;
+         box-shadow:0 2px 8px rgba(73,41,226,.05);}
   .purpose{font-size:11px;line-height:16.5px;color:#5c568a;}
   .info{font-size:10.5px;line-height:16px;color:#8284A4;}
   .ai-cell{background:linear-gradient(180deg,#f8f6ff,#fff);}
@@ -110,6 +112,7 @@
   .hbr{font-size:9px;color:#4929e2;background:#f0ebff;border:1px solid #e0d8f7;
        border-radius:5px;padding:0 5px;line-height:16px;}
   .gaterow{background:#fffdf4;border:1px solid #fde68a;border-radius:12px;padding:8px 10px;}
+  .gaterow-flex{background:#fbfaff;border:1px dashed #cfc3f5;border-radius:12px;padding:8px 10px;}
   .aidel{font-size:9px;font-weight:700;color:#4929e2;background:#f0ebff;
          border:1px solid #e0d8f7;border-radius:5px;padding:0 5px;line-height:16px;}
   .ioband{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:-4px 0 12px;}
@@ -122,6 +125,26 @@
   .iot{font-size:10.5px;line-height:16px;color:#5c6270;margin-top:5px;}
   .ionote{font-size:10.5px;line-height:16px;color:#5c568a;background:#fcfbff;
           border:1px dashed #e0d8f7;border-radius:10px;padding:7px 11px;margin-bottom:12px;}
+  .gk{font-size:9px;font-weight:700;border-radius:5px;padding:0 5px;line-height:16px;
+      border:1px solid;flex:none;margin-top:1px;}
+  .gk-req{color:#b45309;background:#fff7e6;border-color:#ffe0a3;}
+  .gk-opt{color:#8284A4;background:#f5f7fa;border-color:#e8e8ee;}
+  .gk-out{color:#4929e2;background:#f0ebff;border-color:#e0d8f7;}
+  .gli{display:flex;gap:6px;align-items:flex-start;margin-top:4px;}
+  .gli .txt{font-size:10.5px;line-height:16px;color:#4b5563;}
+  .gsec{font-size:9.5px;font-weight:700;color:#b45309;letter-spacing:.3px;margin-top:9px;}
+  .gmeta{font-size:10px;color:#8284A4;margin-top:7px;line-height:16px;}
+  .gmeta b{color:#92400e;font-weight:700;}
+  .cell-flexg{background:#fbfaff;border-left:1px dashed #cfc3f5;border-right:1px dashed #cfc3f5;}
+  .gateblk-flex{background:#fbfaff;border:1px dashed #cfc3f5;border-radius:14px;padding:10px 12px;}
+  .gate-title-flex{font-size:10px;font-weight:700;color:#4929e2;letter-spacing:.3px;}
+  .gate-owner-flex{font-size:10px;background:#f0ebff;color:#4929e2;border:1px solid #e0d8f7;
+                   border-radius:999px;padding:0 6px;line-height:16px;display:inline-block;}
+  .flexbdg{font-size:9px;font-weight:700;color:#4929e2;background:#f0ebff;
+           border:1px dashed #cfc3f5;border-radius:5px;padding:0 5px;line-height:16px;
+           display:inline-block;}
+  .gsec-flex{font-size:9.5px;font-weight:700;color:#4929e2;letter-spacing:.3px;margin-top:9px;}
+  .gk-trig{color:#4929e2;background:#f0ebff;border-color:#e0d8f7;}
 </style>
 </head>
 <body class="min-h-screen">
@@ -142,30 +165,52 @@
     <div class="flowwrap hidden" id="flow"></div>
     <div class="flowwrap hidden" id="rolev"></div>
   </div>
-  <div class="text-[10.5px] text-[#8284A4] mt-3">v11 · 更新于 2026-10-22</div>
+  <div class="text-[10.5px] text-[#8284A4] mt-3">v12 · 更新于 2026-10-22 · 决策点补判断依据与必要输出；判断一改商务+行业方案共同决策；需求调研后增机动决策点（是否拉技术方案）</div>
 </div>
 <script>
+const GATES={
+ g1:{n:'经营决策判断一',owner:'商务',co:'方案工程',
+  decBy:'商务（大王）+ 行业方案',
+  basis:[['req','客户业务场景清晰描述'],
+         ['req','客户痛点可量化'],
+         ['req','标准方案匹配度：能满足什么、不能满足什么'],
+         ['opt','决策链与预算节奏（非必须）']],
+  out:['场景定性：标准场景方案 / 非标准场景方案',
+       '是否需要方案工程师介入',
+       '是否需要技术解决方案介入'],
+  concl:'投入方案资源进入需求调研 / 暂缓培育 / 放弃'},
+ gm:{n:'机动决策点 · 是否需要技术方案介入',short:'机动决策点',owner:'方案工程',flex:1,
+  trig:'判断一结论为「不需要技术解决方案」，但调研后发现现场或技术复杂度超出标准方案范围时触发',
+  basis:[['req','现场环境或接口复杂度是否超出标准方案'],
+         ['req','需求是否涉及算法、硬件适配或定制开发'],
+         ['req','方案工程能否独立收口技术可行性']],
+  out:['是否拉技术解决方案入场','若入场，明确介入范围与投入人天'],
+  concl:'拉技术解决方案入场 / 方案工程自行收口',
+  note:'机动流程，不是每个项目都走 —— 前期没配技术解决方案、调研后发现需要时才拉齐这个决策'},
+ g2:{n:'经营决策判断二',owner:'方案工程',
+  basis:'技术路径是否可行、交付周期与资源是否可承诺、风险是否可控',
+  concl:'进入 POC 验证 / 调整方案范围 / 判定不可行'},
+ g3:{n:'经营决策判断三',owner:'商务',
+  basis:'POC 指标是否达标、客户决策链是否就位、商务条件是否可谈',
+  concl:'进入商务议判 / 补充验证 / 终止'}
+};
 const STAGES=[
  {id:'s1',n:'准商机',w:190,p:'锁定目标客户，拿到可上门的机会'},
  {id:'s2',n:'行业方案介绍',w:230,p:'见到 KP，讲清行业价值，判断是否值得投入方案资源'},
- {id:'g1',n:'经营决策判断一',w:210,gate:1,owner:'商务',
-  basis:'KP 是否触达、痛点是否明确、预算与采购窗口是否存在',
-  concl:'投入方案资源进入需求调研 / 暂缓培育 / 放弃'},
+ {id:'g1',w:270,gate:1},
  {id:'s3',n:'需求调研',w:250,p:'摸清现场与业务现状，形成需求与可行性结论',
   bdg:[['new','新增节点'],['ns','非标场景方案']]},
+ {id:'gm',w:250,gate:1},
  {id:'s4',n:'客户方案介绍',w:230,p:'向客户汇报方案，对齐范围、节奏与验收口径'},
- {id:'g2',n:'经营决策判断二',w:210,gate:1,owner:'方案工程',
-  basis:'技术路径是否可行、交付周期与资源是否可承诺、风险是否可控',
-  concl:'进入 POC 验证 / 调整方案范围 / 判定不可行'},
+ {id:'g2',w:210,gate:1},
  {id:'s5',n:'POC',w:250,p:'用真实场景数据验证指标，暴露并收敛问题'},
- {id:'g3',n:'经营决策判断三',w:210,gate:1,owner:'商务',
-  basis:'POC 指标是否达标、客户决策链是否就位、商务条件是否可谈',
-  concl:'进入商务议判 / 补充验证 / 终止'},
+ {id:'g3',w:210,gate:1},
  {id:'s6',n:'商务议判',w:250,p:'走通价格与采购路径，拿下可签的商务条件'},
  {id:'s7',n:'赢单',w:230,p:'签约并完成销售到交付的服务交接'},
  {id:'s8',n:'实施交付',w:250,p:'装得上、跑得通、验收过'},
  {id:'s9',n:'持续交付',w:250,p:'稳定运行、续约、挖掘增购与横向扩展'}
 ];
+STAGES.forEach(s=>{ if(s.gate) Object.assign(s,GATES[s.id]); });
 const ROLES=[
  {id:'bd', n:'商务',      s:'销售 / 客户关系',  ag:['销售 Agent']},
  {id:'pe', n:'方案工程',  s:'项目负责人 / 统筹',ag:['KA 项目 Agent']},
@@ -199,7 +244,7 @@ put('pe','s6',{A:['复用历史技术材料生成技术文件初稿']});
 put('pe','s7',{H:['主持交接评审'],
                A:['生成服务交接包（范围/环境/联系人等），标出缺失项']});
 put('sol','s3',{H:['上门勘察，出技术可行性评估报告'],
-                A:['检索历史相似案例，出现场核查清单']});
+                A:['检索历史相似案例，出现场调研清单']});
 put('sol','s5',{H:['配合设备调试、调参，处理现场异常']});
 put('sol','s8',{H:['现场支持疑难问题定位']});
 put('cs','s5',{H:['主导 POC 设备安装与现场实施']});
@@ -251,15 +296,14 @@ const FLOW=[
     o:'拜访简报'},
    {k:'h',w:'商务',t:'上门做行业方案介绍，确认 KP 与决策链',
     ch:['off'],o:'销售录音 + KP 与决策链'},
-   {k:'ha',w:'商务',t:'确认拜访纪要与是否需方案资源介入，补充内部口径',
-    ch:['sys'],o:'拜访纪要 + 介入结论'}]},
- {gate:'经营决策判断一',owner:'商务',
-  basis:'KP 是否触达 · 痛点是否明确 · 预算与采购窗口是否存在',
-  ai:'销售 Agent 汇总拜访纪要、画像评分与介入建议，出判断依据卡',
+   {k:'ha',w:'商务',t:'确认拜访纪要与经营决策建议，补充内部口径',
+    ch:['sys'],o:'拜访纪要 + 决策建议'}]},
+ {gate:'g1',
+  ai:'销售 Agent 输出拜访纪要 + 行业方案阶段经营决策建议（场景定性、方案工程师与技术解决方案是否需要介入）',
   brs:[['go','投入方案资源 → 需求调研'],['back','暂缓培育，回线索池'],['stop','放弃']]},
  {s:'需求调研',bdg:[['new','新增节点'],['ns','非标场景方案']],steps:[
-   {k:'a',w:'KA 项目 Agent',t:'建项目空间写入项目目标，检索历史相似案例出现场核查清单',
-    o:'项目空间 + 核查清单'},
+   {k:'a',w:'KA 项目 Agent',t:'建项目空间写入项目目标，检索历史相似案例出现场调研清单',
+    o:'项目空间 + 调研清单'},
    {k:'h',w:'商务',t:'协调调研时间与现场资源',
     ch:['off','sys'],o:'调研排期'},
    {k:'h',w:'方案工程 / 技术解决方案',t:'上门调研勘察，记录现场环境与业务流程',
@@ -268,6 +312,9 @@ const FLOW=[
     ch:['sys'],o:'调研结论 + 项目上下文'},
    {k:'h',w:'技术解决方案',t:'出技术可行性评估报告',
     ch:['sys','off'],o:'可行性评估报告'}]},
+ {gate:'gm',
+  ai:'KA 项目 Agent 汇总调研结论与现场复杂度，标出超出标准方案范围的部分',
+  brs:[['go','拉技术解决方案入场'],['back','方案工程自行收口，不拉技术']]},
  {s:'客户方案介绍',steps:[
    {k:'a',w:'KA 项目 Agent',t:'基于项目上下文出方案材料初稿与答疑预案',
     o:'方案初稿 + 答疑预案'},
@@ -277,8 +324,7 @@ const FLOW=[
     ch:['off'],o:'客户异议 + 范围共识'},
    {k:'ha',w:'方案工程',t:'确认会后项目摘要更新生效',
     ch:['sys'],o:'项目摘要'}]},
- {gate:'经营决策判断二',owner:'方案工程',
-  basis:'技术路径是否可行 · 交付周期与资源是否可承诺 · 风险是否可控',
+ {gate:'g2',
   ai:'KA 项目 Agent 汇总可行性报告、客户异议与资源占用，列出风险清单',
   brs:[['go','进入 POC 验证'],['back','调整方案范围，回方案介绍'],['stop','判定不可行']]},
  {s:'POC',steps:[
@@ -289,13 +335,12 @@ const FLOW=[
    {k:'h',w:'客户成功（实施）',t:'主导 POC 设备安装与现场实施',lead:1,
     ch:['off'],o:'可运行环境'},
    {k:'h',w:'技术解决方案',t:'配合设备调试调参，处理现场异常',
-    ch:['off'],o:'调优记录 + 运行数据'},
+    ns:1,ch:['off'],o:'调优记录 + 运行数据'},
    {k:'ha',w:'方案工程',t:'确认 POC 报告与汇报文档口径',
     ch:['sys'],o:'POC 报告 + 汇报文档'},
    {k:'h',w:'商务 / 方案工程',t:'向客户汇报 POC 结果，承接客户沟通',
     ch:['off'],o:'客户反馈 + 下一步意向'}]},
- {gate:'经营决策判断三',owner:'商务',
-  basis:'POC 指标是否达标 · 客户决策链是否就位 · 商务条件是否可谈',
+ {gate:'g3',
   ai:'KA 项目 Agent 出 POC 报告，比对验收口径标出达标/未达标项',
   brs:[['go','进入商务议判'],['back','补充验证，回 POC'],['stop','终止']]},
  {s:'商务议判',steps:[
@@ -358,16 +403,31 @@ const lines=(o)=>{
   (o.A||[]).forEach(t=>h+=`<div class="line line-a"><span class="tag tag-a">AI</span><span class="txt">${esc(t)}</span></div>`);
   return h;
 };
+const basisHtml=(g)=>{
+  if(!g.basis) return '';
+  const sec=`<div class="${g.flex?'gsec-flex':'gsec'}">判断依据</div>`;
+  if(Array.isArray(g.basis))
+    return sec+g.basis.map(([k,t])=>`<div class="gli">
+      <span class="gk gk-${k}">${k==='req'?'必':'选'}</span>
+      <span class="txt">${esc(t)}</span></div>`).join('');
+  return sec+`<div class="gli"><span class="txt">${esc(g.basis)}</span></div>`;
+};
+const outHtml=(g)=>g.out?`<div class="${g.flex?'gsec-flex':'gsec'}">决策必要输出</div>`
+  +g.out.map(t=>`<div class="gli"><span class="gk gk-out">出</span>
+    <span class="txt">${esc(t)}</span></div>`).join(''):'';
 function render(){
   let h='';
   h+=`<div class="grid-row row-head" style="--tpl:${TPL}">`;
   h+=`<div class="cell sticky-col bg-white" style="z-index:40;border-bottom:1px solid #ececf2">
         <div class="text-[12px] font-bold text-[#2d235a]">角色 / 阶段</div></div>`;
   STAGES.forEach(s=>{
-    h+=`<div class="cell ${s.gate?'cell-gate':'bg-white'}" style="border-bottom:1px solid ${s.gate?'#fde68a':'#ececf2'}">`;
+    h+=`<div class="cell ${s.gate?(s.flex?'cell-flexg':'cell-gate'):'bg-white'}" style="border-bottom:1px solid ${s.gate?(s.flex?'#cfc3f5':'#fde68a'):'#ececf2'}">`;
     if(s.gate){
-      h+=`<div class="gate-title">${esc(s.n)}</div>
-          <div class="mt-1"><span class="gate-owner">判断主体 · ${esc(s.owner)}</span></div>`;
+      h+=`<div class="${s.flex?'gate-title-flex':'gate-title'}">${esc(s.short||s.n)}</div>
+          <div class="mt-1 flex flex-wrap items-center gap-1">
+            <span class="${s.flex?'gate-owner-flex':'gate-owner'}">判断主体 · ${esc(s.decBy||s.owner)}</span>
+            ${s.flex?'<span class="flexbdg">机动流程</span>':''}</div>
+          ${s.trig?`<div class="info mt-1">${esc(s.trig)}</div>`:''}`;
     }else{
       h+=`<div class="flex items-baseline gap-1.5">
             <span class="stage-pill">${s.no}</span>
@@ -383,8 +443,11 @@ function render(){
   h+=`<div class="cell sticky-col" style="background:#f5f7fa;border-bottom:1px solid #ececf2">
         <div class="text-[11px] font-bold text-[#4b5563]">关键信息收集</div></div>`;
   STAGES.forEach(s=>{
-    h+=`<div class="cell ${s.gate?'cell-gate':''}" style="background:${s.gate?'#fffdf4':'#f5f7fa'};border-bottom:1px solid ${s.gate?'#fde68a':'#ececf2'}">`;
-    if(s.gate) h+=`<div class="info"><span class="font-bold text-[#92400e]">判断依据 · </span>${esc(s.basis)}</div>`;
+    h+=`<div class="cell ${s.gate?(s.flex?'cell-flexg':'cell-gate'):''}" style="background:${s.gate?(s.flex?'#fbfaff':'#fffdf4'):'#f5f7fa'};border-bottom:1px solid ${s.gate?(s.flex?'#cfc3f5':'#fde68a'):'#ececf2'}">`;
+    if(s.gate){
+      h+=basisHtml(s)+outHtml(s);
+      if(s.note) h+=`<div class="gmeta"><b>机动</b> ${esc(s.note)}</div>`;
+    }
     else h+=`<div class="info">${esc(INFO[s.id]||'')}</div>`;
     h+=`</div>`;
   });
@@ -401,10 +464,10 @@ function render(){
     STAGES.forEach(s=>{
       const bb=last?'#ececf2':'#f1f1f4';
       if(s.gate){
-        h+=`<div class="cell cell-gate" style="border-bottom:1px solid #fde68a">`;
-        if(s.owner===r.n){
-          h+=`<div class="concl">
-                <div class="gate-title">判断结论</div>
+        h+=`<div class="cell ${s.flex?'cell-flexg':'cell-gate'}" style="border-bottom:1px solid ${s.flex?'#cfc3f5':'#fde68a'}">`;
+        if(s.owner===r.n||s.co===r.n){
+          h+=`<div class="${s.flex?'concl-flex':'concl'}">
+                <div class="${s.flex?'gate-title-flex':'gate-title'}">判断结论</div>
                 <div class="txt mt-1">${esc(s.concl)}</div></div>`;
         }
         h+=`</div>`;
@@ -423,7 +486,7 @@ function render(){
         <div class="text-[11.5px] font-bold text-[#4929e2]">AI 流程</div>
         <div class="info mt-0.5">该阶段自动化主线</div></div>`;
   STAGES.forEach(s=>{
-    h+=`<div class="cell" style="background:${s.gate?'#fffdf4':'#f8f6ff'}">
+    h+=`<div class="cell" style="background:${s.gate?(s.flex?'#fbfaff':'#fffdf4'):'#f8f6ff'}">
           <div class="txt">${s.gate?'<span class="info">人工决策，不自动放行</span>':esc(AIFLOW[s.id]||'')}</div></div>`;
   });
   h+=`</div>`;
@@ -439,6 +502,7 @@ const stepHtml=(st)=>{
       <span class="tag tag-${tg}">${lb}</span>
       <span class="who">${esc(st.w)}</span>
       ${st.lead?'<span class="bdg bdg-lead">主导</span>':''}
+      ${st.ns?'<span class="bdg bdg-ns">非标场景支持</span>':''}
     </div>
     <div class="stbody">
       <div class="stxt">${esc(st.t)}</div>
@@ -455,18 +519,23 @@ function renderFlow(){
   let h='';
   FLOW.forEach(b=>{
     if(b.gate){
+      const g=GATES[b.gate];
       h+=`<div class="blk">
             <div>
-              <div class="gate-title">${esc(b.gate)}</div>
-              <div class="mt-1.5"><span class="gate-owner">判断主体 · ${esc(b.owner)}</span></div>
+              <div class="${g.flex?'gate-title-flex':'gate-title'}">${esc(g.n)}</div>
+              <div class="mt-1.5 flex flex-wrap items-center gap-1">
+                <span class="${g.flex?'gate-owner-flex':'gate-owner'}">判断主体 · ${esc(g.decBy||g.owner)}</span>
+                ${g.flex?'<span class="flexbdg">机动流程</span>':''}</div>
+              ${g.trig?`<div class="info mt-1.5"><span class="gk gk-trig">触发</span> ${esc(g.trig)}</div>`:''}
             </div>
-            <div class="gateblk">
-              <div class="info"><span class="font-bold text-[#92400e]">判断依据 · </span>${esc(b.basis)}</div>
-              <div class="line"><span class="tag tag-ha">AI辅助 + 人确认</span><span class="txt">${esc(b.ai)}</span></div>
+            <div class="${g.flex?'gateblk-flex':'gateblk'}">
+              ${basisHtml(g)}${outHtml(g)}
+              <div class="line mt-2"><span class="tag tag-ha">AI辅助 + 人确认</span><span class="txt">${esc(b.ai)}</span></div>
               <div class="flex items-center gap-2 mt-2.5 flex-wrap">
                 <span class="info">人工结论 →</span>
                 ${b.brs.map(([k,t])=>`<span class="br br-${k}">${esc(t)}</span>`).join('')}
               </div>
+              ${g.note?`<div class="gmeta"><b>机动</b> ${esc(g.note)}</div>`:''}
             </div>
           </div>`;
       return;
@@ -504,7 +573,7 @@ function renderFlow(){
 const SID={}; STAGES.forEach(s=>{if(!s.gate) SID[s.n]=s.id;});
 const SEQ=[];
 FLOW.forEach(b=>{
-  if(b.gate){ SEQ.push({gate:b}); return; }
+  if(b.gate){ SEQ.push({gate:GATES[b.gate],gai:b.ai,gbrs:b.brs}); return; }
   (b.steps||[]).forEach(st=>SEQ.push({st,stage:b.s,sid:SID[b.s]}));
   if(b.split) b.split.cols.forEach(c=>
     c.steps.forEach(st=>SEQ.push({st,stage:b.s,sid:SID[b.s],br:c.n,q:b.split.q})));
@@ -514,7 +583,7 @@ function neighbor(idx,r,dir){
   const br=SEQ[idx].br;
   for(let i=idx+dir;i>=0&&i<SEQ.length;i+=dir){
     const e=SEQ[i];
-    if(e.gate) return {gate:e.gate.gate};
+    if(e.gate) return {gate:e.gate.short||e.gate.n};
     if(e.br&&br&&e.br!==br) continue;
     if(e.st.k==='a') return {ai:e.st.w,o:e.st.o};
     if(e.st.w.includes(r.n)) return {same:1};
@@ -534,7 +603,8 @@ function laneRows(r){
   const own=new Set(); SEQ.forEach(e=>{if(!e.gate&&hit(e.st,r)) own.add(e.sid);});
   const rows=[];
   SEQ.forEach((e,i)=>{
-    if(e.gate){ if(e.gate.owner===r.n) rows.push({gate:e.gate}); return; }
+    if(e.gate){ if(e.gate.owner===r.n||e.gate.co===r.n)
+      rows.push({gate:e.gate,gai:e.gai,gbrs:e.gbrs,corole:e.gate.co?1:0}); return; }
     if(hit(e.st,r)){ rows.push({...e,mine:1,up:neighbor(i,r,-1),dn:neighbor(i,r,1)}); return; }
     if(e.st.k==='a'&&agSet.includes(e.st.w)){
       const nx=SEQ[i+1];
@@ -549,13 +619,13 @@ const RV=ROLES.slice();
 const RINFO={
  bd:{ein:'线索进入打分池即在场，确认目标名单并约到上门',
       eout:'续约与增购谈定，增购线索回流准商机进入下一轮',
-      note:'全程在场，并主判经营决策判断一与判断三'},
+      note:'全程在场，判断一与行业方案共同决策，判断三由本角色主判'},
  pe:{ein:'判断一放行、投入方案资源后介入，建项目空间写入项目目标',
      eout:'主持交接评审、确认交接包完整度后移交客户成功',
-     note:'项目负责人，统筹方案到赢单，主判经营决策判断二'},
+     note:'项目负责人，统筹方案到赢单；与商务共同决策判断一，主判判断二与机动决策点'},
  sol:{ein:'随方案工程进场，承接现场勘察与技术可行性判断',
       eout:'非标场景实施交付的现场疑难问题定位收口后退出',
-      note:'技术兜底角色，在调研、POC 调试、实施支持三处介入'},
+      note:'技术兜底角色，非标场景支持；前期未配置时，可由机动决策点在调研后拉入'},
  cs:{ein:'POC 阶段进场，主导设备安装与现场实施',
      eout:'不退出，持续交付阶段常态承接经营复盘与续约配合',
      note:'从 POC 实施一路带到上线与长期经营'},
@@ -613,14 +683,23 @@ function renderRole(){
   let prev='';
   rows.forEach(row=>{
     if(row.gate){
+      const g=row.gate;
+      const bt=Array.isArray(g.basis)?g.basis.map(b=>b[1]).join('；'):g.basis;
       h+=`<div class="lane">
             <div class="lstage-c">—</div>
-            <div class="gaterow">
-              <div class="gate-title">${esc(row.gate.gate)}</div>
-              <div class="txt mt-1">${esc(row.gate.brs.map(b=>b[1]).join(' / '))}</div>
+            <div class="${g.flex?'gaterow-flex':'gaterow'}">
+              <div class="${g.flex?'gate-title-flex':'gate-title'}">${esc(g.short||g.n)}</div>
+              <div class="mt-1 flex flex-wrap items-center gap-1">
+                <span class="${g.flex?'gate-owner-flex':'gate-owner'}">判断主体 · ${esc(g.decBy||g.owner)}</span>
+                ${g.flex?'<span class="flexbdg">机动流程</span>':''}</div>
+              <div class="txt mt-1.5">${esc((row.gbrs||[]).map(b=>b[1]).join(' / '))}</div>
             </div>
-            <div class="hoff"><div class="hrow"><span class="hk">职责</span>
-              <span class="hv">本角色为判断主体，依据：${esc(row.gate.basis)}</span></div></div>
+            <div class="hoff">
+              <div class="hrow"><span class="hk">职责</span>
+                <span class="hv">${g.co?'与 '+esc(g.owner===r.n?g.co:g.owner)+' 共同决策':'本角色为判断主体'}，依据：${esc(bt)}</span></div>
+              ${g.out?`<div class="hrow"><span class="hk">必出</span>
+                <span class="hv">${esc(g.out.join('；'))}</span></div>`:''}
+            </div>
           </div>`;
       prev='';
       return;
@@ -672,12 +751,17 @@ function legend(){
     ? `<span class="flex items-center gap-1"><span class="tag tag-h">人</span>人工执行 / 决策</span>
        <span class="flex items-center gap-1"><span class="tag tag-a">AI</span>Agent 自动处理</span>
        <span class="flex items-center gap-1"><span class="agt">Agent</span>该角色可用智能体</span>
-       <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-sm" style="background:#fef3c7;border:1px solid #fde68a"></span>经营决策关卡</span>`
+       <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-sm" style="background:#fef3c7;border:1px solid #fde68a"></span>经营决策关卡</span>
+       <span class="flex items-center gap-1"><span class="flexbdg">机动流程</span>按需触发，非每单必走</span>
+       <span class="flex items-center gap-1"><span class="gk gk-req">必</span><span class="gk gk-opt">选</span>判断依据</span>
+       <span class="flex items-center gap-1"><span class="gk gk-out">出</span>决策必要输出</span>`
     : `<span class="flex items-center gap-1"><span class="tag tag-h">人</span>纯人工节点</span>
        <span class="flex items-center gap-1"><span class="tag tag-a">AI</span>Agent 全自动节点</span>
        <span class="flex items-center gap-1"><span class="tag tag-ha">AI辅助 + 人确认</span></span>
        <span class="flex items-center gap-1"><span class="ch ch-sys">系统操作</span><span class="ch ch-off">线下</span>行动方式</span>
        <span class="flex items-center gap-1"><span class="bdg bdg-lead">主导</span></span>
+       <span class="flex items-center gap-1"><span class="bdg bdg-ns">非标场景支持</span></span>
+       <span class="flex items-center gap-1"><span class="flexbdg">机动流程</span>按需触发，非每单必走</span>
        <span class="flex items-center gap-1"><span class="bdg bdg-new">新增节点</span></span>`;
 }
 function setView(k){
