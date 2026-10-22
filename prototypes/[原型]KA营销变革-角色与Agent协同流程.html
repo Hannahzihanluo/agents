@@ -3,484 +3,656 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KA 营销变革 · 角色与 Agent 协同流程</title>
+<title>KA 营销流程 AI 化 · 角色与 Agent 协同</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
   body{background:#f6f3f2;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;}
-  .lane-grid{display:grid;grid-template-columns:132px repeat(7,minmax(352px,1fr));}
+  .grid-row{display:grid;grid-template-columns:var(--tpl);}
   .sticky-col{position:sticky;left:0;z-index:20;}
-  .lane-head{position:sticky;top:0;z-index:30;}
-  .lane-foot{position:sticky;bottom:0;z-index:30;}
-  .scroll-x{overflow:auto;max-height:calc(100vh - 208px);min-height:460px;}
+  .row-head{position:sticky;top:0;z-index:30;}
+  .scroll-x{overflow:auto;max-height:calc(100vh - 182px);min-height:440px;}
   .scroll-x::-webkit-scrollbar{height:10px;width:10px;}
   .scroll-x::-webkit-scrollbar-thumb{background:#d4d4d8;border-radius:6px;}
   .scroll-x::-webkit-scrollbar-corner{background:#fff;}
-  .node{cursor:pointer;transition:all .2s cubic-bezier(.4,0,.2,1);border-radius:12px;}
-  .node:hover{transform:translateY(-2px);box-shadow:0 10px 26px rgba(112,51,255,.14);}
-  .node.dim{opacity:.2;filter:grayscale(.6);}
-  .t-act{background:#eff6ff;border:1px solid #bfdbfe;}
-  .t-judge{background:#fffbeb;border:1px solid #fde68a;}
-  .t-out{background:#f3f0ff;border:1px solid #ddd6fe;}
-  .t-rec{background:#f0fdfa;border:1px solid #99f6e4;}
-  .badge-act{background:#2563eb;} .badge-judge{background:#b45309;}
-  .badge-out{background:#7033ff;} .badge-rec{background:#0f766e;}
-  .seq{background:#2d235a;color:#fff;font-size:10px;font-weight:700;border-radius:6px;
-       min-width:22px;height:18px;display:inline-flex;align-items:center;justify-content:center;}
-  .actor{border-radius:9px;padding:6px 7px;margin-top:5px;}
-  .actor-h{background:rgba(232,238,255,.85);}
-  .actor-a{background:rgba(240,235,255,.85);}
-  .actor-t{font-size:10px;font-weight:700;letter-spacing:.3px;}
-  .dim-row{display:flex;gap:5px;align-items:flex-start;margin-top:3px;}
-  .dim-k{font-size:9px;font-weight:700;border-radius:4px;padding:0 4px;line-height:15px;
-         flex-shrink:0;margin-top:1px;background:#fff;}
-  .dim-v{font-size:10.5px;line-height:15px;color:#4b5563;}
-  .chain{display:flex;flex-wrap:wrap;gap:3px;align-items:center;margin-top:6px;
-         padding:5px 6px;background:rgba(255,255,255,.72);border-radius:8px;}
-  .ch{font-size:9.5px;border-radius:999px;padding:0 6px;line-height:16px;white-space:nowrap;}
-  .ch-h{background:#e8eeff;color:#3B4BFF;} .ch-a{background:#f0ebff;color:#4929e2;}
-  .ch-ar{font-size:9px;color:#c4b5fd;}
-  .lean .actor{display:none;}
-  .node-auto{box-shadow:inset 3px 0 0 #7033ff;}
-  .auto-pill{font-size:9.5px;font-weight:700;color:#4929e2;background:#ede9ff;
-             border:1px solid #ddd6fe;border-radius:999px;padding:0 5px;line-height:16px;}
-  .drawer{transition:transform .28s cubic-bezier(.4,0,.2,1);}
-  .drawer.hide{transform:translateX(100%);}
+  .cell{border-right:1px solid #f1f1f4;padding:9px 10px;}
+  .cell-gate{background:#fffdf4;border-left:1px solid #fde68a;border-right:1px solid #fde68a;}
+  .line{display:flex;gap:6px;align-items:flex-start;margin-top:5px;}
+  .tag{font-size:9.5px;font-weight:700;border-radius:5px;padding:0 5px;
+       line-height:16px;flex-shrink:0;margin-top:1px;}
+  .tag-h{background:#e8eeff;color:#3B4BFF;}
+  .tag-a{background:#f0ebff;color:#4929e2;}
+  .tag-ha{background:linear-gradient(90deg,#f0ebff,#e8eeff);color:#4929e2;
+          border:1px solid #ddd6f3;line-height:15px;}
+  .txt{font-size:11px;line-height:16.5px;color:#4b5563;}
+  .hide-h .line-h{display:none;}
+  .hide-a .line-a{display:none;}
+  .gate-title{font-size:10px;font-weight:700;color:#b45309;letter-spacing:.3px;}
+  .gate-owner{font-size:10px;background:#fef3c7;color:#92400e;border:1px solid #fde68a;
+              border-radius:999px;padding:0 6px;line-height:16px;display:inline-block;}
+  .concl{background:#fff;border:1px solid #fde68a;border-radius:10px;padding:7px 8px;
+         box-shadow:0 2px 8px rgba(180,83,9,.06);}
+  .purpose{font-size:11px;line-height:16.5px;color:#5c568a;}
+  .info{font-size:10.5px;line-height:16px;color:#8284A4;}
+  .ai-cell{background:linear-gradient(180deg,#f8f6ff,#fff);}
   .flt{transition:all .18s;}
-  .sig{background:linear-gradient(90deg,#f0ebff,#fff);border-left:3px solid #7033ff;}
+  .stage-pill{font-size:9.5px;color:#4929e2;background:#f0ebff;border-radius:999px;
+              padding:0 6px;line-height:16px;}
+  .flowwrap{overflow:auto;max-height:calc(100vh - 182px);min-height:440px;padding:14px 16px;}
+  .flowwrap::-webkit-scrollbar{height:10px;width:10px;}
+  .flowwrap::-webkit-scrollbar-thumb{background:#d4d4d8;border-radius:6px;}
+  .blk{display:grid;grid-template-columns:148px 1fr;gap:14px;align-items:start;
+       padding:11px 0;border-bottom:1px dashed #ededf2;}
+  .steps{display:flex;flex-wrap:wrap;align-items:stretch;row-gap:8px;}
+  .step{width:244px;border-radius:12px;padding:0;border:1px solid;overflow:hidden;}
+  .step-a{background:#fff;border-color:#e0d8f7;}
+  .step-h{background:#fff;border-color:#d3deff;}
+  .step-ha{background:#fff;border-color:#c9bff0;box-shadow:0 2px 10px rgba(73,41,226,.07);}
+  .sthead{padding:6px 9px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;
+          border-bottom:1px solid #f1f1f4;}
+  .sthead-a{background:#f4f0ff;}
+  .sthead-h{background:#eef3ff;}
+  .sthead-ha{background:linear-gradient(90deg,#f0ebff,#e9efff);}
+  .stbody{padding:7px 9px;}
+  .arw{width:22px;display:flex;align-items:center;justify-content:center;
+       color:#cfcbdd;font-size:12px;flex-shrink:0;}
+  .who{font-size:11px;font-weight:700;color:#2d235a;}
+  .stxt{font-size:11px;line-height:16.5px;color:#1D2129;}
+  .mrow{display:grid;grid-template-columns:30px 1fr;gap:5px;margin-top:5px;align-items:start;}
+  .mk{font-size:9px;font-weight:700;color:#8284A4;background:#f5f7fa;border-radius:4px;
+      text-align:center;line-height:15px;margin-top:1px;}
+  .mv{font-size:10px;line-height:15.5px;color:#5c6270;}
+  .ch{font-size:9px;border-radius:5px;padding:0 4px;line-height:15px;display:inline-block;
+      border:1px solid;}
+  .ch-sys{color:#3B4BFF;background:#e8eeff;border-color:#d3deff;}
+  .ch-off{color:#92400e;background:#fff7e6;border-color:#ffe0a3;}
+  .outp{font-size:9.5px;color:#4929e2;background:#f0ebff;border-radius:6px;
+        padding:1px 5px;display:inline-block;}
+  .gateblk{background:#fffdf4;border:1px solid #fde68a;border-radius:14px;padding:10px 12px;}
+  .br{font-size:10.5px;border-radius:999px;padding:2px 9px;border:1px solid;display:inline-block;}
+  .br-go{background:#f0ebff;border-color:#e0d8f7;color:#4929e2;}
+  .br-back{background:#fef3c7;border-color:#fde68a;color:#92400e;}
+  .br-stop{background:#f5f7fa;border-color:#e8e8ee;color:#8284A4;}
+  .splitwrap{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:9px;}
+  .splitcol{border:1px dashed #e0d8f7;border-radius:12px;padding:8px 9px;background:#fcfbff;}
+  .split-n{font-size:10px;font-weight:700;color:#4929e2;background:#f0ebff;
+           border-radius:999px;padding:1px 8px;display:inline-block;margin-bottom:7px;}
+  .loopbar{border:1px dashed #e0d8f7;background:#fcfbff;border-radius:12px;
+           padding:9px 12px;margin-top:12px;}
+  .bdg{font-size:9px;font-weight:700;border-radius:5px;padding:0 4px;
+       line-height:15px;border:1px solid;display:inline-block;}
+  .bdg-new{color:#4929e2;background:#f0ebff;border-color:#e0d8f7;}
+  .bdg-ns{color:#b45309;background:#fff7e6;border-color:#ffe0a3;}
+  .bdg-std{color:#0f766e;background:#eafaf7;border-color:#c7ece5;}
+  .bdg-lead{color:#3B4BFF;background:#e8eeff;border-color:#d3deff;}
+  .agt{font-size:10px;font-weight:700;color:#4929e2;background:#f0ebff;
+       border:1px solid #e0d8f7;border-radius:6px;padding:1px 6px;display:inline-block;}
+  .rhead{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;
+         background:linear-gradient(90deg,#f8f6ff,#fff);border:1px solid #e9e4f8;
+         border-radius:14px;padding:11px 14px;margin-bottom:14px;flex-wrap:wrap;}
+  .rname{font-size:15px;font-weight:700;color:#2d235a;}
+  .rstat{font-size:10.5px;color:#5c6270;background:#fff;border:1px solid #ececf2;
+         border-radius:8px;padding:4px 9px;}
+  .rstat b{color:#4929e2;font-size:12px;}
+  .lane{display:grid;grid-template-columns:104px 252px 1fr;gap:12px;
+        align-items:start;padding:9px 0;border-bottom:1px dashed #ededf2;}
+  .lstage{font-size:11px;font-weight:700;color:#2d235a;padding-top:7px;}
+  .lstage-c{font-size:11px;color:#c6c3d4;padding-top:7px;}
+  .hoff{display:flex;flex-direction:column;gap:5px;padding-top:4px;}
+  .hrow{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+  .hk{font-size:9px;font-weight:700;color:#8284A4;background:#f5f7fa;
+      border-radius:4px;line-height:16px;padding:0 5px;flex-shrink:0;}
+  .hv{font-size:10.5px;color:#4b5563;}
+  .hrole{font-size:10px;font-weight:700;color:#3B4BFF;background:#e8eeff;
+         border:1px solid #d3deff;border-radius:5px;padding:0 5px;line-height:16px;}
+  .hgate{font-size:10px;font-weight:700;color:#92400e;background:#fef3c7;
+         border:1px solid #fde68a;border-radius:5px;padding:0 5px;line-height:16px;}
+  .hnone{font-size:10.5px;color:#b8b6c6;}
+  .hbr{font-size:9px;color:#4929e2;background:#f0ebff;border:1px solid #e0d8f7;
+       border-radius:5px;padding:0 5px;line-height:16px;}
+  .gaterow{background:#fffdf4;border:1px solid #fde68a;border-radius:12px;padding:8px 10px;}
+  .aidel{font-size:9px;font-weight:700;color:#4929e2;background:#f0ebff;
+         border:1px solid #e0d8f7;border-radius:5px;padding:0 5px;line-height:16px;}
 </style>
 </head>
 <body class="min-h-screen">
-<header class="bg-white border-b border-gray-200 px-6 py-4 sticky top-0 z-40">
-  <div class="flex items-center justify-between gap-4 flex-wrap">
-    <div>
-      <h1 class="text-lg font-semibold text-[#1D2129]">KA 营销变革 · 角色与 Agent 协同流程</h1>
-      <p class="text-xs text-[#8284A4] mt-1">CR1-CR7 全链路 · 45 个节点按 ① 顺序流转 · 标注人与 Agent 各自的 做/判/出/操，<span class="text-[#4929e2]">紫色左边框为 Agent 全自动节点（无人介入）</span></p>
-    </div>
-    <div class="flex items-center gap-2 flex-wrap" id="typeFilters"></div>
+<div class="max-w-[1760px] mx-auto px-6 py-5">
+  <div class="flex items-center justify-between mb-3">
+    <h1 class="text-[17px] font-bold text-[#1D2129]">KA 营销流程 AI 化 · 角色与 Agent 协同</h1>
+    <button onclick="history.back()"
+      class="text-[12px] text-[#4929e2] bg-white border border-[#e5e0f5] rounded-lg px-3 py-1.5 hover:bg-[#f8f6ff]">返 回</button>
   </div>
-</header>
-
-<main class="p-6">
-  <div class="flex items-center justify-between gap-3 mb-4 flex-wrap">
-    <div id="statBar" class="flex gap-3 flex-wrap"></div>
-    <div class="flex items-center gap-2">
-      <div class="bg-white rounded-xl border border-gray-200 px-3 py-2 flex items-center gap-2.5 text-[11px]">
-        <span class="text-[#8284A4]">图例</span>
-        <span class="dim-k border border-gray-200 text-[#2563eb]">做</span><span class="text-[#4b5563]">做什么</span>
-        <span class="dim-k border border-gray-200 text-[#b45309]">判</span><span class="text-[#4b5563]">判断什么</span>
-        <span class="dim-k border border-gray-200 text-[#7033ff]">出</span><span class="text-[#4b5563]">输出什么</span>
-        <span class="dim-k border border-gray-200 text-[#0f766e]">操</span><span class="text-[#4b5563]">操作什么</span>
-      </div>
-      <button id="leanBtn" class="bg-white rounded-xl border border-gray-200 px-3 py-2 text-[11px] font-medium text-[#4929e2] hover:bg-[#f8f6ff]">切换精简视图</button>
-    </div>
+  <div class="flex items-center gap-1.5 mb-3" id="tabs"></div>
+  <div class="flex items-center justify-between gap-3 mb-3 flex-wrap">
+    <div class="flex items-center gap-1.5" id="ctrl"></div>
+    <div class="flex items-center gap-1.5 hidden" id="rolesel"></div>
+    <div class="flex items-center gap-3 text-[10.5px] text-[#8284A4]" id="legend"></div>
   </div>
-  <div class="bg-white rounded-2xl border border-gray-200 shadow-sm scroll-x">
-    <div id="laneWrap" class="min-w-max"></div>
+  <div class="bg-white rounded-2xl border border-[#ececf2] overflow-hidden shadow-sm">
+    <div class="scroll-x" id="wrap"></div>
+    <div class="flowwrap hidden" id="flow"></div>
+    <div class="flowwrap hidden" id="rolev"></div>
   </div>
-  <div id="ctxBand" class="mt-4"></div>
-  <div id="loopBand" class="mt-4"></div>
-</main>
-
-<aside id="drawer" class="drawer hide fixed top-0 right-0 h-full w-[420px] bg-white shadow-2xl z-50 border-l border-gray-200 overflow-y-auto">
-  <div id="drawerBody" class="p-5"></div>
-</aside>
-
-<footer class="fixed bottom-0 right-0 p-2 text-xs text-gray-400 bg-white/80 rounded-tl-lg">v04 · 更新于 2026-10-19</footer>
-
+  <div class="text-[10.5px] text-[#8284A4] mt-3">v10 · 更新于 2026-10-22</div>
+</div>
 <script>
-const TYPES={act:{n:'行动',c:'t-act',b:'badge-act'},judge:{n:'判断',c:'t-judge',b:'badge-judge'},out:{n:'输出',c:'t-out',b:'badge-out'},rec:{n:'操作/记录整理',c:'t-rec',b:'badge-rec'}};
-const DIMS={d:{n:'做',f:'做什么',c:'#2563eb'},j:{n:'判',f:'判断什么',c:'#b45309'},
-            o:{n:'出',f:'输出什么',c:'#7033ff'},p:{n:'操',f:'操作什么',c:'#0f766e'}};
-const ROLES=[
- {id:'bd',n:'商务',s:'销售 / 客户关系'},
- {id:'pm',n:'项目负责人',s:'统筹 / 节奏 / 风险'},
- {id:'sol',n:'技术解决方案',s:'软件 / 硬件 / 算法'},
- {id:'cs',n:'客户成功',s:'实施 / 上线 / 经营'},
- {id:'ops',n:'运维工程',s:'部署 / 巡检 / 资源'},
- {id:'svc',n:'客服',s:'工单 / 应答 / 升级'}
-];
 const STAGES=[
- {id:'CR1',n:'用户名单',tag:'营销链·源头',agent:'获客分析师',sig:'lead_imported',ctx:'V1 名单 + 来源 + 初筛评分'},
- {id:'CR2',n:'验证意向',tag:'营销链·入口',agent:'获客分析师',sig:'lead_qualified',ctx:'V5 + 画像 + 评分 + 竞品'},
- {id:'CR3',n:'行业方案',tag:'营销链·匹配',agent:'方案&POC 助手',sig:'requirement_confirmed',ctx:'V12 + 痛点 + 决策人 + 方案版本'},
- {id:'CR4',n:'KA 攻坚',tag:'营销链·定制+验证',agent:'方案&POC 助手',sig:'deal_won',ctx:'V23 + 定制方案 + POC 结论 + 报价'},
- {id:'CR5',n:'签约交付',tag:'交接点',agent:'交付规划助手',sig:'project_live',ctx:'V31→V45 + 合同 + 交付约定 + 进展'},
- {id:'CR6',n:'持续价值',tag:'服务链·持续',agent:'客户成功助手',sig:'upsell_signal',ctx:'V67 + 健康度 + 满意度 + 流失风险'},
- {id:'CR7',n:'交叉销售',tag:'服务链·扩展',agent:'客户成功助手',sig:'cross_sell_lead → CR1/CR2',ctx:'V80+ 扩容信号 + 转介绍记录'}
+ {id:'s1',n:'准商机',w:190,p:'锁定目标客户，拿到可上门的机会'},
+ {id:'s2',n:'行业方案介绍',w:230,p:'见到 KP，讲清行业价值，判断是否值得投入方案资源'},
+ {id:'g1',n:'经营决策判断一',w:210,gate:1,owner:'商务',
+  basis:'KP 是否触达、痛点是否明确、预算与采购窗口是否存在',
+  concl:'投入方案资源进入需求调研 / 暂缓培育 / 放弃'},
+ {id:'s3',n:'需求调研',w:250,p:'摸清现场与业务现状，形成需求与可行性结论',
+  bdg:[['new','新增节点'],['ns','非标场景方案']]},
+ {id:'s4',n:'客户方案介绍',w:230,p:'向客户汇报方案，对齐范围、节奏与验收口径'},
+ {id:'g2',n:'经营决策判断二',w:210,gate:1,owner:'方案工程',
+  basis:'技术路径是否可行、交付周期与资源是否可承诺、风险是否可控',
+  concl:'进入 POC 验证 / 调整方案范围 / 判定不可行'},
+ {id:'s5',n:'POC',w:250,p:'用真实场景数据验证指标，暴露并收敛问题'},
+ {id:'g3',n:'经营决策判断三',w:210,gate:1,owner:'商务',
+  basis:'POC 指标是否达标、客户决策链是否就位、商务条件是否可谈',
+  concl:'进入商务议判 / 补充验证 / 终止'},
+ {id:'s6',n:'商务议判',w:250,p:'走通价格与采购路径，拿下可签的商务条件'},
+ {id:'s7',n:'赢单',w:230,p:'签约并完成销售到交付的服务交接'},
+ {id:'s8',n:'实施交付',w:250,p:'装得上、跑得通、验收过'},
+ {id:'s9',n:'持续交付',w:250,p:'稳定运行、续约、挖掘增购与横向扩展'}
 ];
-// q=全局步骤号 s=阶段 r=角色 t=类型 ti=节点名
-// H/A = 人/Agent 的 d做 j判 o出 p操    ch=节点内协同顺序
-const NODES=[
-{q:1,s:'CR1',r:'bd',t:'act',ti:'多渠道名单归集',
- A:{d:'从冷呼/活动/网站/转介绍四个渠道自动拉取线索并聚合',j:'判断两条线索是否同一主体（企业名/统一社会信用代码/联系人）；判断渠道数据是否可用',o:'去重后名单 + 去重合并报告',p:'统一入库，标注来源渠道与获取时间'},
- ch:['A 拉取各渠道线索','A 识别同一主体','A 合并去重','A 统一入库']},
-{q:2,s:'CR1',r:'bd',t:'judge',ti:'名单初筛是否通过',
- A:{d:'按线索评分模型批量打分，比对存量客户库',j:'判断评分是否达初筛线、是否属存量客户；低于阈值直接淘汰',o:'初筛结论（通过/淘汰）+ 初筛评分 + 优先级建议（高/中/低）',p:'通过项入库并按规则分配跟进人，无效线索自动归档'},
- ch:['A 批量评分','A 比对存量客户','A 按阈值判通过','A 分配跟进人']},
-{q:3,s:'CR1',r:'bd',t:'rec',ti:'来源标注与客户唯一视图',
- A:{d:'维护客户唯一视图，关联 CRM 已有档案',j:'判断是否需新建客户档案或挂到存量客户',o:'ContextSummary V1{来源渠道, 获取时间, 初筛评分, 基础联系信息}',p:'写入客户知识空间，触发 lead_imported'},
- ch:['A 关联 CRM 档案','A 建唯一视图','A 写入 V1','A 触发下游信号']},
-{q:4,s:'CR2',r:'bd',t:'out',ti:'客户画像卡',
- A:{d:'调用行业库+竞品库+公开信息生成画像',j:'判断企业规模/行业归属，推断关键决策人',o:'企业概要画像（100 字）+ 决策人推测 + 竞品使用情况 + 差异化建议 + 切入点',p:'画像挂载客户知识空间，推送至销售工作台（由步骤 5 带入面客校正）'},
- ch:['A 检索行业与竞品库','A 生成画像','A 推测决策人','A 推送销售']},
-{q:5,s:'CR2',r:'bd',t:'act',ti:'首次沟通与意向验证',
- H:{d:'执行电话/拜访触达，验证真实意向与预算',j:'判断客户意向真实度、预算是否落地、是否值得继续投入',o:'沟通结论 + 意向等级',p:'发起沟通并回填 CRM'},
- A:{d:'按线索特征推荐触达方式与个性化话术',j:'判断最佳触达时机与切入话术',o:'触达策略 + 话术脚本',p:'话术推送至工作台/飞书'},
- ch:['A 推荐触达方式','A 出话术','H 执行沟通','H 判断意向真实度']},
-{q:6,s:'CR2',r:'bd',t:'rec',ti:'沟通记录结构化',
- A:{d:'从沟通记录与群消息提炼结构化要点',j:'判断哪些内容影响客户上下文（需求方向/竞品/预算信号）',o:'结构化沟通要点 + ContextSummary V5 增量',p:'增量更新客户知识空间，原文可溯源'},
- ch:['A 提炼要点','A 判上下文影响','A 生成 V5 增量','A 写入并留溯源']},
-{q:7,s:'CR2',r:'sol',t:'judge',ti:'初步可行性预判',
- A:{d:'匹配解决方案模板，比对产品能力全集',j:'判断需求与现有能力的 Gap 点，给出可行/有条件可行/存疑',o:'初步可行性结论 + 推荐方案模板 + 能力边界提示',p:'关联模板到客户档案（存疑项留给步骤 15 人工裁定）'},
- ch:['A 匹配模板','A 比对能力全集','A 判 Gap 与可行性','A 标记存疑项']},
-{q:8,s:'CR2',r:'bd',t:'judge',ti:'KA / 中小客户分流',
- A:{d:'按规模/行业/评分规则自动判型',j:'判断评分是否 > 80 且首次沟通已完成；判 KA 还是中小',o:'客户分型结论 + 综合评分（0-100）+ 评分依据',p:'变更 CRM 客户类型与跟进策略，触发 lead_qualified 并创建方案助手任务'},
- ch:['A 按规则判型','A 出评分依据','A 变更跟进策略','A 触发任务分配']},
-{q:9,s:'CR3',r:'pm',t:'act',ti:'建项目空间 · 绑定飞书群',
- H:{d:'创建项目、绑定客户、拉飞书群，按角色模板完成成员授权',j:'判断项目成员构成与各自角色权限范围',o:'项目空间 + 成员授权表',p:'配置项目摘要更新 skill 与群智能体行为参数'},
- A:{d:'KA 主理智能体自动入群并挂载该项目空间',j:'判断用户可见的项目范围（按角色/职责校验，数据按客户隔离）',o:'项目摘要初稿 + 统一上下文',p:'带入 CRM 客户信息与客户知识空间'},
- ch:['H 建项目绑群','A 自动入群挂载','A 生成摘要初稿','H 完成角色授权']},
-{q:10,s:'CR3',r:'bd',t:'act',ti:'需求访谈组织',
- H:{d:'组织客户访谈，承接客户关系与议程',j:'判断访谈对象是否覆盖关键决策链',o:'访谈纪要',p:'纪要上传项目空间'},
- A:{d:'接收全部群消息持续理解项目进展',j:'自主判断何时主动响应、何时静默沉淀、何时完全忽略',o:'结构化需求标签 + 需求调研报告初稿',p:'关联历史同类项目，群内推送卡片'},
- ch:['H 组织访谈','H 产出纪要','A 提取需求标签','A 出调研报告初稿','H 审核（接受/修改/驳回）']},
-{q:11,s:'CR3',r:'sol',t:'act',ti:'行业方案匹配与定制',
- H:{d:'按软件/硬件/算法分头评估方案框架',j:'裁定方案框架与技术路线是否成立',o:'方案框架确认',p:'在方案上迭代修改（≤3 次）'},
- A:{d:'按行业/规模匹配最佳模板，在模板上生成行业定制方案',j:'判断哪个行业模板最匹配客户特征',o:'行业匹配方案（可编辑/导出 PPT/Word）',p:'方案存入客户知识空间，脱敏后沉淀行业知识层'},
- ch:['A 匹配行业模板','A 生成方案初稿','H 裁定技术路线','H 迭代定稿']},
-{q:12,s:'CR3',r:'sol',t:'out',ti:'竞品对比表 + 案例引用',
- A:{d:'检索竞品知识库与成功案例库',j:'判断哪些案例同行业/相似规模最具说服力；判断对比口径一致性',o:'竞品功能对比表 + 推荐案例列表（带引用溯源）',p:'关联案例到方案附件（随步骤 11 方案一并由人定稿）'},
- ch:['A 检索竞品与案例','A 判案例说服力','A 生成对比表','A 挂载方案附件']},
-{q:13,s:'CR3',r:'bd',t:'judge',ti:'需求方向是否确认',
- H:{d:'与客户确认需求方向，推动方案初版过会',j:'拍板需求方向是否锁定、是否升级为 KA 攻坚',o:'需求确认结论',p:'推进 CRM 阶段至 CR4'},
- A:{d:'汇总已识别需求供确认',j:'判断需求识别置信度（试点目标准确率 ≥ 80%）',o:'需求清单 + 置信度标注',p:'触发 requirement_confirmed，启动需求分析'},
- ch:['A 汇总需求清单','H 与客户确认','H 拍板锁定','A 触发阶段升级']},
-{q:14,s:'CR3',r:'pm',t:'rec',ti:'项目摘要更新待确认',
- H:{d:'查看更新建议（改了什么 + 依据哪条消息/文档）',j:'判断更新建议是否准确，确认或驳回',o:'确认后的项目摘要',p:'确认写入；版本可追溯、可回滚'},
- A:{d:'从群消息/项目文档变更/CRM 阶段变更识别上下文变更',j:'判断哪些变更影响项目上下文（关键决策/需求变更/阶段推进）',o:'更新建议 + 变更依据 + ContextSummary V12',p:'推送待确认队列给项目经理'},
- ch:['A 识别变更','A 生成更新建议','H 确认/驳回','A 写入 V12 并留版本']},
-{q:15,s:'CR4',r:'sol',t:'act',ti:'需求分析与定制方案',
- H:{d:'软件/硬件/算法分工拆解需求，深度定制方案',j:'裁定架构与技术选型；判断 Gap 项是做、是改、还是向客户说明',o:'客户定制化方案 + Gap 处理结论',p:'在方案上迭代，更新至项目空间'},
- A:{d:'从沟通记录提取结构化需求，在模板上深度定制',j:'判断需求与产品能力的 Gap 点及风险等级',o:'定制方案初稿 + 风险提示（需求-能力 Gap）',p:'调用同行业定制案例与行业最佳实践'},
- ch:['A 提取结构化需求','A 出定制初稿 + Gap 风险','H 裁定架构选型','H 处理 Gap 并定稿']},
-{q:16,s:'CR4',r:'sol',t:'out',ti:'POC 方案设计',
- H:{d:'锁定 POC 边界，与客户对齐验证范围',j:'判断范围是否被客户无限扩大，哪些坚决不纳入',o:'POC 方案定稿（范围/评估标准/时间线）',p:'与客户签署 POC 范围确认'},
- A:{d:'按 POC SOP 设计范围、评估标准、时间计划',j:'判断验证项与客户核心痛点的对应关系',o:'POC 方案初稿 + 验证脚本 + 检查清单',p:'生成 POC 任务与时间节点'},
- ch:['A 按 SOP 设计初稿','A 出验证脚本与清单','H 锁定边界','H 与客户签范围']},
-{q:17,s:'CR4',r:'cs',t:'judge',ti:'交付可行性评估',
- H:{d:'评估实施周期、人力投入与现场条件',j:'判断能否按承诺交付；提出交付前置条件',o:'交付可行性结论 + 前置条件清单',p:'在方案上登记交付约束'},
- A:{d:'调取历史同类项目数据',j:'判断周期与风险相比历史项目是否偏乐观',o:'周期与风险参考值',p:'关联历史项目数据到评估记录'},
- ch:['A 调历史项目数据','A 给周期风险参考','H 判交付可行性','H 提前置条件']},
-{q:18,s:'CR4',r:'ops',t:'judge',ti:'资源与环境可行性',
- H:{d:'核算部署架构、算力与网络资源',j:'判断现有资源能否满足；是否需扩容或调整架构',o:'资源评估结论',p:'登记资源需求与环境依赖'},
- A:{d:'按方案规格估算资源用量',j:'判断资源缺口与环境依赖项',o:'资源用量估算 + 环境依赖清单',p:'生成资源申请建议'},
- ch:['A 估算资源用量','A 出环境依赖清单','H 核算可满足性','H 出评估结论']},
-{q:19,s:'CR4',r:'pm',t:'act',ti:'任务拆解与节奏跟进',
- H:{d:'审核 AI 拆解的行动项',j:'判断任务拆解是否合理、责任人是否恰当（必须人工确认后下发）',o:'确认后的任务清单',p:'确认下发飞书待办，必要时转交'},
- A:{d:'从方案/报告/群讨论中拆解行动项',j:'识别任务分派与承诺确认信号，判断逾期风险',o:'待办候选项 + 每日早报 + 逾期提醒 + 群置顶摘要',p:'生成飞书待办并双向同步跟进状态'},
- ch:['A 拆解行动项','H 确认责任人与颗粒度','A 下发飞书待办','A 早报/逾期提醒','H 处理或转交']},
-{q:20,s:'CR4',r:'sol',t:'act',ti:'技术验证执行',
- H:{d:'现场/远程执行技术验证',j:'判定技术验证结论是否达标、顾虑是否消除',o:'技术验证结论 + 客户技术顾虑解答',p:'回填验证数据到项目空间'},
- A:{d:'辅助验证执行，采集验证数据',j:'判断实测结果与评估标准的达成情况',o:'POC 验证数据 + POC 结论报告初稿',p:'数据归档到项目空间'},
- ch:['A 提供脚本与清单','H 执行验证','A 采集数据并比对标准','A 出结论报告初稿','H 判定技术结论']},
-{q:21,s:'CR4',r:'pm',t:'judge',ti:'POC 是否通过',
- H:{d:'组织项目组会评 POC 结论',j:'拍板 POC 是否通过、是否推进签约',o:'POC 评审结论',p:'会评结论归档，推进或回退阶段'},
- A:{d:'汇总 POC 数据与评估标准达成情况',j:'判断各项验证指标是否达到预设标准',o:'POC 结论汇总 + 达成率',p:'推送评审材料至项目群'},
- ch:['A 汇总达成情况','H 组织会评','H 拍板通过','A 归档结论']},
-{q:22,s:'CR4',r:'bd',t:'act',ti:'报价与商务谈判',
- H:{d:'主导商务谈判',j:'定终价与让利边界；判断客户价格敏感点与竞争态势',o:'最终报价 + 谈判结论',p:'回填报价记录与合同条款'},
- A:{d:'按客户规模与方案复杂度测算报价',j:'判断合理报价区间与竞品比价位置',o:'报价参考区间 + 依据 + 谈判要点与话术',p:'调用定价模型与配置规则'},
- ch:['A 测算报价区间','A 出谈判要点话术','H 主导谈判','H 定终价']},
-{q:23,s:'CR4',r:'bd',t:'judge',ti:'是否赢单',
- H:{d:'确认客户签约意向',j:'拍板赢单；确认合同关键条款可接受',o:'赢单确认 + 合同条款',p:'推进 CRM 至 CR5，发起合同流程'},
- A:{d:'汇总客户反馈与决策链进展',j:'判断赢单信号是否成立（POC 通过 + 客户意向确认）',o:'合同关键条款预览 + 价格敏感点 + 内部支持者',p:'触发 deal_won，激活交付规划助手预启动'},
- ch:['A 汇总决策链信号','A 出条款预览','H 拍板赢单','A 触发交付预启动']},
-{q:24,s:'CR4',r:'pm',t:'rec',ti:'方案与承诺沉淀',
- A:{d:'归集深度需求分析、方案版本、报价记录、POC 结论、客户反馈、决策链',j:'判断哪些内容需脱敏后沉淀到行业知识层',o:'ContextSummary V23',p:'写入客户知识空间，方案入库沉淀（定稿已在步骤 11/21 经人确认）'},
- ch:['A 归集全过程产出','A 判脱敏范围','A 写入 V23','A 沉淀行业知识层']},
-{q:25,s:'CR5',r:'bd',t:'rec',ti:'合同与承诺清单归档',
- H:{d:'梳理销售过程中的全部口头与书面承诺',j:'确认承诺清单完整、无遗漏的对客口头承诺',o:'承诺清单确认',p:'合同与承诺归档至项目空间'},
- A:{d:'从沟通记录自动抽取承诺语句',j:'判断哪些表述构成对客承诺',o:'承诺清单 + 合同关键条款 + 交付约定 + 特殊要求',p:'结构化入库，标注出处'},
- ch:['A 抽取承诺语句','A 出承诺清单','H 补全口头承诺','H 确认归档']},
-{q:26,s:'CR5',r:'pm',t:'out',ti:'服务交接包生成',
- H:{d:'审核交接包七项内容',j:'判断交付团队接手所需信息是否齐备',o:'交接包确认',p:'确认后转交付团队'},
- A:{d:'从 ContextSummary V23 抽取与结构化',j:'判断各项信息的完整性与风险等级',o:'服务交接包 7 项：客户概要/需求摘要/方案快照/承诺清单/风险提示/交付约定/历史互动',p:'飞书卡片通知 + 工作台任务，同步 Patch → V31'},
- ch:['A 抽取 V23 并结构化','A 生成交接包 7 项','H 审核确认','A 推送交付团队']},
-{q:27,s:'CR5',r:'pm',t:'act',ti:'交付启动会与计划确认',
- H:{d:'主持 kickoff，对齐交付范围与节奏',j:'确认里程碑、责任人与资源到位情况',o:'交付计划定稿 + 里程碑',p:'计划发布至项目空间与飞书待办'},
- A:{d:'按合同与交接包生成标准化交付计划',j:'基于历史项目数据识别本项目风险点',o:'交付计划初稿 + 里程碑 + 风险识别 + 资源调配建议',p:'生成里程碑跟踪任务'},
- ch:['A 生成计划初稿','A 识别风险与资源建议','H 主持 kickoff','H 确认里程碑责任人']},
-{q:28,s:'CR5',r:'sol',t:'act',ti:'技术交底',
- H:{d:'向实施与运维交底架构、接口与算法边界',j:'判断实施/运维是否真正理解技术约束与边界',o:'技术交底文档 + 答疑结论',p:'交底材料归档'},
- A:{d:'基于方案快照生成交底材料',j:'判断哪些技术要点最易在实施中出错',o:'交底材料 + 技术要点清单',p:'材料推送实施与运维'},
- ch:['A 生成交底材料','A 标注易错要点','H 交底与答疑','H 确认理解一致']},
-{q:29,s:'CR5',r:'cs',t:'act',ti:'实施部署与配置',
- H:{d:'现场实施、客户侧配置与用户培训',j:'判断配置是否符合客户业务场景、培训是否到位',o:'实施完成确认 + 培训记录',p:'按检查清单逐项执行并签字'},
- A:{d:'生成实施检查清单，跟踪执行进度',j:'判断进度与计划的偏差、是否存在阻塞',o:'实施检查清单 + 进度看板',p:'自动从工单/飞书群提取进度，更新上下文'},
- ch:['A 出实施检查清单','H 现场实施配置','A 自动提取进度','H 确认配置与培训']},
-{q:30,s:'CR5',r:'ops',t:'act',ti:'环境交付与监控接入',
- H:{d:'完成环境搭建、上线切换与监控配置',j:'判断环境是否达到上线标准、切换风险是否可控',o:'环境就绪确认 + 监控看板',p:'执行上线切换，配置告警规则'},
- A:{d:'输出部署检查清单与监控项建议',j:'判断监控覆盖是否完整、告警阈值是否合理',o:'部署检查清单 + 监控项与阈值建议',p:'监控接入项同步至运维看板'},
- ch:['A 出部署清单与监控建议','H 搭环境并配监控','H 判上线标准','H 执行切换']},
-{q:31,s:'CR5',r:'cs',t:'judge',ti:'上线验收是否通过',
- H:{d:'组织客户验收',j:'判断验收是否通过、遗留项是否可接受',o:'客户签署的验收报告 + 遗留项清单',p:'验收归档，遗留项转待办'},
- A:{d:'汇总验收材料与遗留项',j:'判断各验收项达成情况',o:'验收材料汇总 + 遗留项列表',p:'触发 project_live，激活客户成功助手'},
- ch:['A 汇总验收材料','H 组织客户验收','H 签署验收','A 触发健康度监控']},
-{q:32,s:'CR5',r:'pm',t:'rec',ti:'交付进展同步',
- A:{d:'自动从项目工单/飞书群提取进度',j:'判断进度与计划的偏差，预警里程碑滞后风险',o:'进展更新 + 滞后预警 + ContextSummary V45',p:'更新上下文，预警推送项目群（风险处置在步骤 38 由人决策）'},
- ch:['A 提取进度','A 判计划偏差','A 推送滞后预警','A 写入 V45']},
-{q:33,s:'CR6',r:'svc',t:'act',ti:'日常服务与工单处理',
- H:{d:'处理需人工介入的客户问题',j:'判断问题归因、是否需技术或运维支援',o:'问题处理结论 + 客户回复',p:'工单流转与关闭'},
- A:{d:'重复问题自动应答，工单智能分派',j:'判断问题类型、可否自动应答、应派给谁',o:'自动应答 + 工单分派结果',p:'调用服务 SOP 与常见问题库'},
- ch:['A 自动应答常见问题','A 智能分派工单','H 处理复杂问题','H 关闭工单']},
-{q:34,s:'CR6',r:'svc',t:'judge',ti:'是否升级处理',
- H:{d:'跟进升级后的客户沟通',j:'判定严重程度，决定是否升级至客户负责人',o:'升级结论 + 安抚方案',p:'升级工单并通知客户负责人'},
- A:{d:'识别投诉升级信号',j:'判断严重等级与客户流失关联度',o:'升级提醒 + 安抚/挽回建议',p:'触发 escalation(severity, issue)，自动提醒客户负责人'},
- ch:['A 识别升级信号','A 出安抚建议','H 判定严重程度','H 执行升级与安抚']},
-{q:35,s:'CR6',r:'ops',t:'act',ti:'巡检与数据运营',
- H:{d:'处理异常告警，执行优化动作',j:'判断告警真伪与处置优先级；确认优化方案',o:'告警处置结论 + 优化动作',p:'执行优化并记录运维台账'},
- A:{d:'自动巡检，生成数据运营报告',j:'判断指标是否越界、是否存在性能劣化趋势',o:'巡检报告 + 运营数据 + 异常告警',p:'告警推送运维，报告归档'},
- ch:['A 自动巡检','A 出巡检报告与告警','H 判告警与优先级','H 处置并优化']},
-{q:36,s:'CR6',r:'cs',t:'out',ti:'健康度评分与流失预警',
- A:{d:'综合使用率/满意度/支付行为每周自动评分，计算三层关系温度',j:'判断健康度等级（红/黄/绿），提前 90/60/30 天识别高风险客户',o:'健康度评分 + 风险因素 + 流失预警',p:'预警推送客户负责人与经营看板（干预动作在步骤 37/39 由人制定）'},
- ch:['A 每周自动评分','A 判健康度等级','A 出流失预警','A 推送经营看板']},
-{q:37,s:'CR6',r:'cs',t:'out',ti:'季度价值复盘',
- H:{d:'向客户汇报价值成果',j:'确认价值口径与客户认可度；判断下阶段目标',o:'复盘结论 + 下阶段目标',p:'复盘材料归档，目标转项目计划'},
- A:{d:'引用步骤 36 的健康度与三层关系评分，生成季度价值复盘报告',j:'判断本季度价值交付亮点与待改进项',o:'季度复盘报告（含三层关系评估）',p:'报告挂载经营看板'},
- ch:['A 引用健康度评分','A 生成复盘报告','H 向客户汇报','H 定下阶段目标']},
-{q:38,s:'CR6',r:'pm',t:'rec',ti:'周报与风险跟进',
- H:{d:'查看周报，跟进风险项',j:'确认风险判断与下周计划是否合理',o:'周报确认 + 风险处置安排',p:'确认后推送项目群'},
- A:{d:'每周分析总结 skill：汇总进展、风险、下周计划',j:'判断本周修正点与提示词迭代方向',o:'项目周报 + 修正点复盘',p:'自动生成并推送项目群'},
- ch:['A 生成周报','A 复盘修正点','H 确认风险与计划','A 推送项目群']},
-{q:39,s:'CR6',r:'bd',t:'act',ti:'续约推进',
- H:{d:'主导续约谈判',j:'定续约价格策略与让利边界',o:'续约结论 + 新合同条款',p:'推进续约合同流程'},
- A:{d:'生成续约谈判建议与个性化话术',j:'判断续约风险与客户价格敏感度；监测合同到期',o:'续约策略建议 + 话术 + 到期提醒',p:'触发 contract_expiring(days_left)，提升服务优先级'},
- ch:['A 到期提醒','A 出续约策略与话术','H 主导谈判','H 定价格策略']},
-{q:40,s:'CR6',r:'cs',t:'rec',ti:'服务记录与满意度沉淀',
- A:{d:'归集服务记录、满意度趋势、流失风险等级',j:'判断满意度趋势变化是否构成风险信号',o:'ContextSummary V67',p:'持续增量更新客户知识空间'},
- ch:['A 归集服务数据','A 算满意度趋势','A 判风险信号','A 写入 V67']},
-{q:41,s:'CR7',r:'cs',t:'judge',ti:'增购机会识别',
- A:{d:'基于使用深度与功能咨询记录识别增购机会',j:'判断机会置信度与匹配的产品线；低置信不推送',o:'增购机会推荐 + 置信度',p:'触发 upsell_signal(product_area, confidence)，推送销售负责人（立项由步骤 44 人工判定）'},
- ch:['A 分析使用深度','A 匹配产品线','A 算置信度','A 推送销售负责人']},
-{q:42,s:'CR7',r:'cs',t:'act',ti:'转介绍挖掘',
- H:{d:'向高满意度客户发起转介绍',j:'判断客户关系是否足以支撑转介绍请求',o:'转介绍线索',p:'线索录入 CRM'},
- A:{d:'识别高满意度客户，推荐转介绍时机与话术',j:'判断最佳提出时机',o:'转介绍时机建议 + 话术',p:'触发 referral_made，新线索入库 CR1'},
- ch:['A 识别可转介绍客户','A 出时机与话术','H 发起转介绍','A 新线索入库 CR1']},
-{q:43,s:'CR7',r:'sol',t:'out',ti:'扩容方案设计',
- H:{d:'评估扩容技术路径',j:'判断扩容对现有系统的影响与实施风险',o:'扩容方案确认',p:'方案提交商务报价'},
- A:{d:'基于现有使用数据自动生成扩容方案与报价',j:'判断扩容规格与升级路径',o:'扩容方案 + 报价',p:'触发 expansion_confirmed，进入 CR3 方案匹配'},
- ch:['A 生成扩容方案与报价','H 评估技术影响','H 确认方案','A 回流 CR3']},
-{q:44,s:'CR7',r:'bd',t:'judge',ti:'立项确认与线索回流',
- H:{d:'推动商机立项',j:'判断是否立项、纳入哪条营销链跟进',o:'立项结论',p:'新建商机，纳入 CR1/CR2 跟进'},
- A:{d:'生成交叉销售线索，匹配方案库推荐',j:'判断线索应回流至 CR1 还是 CR2',o:'交叉销售线索 + 方案推荐',p:'触发 cross_sell_lead，推送销售负责人'},
- ch:['A 生成交叉销售线索','A 匹配方案推荐','H 判立项','H 新建商机回流']},
-{q:45,s:'CR7',r:'bd',t:'rec',ti:'增购历史与线索状态',
- A:{d:'归集扩容信号、转介绍记录、增购历史',j:'判断线索状态流转是否正常、是否停滞需提醒',o:'ContextSummary V80+ + 停滞线索提醒',p:'持续沉淀，闭环回流营销链'},
- ch:['A 归集扩容与增购记录','A 判流转是否停滞','A 写入 V80+','A 闭环回流 CR1/CR2']}
+const ROLES=[
+ {id:'bd', n:'商务',      s:'销售 / 客户关系',  ag:['销售 Agent']},
+ {id:'pe', n:'方案工程',  s:'项目负责人 / 统筹',ag:['KA 项目 Agent']},
+ {id:'sol',n:'技术解决方案',s:'软件 / 硬件 / 算法',ag:['KA 项目 Agent']},
+ {id:'cs', n:'客户成功',  s:'实施 / 上线 / 经营',ag:['KA 项目 Agent','经营 Agent']},
+ {id:'ops',n:'运维工程',  s:'部署 / 巡检 / 资源',ag:['客服 Agent']},
+ {id:'svc',n:'服务',      s:'工单 / 应答 / 升级',ag:['客服 Agent']}
 ];
-let active={act:1,judge:1,out:1,rec:1}, lean=false;
-
-function dimRows(o){
-  return Object.entries(DIMS).map(([k,v])=>o[k]?
-    `<div class="dim-row"><span class="dim-k" style="color:${v.c}">${v.n}</span><span class="dim-v">${o[k]}</span></div>`:'').join('');
-}
-function actorBlock(o,who){
-  const isH=who==='H';
-  return `<div class="actor ${isH?'actor-h':'actor-a'}">
-    <div class="actor-t" style="color:${isH?'#3B4BFF':'#4929e2'}">${isH?'人':'Agent'}</div>
-    ${dimRows(o)}
-  </div>`;
-}
-function chainHtml(ch){
-  return `<div class="chain">${ch.map(x=>{
-    const isH=x.startsWith('H ');
-    return `<span class="ch ${isH?'ch-h':'ch-a'}">${isH?'人':'AI'} ${x.slice(2)}</span>`;
-  }).join('<span class="ch-ar">▸</span>')}</div>`;
-}
-
-function renderFilters(){
-  document.getElementById('typeFilters').innerHTML=Object.entries(TYPES).map(([k,v])=>
-    `<button data-k="${k}" class="flt px-3 py-1.5 rounded-lg text-xs font-medium border border-[#ece8fd] bg-[#f8f6ff] text-[#4929e2]">
-      <span class="inline-block w-2 h-2 rounded-full ${v.b} mr-1.5 align-middle"></span>${v.n}
-     </button>`).join('');
-  document.querySelectorAll('#typeFilters button').forEach(b=>b.onclick=()=>{
-    const k=b.dataset.k; active[k]=!active[k];
-    b.className=`flt px-3 py-1.5 rounded-lg text-xs font-medium border ${active[k]?'border-[#ece8fd] bg-[#f8f6ff] text-[#4929e2]':'border-gray-200 bg-white text-gray-400'}`;
-    document.querySelectorAll('.node').forEach(n=>n.classList.toggle('dim',!active[n.dataset.t]));
-  });
-  document.getElementById('leanBtn').onclick=()=>{
-    lean=!lean;
-    document.getElementById('laneWrap').classList.toggle('lean',lean);
-    document.getElementById('leanBtn').textContent=lean?'切换详细视图':'切换精简视图';
-  };
-}
-
-function renderStats(){
-  const cnt=t=>NODES.filter(n=>n.t===t).length;
-  const au=NODES.filter(n=>!n.H).length;
-  document.getElementById('statBar').innerHTML=
-    `<div class="bg-white rounded-xl border border-gray-200 px-4 py-2.5 text-xs">
-       <span class="text-[#8284A4]">节点总数</span>
-       <span class="ml-2 text-base font-semibold text-[#2d235a]">${NODES.length}</span>
-     </div>
-     <div class="bg-[#f8f6ff] rounded-xl border border-[#ddd6fe] px-4 py-2.5 text-xs">
-       <span class="text-[#4929e2] font-medium">Agent 全自动</span>
-       <span class="ml-2 text-base font-semibold text-[#4929e2]">${au}</span>
-       <span class="text-[#8284A4] ml-1">/ 人机协同 ${NODES.length-au}</span>
-     </div>`+
-    Object.entries(TYPES).map(([k,v])=>
-    `<div class="bg-white rounded-xl border border-gray-200 px-4 py-2.5 text-xs">
-       <span class="inline-block w-2 h-2 rounded-full ${v.b} mr-1.5 align-middle"></span>
-       <span class="text-[#8284A4]">${v.n}</span>
-       <span class="ml-2 text-base font-semibold text-[#2d235a]">${cnt(k)}</span>
-     </div>`).join('');
-}
-
-function renderLanes(){
-  let h='<div class="lane-grid lane-head border-b border-gray-200 bg-[#f7f8fa] shadow-[0_2px_8px_rgba(0,0,0,.04)]">';
-  h+='<div class="sticky-col bg-[#f7f8fa] border-r border-gray-200 px-3 py-3 text-xs font-semibold text-[#5c568a]">角色 \\ 阶段</div>';
+const C={};
+const put=(r,s,o)=>{C[r+'|'+s]=o};
+put('bd','s1',{A:['汇总多源线索并去重，补全客户画像','按行业/规模/预算打分排序，推送优先级清单'],
+               H:['确认目标名单，约到上门']});
+put('bd','s2',{H:['上门做行业方案介绍，确认 KP 与决策链','转达客户顾虑与内部口径'],
+               A:['拜访前出客户简报与话术要点','销售录音转纪要，拜访后出复盘','给出是否需要方案资源介入的判断建议']});
+put('bd','s3',{H:['协调调研时间与现场资源']});
+put('bd','s4',{H:['向客户汇报方案，承接客户异议']});
+put('bd','s5',{H:['向客户汇报 POC 结果，承接客户沟通']});
+put('bd','s6',{H:['不走招标：谈价格、确认合同与采购流程','走招标：跟招标进度、组织标书撰写'],
+               A:['按配置算报价、拉历史成交价参考','抽取招标要求清单与评分点，出标书分析']});
+put('bd','s7',{H:['签约，确认付款与验收条款'],
+               A:['抽取合同关键条款，标出风险点与交付承诺']});
+put('bd','s9',{H:['谈续约与增购'],
+               A:['合同到期提醒，推送增购/横向扩展线索']});
+put('pe','s3',{H:['上门调研，汇总调研结论'],
+               A:['建项目空间并写入项目目标','出调研摘要与可行性评估初稿','监听项目进度，持续整理项目上下文']});
+put('pe','s4',{H:['主讲方案，对齐范围与节奏'],
+               A:['出方案材料初稿与答疑预案','会后自动更新项目空间（人工确认后生效）']});
+put('pe','s5',{H:['确认 POC 范围与验收口径','参与客户汇报，承接技术问题'],
+               A:['出 POC 方案初版','采集运行数据，出 POC 报告','基于数据出 POC 汇报文档']});
+put('pe','s6',{A:['复用历史技术材料生成技术文件初稿']});
+put('pe','s7',{H:['主持交接评审'],
+               A:['生成服务交接包（范围/环境/联系人等），标出缺失项']});
+put('sol','s3',{H:['上门勘察，出技术可行性评估报告'],
+                A:['检索历史相似案例，出现场核查清单']});
+put('sol','s5',{H:['配合设备调试、调参，处理现场异常']});
+put('sol','s8',{H:['现场支持疑难问题定位']});
+put('cs','s5',{H:['主导 POC 设备安装与现场实施']});
+put('cs','s7',{H:['确认实施排期与现场条件'],
+               A:['按方案自动生成资源与物料清单']});
+put('cs','s8',{H:['非标场景：主导实施安装，输出验收报告',
+                  '标准场景：跟进实施安装进度'],
+               A:['从项目上下文抽取客户要求项，出实施清单与验收检查表',
+                  '汇总现场遗留问题，更新项目空间']});
+put('cs','s9',{H:['做经营复盘，跟客户对经营目标'],
+               A:['自动出周报月报','识别增购信号并推送商务']});
+put('ops','s8',{H:['上门安装、割接上线']});
+put('ops','s9',{A:['定时巡检，异常自动告警并建单']});
+put('svc','s8',{H:['承接上线初期使用问题']});
+put('svc','s9',{H:['处理客户使用问题，升级疑难工单'],
+                A:['常见问题自动应答与处理','工单聚类，出高频问题报告']});
+const AIFLOW={
+ s1:'线索汇聚去重 → 画像补全 → 优先级打分，全自动',
+ s2:'销售录音 → AI 提取纪要 → 输出是否需方案介入的判断建议',
+ s3:'建项目空间 → 调研摘要与可行性初稿 → 项目上下文增量沉淀',
+ s4:'方案材料初稿 + 答疑预案 → 会后项目摘要更新（人工确认）',
+ s5:'POC 方案初版 → 人安装实施 → 运行数据采集 → POC 报告与汇报文档（人汇报）',
+ s6:'报价测算 + 标书要求抽取 → 技术文件初稿 + 标书分析',
+ s7:'合同条款抽取 → 服务交接包生成 → 双方确认签字状态与遗留风险清单',
+ s8:'项目 Agent 出实施清单与客户要求项 → 人工确认后现场实施 → 遗留问题回写项目空间',
+ s9:'周报月报自动出 + 工单聚类 + 到期与增购信号推送'
+};
+const INFO={
+ s1:'客户基本画像、行业归属、预算与采购窗口',
+ s2:'KP 与决策链、核心痛点、竞品在场情况',
+ s3:'现场环境、在用系统、业务流程、验收期望',
+ s4:'客户对范围与节奏的异议、内部反对意见',
+ s5:'验收指标、设备安装与现场条件、运行数据、异常记录',
+ s6:'价格区间、采购路径、招标要求与评分点',
+ s7:'合同条款、交付承诺、服务交接包完整度',
+ s8:'实施里程碑、验收标准、现场遗留问题',
+ s9:'使用数据、工单分布、到期时间、增购意向'
+};
+const FLOW=[
+ {s:'准商机',steps:[
+   {k:'a',w:'销售 Agent',t:'多源线索汇聚去重，补全客户画像，按行业/规模/预算打分排序',
+    o:'客户画像 + 优先级清单'},
+   {k:'ha',w:'商务',t:'确认目标名单与拜访优先级',
+    ch:['sys'],o:'目标客户名单'},
+   {k:'h',w:'商务',t:'联系客户约上门时间',
+    ch:['off','sys'],o:'拜访排期'}]},
+ {s:'行业方案介绍',steps:[
+   {k:'a',w:'销售 Agent',t:'拜访前出客户简报与话术要点',
+    o:'拜访简报'},
+   {k:'h',w:'商务',t:'上门做行业方案介绍，确认 KP 与决策链',
+    ch:['off'],o:'销售录音 + KP 与决策链'},
+   {k:'ha',w:'商务',t:'确认拜访纪要与是否需方案资源介入，补充内部口径',
+    ch:['sys'],o:'拜访纪要 + 介入结论'}]},
+ {gate:'经营决策判断一',owner:'商务',
+  basis:'KP 是否触达 · 痛点是否明确 · 预算与采购窗口是否存在',
+  ai:'销售 Agent 汇总拜访纪要、画像评分与介入建议，出判断依据卡',
+  brs:[['go','投入方案资源 → 需求调研'],['back','暂缓培育，回线索池'],['stop','放弃']]},
+ {s:'需求调研',bdg:[['new','新增节点'],['ns','非标场景方案']],steps:[
+   {k:'a',w:'KA 项目 Agent',t:'建项目空间写入项目目标，检索历史相似案例出现场核查清单',
+    o:'项目空间 + 核查清单'},
+   {k:'h',w:'商务',t:'协调调研时间与现场资源',
+    ch:['off','sys'],o:'调研排期'},
+   {k:'h',w:'方案工程 / 技术解决方案',t:'上门调研勘察，记录现场环境与业务流程',
+    ch:['off'],o:'现场记录 + 调研素材'},
+   {k:'ha',w:'方案工程',t:'确认调研结论与可行性评估口径',
+    ch:['sys'],o:'调研结论 + 项目上下文'},
+   {k:'h',w:'技术解决方案',t:'出技术可行性评估报告',
+    ch:['sys','off'],o:'可行性评估报告'}]},
+ {s:'客户方案介绍',steps:[
+   {k:'a',w:'KA 项目 Agent',t:'基于项目上下文出方案材料初稿与答疑预案',
+    o:'方案初稿 + 答疑预案'},
+   {k:'ha',w:'方案工程',t:'确认方案材料与答疑口径',
+    ch:['sys'],o:'方案定稿'},
+   {k:'h',w:'方案工程 / 商务',t:'向客户汇报方案，对齐范围与节奏，承接客户异议',
+    ch:['off'],o:'客户异议 + 范围共识'},
+   {k:'ha',w:'方案工程',t:'确认会后项目摘要更新生效',
+    ch:['sys'],o:'项目摘要'}]},
+ {gate:'经营决策判断二',owner:'方案工程',
+  basis:'技术路径是否可行 · 交付周期与资源是否可承诺 · 风险是否可控',
+  ai:'KA 项目 Agent 汇总可行性报告、客户异议与资源占用，列出风险清单',
+  brs:[['go','进入 POC 验证'],['back','调整方案范围，回方案介绍'],['stop','判定不可行']]},
+ {s:'POC',steps:[
+   {k:'a',w:'KA 项目 Agent',t:'基于方案与可行性报告出 POC 方案初版',
+    o:'POC 方案初版'},
+   {k:'ha',w:'方案工程',t:'确认 POC 范围与验收口径',
+    ch:['sys'],o:'POC 方案 + 验收指标'},
+   {k:'h',w:'客户成功（实施）',t:'主导 POC 设备安装与现场实施',lead:1,
+    ch:['off'],o:'可运行环境'},
+   {k:'h',w:'技术解决方案',t:'配合设备调试调参，处理现场异常',
+    ch:['off'],o:'调优记录 + 运行数据'},
+   {k:'ha',w:'方案工程',t:'确认 POC 报告与汇报文档口径',
+    ch:['sys'],o:'POC 报告 + 汇报文档'},
+   {k:'h',w:'商务 / 方案工程',t:'向客户汇报 POC 结果，承接客户沟通',
+    ch:['off'],o:'客户反馈 + 下一步意向'}]},
+ {gate:'经营决策判断三',owner:'商务',
+  basis:'POC 指标是否达标 · 客户决策链是否就位 · 商务条件是否可谈',
+  ai:'KA 项目 Agent 出 POC 报告，比对验收口径标出达标/未达标项',
+  brs:[['go','进入商务议判'],['back','补充验证，回 POC'],['stop','终止']]},
+ {s:'商务议判',steps:[
+   {k:'ha',w:'商务',t:'确认报价口径与让价空间',
+    ch:['sys'],o:'报价方案'}],
+  split:{q:'是否走招标流程（商务判断）',cols:[
+   {n:'不走招标',steps:[
+     {k:'h',w:'商务',t:'谈价格，确认合同与采购流程',
+      ch:['off','sys'],o:'商务条件 + 采购路径'}]},
+   {n:'走招标',steps:[
+     {k:'ha',w:'商务',t:'确认应标策略与评分点应对',
+      ch:['sys'],o:'应标策略'},
+     {k:'h',w:'商务',t:'跟招标进度，组织标书撰写',
+      ch:['off','sys'],o:'投标文件'},
+     {k:'ha',w:'方案工程',t:'确认技术文件内容与承诺项',
+      ch:['sys'],o:'技术文件'}]}]}},
+ {s:'赢单',steps:[
+   {k:'h',w:'商务',t:'签约，确认付款与验收条款',
+    ch:['off','sys'],o:'已签合同'},
+   {k:'ha',w:'商务',t:'确认合同关键条款与风险点',
+    ch:['sys'],o:'条款摘要 + 交付承诺'},
+   {k:'ha',w:'方案工程',t:'主持交接评审，确认交接包完整度与遗留项',
+    ch:['sys','off'],o:'服务交接包 + 遗留风险清单'},
+   {k:'ha',w:'客户成功',t:'确认实施排期与资源物料清单',
+    ch:['sys'],o:'实施排期 + 物料清单'}]},
+ {s:'实施交付',steps:[
+   {k:'ha',w:'客户成功（实施）',t:'确认实施清单与客户要求项，锁定验收检查表',
+    ch:['sys'],o:'实施清单 + 验收检查表'},
+   {k:'h',w:'运维工程',t:'上门安装、割接上线',
+    ch:['off'],o:'上线环境 + 现场记录'}],
+  split:{q:'场景类型（实施安装主导方）',cols:[
+   {n:'非标场景',steps:[
+     {k:'h',w:'客户成功（实施）',t:'主导实施安装，输出验收报告',lead:1,
+      ch:['off'],o:'验收报告'},
+     {k:'h',w:'技术解决方案',t:'现场支持疑难问题定位',
+      ch:['off'],o:'问题处理结论'}]},
+   {n:'标准场景',steps:[
+     {k:'h',w:'客户成功（实施）',t:'跟进实施安装进度',
+      ch:['sys','off'],o:'进度状态 + 验收报告'},
+     {k:'h',w:'服务',t:'承接上线初期使用问题',
+      ch:['sys'],o:'工单记录'}]}]}},
+ {s:'持续交付',steps:[
+   {k:'a',w:'客服 Agent',t:'定时巡检异常自动告警建单，常见问题自动应答',
+    o:'告警工单 + 自动应答'},
+   {k:'h',w:'服务',t:'处理疑难使用问题，升级工单',
+    ch:['sys'],o:'处理结论 + 工单流转'},
+   {k:'ha',w:'服务',t:'确认高频问题报告与改进建议',
+    ch:['sys'],o:'高频问题报告'},
+   {k:'ha',w:'客户成功',t:'确认周报月报口径，做经营复盘并跟客户对目标',
+    ch:['sys','off'],o:'经营复盘结论'},
+   {k:'ha',w:'商务',t:'确认增购线索与到期提醒，谈续约与增购',
+    ch:['sys','off'],o:'续约 / 增购商机'}]}
+];
+let _no=0; STAGES.forEach(s=>{ if(!s.gate) s.no=++_no; });
+const TPL=['240px'].concat(STAGES.map(s=>s.w+'px')).join(' ');
+const esc=t=>t.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const lines=(o)=>{
+  let h='';
+  (o.H||[]).forEach(t=>h+=`<div class="line line-h"><span class="tag tag-h">人</span><span class="txt">${esc(t)}</span></div>`);
+  (o.A||[]).forEach(t=>h+=`<div class="line line-a"><span class="tag tag-a">AI</span><span class="txt">${esc(t)}</span></div>`);
+  return h;
+};
+function render(){
+  let h='';
+  h+=`<div class="grid-row row-head" style="--tpl:${TPL}">`;
+  h+=`<div class="cell sticky-col bg-white" style="z-index:40;border-bottom:1px solid #ececf2">
+        <div class="text-[12px] font-bold text-[#2d235a]">角色 / 阶段</div></div>`;
   STAGES.forEach(s=>{
-    const r=NODES.filter(n=>n.s===s.id).map(n=>n.q);
-    h+=`<div class="px-3 py-3 border-r border-gray-100 bg-[#f7f8fa]">
-          <div class="flex items-center gap-2">
-            <span class="text-xs font-bold text-white bg-[#7033ff] rounded px-1.5 py-0.5">${s.id}</span>
-            <span class="text-sm font-semibold text-[#1D2129]">${s.n}</span>
-            <span class="text-[10px] text-[#8284A4] ml-auto">步骤 ${Math.min(...r)}-${Math.max(...r)}</span>
-          </div>
-          <div class="text-[11px] text-[#8284A4] mt-1.5">${s.tag} · 驱动：<span class="text-[#4929e2]">${s.agent}</span></div>
-        </div>`;
+    h+=`<div class="cell ${s.gate?'cell-gate':'bg-white'}" style="border-bottom:1px solid ${s.gate?'#fde68a':'#ececf2'}">`;
+    if(s.gate){
+      h+=`<div class="gate-title">${esc(s.n)}</div>
+          <div class="mt-1"><span class="gate-owner">判断主体 · ${esc(s.owner)}</span></div>`;
+    }else{
+      h+=`<div class="flex items-baseline gap-1.5">
+            <span class="stage-pill">${s.no}</span>
+            <span class="text-[12.5px] font-bold text-[#2d235a]">${esc(s.n)}</span></div>
+          ${s.bdg?`<div class="flex items-center gap-1 mt-1">
+            ${s.bdg.map(([k,t])=>`<span class="bdg bdg-${k}">${esc(t)}</span>`).join('')}</div>`:''}
+          <div class="purpose mt-1">${esc(s.p)}</div>`;
+    }
+    h+=`</div>`;
   });
-  h+='</div>';
+  h+=`</div>`;
+  h+=`<div class="grid-row" style="--tpl:${TPL}">`;
+  h+=`<div class="cell sticky-col" style="background:#f5f7fa;border-bottom:1px solid #ececf2">
+        <div class="text-[11px] font-bold text-[#4b5563]">关键信息收集</div></div>`;
+  STAGES.forEach(s=>{
+    h+=`<div class="cell ${s.gate?'cell-gate':''}" style="background:${s.gate?'#fffdf4':'#f5f7fa'};border-bottom:1px solid ${s.gate?'#fde68a':'#ececf2'}">`;
+    if(s.gate) h+=`<div class="info"><span class="font-bold text-[#92400e]">判断依据 · </span>${esc(s.basis)}</div>`;
+    else h+=`<div class="info">${esc(INFO[s.id]||'')}</div>`;
+    h+=`</div>`;
+  });
+  h+=`</div>`;
 
   ROLES.forEach((r,ri)=>{
-    const bg=ri%2?'bg-[#fcfcfd]':'bg-white';
-    h+=`<div class="lane-grid ${bg} border-b border-gray-100">`;
-    h+=`<div class="sticky-col ${bg} border-r border-gray-200 px-3 py-4">
-          <div class="text-sm font-semibold text-[#2d235a]">${r.n}</div>
-          <div class="text-[10.5px] text-[#8284A4] mt-1 leading-relaxed">${r.s}</div>
-          <div class="text-[10px] text-[#c4b5fd] mt-2">${NODES.filter(n=>n.r===r.id).length} 节点</div>
-        </div>`;
+    const last=ri===ROLES.length-1;
+    h+=`<div class="grid-row" style="--tpl:${TPL}">`;
+    h+=`<div class="cell sticky-col bg-white" style="border-bottom:1px solid ${last?'#ececf2':'#f1f1f4'}">
+          <div class="text-[12px] font-bold text-[#1D2129]">${esc(r.n)}</div>
+          <div class="info mt-0.5">${esc(r.s)}</div>
+          <div class="flex flex-wrap gap-1 mt-1.5">
+            ${(r.ag||[]).map(a=>`<span class="agt">${esc(a)}</span>`).join('')}</div></div>`;
     STAGES.forEach(s=>{
-      const ns=NODES.filter(n=>n.s===s.id&&n.r===r.id).sort((a,b)=>a.q-b.q);
-      h+='<div class="px-3 py-3 border-r border-gray-100 space-y-2.5">';
-      h+=ns.length?ns.map(n=>{
-        const ty=TYPES[n.t];
-        return `<div class="node ${ty.c} ${n.H?'':'node-auto'} p-2.5" data-t="${n.t}" data-q="${n.q}" data-auto="${n.H?0:1}">
-          <div class="flex items-start gap-2">
-            <span class="seq">${n.q}</span>
-            <div class="text-xs font-semibold text-[#1D2129] leading-snug flex-1">${n.ti}</div>
-            ${n.H?'':'<span class="auto-pill shrink-0">全自动</span>'}
-            <span class="text-[10px] text-white ${ty.b} rounded px-1.5 py-0.5 shrink-0">${ty.n}</span>
-          </div>
-          ${chainHtml(n.ch)}
-          ${n.H?actorBlock(n.H,'H'):''}
-          ${actorBlock(n.A,'A')}
-        </div>`;}).join(''):'<div class="h-full min-h-[36px]"></div>';
-      h+='</div>';
+      const bb=last?'#ececf2':'#f1f1f4';
+      if(s.gate){
+        h+=`<div class="cell cell-gate" style="border-bottom:1px solid #fde68a">`;
+        if(s.owner===r.n){
+          h+=`<div class="concl">
+                <div class="gate-title">判断结论</div>
+                <div class="txt mt-1">${esc(s.concl)}</div></div>`;
+        }
+        h+=`</div>`;
+        return;
+      }
+      const o=C[r.id+'|'+s.id];
+      const onlyA=o&&!o.H;
+      h+=`<div class="cell ${onlyA?'ai-cell':''}" style="border-bottom:1px solid ${bb}">
+            ${o?lines(o):'<div class="info">—</div>'}</div>`;
     });
-    h+='</div>';
+    h+=`</div>`;
   });
 
-  h+='<div class="lane-grid lane-foot bg-[#f8f6ff] border-t border-[#ece8fd] shadow-[0_-2px_8px_rgba(0,0,0,.04)]">';
-  h+='<div class="sticky-col bg-[#f8f6ff] border-r border-gray-200 px-3 py-3 text-xs font-semibold text-[#4929e2]">衔接信号</div>';
-  STAGES.forEach(s=>{h+=`<div class="px-3 py-3 border-r border-gray-100 sig">
-      <div class="text-[11px] font-mono text-[#4929e2]">${s.sig}</div>
-      <div class="text-[11px] text-[#8284A4] mt-1.5">${s.ctx}</div>
-    </div>`;});
-  h+='</div>';
-  document.getElementById('laneWrap').innerHTML=h;
-  document.querySelectorAll('.node').forEach(el=>el.onclick=()=>openDrawer(+el.dataset.q));
+  h+=`<div class="grid-row" style="--tpl:${TPL}">`;
+  h+=`<div class="cell sticky-col" style="background:#f8f6ff">
+        <div class="text-[11.5px] font-bold text-[#4929e2]">AI 流程</div>
+        <div class="info mt-0.5">该阶段自动化主线</div></div>`;
+  STAGES.forEach(s=>{
+    h+=`<div class="cell" style="background:${s.gate?'#fffdf4':'#f8f6ff'}">
+          <div class="txt">${s.gate?'<span class="info">人工决策，不自动放行</span>':esc(AIFLOW[s.id]||'')}</div></div>`;
+  });
+  h+=`</div>`;
+  document.getElementById('wrap').innerHTML=h;
 }
-function dBlock(o,who){
-  const isH=who==='H';
-  return `<div class="rounded-xl p-3.5 ${isH?'bg-[#e8eeff]':'bg-[#f0ebff]'}">
-    <div class="text-xs font-bold ${isH?'text-[#3B4BFF]':'text-[#4929e2]'}">${isH?'人 负责':'Agent 负责'}</div>
-    ${Object.entries(DIMS).map(([k,v])=>o[k]?
-      `<div class="mt-2">
-         <div class="text-[11px] font-semibold" style="color:${v.c}">${v.f}</div>
-         <div class="text-xs text-[#4b5563] mt-0.5 leading-relaxed">${o[k]}</div>
-       </div>`:'').join('')}
+const CH={sys:['ch-sys','系统操作'],off:['ch-off','线下']};
+const KIND={a:['a','a','AI'],h:['h','h','人'],ha:['ha','ha','AI辅助 + 人确认']};
+const stepHtml=(st)=>{
+  const [sfx,tg,lb]=KIND[st.k];
+  return `
+  <div class="step step-${sfx}">
+    <div class="sthead sthead-${sfx}">
+      <span class="tag tag-${tg}">${lb}</span>
+      <span class="who">${esc(st.w)}</span>
+      ${st.lead?'<span class="bdg bdg-lead">主导</span>':''}
+    </div>
+    <div class="stbody">
+      <div class="stxt">${esc(st.t)}</div>
+      ${st.ch?`<div class="mrow"><span class="mk">行动</span><span class="mv">
+        ${['sys','off'].filter(c=>st.ch.includes(c))
+            .map(c=>`<span class="ch ${CH[c][0]}">${CH[c][1]}</span>`).join(' ')}</span></div>`:''}
+      ${st.o?`<div class="mrow"><span class="mk">出</span><span class="mv">
+        <span class="outp">${esc(st.o)}</span></span></div>`:''}
+    </div>
   </div>`;
-}
-
-function openDrawer(q){
-  const n=NODES.find(x=>x.q===q), ty=TYPES[n.t];
-  const st=STAGES.find(s=>s.id===n.s), ro=ROLES.find(r=>r.id===n.r);
-  const prev=NODES.find(x=>x.q===q-1), next=NODES.find(x=>x.q===q+1);
-  const navBtn=(t,lbl)=>t?`<button onclick="openDrawer(${t.q})" class="flex-1 text-left bg-[#f8f6ff] hover:bg-[#f0ebff] border border-[#ece8fd] rounded-lg px-2.5 py-2">
-      <div class="text-[10px] text-[#8284A4]">${lbl}</div>
-      <div class="text-[11px] text-[#4929e2] font-medium mt-0.5">${t.q}. ${t.ti}</div>
-      <div class="text-[10px] text-[#8284A4] mt-0.5">${ROLES.find(r=>r.id===t.r).n}</div>
-    </button>`:`<div class="flex-1 px-2.5 py-2 text-[10px] text-[#c4b5fd]">${lbl=='上一步'?'链路起点':'链路终点 · 回流 CR1'}</div>`;
-
-  document.getElementById('drawerBody').innerHTML=
-   `<div class="flex items-start justify-between gap-3">
-      <div>
-        <div class="flex items-center gap-2">
-          <span class="seq" style="min-width:26px;height:20px">${n.q}</span>
-          <span class="text-[10px] font-bold text-white bg-[#7033ff] rounded px-1.5 py-0.5">${st.id}</span>
-          <span class="text-[10px] text-white ${ty.b} rounded px-1.5 py-0.5">${ty.n}</span>
-          ${n.H?'':'<span class="auto-pill">全自动</span>'}
+};
+const seq=(arr)=>arr.map(stepHtml).join('<div class="arw">▶</div>');
+function renderFlow(){
+  let h='';
+  FLOW.forEach(b=>{
+    if(b.gate){
+      h+=`<div class="blk">
+            <div>
+              <div class="gate-title">${esc(b.gate)}</div>
+              <div class="mt-1.5"><span class="gate-owner">判断主体 · ${esc(b.owner)}</span></div>
+            </div>
+            <div class="gateblk">
+              <div class="info"><span class="font-bold text-[#92400e]">判断依据 · </span>${esc(b.basis)}</div>
+              <div class="line"><span class="tag tag-ha">AI辅助 + 人确认</span><span class="txt">${esc(b.ai)}</span></div>
+              <div class="flex items-center gap-2 mt-2.5 flex-wrap">
+                <span class="info">人工结论 →</span>
+                ${b.brs.map(([k,t])=>`<span class="br br-${k}">${esc(t)}</span>`).join('')}
+              </div>
+            </div>
+          </div>`;
+      return;
+    }
+    h+=`<div class="blk">
+          <div>
+            <div class="text-[12.5px] font-bold text-[#2d235a]">${esc(b.s)}</div>
+            ${b.bdg?`<div class="flex flex-wrap items-center gap-1 mt-1.5">
+              ${b.bdg.map(([k,t])=>`<span class="bdg bdg-${k}">${esc(t)}</span>`).join('')}</div>`:''}
+            ${b.note?`<div class="info mt-1.5">${esc(b.note)}</div>`:''}
+          </div>
+          <div>
+            ${b.steps?`<div class="steps">${seq(b.steps)}</div>`:''}`;
+    if(b.split){
+      h+=`<div class="mt-2.5"><span class="split-n">分支 · ${esc(b.split.q)}</span></div>
+          <div class="splitwrap">
+            ${b.split.cols.map(c=>`
+              <div class="splitcol">
+                <span class="${c.n==='非标场景'?'bdg bdg-ns':c.n==='标准场景'?'bdg bdg-std':'split-n'}">${esc(c.n)}</span>
+                <div class="mt-1.5"></div>
+                <div class="steps">${seq(c.steps)}</div>
+              </div>`).join('')}
+          </div>`;
+    }
+    h+=`</div></div>`;
+  });
+  h+=`<div class="loopbar">
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="br br-go">闭环</span>
+          <span class="txt">持续交付产生的增购线索与横向扩展信号，回流到「准商机」，由销售 Agent 重新打分进入下一轮</span>
         </div>
-        <h2 class="text-base font-semibold text-[#1D2129] mt-2.5">${n.ti}</h2>
-        <div class="text-xs text-[#8284A4] mt-1">${st.n} · ${ro.n} · 驱动：${st.agent}</div>
-      </div>
-      <button onclick="document.getElementById('drawer').classList.add('hide')" class="text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>
-    </div>
-
-    <div class="mt-4 bg-white border border-[#ece8fd] rounded-xl p-3.5">
-      <div class="text-xs font-semibold text-[#5c568a]">节点内协同顺序</div>
-      <div class="mt-2 space-y-1.5">
-        ${n.ch.map((x,i)=>{const isH=x.startsWith('H ');
-          return `<div class="flex items-center gap-2">
-            <span class="text-[10px] text-[#c4b5fd] w-3">${i+1}</span>
-            <span class="ch ${isH?'ch-h':'ch-a'}" style="font-size:11px;line-height:19px">${isH?'人':'AI'}</span>
-            <span class="text-xs text-[#4b5563]">${x.slice(2)}</span>
-          </div>`;}).join('')}
-      </div>
-    </div>
-
-    <div class="mt-3 space-y-3">
-      ${n.H?dBlock(n.H,'H'):
-        `<div class="rounded-xl p-3.5 bg-[#ede9ff] border border-[#ddd6fe]">
-           <div class="text-xs font-bold text-[#4929e2]">全自动节点 · 无需人介入</div>
-           <div class="text-xs text-[#4b5563] mt-1.5 leading-relaxed">本节点由 Agent 端到端完成，人不在流程内。产出会进入下游节点由人复核或直接落库，异常与低置信情况才向人升级。</div>
-         </div>`}
-      ${dBlock(n.A,'A')}
-    </div>
-
-    <div class="mt-3 bg-[#f5f7fa] rounded-xl p-3.5">
-      <div class="text-xs font-semibold text-[#5c568a]">本阶段衔接信号</div>
-      <div class="text-xs font-mono text-[#4929e2] mt-1.5">${st.sig}</div>
-      <div class="text-xs text-[#8284A4] mt-1.5">上下文增量：${st.ctx}</div>
-    </div>
-
-    <div class="mt-3 flex gap-2">${navBtn(prev,'上一步')}${navBtn(next,'下一步')}</div>`;
-  document.getElementById('drawer').classList.remove('hide');
+      </div>`;
+  document.getElementById('flow').innerHTML=h;
 }
-
-function renderBands(){
-  document.getElementById('ctxBand').innerHTML=
-   `<div class="bg-white rounded-2xl border border-gray-200 p-5">
-      <div class="text-sm font-semibold text-[#2d235a]">统一上下文中枢 · 客户知识空间 / 项目空间</div>
-      <p class="text-xs text-[#8284A4] mt-1.5 leading-relaxed">45 个节点的产出全部汇入同一份上下文。<span class="text-[#4929e2]">人只进入四类节点</span>：面客互动（访谈/谈判/汇报/验收）、现场执行（实施/环境切换）、不可逆承诺（报价/赢单/合同）、架构与技术选型。其余节点 Agent 端到端跑完，异常与低置信才向人升级。所有 AI 自动操作可回溯、可撤销。</p>
-      <div class="mt-3 flex items-center gap-1.5 flex-wrap text-[11px] font-mono text-[#4929e2]">
-        ${STAGES.map(s=>`<span class="bg-[#f0ebff] rounded px-2 py-1">${s.ctx.split(' ')[0]}</span>`).join('<span class="text-[#c4b5fd]">→</span>')}
-      </div>
-    </div>`;
-  document.getElementById('loopBand').innerHTML=
-   `<div class="bg-white rounded-2xl border border-gray-200 p-5">
-      <div class="text-sm font-semibold text-[#2d235a]">闭环回流</div>
-      <div class="text-xs text-[#4b5563] mt-2 leading-relaxed">
-        步骤 41-45（CR7）产出的扩容信号 / 转介绍 →
-        <span class="font-mono text-[#4929e2]">cross_sell_lead</span> →
-        回流步骤 1-3（CR1/CR2）创建新线索；扩容方案通过则直接回到步骤 11（CR3 方案匹配）。
-      </div>
-      <div class="text-xs text-[#8284A4] mt-2">群协同：KA 主理智能体按群挂载项目空间，接收全部群消息，自主判断主动响应 / 静默沉淀 / 完全忽略。</div>
-    </div>`;
+const SID={}; STAGES.forEach(s=>{if(!s.gate) SID[s.n]=s.id;});
+const SEQ=[];
+FLOW.forEach(b=>{
+  if(b.gate){ SEQ.push({gate:b}); return; }
+  (b.steps||[]).forEach(st=>SEQ.push({st,stage:b.s,sid:SID[b.s]}));
+  if(b.split) b.split.cols.forEach(c=>
+    c.steps.forEach(st=>SEQ.push({st,stage:b.s,sid:SID[b.s],br:c.n,q:b.split.q})));
+});
+const hit=(st,r)=>st.k!=='a'&&st.w.includes(r.n);
+function neighbor(idx,r,dir){
+  const br=SEQ[idx].br;
+  for(let i=idx+dir;i>=0&&i<SEQ.length;i+=dir){
+    const e=SEQ[i];
+    if(e.gate) return {gate:e.gate.gate};
+    if(e.br&&br&&e.br!==br) continue;
+    if(e.st.k==='a') return {ai:e.st.w,o:e.st.o};
+    if(e.st.w.includes(r.n)) return {same:1};
+    return {role:e.st.w,stage:e.stage};
+  }
+  return null;
 }
-
-renderFilters();renderStats();renderLanes();renderBands();
+const sideHtml=(x,dir)=>{
+  if(!x) return dir<0?'<span class="hnone">流程起点</span>':'<span class="hnone">流程终点</span>';
+  if(x.gate) return `<span class="hgate">${esc(x.gate)}</span>`;
+  if(x.ai) return `<span class="aidel">${esc(x.ai)}</span><span class="hv">${esc(x.o||'')}</span>`;
+  if(x.same) return `<span class="hv">本角色${dir<0?'上':'下'}一步</span>`;
+  return `<span class="hrole">${esc(x.role)}</span><span class="hv">${esc(x.stage)}</span>`;
+};
+function laneRows(r){
+  const agSet=r.ag||[];
+  const own=new Set(); SEQ.forEach(e=>{if(!e.gate&&hit(e.st,r)) own.add(e.sid);});
+  const rows=[];
+  SEQ.forEach((e,i)=>{
+    if(e.gate){ if(e.gate.owner===r.n) rows.push({gate:e.gate}); return; }
+    if(hit(e.st,r)){ rows.push({...e,mine:1,up:neighbor(i,r,-1),dn:neighbor(i,r,1)}); return; }
+    if(e.st.k==='a'&&agSet.includes(e.st.w)){
+      const nx=SEQ[i+1];
+      const feeds=nx&&!nx.gate&&hit(nx.st,r);
+      const hasA=(C[r.id+'|'+e.sid]||{}).A;
+      if(feeds||own.has(e.sid)||hasA) rows.push({...e,ai:1,feeds:feeds?1:0});
+    }
+  });
+  return rows;
+}
+const RV=['bd','pe'].map(id=>ROLES.find(r=>r.id===id));
+let rsel=RV[0].id;
+function renderRole(){
+  const r=RV.find(x=>x.id===rsel);
+  const rows=laneRows(r);
+  const nMine=rows.filter(x=>x.mine).length;
+  const nGate=rows.filter(x=>x.gate).length;
+  const nAi=rows.filter(x=>x.ai).length;
+  const nHa=rows.filter(x=>x.mine&&x.st.k==='ha').length;
+  let h=`<div class="rhead">
+    <div>
+      <div class="flex items-center gap-2 flex-wrap">
+        <span class="rname">${esc(r.n)}</span>
+        ${(r.ag||[]).map(a=>`<span class="agt">${esc(a)}</span>`).join('')}
+      </div>
+      <div class="info mt-1">${esc(r.s)}</div>
+    </div>
+    <div class="flex items-center gap-2 flex-wrap">
+      <span class="rstat">承担节点 <b>${nMine}</b></span>
+      <span class="rstat">其中 AI辅助 <b>${nHa}</b></span>
+      <span class="rstat">Agent 代办 <b>${nAi}</b></span>
+      <span class="rstat">主判关卡 <b>${nGate}</b></span>
+    </div></div>`;
+  let prev='';
+  rows.forEach(row=>{
+    if(row.gate){
+      h+=`<div class="lane">
+            <div class="lstage-c">—</div>
+            <div class="gaterow">
+              <div class="gate-title">${esc(row.gate.gate)}</div>
+              <div class="txt mt-1">${esc(row.gate.brs.map(b=>b[1]).join(' / '))}</div>
+            </div>
+            <div class="hoff"><div class="hrow"><span class="hk">职责</span>
+              <span class="hv">本角色为判断主体，依据：${esc(row.gate.basis)}</span></div></div>
+          </div>`;
+      prev='';
+      return;
+    }
+    const sameStage=row.stage===prev; prev=row.stage;
+    h+=`<div class="lane">
+          <div class="${sameStage?'lstage-c':'lstage'}">${sameStage?'↳':esc(row.stage)}</div>
+          <div>${stepHtml(row.st)}</div>
+          <div class="hoff">`;
+    if(row.ai){
+      h+=`<div class="hrow"><span class="aidel">Agent 代办</span>
+            <span class="hv">${row.feeds?'产出直接进入本角色的下一个节点':'产出供本角色在该阶段取用'}</span></div>`;
+    }else{
+      if(row.br) h+=`<div class="hrow"><span class="hk">分支</span>
+        <span class="hv">${esc(row.q)} · </span><span class="hbr">${esc(row.br)}</span></div>`;
+      h+=`<div class="hrow"><span class="hk">上游</span>${sideHtml(row.up,-1)}</div>`;
+      h+=`<div class="hrow"><span class="hk">下游</span>${sideHtml(row.dn,1)}</div>`;
+    }
+    h+=`</div></div>`;
+  });
+  document.getElementById('rolev').innerHTML=h;
+}
+function rolesel(){
+  document.getElementById('rolesel').innerHTML=RV.map(r=>
+    `<button onclick="setRole('${r.id}')" class="flt text-[11.5px] rounded-lg px-3 py-1.5 border ${
+      rsel===r.id?'bg-[#7033ff] text-white border-[#7033ff]':'bg-white text-[#4b5563] border-[#e5e0f5] hover:bg-[#f8f6ff]'
+    }">${r.n}</button>`).join('');
+}
+function setRole(k){ rsel=k; rolesel(); renderRole(); }
+const TABS=[['grid','矩阵视图'],['flow','协同流程图'],['role','角色流程图']];
+let view='grid';
+function tabs(){
+  document.getElementById('tabs').innerHTML=TABS.map(([k,n])=>
+    `<button onclick="setView('${k}')" class="flt text-[12px] font-medium rounded-lg px-3.5 py-1.5 border ${
+      view===k?'bg-[#2d235a] text-white border-[#2d235a]':'bg-white text-[#4b5563] border-[#e5e0f5] hover:bg-[#f8f6ff]'
+    }">${n}</button>`).join('');
+}
+function legend(){
+  if(view==='role'){
+    document.getElementById('legend').innerHTML=
+      `<span class="flex items-center gap-1"><span class="tag tag-h">人</span>纯人工</span>
+       <span class="flex items-center gap-1"><span class="tag tag-ha">AI辅助 + 人确认</span></span>
+       <span class="flex items-center gap-1"><span class="aidel">Agent 代办</span>该角色智能体自动完成</span>
+       <span class="flex items-center gap-1"><span class="hrole">上下游角色</span></span>
+       <span class="flex items-center gap-1"><span class="hgate">经营决策关卡</span></span>`;
+    return;
+  }
+  document.getElementById('legend').innerHTML = view==='grid'
+    ? `<span class="flex items-center gap-1"><span class="tag tag-h">人</span>人工执行 / 决策</span>
+       <span class="flex items-center gap-1"><span class="tag tag-a">AI</span>Agent 自动处理</span>
+       <span class="flex items-center gap-1"><span class="agt">Agent</span>该角色可用智能体</span>
+       <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-sm" style="background:#fef3c7;border:1px solid #fde68a"></span>经营决策关卡</span>`
+    : `<span class="flex items-center gap-1"><span class="tag tag-h">人</span>纯人工节点</span>
+       <span class="flex items-center gap-1"><span class="tag tag-a">AI</span>Agent 全自动节点</span>
+       <span class="flex items-center gap-1"><span class="tag tag-ha">AI辅助 + 人确认</span></span>
+       <span class="flex items-center gap-1"><span class="ch ch-sys">系统操作</span><span class="ch ch-off">线下</span>行动方式</span>
+       <span class="flex items-center gap-1"><span class="bdg bdg-lead">主导</span></span>
+       <span class="flex items-center gap-1"><span class="bdg bdg-new">新增节点</span></span>`;
+}
+function setView(k){
+  view=k;
+  document.getElementById('wrap').classList.toggle('hidden',k!=='grid');
+  document.getElementById('flow').classList.toggle('hidden',k!=='flow');
+  document.getElementById('rolev').classList.toggle('hidden',k!=='role');
+  document.getElementById('ctrl').classList.toggle('hidden',k!=='grid');
+  document.getElementById('rolesel').classList.toggle('hidden',k!=='role');
+  tabs();legend();
+}
+const MODES=[['all','全部'],['h','只看人'],['a','只看 Agent']];
+let mode='all';
+function ctrl(){
+  document.getElementById('ctrl').innerHTML=MODES.map(([k,n])=>
+    `<button onclick="setMode('${k}')" class="flt text-[11.5px] rounded-lg px-3 py-1.5 border ${
+      mode===k?'bg-[#7033ff] text-white border-[#7033ff]':'bg-white text-[#4b5563] border-[#e5e0f5] hover:bg-[#f8f6ff]'
+    }">${n}</button>`).join('');
+}
+function setMode(k){
+  mode=k;
+  const w=document.getElementById('wrap');
+  w.classList.toggle('hide-a',k==='h');
+  w.classList.toggle('hide-h',k==='a');
+  ctrl();
+}
+render();renderFlow();renderRole();ctrl();rolesel();tabs();legend();
 </script>
 </body>
 </html>
