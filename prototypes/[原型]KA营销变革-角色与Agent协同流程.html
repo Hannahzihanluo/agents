@@ -7,7 +7,7 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
   body{background:#f6f3f2;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;}
-  .grid-row{display:grid;grid-template-columns:var(--tpl);}
+  .grid-row{display:grid;grid-template-columns:var(--tpl);min-width:max-content;}
   .sticky-col{position:sticky;left:0;z-index:20;}
   .row-head{position:sticky;top:0;z-index:30;}
   .scroll-x{overflow:auto;max-height:calc(100vh - 182px);min-height:440px;}
@@ -165,7 +165,7 @@
     <div class="flowwrap hidden" id="flow"></div>
     <div class="flowwrap hidden" id="rolev"></div>
   </div>
-  <div class="text-[10.5px] text-[#8284A4] mt-3">v12 · 更新于 2026-10-22 · 决策点补判断依据与必要输出；判断一改商务+行业方案共同决策；需求调研后增机动决策点（是否拉技术方案）</div>
+  <div class="text-[10.5px] text-[#8284A4] mt-3">v13 · 更新于 2026-10-22 · 修复矩阵视图左侧角色列横向滚动后不固定；协同流程图与角色流程图支持只看人 / 只看 Agent 筛选</div>
 </div>
 <script>
 const GATES={
@@ -514,7 +514,12 @@ const stepHtml=(st)=>{
     </div>
   </div>`;
 };
-const seq=(arr)=>arr.map(stepHtml).join('<div class="arw">▶</div>');
+const keepK=(k)=>mode==='all'||(mode==='h'?k!=='a':k!=='h');
+const seq=(arr)=>{
+  const a=arr.filter(st=>keepK(st.k));
+  return a.length?a.map(stepHtml).join('<div class="arw">▶</div>')
+                 :'<span class="hnone">当前筛选下无节点</span>';
+};
 function renderFlow(){
   let h='';
   FLOW.forEach(b=>{
@@ -680,8 +685,11 @@ function renderRole(){
         ${one&&ri.eout?`<div class="ionote"><b class="text-[#92400e]">退出 · </b>${esc(ri.eout)}</div>`:''}
         ${ri.note?`<div class="ionote">${esc(ri.note)}</div>`:''}`;
   }
+  const vis=rows.filter(x=>x.gate?1:keepK(x.st.k));
+  if(!vis.length) h+=`<div class="lane"><div class="lstage-c">—</div>
+    <div><span class="hnone">当前筛选下该角色无节点</span></div><div class="hoff"></div></div>`;
   let prev='';
-  rows.forEach(row=>{
+  vis.forEach(row=>{
     if(row.gate){
       const g=row.gate;
       const bt=Array.isArray(g.basis)?g.basis.map(b=>b[1]).join('；'):g.basis;
@@ -769,7 +777,7 @@ function setView(k){
   document.getElementById('wrap').classList.toggle('hidden',k!=='grid');
   document.getElementById('flow').classList.toggle('hidden',k!=='flow');
   document.getElementById('rolev').classList.toggle('hidden',k!=='role');
-  document.getElementById('ctrl').classList.toggle('hidden',k!=='grid');
+  document.getElementById('ctrl').classList.remove('hidden');
   document.getElementById('rolesel').classList.toggle('hidden',k!=='role');
   tabs();legend();
 }
@@ -786,7 +794,7 @@ function setMode(k){
   const w=document.getElementById('wrap');
   w.classList.toggle('hide-a',k==='h');
   w.classList.toggle('hide-h',k==='a');
-  ctrl();
+  ctrl();renderFlow();renderRole();
 }
 render();renderFlow();renderRole();ctrl();rolesel();tabs();legend();
 </script>
