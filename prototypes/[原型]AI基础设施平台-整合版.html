@@ -277,9 +277,9 @@
   </aside>
 
   <!-- 主内容 -->
-  <main class="flex-1 overflow-y-auto">
+  <main class="flex-1 overflow-y-auto flex flex-col">
     <!-- 顶栏 -->
-    <div class="flex items-center justify-end gap-4 px-8 py-3 text-xs text-gray-500">
+    <div class="flex items-center justify-end gap-4 px-8 py-3 text-xs text-gray-500 shrink-0">
       <span class="cursor-pointer hover:text-violet-600" onclick="toast('AI能力广场（示意）')">⚡ AI能力广场 →</span>
       <span class="cursor-pointer hover:text-violet-600" onclick="toast('帮助文档（示意）')">ⓘ 帮助文档</span>
       <span class="w-7 h-7 rounded-full bg-violet-100 text-violet-700 flex items-center justify-center font-bold">L</span>
@@ -705,7 +705,7 @@
         <div class="card overflow-hidden">
           <table class="w-full text-[12.5px]">
             <thead><tr class="text-left text-gray-400 border-b border-gray-100">
-              <th class="px-4 py-3 font-medium">模型名称</th><th class="font-medium">提供方</th><th class="font-medium">接入方式</th><th class="font-medium">默认场景</th><th class="font-medium">调用限额</th><th class="font-medium">状态</th><th class="font-medium">操作</th>
+              <th class="px-4 py-3 font-medium">模型名称</th><th class="font-medium">提供方</th><th class="font-medium">接入方式</th><th class="font-medium">默认场景</th><th class="font-medium">思考配置</th><th class="font-medium">调用限额</th><th class="font-medium">状态</th><th class="font-medium">操作</th>
             </tr></thead>
             <tbody id="pf-model-tbody"></tbody>
           </table>
@@ -948,7 +948,8 @@
     </section>
 
     <!-- ===== 页面：智能体配置 ===== -->
-    <section id="pg-agentconfig" class="hidden flex-col bg-white" style="height:calc(100vh - 45px)">
+    <!-- flex 必须显式写上：只有 flex-col 时是 block 布局，高度不约束子元素，三栏会被内容撑出屏幕 -->
+    <section id="pg-agentconfig" class="hidden flex flex-col bg-white flex-1 min-h-0">
       <!-- 页头 -->
       <div class="flex items-center gap-3 px-6 py-3 border-b border-gray-100 shrink-0">
         <button class="text-gray-400 hover:text-violet-600 text-base" onclick="showPage('agents')">←</button>
@@ -969,7 +970,8 @@
         <div class="w-[380px] shrink-0 border-r border-gray-100 overflow-y-auto p-4 space-y-4">
           <div>
             <div class="text-[12.5px] font-semibold text-gray-600 mb-1.5">应用配置 <span class="text-gray-300">ⓘ</span></div>
-            <select class="w-full border border-gray-200 rounded-lg px-3 py-2 text-[13px] focus:outline-violet-300"><option>glm-5.2</option><option>glm-5.1</option><option>deepseek-v4</option></select>
+            <select id="ac-model" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-[13px] focus:outline-violet-300" onchange="acSetModel(this.value)"></select>
+            <div id="ac-think" class="mt-2"></div>
           </div>
           <div class="card p-4">
             <div class="flex items-center justify-between mb-3"><span class="font-bold text-[13.5px]">基础信息</span><button class="tag bg-violet-100 text-violet-700" onclick="toast('AI生成头像（示意）')">✦ AI生成头像</button></div>
@@ -1035,10 +1037,10 @@
                 <span class="acrestab active pb-1.5 -mb-px border-b-2 border-violet-600 text-violet-700 font-semibold cursor-pointer" data-acrt="kb" onclick="showAcResTab('kb')">知识库</span>
                 <span class="acrestab pb-1.5 -mb-px border-b-2 border-transparent text-gray-500 cursor-pointer" data-acrt="space" onclick="showAcResTab('space')">关联项目 <span class="tag bg-violet-100 text-violet-700" id="ac-space-cnt">1</span></span>
               </div>
-              <div class="space-y-2" id="ac-res-list"></div>
+              <div class="space-y-2 max-h-[200px] overflow-y-auto pr-0.5" id="ac-res-list"></div>
               <div id="ac-space-group" class="hidden">
                 <div class="text-[11px] text-gray-400 mb-2">按我的项目空间授权加载空间文件，无权限空间不可添加</div>
-                <div class="space-y-2" id="ac-space-list"></div>
+                <div class="space-y-2 max-h-[200px] overflow-y-auto pr-0.5" id="ac-space-list"></div>
               </div>
             </div>
           </div>
@@ -1114,9 +1116,13 @@
             </div>
           </div>
           <div class="p-3 border-t border-gray-100 shrink-0">
-            <div class="border border-gray-200 rounded-2xl px-4 py-2.5 flex items-center gap-3">
-              <input id="ac-input" class="flex-1 text-[13px] focus:outline-none" placeholder="输入问题，为您答疑解惑" onkeydown="if(event.key==='Enter')acSend()">
-              <button class="w-7 h-7 rounded-lg bg-violet-600 text-white flex items-center justify-center text-xs hover:bg-violet-700" onclick="acSend()">➤</button>
+            <div class="relative border border-gray-200 rounded-2xl px-4 py-2.5">
+              <input id="ac-input" class="w-full text-[13px] focus:outline-none" placeholder="输入问题，为您答疑解惑" onkeydown="if(event.key==='Enter')acSend()">
+              <div class="flex items-center gap-2 mt-2">
+                <span class="text-gray-300 cursor-pointer text-[13px]">📎</span>
+                <div id="ac-deep" class="relative"></div>
+                <button class="ml-auto w-7 h-7 rounded-lg bg-violet-600 text-white flex items-center justify-center text-xs hover:bg-violet-700" onclick="acSend()">➤</button>
+              </div>
             </div>
             <p class="text-center text-[10px] text-gray-300 mt-2">提醒：AI也可能会犯错误，请考虑核实重要信息</p>
           </div>
@@ -1126,7 +1132,7 @@
 
     <!-- ===== 页面：工作流配置（工作流Agent 的节点编排画布） ===== -->
     <!-- flex 必须显式写上：画布靠 flex-1 拿高度，只有 flex-col 时容器高度为 0，节点会被 overflow 裁掉 -->
-    <section id="pg-wfconfig" class="hidden flex flex-col bg-white" style="height:calc(100vh - 45px)">
+    <section id="pg-wfconfig" class="hidden flex flex-col bg-white flex-1 min-h-0">
       <!-- 页头 -->
       <div class="flex items-center gap-3 px-6 py-2.5 border-b border-gray-100 shrink-0">
         <button class="text-gray-400 hover:text-violet-600 text-base" onclick="showPage('agents')">←</button>
@@ -1814,6 +1820,62 @@
   </div>
 </div>
 
+<!-- ===== 平台配置：编辑模型（含思考等级配置） ===== -->
+<div id="modal-modelcfg" class="hidden fixed inset-0 z-50 modal-bg flex items-center justify-center" onclick="if(event.target===this)closeModelCfg()">
+  <div class="bg-white rounded-2xl w-[460px] p-6 fade-in max-h-[88vh] overflow-y-auto">
+    <div class="flex items-center justify-between mb-1"><h3 class="font-bold">编辑模型</h3><button class="text-gray-400 hover:text-gray-600" onclick="closeModelCfg()">✕</button></div>
+    <p class="text-[11.5px] text-gray-400 mb-4">思考配置决定智能体选用该模型时能调哪一档思考，保存即生效，已配置的智能体保留原取值</p>
+    <div class="mb-3">
+      <label class="text-[12px] font-semibold text-gray-600 block mb-1.5">模型名称 <span class="text-red-400">*</span></label>
+      <input id="mc-name" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-[12.5px] text-gray-700 focus:outline-violet-300">
+    </div>
+    <div class="grid grid-cols-2 gap-3 mb-3">
+      <div>
+        <label class="text-[12px] font-semibold text-gray-600 block mb-1.5">提供方 <span class="text-red-400">*</span></label>
+        <input id="mc-provider" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-[12.5px] text-gray-700 focus:outline-violet-300">
+      </div>
+      <div>
+        <label class="text-[12px] font-semibold text-gray-600 block mb-1.5">调用限额</label>
+        <input id="mc-quota" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-[12.5px] text-gray-700 focus:outline-violet-300">
+      </div>
+    </div>
+    <div class="mb-3">
+      <label class="text-[12px] font-semibold text-gray-600 block mb-1.5">接入方式</label>
+      <input id="mc-access" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-[12.5px] text-gray-700 focus:outline-violet-300">
+    </div>
+    <div class="mb-3">
+      <label class="text-[12px] font-semibold text-gray-600 block mb-1.5">默认场景</label>
+      <input id="mc-scene" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-[12.5px] text-gray-700 focus:outline-violet-300">
+    </div>
+    <div class="border-t border-gray-100 pt-3">
+      <label class="text-[12px] font-semibold text-gray-600 block mb-1.5">是否支持思考 <span class="text-red-400">*</span></label>
+      <div class="flex gap-5 mb-2">
+        <label class="wf-radio"><input type="radio" name="mc-sup" value="1" onchange="mcSetSup(true)"><span>是</span></label>
+        <label class="wf-radio"><input type="radio" name="mc-sup" value="0" onchange="mcSetSup(false)"><span>否</span></label>
+      </div>
+      <div id="mc-think-box">
+        <label class="text-[12px] font-semibold text-gray-600 block mb-1.5">是否支持思考等级配置 <span class="text-red-400">*</span></label>
+        <div class="flex gap-5">
+          <label class="wf-radio"><input type="radio" name="mc-lv" value="1" onchange="mcSetLv(true)"><span>是</span></label>
+          <label class="wf-radio"><input type="radio" name="mc-lv" value="0" onchange="mcSetLv(false)"><span>否</span></label>
+        </div>
+        <div id="mc-lv-box" class="mt-2 border border-violet-100 rounded-lg bg-violet-50/40 p-3">
+          <div class="text-[12px] font-semibold text-gray-600 mb-1.5">可选思考等级与参数 <span class="text-gray-400 font-normal">（「关」为固定项，智能体侧始终可选）</span></div>
+          <div class="space-y-2 mb-2.5" id="mc-opts"></div>
+          <div class="text-[12px] font-semibold text-gray-600 mb-1.5">默认思考等级</div>
+          <select id="mc-def" class="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-[12.5px] text-gray-700 bg-white focus:outline-violet-300" onchange="mcDraft.def=this.value"></select>
+        </div>
+        <div id="mc-sw-box" class="mt-2 border border-violet-100 rounded-lg bg-violet-50/40 p-3 space-y-2"></div>
+      </div>
+      <p id="mc-sup-off-tip" class="text-[11px] text-gray-400 mt-1.5 hidden">不支持思考时，智能体配置模型后不出现思考配置项</p>
+    </div>
+    <div class="flex gap-2 mt-4">
+      <button class="btn-p flex-1" onclick="saveModelCfg()">保 存</button>
+      <button class="btn-o" onclick="closeModelCfg()">返回列表</button>
+    </div>
+  </div>
+</div>
+
 <!-- ===== 任务中心（全屏覆盖于 AI 工作台之上，左右结构） ===== -->
 <div id="task-center" class="hidden fixed inset-0 z-40 bg-white fade-in flex flex-col">
   <div class="flex items-center gap-3 px-6 py-3.5 border-b border-gray-100 shrink-0">
@@ -1963,7 +2025,7 @@
       <div class="card card-asset p-4 cursor-pointer hover:border-violet-300 transition" onclick="pickBoardKind('biz')">
         <div class="text-[20px]">📈</div>
         <div class="text-[13px] font-bold mt-1.5">经营看板</div>
-        <div class="text-[11px] text-gray-500 leading-relaxed mt-1">一句看板输入交给执行智能体整块生成看板产物，配置里可预览调试。启用后进「经营看板」聚合页。</div>
+        <div class="text-[11px] text-gray-500 leading-relaxed mt-1">一句看板输入交给执行智能体整块生成看板产物，保存配置后下一步预览调试。启用后进「经营看板」聚合页。</div>
       </div>
     </div>
   </div>
@@ -2066,39 +2128,41 @@
   <div class="bg-white rounded-2xl w-[880px] p-6 fade-in max-h-[90vh] overflow-y-auto">
     <div class="flex items-center justify-between mb-1"><h3 class="font-bold" id="bzc-title">经营看板配置</h3><button class="text-gray-400 hover:text-gray-600" onclick="closeBzBoard()">✕</button></div>
     <div class="mb-3"></div>
-    <div class="grid grid-cols-3 resp-grid-3 gap-3 mb-4">
-      <div>
-        <label class="text-[12px] font-semibold text-gray-600 block mb-1.5">看板名称 <span class="text-red-400">*</span></label>
-        <input id="bzc-name" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-[12.5px] focus:outline-violet-300">
-      </div>
-      <div>
-        <label class="text-[12px] font-semibold text-gray-600 block mb-1.5">执行智能体 <span class="text-red-400">*</span></label>
-        <select id="bzc-agent" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-[12.5px] bg-white focus:outline-violet-300"></select>
-      </div>
-      <div>
-        <label class="text-[12px] font-semibold text-gray-600 block mb-1.5">更新时间 <span class="text-red-400">*</span></label>
-        <div class="flex gap-1.5">
-          <select id="bzc-trigmode" class="flex-1 min-w-0 border border-gray-200 rounded-lg px-2 py-2 text-[12px] bg-white focus:outline-violet-300" onchange="bzTrigMode(this.value)"></select>
-          <select id="bzc-trigdom" class="w-[72px] border border-gray-200 rounded-lg px-1 py-2 text-[12px] bg-white focus:outline-violet-300" onchange="bzTrigSet('dom',+this.value)"></select>
-          <input id="bzc-trigtime" type="time" class="w-[92px] border border-gray-200 rounded-lg px-1.5 py-2 text-[12px] focus:outline-violet-300" onchange="bzTrigSet('time',this.value)">
+    <div id="bzc-step1">
+      <div class="grid grid-cols-3 resp-grid-3 gap-3 mb-4">
+        <div>
+          <label class="text-[12px] font-semibold text-gray-600 block mb-1.5">看板名称 <span class="text-red-400">*</span></label>
+          <input id="bzc-name" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-[12.5px] focus:outline-violet-300" oninput="bzDirty()">
+        </div>
+        <div>
+          <label class="text-[12px] font-semibold text-gray-600 block mb-1.5">执行智能体 <span class="text-red-400">*</span></label>
+          <select id="bzc-agent" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-[12.5px] bg-white focus:outline-violet-300" onchange="bzDirty()"></select>
+        </div>
+        <div>
+          <label class="text-[12px] font-semibold text-gray-600 block mb-1.5">启用</label>
+          <div class="flex items-center gap-2 pt-2"><span id="bzc-enabled" class="sw" onclick="this.classList.toggle('off');bzDirty()"></span><span id="bzc-trigtext" class="text-[11px] text-gray-400"></span></div>
         </div>
       </div>
-    </div>
-    <label class="text-[12px] font-semibold text-gray-600 block mb-1.5">看板输入 <span class="text-red-400">*</span></label>
-    <textarea id="bzc-input" class="w-full h-24 border border-gray-200 rounded-lg px-3 py-2 text-[12.5px] leading-relaxed focus:outline-violet-300" placeholder="如：按业务域汇总本月签约额与回款额，做成一页带趋势图的经营总览，突出同比环比变化"></textarea>
-    <div class="flex items-center mt-4 mb-2">
-      <span class="text-[12px] font-semibold text-gray-600">预览调试</span>
-      <span class="text-[11px] text-gray-400 ml-2">最近生成 <span id="bzc-updated" class="text-gray-500">尚未生成</span></span>
-      <div class="flex items-center gap-2 ml-auto">
-        <span class="text-[11px] text-gray-400">启用</span>
-        <span id="bzc-enabled" class="sw" onclick="this.classList.toggle('off')"></span>
-        <button class="btn-o !py-1 !px-3 text-[11px]" onclick="bzRunPreview()">运行预览</button>
+      <div id="bzc-utrig" class="border border-gray-100 rounded-xl p-3 mb-4"></div>
+      <label class="text-[12px] font-semibold text-gray-600 block mb-1.5">看板输入 <span class="text-red-400">*</span></label>
+      <textarea id="bzc-input" class="w-full h-24 border border-gray-200 rounded-lg px-3 py-2 text-[12.5px] leading-relaxed focus:outline-violet-300" placeholder="如：按业务域汇总本月签约额与回款额，做成一页带趋势图的经营总览，突出同比环比变化" oninput="bzDirty()"></textarea>
+      <div class="flex gap-2 mt-4">
+        <button class="btn-p flex-1" onclick="saveBzBoard()">保存配置</button>
+        <button id="bzc-next" class="btn-o" onclick="bzToPreview()">下一步</button>
+        <button class="btn-o" onclick="closeBzBoard()">取消</button>
       </div>
     </div>
-    <div id="bzc-preview" class="border border-gray-100 rounded-xl bg-gray-50/60 min-h-[180px] relative overflow-hidden"></div>
-    <div class="flex gap-2 mt-4">
-      <button class="btn-p flex-1" onclick="saveBzBoard()">保存配置</button>
-      <button class="btn-o" onclick="closeBzBoard()">取消</button>
+    <div id="bzc-step2" class="hidden">
+      <div class="flex items-center mb-2">
+        <span class="text-[12px] font-semibold text-gray-600">预览调试</span>
+        <span class="text-[11px] text-gray-400 ml-2">最近生成 <span id="bzc-updated" class="text-gray-500">尚未生成</span></span>
+        <button class="btn-o !py-1 !px-3 text-[11px] ml-auto" onclick="bzRunPreview()">重新生成</button>
+      </div>
+      <div id="bzc-preview" class="border border-gray-100 rounded-xl bg-gray-50/60 min-h-[180px] relative overflow-hidden"></div>
+      <div class="flex gap-2 mt-4">
+        <button class="btn-o" onclick="bzBackToCfg()">上一步</button>
+        <button class="btn-p flex-1" onclick="closeBzBoard()">完成</button>
+      </div>
     </div>
   </div>
 </div>
@@ -2544,7 +2608,7 @@ const VERSIONS = [
   {v:'v22', date:'2026-09-03', title:'任务执行子任务可操作 + 报价Agent skill 表单闭环', desc:'三处待办均可展开并处理子任务、一键转智能体会话；新增报价Agent：skill 生成表单 → 提交回传 → 智能体出报价单。', file:'versions/[原型]AI基础设施平台-整合版-v22-2026-09-03.html'},
   {v:'v23', date:'2026-09-09', title:'智能体伙伴纵向栏 + 每个智能体独立会话 + 收藏体系收敛', desc:'工作台布局重构：智能体伙伴改最左纵向栏、每个智能体独立会话、收藏统一收敛为「我的看板」，下线流程看板。', file:'versions/[原型]AI基础设施平台-整合版-v23-2026-09-09.html'},
   {v:'v24', date:'2026-09-10', title:'任务执行统一「处理」动作 + 子任务权限与主任务自动完成', desc:'主子任务统一「处理」动作（可选人工或智能体执行），处理权限按归属收敛，子任务全部完成时主任务自动办结。', file:'versions/[原型]AI基础设施平台-整合版-v24-2026-09-10.html'},
-  {v:'工作版', date:'2026-10-29', title:'工作流节点输出格式可配 + 任务执行筛选优化', desc:'大模型 / Agent 节点输出格式可选文本或 JSON解析，JSON解析下自定义输出参数名供下游引用；分类节点不再自定义输出；直接回复改为方式三选。任务执行「我的任务」增加导出、处理人筛选，筛选栏高级条件可收起。', file:'SELF'},
+  {v:'工作版', date:'2026-10-30', title:'模型思考等级可配 + 经营看板更新时间对齐工作看板', desc:'平台配置的模型可配「是否支持思考 / 是否支持思考等级 / 可选等级与默认值」，每一档后配该档模型参数；智能体配置与调试会话框的深度思考按该模型能力选等级；智能体配置页三栏改为各自内部滚动、不再撑出屏幕。', file:'SELF'},
   {v:'Agent平台261021版本', date:'2026-10-21', release:true, title:'数据表能力成型：新增两选与上传解析、编辑收到详情页、分享到人', desc:'Agent 平台 261021 正式版（已冻结）。数据表新增先选上传文件 / 自定义，上传后表名描述自动解析填充；编辑入口收到详情页，可改应用权限；字段表收为业务语义六列，分享改分享到人；看板更新时间收到看板级；任务执行的执行方式在事件触发下转为选填。', file:'versions/[原型]AI基础设施平台-整合版-Agent平台261021版本-2026-10-21.html'},
   {v:'智能体平台任务中心1.1', date:'2026-09-18', release:true, title:'评审调整：处理动作与任务配置收敛，列表改日期筛选，办结为终态', desc:'任务中心 1.1 正式版（已冻结）。处理动作与任务配置收敛，列表改日期筛选（默认近 3 个月），办结为终态，子任务只在本层添加、可派智能体执行；平台我的任务增手动新建入口，扩展字段收为统一字段、格式同备注。', file:'versions/[原型]AI基础设施平台-整合版-智能体平台任务中心1.1-2026-09-18.html'},
   {v:'智能体平台任务中心1.0', date:'2026-09-15', release:true, title:'任务中心正式版：任务执行闭环 + 任务配置以权限取代审核', desc:'任务中心 1.0 正式版（已冻结）。任务执行：主子任务统一「处理」动作、转交跟进、按任务类型筛选、飞书待办同步状态（已同步 / 未开启同步 / 同步失败可重试）、任务删除（创建人 / 管理员 / 任务类型管理者三者任一可删，级联子任务并撤回待办）。任务配置：新增用户管理与功能权限树，任务类型与业务对接去掉备案审核改为保存即生效 + 测试模式 + 连通性校验，派单由业务系统定义，订阅智能体可选填。', file:'versions/[原型]AI基础设施平台-整合版-智能体平台任务中心1.0-2026-09-15.html'},
@@ -2648,7 +2712,7 @@ const PAGE_SPECS={
 'skills-board':{name:'智能体平台 · 技能库 · 看板配置',
   desc:'工作台看板的配置侧，看板分工作看板与经营看板两类，含内容配置与分享范围配置。列表上方有看板类型、可用范围与名称搜索三项筛选。',
   fields:'筛选项：看板类型（工作看板 / 经营看板）、可用范围（公开可用 / 授权可用）、看板名称搜索。卡片：看板名称、看板类型、可用范围、启停开关、执行智能体、数据维度、创建人与时间、已授权人数、操作。工作看板配置的每个数据维度：图标、维度名称、单位、查询输入、执行方式、执行对象（数据表 / 智能体 / MCP + MCP 工具）、更新时间（仅智能体执行）。',
-  logic:'新建入口在列表右上角；筛选条为看板专用，与技能库共用筛选条不互通，条件在会话内保持，切开其他页签再回来不丢；筛选无结果时提示换条件或重置；可见范围为授权可用时需维护授权名单与权限档位；候选用户取平台用户列表，用户停用或删除时授权记录同步失效并重新计数；工作台侧按权限过滤可见看板。工作看板的执行方式按维度各自配置，分数据表执行 / 智能体执行 / MCP 执行三种：选数据表执行时需指定数据表；选智能体执行时需指定执行智能体；选 MCP 执行时需先选 MCP 服务再选该服务下的 MCP 工具，工具清单来自服务端声明的能力清单，未选 MCP 时工具下拉置灰，换 MCP 时已选工具清空；必填未选不允许保存。更新时间统一配在看板上（触发时间 + 一次性 / 重复，重复分按天 / 按周 / 按月，按天可勾仅工作日，重复需填截止时间），只管住智能体执行的维度，数据表执行与 MCP 执行在点维度时实时取数；有智能体执行的维度时触发时间与截止时间必填。工作看板只配联动智能体，默认取维度所选的执行智能体，手动改过后不再自动跟随；数据维度上限 12 个。工作台点维度统一进入会话，数据表执行与 MCP 执行的维度由联动智能体取数作答并在气泡标注取数来源。经营看板无数据维度，更新时间仍是看板级。两类看板都不设所属角色。'},
+  logic:'新建入口在列表右上角；筛选条为看板专用，与技能库共用筛选条不互通，条件在会话内保持，切开其他页签再回来不丢；筛选无结果时提示换条件或重置；可见范围为授权可用时需维护授权名单与权限档位；候选用户取平台用户列表，用户停用或删除时授权记录同步失效并重新计数；工作台侧按权限过滤可见看板。工作看板的执行方式按维度各自配置，分数据表执行 / 智能体执行 / MCP 执行三种：选数据表执行时需指定数据表；选智能体执行时需指定执行智能体；选 MCP 执行时需先选 MCP 服务再选该服务下的 MCP 工具，工具清单来自服务端声明的能力清单，未选 MCP 时工具下拉置灰，换 MCP 时已选工具清空；必填未选不允许保存。更新时间统一配在看板上（触发时间 + 一次性 / 重复，重复分按天 / 按周 / 按月，按天可勾仅工作日，重复需填截止时间），只管住智能体执行的维度，数据表执行与 MCP 执行在点维度时实时取数；有智能体执行的维度时触发时间与截止时间必填。工作看板只配联动智能体，默认取维度所选的执行智能体，手动改过后不再自动跟随；数据维度上限 12 个。工作台点维度统一进入会话，数据表执行与 MCP 执行的维度由联动智能体取数作答并在气泡标注取数来源。经营看板无数据维度，更新时间与工作看板同一套配置逻辑，直接管住整块产物的重算，触发时间必填、重复时截止时间必填。经营看板配置分两步：第一步填名称、执行智能体、更新时间与看板输入，保存配置后「下一步」才可点，进第二步预览产物；配置改动后需重新保存，预览始终跑已保存的配置。两类看板都不设所属角色。'},
 'dt-new':{name:'智能体平台 · 新增数据表',
   desc:'先在弹窗里二选形态（上传文件 / 自定义数据表），再进独占页面配置：基本信息 → 智能体应用权限 → 数据文件或字段生成方式 → 进入详情页校对字段。',
   fields:'弹窗：上传文件 / 自定义数据表二选，选上传文件时弹窗内出上传区（下载模板、文件列表、50MB / 10 sheet / 5000 行限制提醒）。配置页：数据表名称（必填）、数据表描述（必填）、智能体应用权限（必填，默认可读写）。上传形态出「数据文件」区（已传文件、已解析字段数、重新选择文件），自定义形态出「字段生成方式」区（自动生成 / 手动添加）。字段只含字段名、类型、中文名、数据示例、业务含义、枚举说明。',
@@ -3836,19 +3900,6 @@ function openBoardCfg(id){
   renderCfgUtrig();renderCfgTiles();renderCfgLink();
   document.getElementById('modal-boardcfg').classList.remove('hidden');
 }
-/* 触发时间选择器：模式 / 几号（仅每月）/ 时间点，三处共用 */
-function fillTrigUI(p,t){
-  document.getElementById(p+'-trigmode').innerHTML=TRIG_MODES.map(([v,l])=>`<option value="${v}"${v===t.mode?' selected':''}>${l}</option>`).join('');
-  document.getElementById(p+'-trigdom').innerHTML=Array.from({length:28},(_,i)=>i+1)
-    .map(d=>`<option value="${d}"${d===(t.dom||1)?' selected':''}>${d} 日</option>`).join('');
-  document.getElementById(p+'-trigtime').value=t.time||'09:00';
-  trigDomVis(p,t);
-  const tx=document.getElementById(p+'-trigtext');if(tx)tx.textContent=trigText(t);
-}
-function trigDomVis(p,t){
-  const w=document.getElementById(p+'-dom-wrap')||document.getElementById(p+'-trigdom');
-  if(w)w.classList.toggle('invisible',t.mode!=='month');
-}
 /* 联动智能体：单选，默认取维度所选的执行智能体；未发布到 AI 工作台的给提示 */
 function renderCfgLink(){
   const pub=wbAgentList(),def=dimsDefaultAgent(cfgBoard);
@@ -3873,33 +3924,39 @@ function cfgFreqText(){
   if(tx)tx.textContent=cfgBoard.dims.length?`更新 ${dimsFreqText(cfgBoard)}`:'';
 }
 function cfgAgentDims(){return (cfgBoard.dims||[]).filter(dimNeedsTrig)}
-/* 更新时间统一配在看板上，管住所有智能体执行的维度 */
-function renderCfgUtrig(){
-  const el=document.getElementById('bdc-utrig');if(!el)return;
-  const t=cfgBoard.utrig=boardUtrig(cfgBoard),rpt=t.kind==='repeat';
+/* 更新时间面板：工作看板与经营看板共用，ns 决定改值走哪套 handler */
+function renderUtrigPanel(elId,t,ns,note){
+  const el=document.getElementById(elId);if(!el)return;
+  const rpt=t.kind==='repeat';
   const lab=s=>`<span class="text-[11.5px] font-semibold text-gray-600 shrink-0">${s}</span><span class="text-red-400 text-[11px] shrink-0">*</span>`;
-  const dt=(f,v)=>`<input type="datetime-local" class="border border-gray-200 rounded-lg px-2 py-1.5 text-[12px] focus:outline-violet-300" value="${v}" onchange="cfgUtrigSet('${f}',this.value)">`;
+  const dt=(f,v)=>`<input type="datetime-local" class="border border-gray-200 rounded-lg px-2 py-1.5 text-[12px] focus:outline-violet-300" value="${v}" onchange="${ns}UtrigSet('${f}',this.value)">`;
   el.innerHTML=`<div class="flex items-center gap-2 mb-2.5">
       <span class="text-[12px] font-semibold text-gray-600">更新时间</span>
-      <span class="text-[10.5px] text-gray-400">统一管本看板所有智能体执行的维度${cfgAgentDims().length?'':'（当前没有智能体执行的维度）'}</span>
+      <span class="text-[10.5px] text-gray-400">${note}</span>
     </div>
     <div class="flex items-center gap-2 mb-2.5">${lab('触发时间')}${dt('at',t.at)}</div>
     <div class="flex items-center gap-2 mb-2.5">${lab('类型')}
-      <label class="flex items-center gap-1.5 text-[12px] cursor-pointer ml-1"><input type="radio" name="bdc-utkind" class="accent-violet-600"${rpt?'':' checked'} onchange="cfgUtrigSet('kind','once')">一次性</label>
-      <label class="flex items-center gap-1.5 text-[12px] cursor-pointer"><input type="radio" name="bdc-utkind" class="accent-violet-600"${rpt?' checked':''} onchange="cfgUtrigSet('kind','repeat')">重复</label>
+      <label class="flex items-center gap-1.5 text-[12px] cursor-pointer ml-1"><input type="radio" name="${elId}-utkind" class="accent-violet-600"${rpt?'':' checked'} onchange="${ns}UtrigSet('kind','once')">一次性</label>
+      <label class="flex items-center gap-1.5 text-[12px] cursor-pointer"><input type="radio" name="${elId}-utkind" class="accent-violet-600"${rpt?' checked':''} onchange="${ns}UtrigSet('kind','repeat')">重复</label>
     </div>
     ${rpt?`<div class="border border-gray-100 rounded-xl bg-gray-50/60 p-2.5 mb-2.5">
       <div class="flex items-center gap-1 mb-2">${RPT_UNITS.map(([v,l])=>
-        `<span class="px-3 py-1 rounded-lg text-[11.5px] cursor-pointer ${v===t.unit?'bg-white font-semibold text-violet-700 shadow-sm':'text-gray-500 hover:text-gray-700'}" onclick="cfgUtrigSet('unit','${v}')">${l}</span>`).join('')}</div>
+        `<span class="px-3 py-1 rounded-lg text-[11.5px] cursor-pointer ${v===t.unit?'bg-white font-semibold text-violet-700 shadow-sm':'text-gray-500 hover:text-gray-700'}" onclick="${ns}UtrigSet('unit','${v}')">${l}</span>`).join('')}</div>
       ${t.unit==='week'
         ?`<div class="flex items-center gap-1.5 flex-wrap">${WEEK_DAYS.map(([v,l])=>
-            `<span class="w-7 h-7 rounded-lg text-[11.5px] flex items-center justify-center cursor-pointer ${t.dows.includes(v)?'bg-violet-600 text-white':'bg-white border border-gray-200 text-gray-500'}" onclick="cfgUtrigDow(${v})">${l}</span>`).join('')}</div>`
+            `<span class="w-7 h-7 rounded-lg text-[11.5px] flex items-center justify-center cursor-pointer ${t.dows.includes(v)?'bg-violet-600 text-white':'bg-white border border-gray-200 text-gray-500'}" onclick="${ns}UtrigDow(${v})">${l}</span>`).join('')}</div>`
         :t.unit==='month'
         ?`<div class="flex items-center gap-1.5 text-[12px] text-gray-500">每月
-            <select class="border border-gray-200 rounded-lg px-2 py-1 text-[12px] bg-white" onchange="cfgUtrigSet('dom',+this.value)">${Array.from({length:28},(_,i)=>i+1).map(d=>`<option value="${d}"${d===t.dom?' selected':''}>${d}</option>`).join('')}</select>日</div>`
-        :`<label class="flex items-center gap-1.5 text-[12px] cursor-pointer"><input type="checkbox" class="accent-violet-600"${t.workday?' checked':''} onchange="cfgUtrigSet('workday',this.checked)">仅工作日执行（跳过周末）</label>`}
+            <select class="border border-gray-200 rounded-lg px-2 py-1 text-[12px] bg-white" onchange="${ns}UtrigSet('dom',+this.value)">${Array.from({length:28},(_,i)=>i+1).map(d=>`<option value="${d}"${d===t.dom?' selected':''}>${d}</option>`).join('')}</select>日</div>`
+        :`<label class="flex items-center gap-1.5 text-[12px] cursor-pointer"><input type="checkbox" class="accent-violet-600"${t.workday?' checked':''} onchange="${ns}UtrigSet('workday',this.checked)">仅工作日执行（跳过周末）</label>`}
     </div>
     <div class="flex items-center gap-2">${lab('截止时间')}${dt('until',t.until)}</div>`:''}`;
+}
+/* 更新时间统一配在看板上，管住所有智能体执行的维度 */
+function renderCfgUtrig(){
+  cfgBoard.utrig=boardUtrig(cfgBoard);
+  renderUtrigPanel('bdc-utrig',cfgBoard.utrig,'cfg',
+    `统一管本看板所有智能体执行的维度${cfgAgentDims().length?'':'（当前没有智能体执行的维度）'}`);
 }
 function cfgUtrigSet(f,v){
   const t=cfgBoard.utrig=boardUtrig(cfgBoard);t[f]=v;
@@ -4043,33 +4100,67 @@ function saveBoardCfg(){
   toast(`工作看板「${cfgBoard.name}」已保存，更新时间 ${dimsFreqText(cfgBoard)}，${cfgBoard.enabled?'工作台已同步生效':'当前为停用状态'}`
     +(unpub?` · 联动智能体 ${agentNick(cfgBoard.linkAgent)} 待发布到工作台`:''));
 }
-/* ---- 经营看板配置：一句看板输入交给执行智能体整块生成，可预览调试 ---- */
-let bzId=null,bzBoard=null;
+/* ---- 经营看板配置：一句看板输入交给执行智能体整块生成；保存配置后点下一步进预览 ---- */
+let bzId=null,bzBoard=null,bzSaved=false;
 function openBzBoard(id){
   const src=id?BOARDS.find(b=>b.id===id):null;
   bzId=id;
   bzBoard=src?JSON.parse(JSON.stringify(src))
     :{id:'bz-'+Date.now(),kind:'biz',name:'新建经营看板',agent:skAllAgents()[0]||'KA 主理智能体',
       enabled:true,scope:'auth',grants:[{name:ME,perm:'可管理'}],input:'',pub:'draft',
-      trig:{mode:'day',dom:1,time:'08:00'},by:ME,at:bzStamp(),updated:'',preview:''};
-  bzBoard.kind='biz';bzBoard.trig=bzBoard.trig||{mode:'day',dom:1,time:'08:00'};
+      utrig:{at:'',kind:'repeat',unit:'day',workday:true,dows:[1],dom:1,until:''},
+      by:ME,at:bzStamp(),updated:'',preview:''};
+  bzBoard.kind='biz';bzBoard.utrig=boardUtrig(bzBoard);
   bzBoard.pub=bzBoard.pub||'draft';
   document.getElementById('bzc-title').textContent=src?`经营看板配置 · ${src.name}`:'新建经营看板';
   document.getElementById('bzc-name').value=bzBoard.name;
   document.getElementById('bzc-agent').innerHTML=skAllAgents().map(a=>`<option value="${a}"${a===bzBoard.agent?' selected':''}>${a}</option>`).join('');
-  fillTrigUI('bzc',bzBoard.trig);
   document.getElementById('bzc-input').value=bzBoard.input||'';
   document.getElementById('bzc-enabled').classList.toggle('off',!bzBoard.enabled);
   document.getElementById('bzc-updated').textContent=bzBoard.updated||'尚未生成';
+  renderBzUtrig();
+  bzSaved=!!src;bzNextState();
+  bzShowStep(1);
   renderBzPreview(bzBoard.preview?'done':'idle');
   document.getElementById('modal-bzboard').classList.remove('hidden');
 }
 function closeBzBoard(){document.getElementById('modal-bzboard').classList.add('hidden')}
-function bzTrigMode(v){bzBoard.trig.mode=v;fillTrigUI('bzc',bzBoard.trig)}
-function bzTrigSet(f,v){bzBoard.trig[f]=v;fillTrigUI('bzc',bzBoard.trig)}
+/* 经营看板没有数据维度，看板级更新时间直接管住整块产物的重算 */
+function renderBzUtrig(){
+  bzBoard.utrig=boardUtrig(bzBoard);
+  renderUtrigPanel('bzc-utrig',bzBoard.utrig,'bz','按此节奏由执行智能体重算整块看板产物');
+  const tx=document.getElementById('bzc-trigtext');
+  if(tx)tx.textContent=`更新 ${utrigText(bzBoard)}`;
+}
+function bzUtrigSet(f,v){
+  const t=bzBoard.utrig=boardUtrig(bzBoard);t[f]=v;
+  renderBzUtrig();bzDirty();
+}
+function bzUtrigDow(d){
+  const t=bzBoard.utrig=boardUtrig(bzBoard);
+  t.dows=t.dows.includes(d)?t.dows.filter(x=>x!==d):[...t.dows,d].sort();
+  if(!t.dows.length)t.dows=[d];
+  renderBzUtrig();bzDirty();
+}
+/* 配置改过就要重新保存，下一步才拿到与保存一致的产物 */
+function bzDirty(){bzSaved=false;bzNextState()}
+function bzNextState(){
+  const b=document.getElementById('bzc-next');if(!b)return;
+  b.classList.toggle('opacity-40',!bzSaved);
+}
+function bzShowStep(n){
+  document.getElementById('bzc-step1').classList.toggle('hidden',n!==1);
+  document.getElementById('bzc-step2').classList.toggle('hidden',n!==2);
+}
+function bzBackToCfg(){bzShowStep(1)}
+function bzToPreview(){
+  if(!bzSaved){toast('请先点「保存配置」，保存后再进入预览');return}
+  bzShowStep(2);
+  if(!bzBoard.preview)bzRunPreview();
+}
 function renderBzPreview(state){
   const el=document.getElementById('bzc-preview');
-  if(state==='idle'){el.innerHTML=`<div class="text-[11.5px] text-gray-300 text-center py-14">填写看板输入后点「运行预览」，执行智能体会整块生成看板产物</div>`;return}
+  if(state==='idle'){el.innerHTML=`<div class="text-[11.5px] text-gray-300 text-center py-14">点「重新生成」，执行智能体会按看板输入整块生成产物</div>`;return}
   if(state==='run'){el.innerHTML=`<div class="text-[11.5px] text-gray-400 text-center py-14">${agentNick(bzBoard.agent)} 正在按看板输入生成…</div>`;return}
   el.innerHTML=`<div class="px-3.5 py-3">
     <div class="flex items-center gap-2 mb-2.5">
@@ -4087,39 +4178,42 @@ function renderBzPreview(state){
     <div class="mt-2 text-[10.5px] text-gray-500">${bzBoard.preview||'指标卡 + 趋势图 + 明细表'}</div>
   </div>`;
 }
+/* 预览按已保存的配置跑，改输入要回上一步重新保存 */
 function bzRunPreview(){
-  const inp=document.getElementById('bzc-input').value.trim();
-  if(!inp){toast('请先填写看板输入');return}
-  bzBoard.input=inp;
-  bzBoard.name=document.getElementById('bzc-name').value.trim()||bzBoard.name;
-  bzBoard.agent=document.getElementById('bzc-agent').value;
   renderBzPreview('run');
   setTimeout(()=>{
     bzBoard.updated=bzStamp();
     bzBoard.preview=bzBoard.preview||'指标卡 4 个 + 趋势图 + 明细表';
     document.getElementById('bzc-updated').textContent=bzBoard.updated;
     renderBzPreview('done');
-    toast('已按当前看板输入生成产物（示意），可继续改输入重新生成');
+    const i=BOARDS.findIndex(b=>b.id===bzBoard.id);
+    if(i>-1)BOARDS[i]=bzBoard;
+    renderBoardCfgList();
+    toast('已按已保存的看板输入生成产物（示意），改输入请回上一步');
   },1100);
 }
 function bzStamp(){
   const d=new Date(),p=n=>String(n).padStart(2,'0');
   return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
 }
+/* 保存不关弹窗：留在配置页，「下一步」解锁后才能进预览 */
 function saveBzBoard(){
   const name=document.getElementById('bzc-name').value.trim();
   if(!name){toast('请填写看板名称');return}
   const inp=document.getElementById('bzc-input').value.trim();
   if(!inp){toast('请填写看板输入');return}
+  const ut=bzBoard.utrig=boardUtrig(bzBoard);
+  if(!ut.at){toast('请填更新时间的触发时间');return}
+  if(ut.kind==='repeat'&&!ut.until){toast('重复更新需要填截止时间');return}
   bzBoard.name=name;bzBoard.input=inp;
   bzBoard.agent=document.getElementById('bzc-agent').value;
-  bzBoard.trig.time=document.getElementById('bzc-trigtime').value||'08:00';
-  bzBoard.freq=trigText(bzBoard.trig);
   bzBoard.enabled=!document.getElementById('bzc-enabled').classList.contains('off');
   bzBoard.by=bzBoard.by||ME;bzBoard.at=bzStamp();
-  if(bzId){const i=BOARDS.findIndex(b=>b.id===bzId);BOARDS[i]=bzBoard}else BOARDS.push(bzBoard);
-  closeBzBoard();renderBoardCfgList();
-  toast(`经营看板「${bzBoard.name}」已保存，更新时间 ${bzBoard.freq}，${bzBoard.enabled?'已出现在经营看板聚合页':'当前为停用状态'}`);
+  if(bzId){const i=BOARDS.findIndex(b=>b.id===bzId);BOARDS[i]=bzBoard}
+  else{BOARDS.push(bzBoard);bzId=bzBoard.id}
+  bzSaved=true;bzNextState();renderBoardCfgList();
+  document.getElementById('bzc-title').textContent=`经营看板配置 · ${bzBoard.name}`;
+  toast(`经营看板「${bzBoard.name}」已保存，更新时间 ${utrigText(bzBoard)}，点「下一步」预览产物`);
 }
 /* 新建二选：工作看板 / 经营看板 */
 function closeBoardNew(){document.getElementById('modal-boardnew').classList.add('hidden')}
@@ -5533,14 +5627,140 @@ function showPftt(t){
     document.getElementById('pf-tt-'+k).classList.toggle('hidden',t!==k);
   });
 }
-/* ---- 模型配置 ---- */
+/* ---- 模型配置 ----
+   think.sup=是否支持思考；think.lv=是否支持思考等级配置；
+   think.opts=可供智能体选择的等级（高 / 中 / 低）；think.def=智能体新建时的默认取值（关 或某一等级）
+   think.params=每一档对应下发给模型的参数（key 为 关 / 开 / 高 / 中 / 低），智能体选哪一档就按该档参数调用
+   sup=false → 智能体侧不出现思考配置项；sup=true & lv=false → 仅「开启思考 / 关闭思考」开关 */
+const THINK_LV=['高','中','低'];
 const modelCfg=[
-  {name:'Claude Sonnet 4.6',provider:'Anthropic',access:'官方 API · 企业网关',scene:'通用对话 / 智能体默认基座',quota:'不限',status:'默认',tag:'bg-violet-100 text-violet-700'},
-  {name:'Claude Opus 4.7',provider:'Anthropic',access:'官方 API · 企业网关',scene:'复杂推理 / 长文档产出',quota:'项目组申请制',status:'已启用',tag:'bg-emerald-100 text-emerald-700'},
-  {name:'Claude Haiku 4.5',provider:'Anthropic',access:'官方 API · 企业网关',scene:'高频轻量任务 / 意图识别',quota:'不限',status:'已启用',tag:'bg-emerald-100 text-emerald-700'},
-  {name:'Qwen3-32B',provider:'自建 GPU 集群',access:'内网推理服务',scene:'私有化部署项目专用',quota:'—',status:'已启用',tag:'bg-emerald-100 text-emerald-700'},
-  {name:'GPT-5',provider:'OpenAI',access:'代理网关',scene:'备用（需审批）',quota:'审批制',status:'已停用',tag:'bg-gray-100 text-gray-500'}
+  {name:'Claude Sonnet 4.6',provider:'Anthropic',access:'官方 API · 企业网关',scene:'通用对话 / 智能体默认基座',quota:'不限',status:'默认',tag:'bg-violet-100 text-violet-700',
+   think:{sup:true,lv:true,opts:['高','中','低'],def:'中',
+     params:{'关':'{"thinking": {"type": "disabled"}}','高':'{"thinking": {"type": "enabled", "budget_tokens": 16000}}','中':'{"thinking": {"type": "enabled", "budget_tokens": 8000}}','低':'{"thinking": {"type": "enabled", "budget_tokens": 2000}}'}}},
+  {name:'Claude Opus 4.7',provider:'Anthropic',access:'官方 API · 企业网关',scene:'复杂推理 / 长文档产出',quota:'项目组申请制',status:'已启用',tag:'bg-emerald-100 text-emerald-700',
+   think:{sup:true,lv:true,opts:['高','中','低'],def:'高',
+     params:{'关':'{"thinking": {"type": "disabled"}}','高':'{"thinking": {"type": "enabled", "budget_tokens": 32000}}','中':'{"thinking": {"type": "enabled", "budget_tokens": 16000}}','低':'{"thinking": {"type": "enabled", "budget_tokens": 4000}}'}}},
+  {name:'Claude Haiku 4.5',provider:'Anthropic',access:'官方 API · 企业网关',scene:'高频轻量任务 / 意图识别',quota:'不限',status:'已启用',tag:'bg-emerald-100 text-emerald-700',
+   think:{sup:true,lv:false,opts:[],def:'关',
+     params:{'开':'{"thinking": {"type": "enabled", "budget_tokens": 4000}}','关':'{"thinking": {"type": "disabled"}}'}}},
+  {name:'glm-5.2',provider:'智谱',access:'官方 API · 企业网关',scene:'工作流节点 / 参数提取',quota:'不限',status:'已启用',tag:'bg-emerald-100 text-emerald-700',
+   think:{sup:true,lv:true,opts:['高','中','低'],def:'低',
+     params:{'关':'{"enable_thinking": false}','高':'{"enable_thinking": true, "thinking_budget": 16000}','中':'{"enable_thinking": true, "thinking_budget": 8000}','低':'{"enable_thinking": true, "thinking_budget": 2000}'}}},
+  {name:'glm-5.1',provider:'智谱',access:'官方 API · 企业网关',scene:'意图识别 / 推理 / 生成',quota:'不限',status:'已启用',tag:'bg-emerald-100 text-emerald-700',
+   think:{sup:true,lv:false,opts:[],def:'关',
+     params:{'开':'{"enable_thinking": true}','关':'{"enable_thinking": false}'}}},
+  {name:'deepseek-v4.1-flash',provider:'DeepSeek',access:'官方 API · 企业网关',scene:'高频轻量节点',quota:'不限',status:'已启用',tag:'bg-emerald-100 text-emerald-700',
+   think:{sup:false,lv:false,opts:[],def:'关',params:{}}},
+  {name:'Qwen3-32B',provider:'自建 GPU 集群',access:'内网推理服务',scene:'私有化部署项目专用',quota:'—',status:'已启用',tag:'bg-emerald-100 text-emerald-700',
+   think:{sup:true,lv:true,opts:['中','低'],def:'低',
+     params:{'关':'{"enable_thinking": false}','中':'{"enable_thinking": true, "thinking_budget": 8000}','低':'{"enable_thinking": true, "thinking_budget": 2000}'}}},
+  {name:'GPT-5',provider:'OpenAI',access:'代理网关',scene:'备用（需审批）',quota:'审批制',status:'已停用',tag:'bg-gray-100 text-gray-500',
+   think:{sup:true,lv:true,opts:['高','中','低'],def:'中',
+     params:{'关':'{"reasoning_effort": "none"}','高':'{"reasoning_effort": "high"}','中':'{"reasoning_effort": "medium"}','低':'{"reasoning_effort": "low"}'}}}
 ];
+/* 智能体侧按模型名取思考配置；取不到按不支持思考处理 */
+const modelThink=name=>(modelCfg.find(m=>m.name===name)||{}).think||{sup:false,lv:false,opts:[],def:'关',params:{}};
+/* 智能体侧可选模型：已停用的不出现 */
+const modelPickable=()=>modelCfg.filter(m=>m.status!=='已停用');
+/* 模型切换后把思考取值落到新模型的合法范围内 */
+function thinkFallback(name,cur){
+  const t=modelThink(name);
+  if(!t.sup)return '';
+  if(!t.lv)return cur==='关'||!cur?'关':'开';
+  /* 「关」是固定档，任何支持等级的模型都收得下 */
+  return cur==='关'||t.opts.includes(cur)?cur:t.def;
+}
+/* 模型配置表格里的思考配置摘要 */
+function thinkSummary(t){
+  if(!t.sup)return '<span class="text-gray-400">不支持思考</span>';
+  if(!t.lv)return '<span class="tag bg-sky-100 text-sky-700">思考开关</span>';
+  return `<span class="tag bg-violet-100 text-violet-700">思考等级</span><span class="text-gray-500 ml-1.5">关 / ${t.opts.join(' / ')}</span><span class="text-gray-400 ml-1.5">默认 ${t.def}</span>`;
+}
+/* ---- 编辑模型：接入信息 + 思考等级配置 ---- */
+let mcIdx=null,mcDraft=null;
+function openModelCfg(i){
+  mcIdx=i;
+  const m=modelCfg[i];
+  mcDraft={sup:m.think.sup,lv:m.think.lv,opts:m.think.opts.slice(),def:m.think.def,params:{...(m.think.params||{})}};
+  document.getElementById('mc-name').value=m.name;
+  document.getElementById('mc-provider').value=m.provider;
+  document.getElementById('mc-access').value=m.access;
+  document.getElementById('mc-scene').value=m.scene;
+  document.getElementById('mc-quota').value=m.quota;
+  renderMcThink();
+  document.getElementById('modal-modelcfg').classList.remove('hidden');
+}
+function closeModelCfg(){document.getElementById('modal-modelcfg').classList.add('hidden')}
+function renderMcThink(){
+  document.querySelector(`input[name=mc-sup][value="${mcDraft.sup?1:0}"]`).checked=true;
+  document.querySelector(`input[name=mc-lv][value="${mcDraft.lv?1:0}"]`).checked=true;
+  document.getElementById('mc-think-box').classList.toggle('hidden',!mcDraft.sup);
+  document.getElementById('mc-sup-off-tip').classList.toggle('hidden',mcDraft.sup);
+  document.getElementById('mc-lv-box').classList.toggle('hidden',!mcDraft.lv);
+  document.getElementById('mc-sw-box').classList.toggle('hidden',mcDraft.lv);
+  /* 每一档后跟该档的模型参数框；未勾选的等级不收参数 */
+  document.getElementById('mc-opts').innerHTML=THINK_LV.map(l=>{
+    const on=mcDraft.opts.includes(l);
+    return `
+    <div>
+      <label class="flex items-center gap-1.5 text-[12.5px] cursor-pointer w-fit">
+        <input type="checkbox" class="accent-violet-600 w-3.5 h-3.5" ${on?'checked':''} onchange="mcToggleOpt('${l}')"><span>${l}</span>
+      </label>
+      ${on?mcParamBox(l):''}
+    </div>`}).join('')
+    +`<div><div class="text-[12.5px] text-gray-600 w-fit">关 <span class="text-gray-400 text-[11px]">固定项</span></div>${mcParamBox('关')}</div>`;
+  /* 仅开关的模型：开 / 关 两档参数 */
+  document.getElementById('mc-sw-box').innerHTML=
+    ['开','关'].map(l=>`<div><div class="text-[12.5px] text-gray-600">${l==='开'?'开启思考':'关闭思考'}</div>${mcParamBox(l)}</div>`).join('');
+  const def=document.getElementById('mc-def');
+  const pool=['关'].concat(mcDraft.opts);
+  if(!pool.includes(mcDraft.def))mcDraft.def=pool[pool.length-1];
+  def.innerHTML=pool.map(l=>`<option ${mcDraft.def===l?'selected':''}>${l}</option>`).join('');
+}
+/* 某一档的模型参数框：JSON 片段，调用该模型时按所选档位带上 */
+function mcParamBox(l){
+  return `<textarea class="w-full mt-1 border border-gray-200 rounded-lg px-2.5 py-1.5 text-[11.5px] font-mono text-gray-700 bg-white h-[46px] leading-relaxed focus:outline-violet-300"
+    placeholder='例如：{"enable_thinking": true, "thinking_budget": 8000}'
+    oninput="mcSetParam('${l}',this.value)">${htmlEsc(mcDraft.params[l]||'')}</textarea>`;
+}
+/* 参数框定点写入草稿，不重绘，否则输入一个字符就丢焦点 */
+function mcSetParam(l,v){mcDraft.params[l]=v}
+function mcSetSup(v){mcDraft.sup=v;if(!v){mcDraft.lv=false}renderMcThink()}
+function mcSetLv(v){mcDraft.lv=v;if(v&&!mcDraft.opts.length)mcDraft.opts=THINK_LV.slice();renderMcThink()}
+function mcToggleOpt(l){
+  const i=mcDraft.opts.indexOf(l);
+  if(i>=0)mcDraft.opts.splice(i,1);else mcDraft.opts.push(l);
+  /* 保持 高 / 中 / 低 的固定展示顺序 */
+  mcDraft.opts.sort((a,b)=>THINK_LV.indexOf(a)-THINK_LV.indexOf(b));
+  renderMcThink();
+}
+function saveModelCfg(){
+  const name=document.getElementById('mc-name').value.trim();
+  if(!name)return toast('请填写模型名称');
+  if(mcDraft.sup&&mcDraft.lv&&!mcDraft.opts.length)return toast('支持思考等级配置时，至少勾选一个等级');
+  /* 只保留当前生效档位的参数；参数需为合法 JSON，否则调用时下发不出去 */
+  const keys=!mcDraft.sup?[]:mcDraft.lv?['关'].concat(mcDraft.opts):['开','关'];
+  const params={};
+  for(const k of keys){
+    const raw=(mcDraft.params[k]||'').trim();
+    if(!raw)return toast(`请填写「${k==='开'?'开启思考':k}」的模型参数`);
+    try{JSON.parse(raw)}catch(e){return toast(`「${k==='开'?'开启思考':k}」的模型参数不是合法 JSON`)}
+    params[k]=raw;
+  }
+  const m=modelCfg[mcIdx],old=m.name;
+  m.name=name;
+  m.provider=document.getElementById('mc-provider').value.trim();
+  m.access=document.getElementById('mc-access').value.trim();
+  m.scene=document.getElementById('mc-scene').value.trim();
+  m.quota=document.getElementById('mc-quota').value.trim()||'—';
+  m.think={sup:mcDraft.sup,lv:mcDraft.lv,opts:mcDraft.sup&&mcDraft.lv?mcDraft.opts.slice():[],def:mcDraft.sup&&mcDraft.lv?mcDraft.def:'关',params};
+  closeModelCfg();renderPlatform();
+  /* 模型改名或思考档位变化后，智能体侧的下拉与会话框档位要跟着收敛 */
+  if(acModel===old)acModel=name;
+  acThink=thinkFallback(acModel,acThink);acChatThink=null;
+  renderAcModel();
+  toast(old===name?`已更新 ${name} 的配置`:`已更新为 ${name}`);
+}
 /* ---- 任务类型配置：一级类型（统一管控）→ 二级类型（必须参数 / 启用状态），保存即生效不走审核
        不配置处理主体：派单由业务系统定义，建任务时带处理人
        必须参数为 {n:参数名称, d:参数描述} 列表，描述随类型清单返回给业务系统 ---- */
@@ -5663,9 +5883,10 @@ function renderPlatform(){
   document.getElementById('pf-model-tbody').innerHTML=modelCfg.map((m,i)=>`<tr class="border-b border-gray-50 hover:bg-violet-50/40">
     <td class="px-4 py-3 font-medium">${m.name}</td><td class="text-gray-500">${m.provider}</td>
     <td class="text-gray-500">${m.access}</td><td class="text-gray-500">${m.scene}</td>
+    <td class="text-[11.5px] whitespace-nowrap">${thinkSummary(m.think)}</td>
     <td class="text-gray-500">${m.quota}</td><td><span class="tag ${m.tag}">${m.status}</span></td>
     <td><div class="flex gap-1.5">
-      <button class="btn-o !py-1 !px-2.5 text-[11px]" onclick="toast('编辑模型接入参数（示意）')">编 辑</button>
+      <button class="btn-o !py-1 !px-2.5 text-[11px]" onclick="openModelCfg(${i})">编 辑</button>
       ${m.status==='默认'?'<span class="text-[11px] text-gray-300 self-center">默认模型</span>':`<button class="text-[11px] text-gray-400 hover:text-violet-600 px-1" onclick="modelCfg.forEach(x=>{x.status=x.status==='默认'?'已启用':x.status;x.tag=x.tag||'bg-emerald-100 text-emerald-700'});modelCfg[${i}].status='默认';modelCfg[${i}].tag='bg-violet-100 text-violet-700';renderPlatform();toast('已将 ${m.name} 设为默认模型')">设为默认</button>`}
     </div></td>
   </tr>`).join('');
@@ -6571,7 +6792,7 @@ function wfDefault(){
   wfNodes=[
     {id:'n_start',t:'start',x:60,y:210,w:180,out:[['conversation_id','text'],['channel_id','text'],['robot_no','text'],['user_content','text'],['user_images','array'],['user_files','array'],['user_videos','array'],['user_name','text']]},
     {id:'n_date',t:'tool',x:330,y:40,w:190,desc:'查询当前日期、时间、星期',out:[['date_output','text']]},
-    {id:'n_llm',t:'llm',x:330,y:170,w:215,model:'deepseek-v4.1-flash',
+    {id:'n_llm',t:'llm',x:330,y:170,w:215,model:'glm-5.2',think:'低',
      prompt:'# 角色与能力 **名称**：智小七（智能助手）\n按用户问题给出简明回答。',
      in:[['user_content','text','开始.user_content']],fmt:'text',out:[['llm_output','text']],jout:[]},
     {id:'n_agent',t:'agent',x:600,y:40,w:200,desc:'客户信息结构化提取',fmt:'json',
@@ -6806,7 +7027,7 @@ function wfAdd(t){
   const id='n_'+t+'_'+(++wfSeq);
   const n={id,t,x:300+((wfSeq*40)%200),y:120+((wfSeq*70)%320),w:t==='cls'?190:180,in:[],out:[]};
   if(t==='cls'){n.mode='llm';n.cats=[{name:'分类1',desc:'',kw:''}];n.ctx=true;n.rounds=3;n.hint=''}
-  if(t==='llm'){n.model='deepseek-v4.1-flash';n.prompt='';n.fmt='text';n.out=[['llm_output','text']];n.jout=[];n.w=215}
+  if(t==='llm'){n.model='glm-5.2';n.think=modelThink(n.model).def;n.prompt='';n.fmt='text';n.out=[['llm_output','text']];n.jout=[];n.w=215}
   if(t==='agent'){n.fmt='text';n.out=[['agent_output','text']];n.jout=[];n.w=200}
   if(t==='reply'){n.rmode='prev';n.rtext='';n.w=170}
   if(t==='kb')n.out=[['kb_output','text']];
@@ -7035,14 +7256,48 @@ function wfPanelLlm(n){
   return `
     <div>
       <div class="text-[12.5px] font-semibold mb-1.5">基座模型</div>
-      <select class="wf-pin" onchange="wfSet('${n.id}','model',this.value)">
-        ${['deepseek-v4.1-flash','glm-5.2','glm-5.1','deepseek-v4'].map(m=>`<option ${n.model===m?'selected':''}>${m}</option>`).join('')}
+      <select class="wf-pin" onchange="wfSetModel('${n.id}',this.value)">
+        ${modelPickable().map(m=>`<option ${n.model===m.name?'selected':''}>${m.name}</option>`).join('')}
       </select>
+      ${wfThinkRow(n)}
     </div>
     <div>
       <div class="text-[12.5px] font-semibold mb-1.5">提示词</div>
       <textarea class="wf-pin h-32 leading-relaxed" placeholder="输入提示词" oninput="wfSet('${n.id}','prompt',this.value)">${n.prompt||''}</textarea>
     </div>`;
+}
+/* 思考配置：按平台「模型配置」里该模型的思考能力渲染
+   不支持思考 → 不出现；支持思考但不支持等级 → 开启 / 关闭；支持等级 → 关 + 平台勾选的等级 */
+function wfThinkRow(n){
+  const t=modelThink(n.model);
+  if(!t.sup)return '';
+  const cur=n.think||t.def;
+  const opts=t.lv?['关'].concat(t.opts):['开','关'];
+  const label=t.lv?'思考等级':'思考';
+  const txt=v=>t.lv?v:(v==='开'?'开启思考':'关闭思考');
+  return `
+    <div class="flex items-center gap-3 mt-2">
+      <span class="text-[12px] text-gray-500 shrink-0">${label}</span>
+      <div class="flex gap-3 flex-wrap">
+        ${opts.map(v=>`
+          <label class="wf-radio !py-0">
+            <input type="radio" name="wf-think-${n.id}" ${cur===v?'checked':''} onchange="wfSetThink('${n.id}','${v}')">
+            <span>${txt(v)}</span>
+          </label>`).join('')}
+      </div>
+    </div>`;
+}
+function wfSetModel(id,v){
+  const n=wfNode(id);
+  n.model=v;
+  /* 换模型后把思考取值收敛到新模型的合法范围 */
+  n.think=thinkFallback(v,n.think);
+  wfRender();
+}
+function wfSetThink(id,v){
+  const n=wfNode(id);
+  n.think=v;
+  toast(modelThink(n.model).lv?`思考等级已设为「${v}」`:(v==='开'?'已开启思考':'已关闭思考'));
 }
 /* 直接回复：回复方式三选，固定内容可插入上游参数引用 */
 function wfPanelReply(n){
@@ -9049,7 +9304,7 @@ function caseList(){return wbTasks.filter(t=>/售后工单/.test(t.type))}
      exec='agent' 时取执行智能体 agent；exec='table' 时取数据表 tbl；exec='mcp' 时取服务名 mcp 与工具名 mcpTool
    工作看板的更新时间统一配在看板上：utrig={at 触发时间,kind 'once'|'repeat',unit 'day'|'week'|'month',workday,dows,dom,until 截止时间}
      只管智能体执行的维度，数据表执行与 MCP 执行点维度时实时取数；维度数上限 DIM_MAX
-   经营看板的更新时间是看板级的 trig/freq，它没有数据维度
+   经营看板没有数据维度，同一套 utrig 直接管整块产物的重算
    联动智能体 linkAgent 单值，默认取维度所选的执行智能体 */
 const BOARDS=[
   {id:'bd-sales',kind:'work',name:'销售看板',agent:'路书（销售AI）',enabled:true,scope:'public',grants:[],
@@ -9087,13 +9342,15 @@ const BOARDS=[
   /* 经营看板：整块生成式，无维度磁贴；pub=live 才进 AI 工作台聚合页 */
   {id:'bz-global',kind:'biz',name:'集团经营总览',agent:'KA 主理智能体',enabled:true,scope:'public',grants:[],
    input:'按业务域汇总本月签约额、回款额、在管项目数与高风险项目，做成一页带趋势图的经营总览看板，突出同比与环比变化',
-   trig:{mode:'day',dom:1,time:'07:30'},freq:'每日 07:30',by:'平台团队',at:'2026-09-12 09:40',
+   utrig:{at:'2026-10-19T07:30',kind:'repeat',unit:'day',workday:false,dows:[1],dom:1,until:'2026-12-31T18:00'},
+   by:'平台团队',at:'2026-09-12 09:40',
    pub:'live',pubAt:'2026-09-12 14:20',pubBy:'罗紫函',
    updated:'2026-09-29 07:30',preview:'指标卡 6 个 + 业务域趋势图 + 高风险项目明细表'},
   {id:'bz-crm',kind:'biz',name:'CRM 商机漏斗看板',agent:'路书（销售AI）',enabled:true,scope:'auth',
    grants:[{name:'罗紫函',perm:'可管理'},{name:'任思宇',perm:'可使用'}],
    input:'把全量商机按 CR 阶段做成漏斗，列出各阶段停留时长超均值的商机与负责人，底部给出本月预测签约额',
-   trig:{mode:'month',dom:1,time:'08:00'},freq:'每月 1 日 08:00',by:'张伟',at:'2026-09-15 11:02',
+   utrig:{at:'2026-10-01T08:00',kind:'repeat',unit:'month',workday:true,dows:[1],dom:1,until:'2026-12-31T18:00'},
+   by:'张伟',at:'2026-09-15 11:02',
    pub:'draft',
    updated:'2026-09-29 08:00',preview:'阶段漏斗图 + 停滞商机明细 + 预测签约额'},
 ];
@@ -9101,14 +9358,8 @@ const BOARDS=[
    已发布才进 AI 工作台——工作看板进「我的工作看板」下拉，经营看板进「经营看板」聚合页。
    卡片上不展示发布态标签，状态只在「预览发布」弹层里体现。 */
 function isPub(b){return (b.pub||'draft')==='live'}
-/* 触发时间：日 / 工作日 / 月（月需选几号）+ 具体时间点 */
-const TRIG_MODES=[['day','每日'],['work','每工作日'],['month','每月']];
-function trigText(t){
-  if(!t)return '手动';
-  const tm=t.time||'09:00';
-  return t.mode==='month'?`每月 ${t.dom||1} 日 ${tm}`:t.mode==='work'?`每工作日 ${tm}`:`每日 ${tm}`;
-}
-function boardFreq(b){return b.freq||(b.trig?trigText(b.trig):dimsFreqText(b))}
+/* 经营看板没有维度，更新口径就是看板级更新时间；工作看板按维度口径汇总 */
+function boardFreq(b){return b.kind==='biz'?utrigText(b):dimsFreqText(b)}
 function boardLink(b){return b.linkAgent||b.agent}
 /* ---- 维度级执行方式 ---- */
 const DIM_EXECS=[['table','数据表执行'],['agent','智能体执行'],['mcp','MCP 执行']];
@@ -9918,7 +10169,91 @@ function openAgentConfig(id){
   document.getElementById('ac-name-input').value=a.name||'';
   document.getElementById('ac-desc').value=a.desc||'洞察未见之处，化解管理之滞。';
   document.querySelectorAll('.ac-chat-name').forEach(e=>e.textContent=a.name||'智能体');
+  renderAcModel();
   showPage('agentconfig');renderAcRes();
+}
+/* 智能体配置页：基座模型从平台「模型配置」取，思考配置按该模型的能力渲染 */
+let acModel='glm-5.2',acThink='低';
+function renderAcModel(){
+  const pick=modelPickable();
+  if(!pick.some(m=>m.name===acModel)){acModel=pick[0].name;acThink=modelThink(acModel).def}
+  document.getElementById('ac-model').innerHTML=pick.map(m=>`<option ${acModel===m.name?'selected':''}>${m.name}</option>`).join('');
+  const t=modelThink(acModel),box=document.getElementById('ac-think');
+  renderAcDeep();
+  if(!t.sup){box.innerHTML='';return}
+  const opts=t.lv?['关'].concat(t.opts):['开','关'];
+  const txt=v=>t.lv?v:(v==='开'?'开启思考':'关闭思考');
+  box.innerHTML=`
+    <div class="flex items-center gap-3">
+      <span class="text-[12px] text-gray-500 shrink-0">${t.lv?'思考等级':'思考'}</span>
+      <div class="flex gap-3 flex-wrap">
+        ${opts.map(v=>`
+          <label class="wf-radio !py-0">
+            <input type="radio" name="ac-think" ${acThink===v?'checked':''} onchange="acSetThink('${v}')">
+            <span>${txt(v)}</span>
+          </label>`).join('')}
+      </div>
+    </div>`;
+}
+/* 会话框「深度思考」：支持思考等级的模型下，点开选等级；只支持开关的模型下就是开 / 关一个按钮
+   会话里选的档位只对本次调试会话生效，默认取配置里的思考等级 */
+let acChatThink=null;
+function acChatThinkVal(){
+  const t=modelThink(acModel);
+  if(!t.sup)return '';
+  const v=acChatThink==null?acThink:acChatThink;
+  return thinkFallback(acModel,v);
+}
+function renderAcDeep(){
+  const box=document.getElementById('ac-deep');if(!box)return;
+  const t=modelThink(acModel);
+  if(!t.sup){box.innerHTML='';return}
+  const cur=acChatThinkVal(),on=cur!=='关';
+  const cls=on?'border-violet-200 bg-violet-50 text-violet-700':'border-gray-200 bg-white text-gray-400';
+  const label=t.lv?(on?`深度思考 · ${cur}`:'深度思考'):'深度思考';
+  box.innerHTML=`
+    <button class="flex items-center gap-1 border ${cls} rounded-lg px-2 py-1 text-[11.5px] hover:border-violet-300"
+            onclick="${t.lv?'acDeepToggleMenu(event)':'acDeepSwitch()'}">
+      <span>✦ ${label}</span>${t.lv?'<span class="text-[9px]">▾</span>':''}
+    </button>
+    ${t.lv?`<div id="ac-deep-menu" class="hidden absolute left-0 bottom-[calc(100%+6px)] bg-white border border-gray-200 rounded-xl shadow-lg p-1 w-[108px] z-20">
+      ${['关'].concat(t.opts).map(v=>`
+        <div class="px-2.5 py-1.5 rounded-lg text-[12px] cursor-pointer flex items-center justify-between ${cur===v?'bg-violet-50 text-violet-700 font-semibold':'text-gray-600 hover:bg-gray-50'}"
+             onclick="acDeepPick('${v}')"><span>${v==='关'?'不思考':v}</span>${cur===v?'<span class="text-[10px]">✓</span>':''}</div>`).join('')}
+    </div>`:''}`;
+}
+function acDeepToggleMenu(e){
+  e.stopPropagation();
+  document.getElementById('ac-deep-menu').classList.toggle('hidden');
+}
+function acDeepPick(v){
+  acChatThink=v;
+  renderAcDeep();
+  toast(v==='关'?'本次会话不思考':`本次会话思考等级：${v}`);
+}
+function acDeepSwitch(){
+  acChatThink=acChatThinkVal()==='关'?'开':'关';
+  renderAcDeep();
+  toast(acChatThink==='关'?'已关闭深度思考':'已开启深度思考');
+}
+document.addEventListener('click',e=>{
+  if(e.target.closest('#ac-deep'))return;
+  const m=document.getElementById('ac-deep-menu');
+  if(m)m.classList.add('hidden');
+});
+function acSetModel(v){
+  acModel=v;
+  acThink=thinkFallback(v,acThink);
+  /* 换模型后会话档位跟着回到配置值，避免停在新模型不支持的等级上 */
+  acChatThink=null;
+  renderAcModel();
+}
+function acSetThink(v){
+  acThink=v;
+  /* 配置项是会话框的默认值，改配置后会话档位重新跟随 */
+  acChatThink=null;
+  renderAcDeep();
+  toast(modelThink(acModel).lv?`思考等级已设为「${v}」`:(v==='开'?'已开启思考':'已关闭思考'));
 }
 function toggleCapSec(id){
   const el=document.getElementById(id);el.classList.toggle('hidden');
@@ -10554,7 +10889,7 @@ rmResetRange();
 if(isEmbed()){
   // 作为 iframe 嵌入（demo 展示窗口中）：直接进入原型
   document.getElementById('view-platform').classList.remove('hidden');
-  renderAgents();renderKb();renderProjAgentFilter();
+  renderAgents();renderKb();renderProjAgentFilter();renderAcModel();
   emitPage();
 }else{
   // 默认入口：版本列表
