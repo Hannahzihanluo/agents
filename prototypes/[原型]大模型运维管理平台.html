@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LLMOps · 大模型运维管理平台</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  body{font-family:'Noto Sans SC',sans-serif;background:#f5f6f8}
+  code,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  .hidden{display:none!important}
+  .fade-in{animation:fadeIn .3s ease both}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .side-item{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;font-size:13.5px;color:#a5a8bd;cursor:pointer;transition:all .15s}
+  .side-item:hover{background:#242741;color:#fff}
+  .side-item.active{background:#2d2f52;color:#fff;font-weight:600}
+  .tab{padding:9px 2px;margin-right:30px;font-size:14.5px;color:#6b7280;cursor:pointer;border-bottom:2px solid transparent;font-weight:500;transition:all .15s}
+  .tab:hover{color:#4f46e5}
+  .tab.active{color:#4f46e5;border-bottom-color:#4f46e5;font-weight:600}
+  .card{background:#fff;border:1px solid #ececf1;border-radius:14px}
+  .btn-p{background:#4f46e5;color:#fff;border-radius:8px;padding:7px 16px;font-size:13px;font-weight:600;transition:all .15s}
+  .btn-p:hover{background:#4338ca}
+  .btn-o{border:1px solid #e5e7eb;color:#374151;border-radius:8px;padding:6px 14px;font-size:12.5px;font-weight:600;background:#fff;transition:all .15s}
+  .btn-o:hover{background:#f9fafb;border-color:#c7d2fe;color:#4f46e5}
+  .btn-d{border:1px solid #fecaca;color:#dc2626;border-radius:8px;padding:6px 14px;font-size:12.5px;font-weight:600;background:#fff}
+  .btn-d:hover{background:#fef2f2}
+  .tag{font-size:10.5px;padding:2px 8px;border-radius:99px;font-weight:600}
+  .bar{height:6px;border-radius:99px;background:#eef0f4;overflow:hidden}
+  .bar>i{display:block;height:100%;border-radius:99px;transition:width .6s ease}
+  .inp{border:1px solid #e5e7eb;border-radius:8px;padding:7px 11px;font-size:13px;outline:none;background:#fff}
+  .inp:focus{border-color:#a5b4fc;box-shadow:0 0 0 3px rgba(99,102,241,.1)}
+  .modal-bg{background:rgba(20,16,40,.42);backdrop-filter:blur(2px)}
+  .toast{animation:tin .3s ease both}
+  @keyframes tin{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+  th{font-weight:500}
+  ::-webkit-scrollbar{width:5px;height:5px}
+  ::-webkit-scrollbar-thumb{background:#d4d4d8;border-radius:3px}
+</style>
+</head>
+<body class="h-screen overflow-hidden text-gray-800">
+
+<div class="flex h-full">
+  <!-- ========== 左侧导航 ========== -->
+  <aside class="w-60 shrink-0 flex flex-col" style="background:#151735">
+    <div class="h-16 flex items-center gap-2.5 px-5 border-b" style="border-color:#26284a">
+      <div class="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-base" style="background:linear-gradient(135deg,#6366f1,#a855f7)">G</div>
+      <span class="text-white font-semibold text-[15px]">LLMOps</span>
+    </div>
+    <nav class="p-3 space-y-1">
+      <div class="side-item active"><span>&gt;_</span><span>AI Coding</span></div>
+      <div class="side-item"><span>◳</span><span>沙箱管理</span></div>
+    </nav>
+    <div class="mt-auto p-4 text-[11px]" style="color:#5d6080">大模型运维管理平台</div>
+  </aside>
+
+  <!-- ========== 右侧主体 ========== -->
+  <main class="flex-1 flex flex-col min-w-0">
+    <header class="h-16 shrink-0 bg-white border-b border-gray-200 flex items-center px-7">
+      <span class="text-gray-400 mr-4 cursor-pointer">☰</span>
+      <span class="text-[15px] font-medium">AI Coding</span>
+      <div class="ml-auto flex items-center gap-3">
+        <select id="roleSel" class="inp text-[12.5px]" onchange="switchRole()"></select>
+        <div class="text-right leading-tight">
+          <div id="hdName" class="text-[13.5px] font-semibold"></div>
+          <div id="hdRole" class="text-[11px] text-gray-400"></div>
+        </div>
+        <div class="w-9 h-9 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center text-gray-400">◉</div>
+      </div>
+    </header>
+
+    <div class="flex-1 overflow-y-auto">
+      <div class="max-w-[1180px] mx-auto px-8 pt-8 pb-16">
+        <h1 class="text-[26px] font-bold tracking-tight">AI Coding</h1>
+        <p class="text-[13.5px] text-gray-500 mt-1.5">本地开发辅助模型，统一计费，支持 IDE 插件直连。</p>
+
+        <!-- Tab 切换 -->
+        <div class="flex items-center border-b border-gray-200 mt-7">
+          <div class="tab active" data-tab="key" onclick="switchTab('key')">我的 Key</div>
+          <div class="tab" data-tab="cost" onclick="switchTab('cost')">我的费用</div>
+          <div class="tab hidden" data-tab="dept" onclick="switchTab('dept')">部门与额度</div>
+          <div class="tab hidden" data-tab="team" onclick="switchTab('team')">成员额度</div>
+          <span id="tabTip" class="ml-auto mb-1.5 tag bg-indigo-50 text-indigo-600"></span>
+        </div>
+
+        <!-- ============ TAB 1：我的 Key ============ -->
+        <section id="tab-key" class="pt-7 fade-in">
+          <div class="grid grid-cols-2 gap-5">
+            <!-- Access Key -->
+            <div class="card p-6">
+              <div class="flex items-start justify-between">
+                <div>
+                  <div class="flex items-center gap-2">
+                    <span class="text-indigo-500">⬡</span>
+                    <span class="text-[16.5px] font-bold">开发者 Access Key</span>
+                  </div>
+                  <p class="text-[12.5px] text-gray-500 mt-1.5">全局通用 Key，用于所有 Coding 模型鉴权。</p>
+                </div>
+                <button class="btn-d shrink-0" onclick="resetKey()">↻ 重置 Key</button>
+              </div>
+              <div class="mt-5 flex items-center gap-2 border border-gray-200 rounded-xl px-4 py-3 bg-gray-50">
+                <span id="keyText" class="mono text-[13.5px] flex-1">sk-v0Q...UI8w</span>
+                <button class="text-gray-400 hover:text-gray-600" onclick="toggleKey()" title="显示/隐藏">◉</button>
+                <button class="btn-o" onclick="toast('已复制到剪贴板')">⧉ 复制</button>
+              </div>
+            </div>
+            <!-- 资源配额 -->
+            <div class="card p-6">
+              <div class="flex items-center gap-2">
+                <span class="text-indigo-500">▣</span>
+                <span class="text-[16.5px] font-bold">资源配额 (Quota)</span>
+              </div>
+              <p id="myFrom" class="text-[12.5px] text-gray-500 mt-1.5"></p>
+              <div class="mt-4 flex items-end gap-3">
+                <span class="text-[34px] font-bold leading-none">¥ <span id="myQuota">0</span></span>
+                <span class="tag bg-gray-100 text-gray-600 mb-1">本月额度</span>
+              </div>
+              <div class="bar mt-4"><i id="myBar" style="width:0%;background:#4f46e5"></i></div>
+              <div class="flex justify-between text-[12px] text-gray-500 mt-2">
+                <span>已使用：¥ <span id="myUsed">0</span></span>
+                <span class="font-semibold text-gray-700">使用率 <span id="myPct">0</span>%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 可用模型列表 -->
+          <div class="flex items-center justify-between mt-8 mb-3">
+            <div class="flex items-center gap-2">
+              <span class="text-indigo-500">&gt;_</span>
+              <span class="text-[17px] font-bold">可用模型列表 (Model List)</span>
+            </div>
+            <a class="text-[13px] text-indigo-600 font-medium cursor-pointer">▢ 使用教程 (Usage Guide)</a>
+          </div>
+          <div class="card overflow-hidden">
+            <table class="w-full text-[13px]">
+              <thead class="bg-gray-50 text-gray-500 text-[12px]">
+                <tr>
+                  <th class="text-left px-6 py-3.5">模型信息</th>
+                  <th class="text-left px-6 py-3.5 border-l border-gray-100">MODEL ID</th>
+                  <th class="text-left px-6 py-3.5 border-l border-gray-100">价格（↓ Input / ↑ Output）</th>
+                  <th class="text-left px-6 py-3.5 border-l border-gray-100">限制</th>
+                </tr>
+              </thead>
+              <tbody id="modelRows" class="divide-y divide-gray-100"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="tab-cost" class="pt-7 hidden fade-in">
+          <div class="flex items-center justify-between mb-5">
+            <h2 class="text-[17px] font-bold">我的使用费用</h2>
+            <div class="flex items-center gap-3"><label for="costMonth" class="text-[13px] text-gray-500">账单月份</label><select id="costMonth" class="inp" onchange="renderCost()"></select><span class="tag bg-gray-100 text-gray-500">演示数据</span></div>
+          </div>
+          <div class="grid grid-cols-5 gap-4">
+            <div class="card p-5"><div class="text-[13px] text-gray-500">使用费用</div><div class="text-[27px] font-bold mt-2 text-indigo-600">¥ <span id="costTotal"></span></div></div>
+            <div class="card p-5"><div class="text-[13px] text-gray-500">输入 Tokens</div><div class="text-[25px] font-bold mt-2"><span id="costInputTokens"></span></div></div>
+            <div class="card p-5"><div class="text-[13px] text-gray-500">输出 Tokens</div><div class="text-[25px] font-bold mt-2"><span id="costOutputTokens"></span></div></div>
+            <div class="card p-5"><div class="text-[13px] text-gray-500">当月额度</div><div class="text-[27px] font-bold mt-2">¥ <span id="costQuota"></span></div></div>
+            <div class="card p-5"><div class="text-[13px] text-gray-500">剩余额度</div><div class="text-[27px] font-bold mt-2">¥ <span id="costLeft"></span></div></div>
+          </div>
+          <div class="card p-6 mt-5"><h3 class="font-semibold mb-5">模型费用与 Tokens 分布</h3><div id="costDistribution" class="space-y-5"></div></div>
+          <div class="card mt-5 overflow-hidden">
+            <div class="px-6 py-4 flex items-center justify-between border-b border-gray-100"><h3 class="font-semibold">费用清单</h3><select id="costModel" aria-label="筛选费用模型" class="inp" onchange="renderCostRows()"></select></div>
+            <div class="overflow-x-auto"><table class="w-full text-[13px]">
+              <thead class="bg-gray-50 text-gray-500 text-[12px]"><tr><th class="text-left px-6 py-3">日期</th><th class="text-left px-6 py-3">模型</th><th class="text-right px-6 py-3">输入 Tokens</th><th class="text-right px-6 py-3">输出 Tokens</th><th class="text-right px-6 py-3">输入费用（元）</th><th class="text-right px-6 py-3">输出费用（元）</th><th class="text-right px-6 py-3">费用合计（元）</th></tr></thead>
+              <tbody id="costRows" class="divide-y divide-gray-100"></tbody>
+            </table></div>
+            <div id="costEmpty" class="hidden py-12 text-center text-gray-400 text-[13px]">该月份暂无使用记录</div>
+            <div id="costSubtotal" class="px-6 py-4 text-right text-[13px] bg-gray-50"></div>
+          </div>
+        </section>
+
+        <!-- ============ TAB 2：部门与额度（超级管理员） ============ -->
+        <section id="tab-dept" class="pt-7 hidden fade-in">
+          <div class="grid grid-cols-3 gap-5">
+            <div class="card p-5">
+              <div class="text-[12.5px] text-gray-500">平台总额度（每月）</div>
+              <div class="text-[27px] font-bold mt-2 leading-none">¥ <span id="pfQuota">0</span></div>
+              <div class="text-[11.5px] text-gray-400 mt-2">已分配至一级部门 ¥ <span id="pfAlloc">0</span> · 未分配 ¥ <span id="pfLeft">0</span></div>
+            </div>
+            <div class="card p-5">
+              <div class="text-[12.5px] text-gray-500">平台额度消耗</div>
+              <div class="text-[27px] font-bold mt-2 leading-none">¥ <span id="pfUsed">0</span></div>
+              <div class="bar mt-3"><i id="pfBar" style="width:0%;background:#4f46e5"></i></div>
+              <div class="text-[11.5px] text-gray-400 mt-2">整体消耗 <span id="pfPct">0</span>%</div>
+            </div>
+            <div class="card p-5">
+              <div class="text-[12.5px] text-gray-500">部门与管理员</div>
+              <div class="text-[27px] font-bold mt-2 leading-none"><span id="pfDept">0</span> 个部门</div>
+              <div class="text-[11.5px] text-gray-400 mt-2">其中一级 <span id="pfL1">0</span> 个 · 二级 <span id="pfL2">0</span> 个</div>
+            </div>
+          </div>
+
+          <div class="card mt-5 px-5 py-4 flex items-center gap-3 flex-wrap">
+            <span class="text-[12.5px] text-gray-500">统计周期</span>
+            <select id="dFrom" class="inp" onchange="applyDeptRange()"></select>
+            <span class="text-gray-400 text-[13px]">至</span>
+            <select id="dTo" class="inp" onchange="applyDeptRange()"></select>
+            <button class="btn-o" onclick="deptThisMonth()">本月</button>
+            <span id="dRangeTip" class="text-[12px] text-gray-400"></span>
+            <button class="btn-p ml-auto" onclick="openPf()">◧ 设置平台总额度</button>
+          </div>
+
+          <div class="card mt-5 overflow-hidden">
+            <table class="w-full text-[13px]">
+              <thead class="bg-gray-50 text-gray-500 text-[12px]">
+                <tr>
+                  <th class="text-left px-4 py-3.5">部门</th>
+                  <th class="text-left px-4 py-3.5">部门管理员</th>
+                  <th class="text-right px-4 py-3.5">部门额度</th>
+                  <th class="text-right px-4 py-3.5">已分配</th>
+                  <th class="text-right px-4 py-3.5">消耗</th>
+                  <th class="text-left px-4 py-3.5 w-[150px]">消耗百分比</th>
+                  <th class="text-right px-4 py-3.5 w-[160px]">操作</th>
+                </tr>
+              </thead>
+              <tbody id="deptRows" class="divide-y divide-gray-100"></tbody>
+            </table>
+          </div>
+          <p class="text-[11.5px] text-gray-400 mt-3">一级部门额度之和不超过平台总额度；二级部门额度之和不超过所属一级部门额度；成员额度由部门管理员在「成员额度」中分配。</p>
+        </section>
+
+        <!-- ============ TAB 3：成员额度（部门管理员） ============ -->
+        <section id="tab-team" class="pt-7 hidden fade-in">
+          <!-- 部门上下文 -->
+          <div class="card px-5 py-4 flex items-center gap-3 flex-wrap mb-5">
+            <span class="text-[12.5px] text-gray-500">当前部门</span>
+            <select id="deptSel" class="inp" onchange="switchDept()"></select>
+            <span id="deptWho" class="text-[12px] text-gray-400"></span>
+          </div>
+
+          <!-- 总额度概览 -->
+          <div class="grid grid-cols-3 gap-5">
+            <div class="card p-5">
+              <div class="text-[12.5px] text-gray-500">部门额度</div>
+              <div class="text-[27px] font-bold mt-2 leading-none">¥ <span id="sumQuota">0</span></div>
+              <div class="text-[11.5px] text-gray-400 mt-2">已分配 ¥ <span id="sumAlloc">0</span> · 未分配 ¥ <span id="sumLeft">0</span></div>
+            </div>
+            <div class="card p-5">
+              <div class="text-[12.5px] text-gray-500">部门额度消耗</div>
+              <div class="text-[27px] font-bold mt-2 leading-none">¥ <span id="sumUsed">0</span></div>
+              <div class="bar mt-3"><i id="sumBar" style="width:0%;background:#4f46e5"></i></div>
+              <div class="text-[11.5px] text-gray-400 mt-2">整体消耗 <span id="sumPct">0</span>%</div>
+            </div>
+            <div class="card p-5">
+              <div class="text-[12.5px] text-gray-500">部门成员</div>
+              <div class="text-[27px] font-bold mt-2 leading-none"><span id="sumMem">0</span> 人</div>
+              <div class="text-[11.5px] text-gray-400 mt-2">消耗超 90% <span id="sumWarn" class="text-red-500 font-semibold">0</span> 人</div>
+            </div>
+          </div>
+
+          <div class="card mt-5 px-5 py-5 flex items-center gap-5">
+            <div class="flex-1"><div class="font-semibold text-[14px]">部门统一员工额度 <span class="text-indigo-600 ml-3">¥ <span id="defaultQuota"></span> / 人 / 月</span></div><div id="defaultSummary" class="text-[12px] text-gray-500 mt-2"></div></div>
+            <button class="btn-p" onclick="openDefault()">设置统一额度</button>
+          </div>
+
+          <!-- 筛选区 -->
+          <div class="card mt-5 px-5 py-4 flex items-center gap-3 flex-wrap">
+            <span class="text-[12.5px] text-gray-500">统计周期</span>
+            <select id="mFrom" class="inp" onchange="applyRange()"></select>
+            <span class="text-gray-400 text-[13px]">至</span>
+            <select id="mTo" class="inp" onchange="applyRange()"></select>
+            <button class="btn-o" onclick="thisMonth()">本月</button>
+            <span id="rangeTip" class="text-[12px] text-gray-400"></span>
+            <div class="ml-auto flex items-center gap-2">
+              <input id="kw" class="inp w-44" placeholder="搜索成员名称 / 岗位" oninput="renderTeam()">
+            </div>
+          </div>
+
+          <!-- 成员列表 -->
+          <div class="card mt-5 overflow-hidden">
+            <table class="w-full text-[13px]">
+              <thead class="bg-gray-50 text-gray-500 text-[12px]">
+                <tr>
+                  <th class="text-left px-5 py-3.5">名称</th>
+                  <th class="text-left px-5 py-3.5">岗位</th>
+                  <th class="text-left px-5 py-3.5">可用模型</th>
+                  <th class="text-right px-5 py-3.5">额度</th>
+                  <th class="text-right px-5 py-3.5">消耗</th>
+                  <th class="text-left px-5 py-3.5 w-[190px]">消耗百分比</th>
+                  <th class="text-right px-5 py-3.5">操作</th>
+                </tr>
+              </thead>
+              <tbody id="teamRows" class="divide-y divide-gray-100"></tbody>
+            </table>
+            <div id="teamEmpty" class="hidden py-14 text-center text-[13px] text-gray-400">没有匹配的成员</div>
+          </div>
+          <p class="text-[11.5px] text-gray-400 mt-3">成员初始额度由部门管理员分配，合计不超过本部门额度；额度与消耗为所选周期累计值，跨月查询按每月发放额度合计计算。</p>
+        </section>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ========== 配置弹窗 ========== -->
+<div id="cfgModal" class="hidden fixed inset-0 z-40 modal-bg flex items-center justify-center p-6">
+  <div class="bg-white rounded-2xl w-[560px] max-h-[86vh] flex flex-col shadow-2xl fade-in">
+    <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+      <div>
+        <div class="text-[16px] font-bold">配置成员权限</div>
+        <div id="cfgWho" class="text-[12px] text-gray-500 mt-0.5"></div>
+      </div>
+      <button class="text-gray-400 hover:text-gray-600 text-lg" onclick="closeCfg()">✕</button>
+    </div>
+    <div class="px-6 py-5 overflow-y-auto space-y-6">
+      <div>
+        <div class="text-[13.5px] font-semibold mb-3">员工额度（每月，元）</div>
+        <div class="flex gap-5 text-[13px] mb-3"><label><input type="radio" name="quotaMode" value="default" onchange="changeQuotaMode()"> 跟随部门统一额度</label><label><input type="radio" name="quotaMode" value="custom" onchange="changeQuotaMode()"> 单独设置</label></div>
+        <input id="cfgQuota" aria-label="员工每月额度" type="number" min="0" step="0.01" class="inp w-48" oninput="checkQuota()">
+        <div id="cfgQuotaTip" class="text-[11.5px] mt-2 text-gray-400"></div>
+      </div>
+      <div>
+        <div class="text-[13.5px] font-semibold mb-2.5">可用模型</div>
+        <div id="cfgModels" class="space-y-2"></div>
+      </div>
+    </div>
+    <div class="px-6 py-4 border-t border-gray-100 flex justify-end gap-2.5">
+      <button class="btn-o" onclick="closeCfg()">取消</button>
+      <button id="cfgSave" class="btn-p" onclick="saveCfg()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 部门配置弹窗 ========== -->
+<div id="depModal" class="hidden fixed inset-0 z-40 modal-bg flex items-center justify-center p-6">
+  <div class="bg-white rounded-2xl w-[560px] max-h-[86vh] flex flex-col shadow-2xl fade-in">
+    <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+      <div>
+        <div class="text-[16px] font-bold">配置部门额度与管理员</div>
+        <div id="depWho" class="text-[12px] text-gray-500 mt-0.5"></div>
+      </div>
+      <button class="text-gray-400 hover:text-gray-600 text-lg" onclick="closeDep()">✕</button>
+    </div>
+    <div class="px-6 py-5 overflow-y-auto space-y-6">
+      <div>
+        <div class="text-[13.5px] font-semibold mb-1">部门额度（每月，元）</div>
+        <p id="depQuotaHint" class="text-[11.5px] text-gray-400 mb-2.5"></p>
+        <input id="depQuota" type="number" min="0" step="100" class="inp w-48" oninput="checkDep()">
+        <div id="depQuotaTip" class="text-[11.5px] mt-2 text-gray-400"></div>
+      </div>
+      <div>
+        <div class="text-[13.5px] font-semibold mb-1">部门管理员</div>
+        <p class="text-[11.5px] text-gray-400 mb-2.5">负责本部门额度分配；二级部门管理员可配置成员初始额度与可用模型。</p>
+        <select id="depAdmin" class="inp w-full"></select>
+      </div>
+    </div>
+    <div class="px-6 py-4 border-t border-gray-100 flex justify-end gap-2.5">
+      <button class="btn-o" onclick="closeDep()">取消</button>
+      <button id="depSave" class="btn-p" onclick="saveDep()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 平台总额度弹窗 ========== -->
+<div id="pfModal" class="hidden fixed inset-0 z-40 modal-bg flex items-center justify-center p-6">
+  <div class="bg-white rounded-2xl w-[480px] shadow-2xl fade-in">
+    <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+      <div class="text-[16px] font-bold">设置平台总额度</div>
+      <button class="text-gray-400 hover:text-gray-600 text-lg" onclick="closePf()">✕</button>
+    </div>
+    <div class="px-6 py-5">
+      <div class="text-[13.5px] font-semibold mb-1">平台总额度（每月，元）</div>
+      <p class="text-[11.5px] text-gray-400 mb-2.5">所有一级部门额度之和不得超过该值。</p>
+      <input id="pfInput" type="number" min="0" step="1000" class="inp w-56" oninput="checkPf()">
+      <div id="pfTip" class="text-[11.5px] mt-2 text-gray-400"></div>
+    </div>
+    <div class="px-6 py-4 border-t border-gray-100 flex justify-end gap-2.5">
+      <button class="btn-o" onclick="closePf()">取消</button>
+      <button id="pfSave" class="btn-p" onclick="savePf()">保存</button>
+    </div>
+  </div>
+</div>
+
+<div id="defaultModal" class="hidden fixed inset-0 z-40 modal-bg flex items-center justify-center p-6">
+  <div role="dialog" aria-modal="true" aria-labelledby="defaultTitle" class="bg-white rounded-2xl w-[520px] shadow-2xl">
+    <div class="px-6 py-4 border-b flex justify-between items-center"><h2 id="defaultTitle" class="font-bold">设置部门统一员工额度</h2><button aria-label="关闭" onclick="closeDefault()">✕</button></div>
+    <div class="p-6"><div id="defaultWho" class="text-[13px] text-gray-500 mb-5"></div><label for="defaultInput" class="block text-[13px] font-semibold mb-2">统一额度（元 / 人 / 月）</label><input id="defaultInput" class="inp w-full" type="number" min="0" step="0.01" oninput="checkDefault()"><p class="text-[12px] text-gray-500 mt-3">应用于跟随统一额度的员工及新加入员工，保留员工单独设置。保存后本月生效，历史月份不变。</p><div id="defaultTip" role="status" class="text-[12px] mt-4"></div></div>
+    <div class="px-6 py-4 border-t flex justify-end gap-3"><button class="btn-o" onclick="closeDefault()">取消</button><button id="defaultSave" class="btn-p" onclick="saveDefault()">保存</button></div>
+  </div>
+</div>
+<div id="toastBox" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 space-y-2"></div>
+<footer class="fixed bottom-0 right-0 p-2 text-[11px] text-gray-400 bg-white/70 rounded-tl-lg">v05 · 2026-11-03 · 费用清单按日汇总，支持同一天多模型费用与 Tokens 明细</footer>
+
+<script>
+/* ============ 模拟数据 ============ */
+const MODELS=[
+  {name:'G7E6 Coder',desc:'G7E6 代码模型',id:'g7e6-coder',in:'¥0 / 1M',out:'¥0 / 1M',tpm:'1,000,000',rpm:'600'},
+  {name:'deepseek-v4-pro',desc:'暂无描述',id:'deepseek-v4-pro',in:'¥3 / 1M',out:'¥6 / 1M',tpm:'1,000,000',rpm:'60'},
+  {name:'deepseek-v4-flash',desc:'暂无描述',id:'deepseek-v4-flash',in:'¥1 / 1M',out:'¥2 / 1M',tpm:'1,000,000',rpm:'60'},
+  {name:'glm-5.2',desc:'暂无描述',id:'glm-5.2',in:'¥0.8 / 1M',out:'¥2.8 / 1M',tpm:'1,000,000',rpm:'1,000'},
+  {name:'qwen3-max',desc:'暂无描述',id:'qwen3-max',in:'¥2.4 / 1M',out:'¥9.6 / 1M',tpm:'1,000,000',rpm:'600'}
+];
+let PLATFORM_QUOTA=36000;                         // 平台每月总额度
+/* 部门：parent 为空即一级部门 */
+let DEPTS=[
+  {id:'d1',  name:'技术中心',    parent:'',   quota:20000, admin:'韩澍'},
+  {id:'d1-1',name:'平台研发部',  parent:'d1', quota:9000,  admin:'陈嘉禾'},
+  {id:'d1-2',name:'智能应用部',  parent:'d1', quota:7500,  admin:'吴则明'},
+  {id:'d2',  name:'产品中心',    parent:'',   quota:11000, admin:'邵亦'},
+  {id:'d2-1',name:'产品设计部',  parent:'d2', quota:6000,  admin:'林书言'},
+  {id:'d2-2',name:'用户研究部',  parent:'d2', quota:3000,  admin:'沈芷'}
+];
+/* 成员归属到二级部门；base 为当月基准消耗 */
+let MEMBERS=[
+  {name:'陈嘉禾',post:'后端工程师',dept:'d1-1',quota:2200,base:1141.28,models:['g7e6-coder','deepseek-v4-pro','deepseek-v4-flash','qwen3-max']},
+  {name:'周砚',  post:'测试工程师',dept:'d1-1',quota:1200,base:388.30, models:['g7e6-coder','deepseek-v4-flash']},
+  {name:'顾南洲',post:'后端工程师',dept:'d1-1',quota:1800,base:1684.52,models:['g7e6-coder','deepseek-v4-pro','glm-5.2']},
+  {name:'宋临',  post:'运维工程师',dept:'d1-1',quota:1000,base:402.17, models:['g7e6-coder','glm-5.2']},
+  {name:'吴则明',post:'算法工程师',dept:'d1-2',quota:2600,base:2388.94,models:['g7e6-coder','deepseek-v4-pro','qwen3-max','glm-5.2','deepseek-v4-flash']},
+  {name:'苏未迟',post:'数据工程师',dept:'d1-2',quota:1600,base:903.76, models:['g7e6-coder','glm-5.2']},
+  {name:'梁知秋',post:'算法工程师',dept:'d1-2',quota:1800,base:1252.40,models:['g7e6-coder','qwen3-max']},
+  {name:'林书言',post:'前端工程师',dept:'d2-1',quota:1600,base:632.05, models:['g7e6-coder','glm-5.2','deepseek-v4-flash']},
+  {name:'罗紫函',post:'产品经理',  dept:'d2-1',quota:900, base:615.57, models:['g7e6-coder','deepseek-v4-pro','glm-5.2']},
+  {name:'叶舟',  post:'交互设计师',dept:'d2-1',quota:1200,base:388.64, models:['g7e6-coder','glm-5.2']},
+  {name:'沈芷',  post:'用户研究员',dept:'d2-2',quota:1000,base:742.33, models:['g7e6-coder','deepseek-v4-pro']},
+  {name:'邵亦',  post:'产品总监',  dept:'d2-2',quota:800, base:286.91, models:['g7e6-coder','glm-5.2']}
+];
+/* 账号：super 看全平台，dept 只看本部门 */
+const ACCOUNTS=[
+  {name:'罗紫函',role:'super',title:'超级管理员',dept:''},
+  {name:'陈嘉禾',role:'dept', title:'部门管理员 · 平台研发部',dept:'d1-1'},
+  {name:'林书言',role:'dept', title:'部门管理员 · 产品设计部',dept:'d2-1'},
+  {name:'周砚',  role:'user', title:'普通成员 · 平台研发部',dept:'d1-1'}
+];
+const MONTHS=['2026-06','2026-07','2026-08','2026-09','2026-10','2026-11'];
+const RATE={'2026-06':.78,'2026-07':.86,'2026-08':.92,'2026-09':.95,'2026-10':1.06,'2026-11':1};
+const CUR='2026-11';
+DEPTS.filter(d=>d.parent).forEach(d=>{d.defaultQuota=memOfInit(d.id);});
+function memOfInit(id){return Math.min(...MEMBERS.filter(m=>m.dept===id).map(m=>m.quota));}
+MEMBERS.forEach(m=>{m.originalQuota=m.quota;m.customQuota=m.quota!==DEPTS.find(d=>d.id===m.dept).defaultQuota;});
+const quotaIn=(m,month)=>month===CUR?m.quota:m.originalQuota;
+const BILLING=MEMBERS.flatMap((m,member)=>MONTHS.flatMap(month=>{
+  const paid=m.models.filter(id=>id!=='g7e6-coder');
+  const total=Math.round(m.base*RATE[month]*100);
+  const slots=paid.flatMap(id=>[1,2,3].map(day=>({id,day})));
+  return [...slots.map((slot,i)=>{
+    const cents=Math.floor(total/slots.length)+(i<total%slots.length?1:0);
+    const input=Math.round(cents*.4);
+    const model=MODELS.find(m=>m.id===slot.id);
+    const inputTokens=Math.round(input/100/Number(model.in.match(/[\d.]+/)[0])*1e6);
+    const outputTokens=Math.round((cents-input)/100/Number(model.out.match(/[\d.]+/)[0])*1e6);
+    return {member,month,date:`${month}-0${slot.day}`,model:slot.id,input,output:cents-input,cents,inputTokens,outputTokens};
+  }),{member,month,date:`${month}-01`,model:'g7e6-coder',input:0,output:0,cents:0,inputTokens:Math.round(180000*RATE[month]),outputTokens:Math.round(60000*RATE[month])}];
+}));
+let costRecords=[];
+let range={from:CUR,to:CUR},dRange={from:CUR,to:CUR};
+let acct=ACCOUNTS[0],curDept='d1-1',cfgIdx=-1,depId='',keyShown=false;
+
+/* ============ 工具 ============ */
+const $=id=>document.getElementById(id);
+const money=n=>n.toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2});
+const monthsIn=(a,b)=>MONTHS.slice(MONTHS.indexOf(a),MONTHS.indexOf(b)+1);
+const modelName=id=>(MODELS.find(m=>m.id===id)||{}).name||id;
+const dept=id=>DEPTS.find(d=>d.id===id)||{};
+const deptName=id=>dept(id).name||id;
+const kids=id=>DEPTS.filter(d=>d.parent===id);
+const l1=()=>DEPTS.filter(d=>!d.parent);
+const memOf=id=>MEMBERS.filter(m=>m.dept===id);
+const usedIn=(m,r)=>monthsIn(r.from,r.to).reduce((s,k)=>s+m.base*(RATE[k]||1),0);
+const barColor=p=>p>=90?'#dc2626':p>=70?'#f59e0b':'#4f46e5';
+function toast(t){
+  const d=document.createElement('div');
+  d.className='toast bg-gray-900 text-white text-[13px] px-4 py-2.5 rounded-lg shadow-lg';
+  d.textContent=t;$('toastBox').appendChild(d);setTimeout(()=>d.remove(),1900);
+}
+
+/* ============ Tab ============ */
+function switchTab(k){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===k));
+  ['key','cost','dept','team'].forEach(x=>$('tab-'+x).classList.toggle('hidden',x!==k));
+}
+
+/* ============ 角色切换 ============ */
+function initRole(){
+  $('roleSel').innerHTML=ACCOUNTS.map((a,i)=>`<option value="${i}">${a.name}（${a.role==='super'?'超级管理员':a.role==='dept'?'部门管理员':'普通成员'}）</option>`).join('');
+  $('roleSel').value='0';
+}
+function switchRole(){
+  acct=ACCOUNTS[+$('roleSel').value];
+  applyRole();
+}
+function applyRole(){
+  $('hdName').textContent=acct.name;
+  $('hdRole').textContent=acct.title;
+  const isSuper=acct.role==='super',isDept=acct.role==='dept';
+  document.querySelector('.tab[data-tab="dept"]').classList.toggle('hidden',!isSuper);
+  document.querySelector('.tab[data-tab="team"]').classList.toggle('hidden',!(isSuper||isDept));
+  $('tabTip').textContent=isSuper?'超级管理员：配置部门额度与部门管理员'
+    :isDept?'部门管理员：设置统一额度与员工单独额度':'普通成员：查看自己的 Key、额度与费用';
+  curDept=isDept?acct.dept:(isSuper?curDept:acct.dept);
+  $('deptSel').disabled=!isSuper;
+  renderMyKey();renderDept();renderTeam();
+  switchTab('key');
+}
+
+/* ============ 我的 Key ============ */
+function myRecord(){return MEMBERS.find(m=>m.name===acct.name);}
+function renderMyKey(){
+  const me=myRecord();
+  if(!me){$('myFrom').textContent='未分配额度';$('myQuota').textContent='0.00';$('myUsed').textContent='0.00';$('myPct').textContent='0';$('myBar').style.width='0%';renderModels();return;}
+  const used=me.base,pct=me.quota?used/me.quota*100:0;
+  $('myFrom').textContent=`由「${deptName(me.dept)}」部门额度分配，按自然月发放。`;
+  $('myQuota').textContent=money(me.quota);
+  $('myUsed').textContent=money(used);
+  $('myPct').textContent=pct.toFixed(1);
+  $('myBar').style.width=Math.min(pct,100)+'%';
+  $('myBar').style.background=barColor(pct);
+  renderModels();renderCost();
+}
+function renderModels(){
+  const me=myRecord();
+  const list=me?MODELS.filter(x=>me.models.includes(x.id)):MODELS;
+  $('modelRows').innerHTML=list.map(m=>`
+    <tr>
+      <td class="px-6 py-4">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-500 flex items-center justify-center text-[13px]">◍</div>
+          <div><div class="font-semibold">${m.name}</div><div class="text-[11.5px] text-gray-400">${m.desc}</div></div>
+        </div>
+      </td>
+      <td class="px-6 py-4"><span class="mono text-[12.5px]">${m.id}</span>
+        <button class="text-gray-300 hover:text-gray-500 ml-1.5" onclick="toast('已复制 ${m.id}')">⧉</button></td>
+      <td class="px-6 py-4 text-[12.5px] leading-relaxed"><div>↓ ${m.in}</div><div>↑ ${m.out}</div></td>
+      <td class="px-6 py-4 text-[12.5px] leading-relaxed text-gray-500">
+        <div>TPM: <span class="text-indigo-600 font-medium">${m.tpm}</span></div>
+        <div>RPM: <span class="text-indigo-600 font-medium">${m.rpm}</span></div></td>
+    </tr>`).join('');
+}
+function toggleKey(){keyShown=!keyShown;$('keyText').textContent=keyShown?'sk-v0Q7hT2mKp9xLwEdRfVbNjUI8w':'sk-v0Q...UI8w';}
+function resetKey(){if(confirm('重置后原 Key 立即失效，需在 IDE 插件中重新配置。确认重置？')){keyShown=false;$('keyText').textContent='sk-a4M...Zq2p';toast('Key 已重置');}}
+
+function renderCost(){
+  const me=myRecord(),month=$('costMonth').value;
+  costRecords=BILLING.filter(r=>r.member===MEMBERS.indexOf(me)&&r.month===month);
+  const total=costRecords.reduce((s,r)=>s+r.cents,0),quota=me?quotaIn(me,month):0;
+  $('costTotal').textContent=money(total/100);
+  $('costInputTokens').textContent=costRecords.reduce((s,r)=>s+r.inputTokens,0).toLocaleString('zh-CN');
+  $('costOutputTokens').textContent=costRecords.reduce((s,r)=>s+r.outputTokens,0).toLocaleString('zh-CN');
+  $('costQuota').textContent=money(quota);
+  $('costLeft').textContent=money(Math.max(0,quota-total/100));
+  const models=MODELS.filter(m=>costRecords.some(r=>r.model===m.id));
+  $('costModel').innerHTML='<option value="">全部模型</option>'+models.map(m=>`<option value="${m.id}">${m.name}</option>`).join('');
+  $('costDistribution').innerHTML=models.map(m=>{
+    const cents=costRecords.filter(r=>r.model===m.id).reduce((s,r)=>s+r.cents,0),pct=total?cents/total*100:0;
+    const records=costRecords.filter(r=>r.model===m.id);
+    const inputTokens=records.reduce((s,r)=>s+r.inputTokens,0),outputTokens=records.reduce((s,r)=>s+r.outputTokens,0);
+    return `<div class="text-[13px]"><div class="flex items-center gap-5"><span class="w-44 font-medium">${m.name}</span><div class="bar flex-1"><i style="width:${pct}%;background:#6366f1"></i></div><span class="w-28 text-right font-semibold">¥ ${money(cents/100)}</span><span class="w-16 text-right text-gray-500">${pct.toFixed(1)}%</span></div><div class="mt-2 text-[12px] text-gray-500">输入 ${inputTokens.toLocaleString('zh-CN')} Tokens <span class="mx-3 text-gray-300">|</span> 输出 ${outputTokens.toLocaleString('zh-CN')} Tokens</div></div>`;
+  }).join('')||'<div class="text-gray-400 text-center text-[13px] py-5">暂无模型费用</div>';
+  renderCostRows();
+}
+function renderCostRows(){
+  const rows=costRecords.filter(r=>!$('costModel').value||r.model===$('costModel').value);
+  const days=[...new Set(rows.map(r=>r.date))].sort((a,b)=>b.localeCompare(a));
+  const sum=records=>records.reduce((total,r)=>{
+    for(const key of ['inputTokens','outputTokens','input','output','cents'])total[key]+=r[key];
+    return total;
+  },{inputTokens:0,outputTokens:0,input:0,output:0,cents:0});
+  const cells=r=>`<td class="px-6 py-3 text-right mono">${r.inputTokens.toLocaleString('zh-CN')}</td><td class="px-6 py-3 text-right mono">${r.outputTokens.toLocaleString('zh-CN')}</td><td class="px-6 py-3 text-right mono">${money(r.input/100)}</td><td class="px-6 py-3 text-right mono">${money(r.output/100)}</td><td class="px-6 py-3 text-right font-semibold mono">${money(r.cents/100)}</td>`;
+  $('costRows').innerHTML=days.map(date=>{
+    const records=rows.filter(r=>r.date===date);
+    const models=MODELS.filter(m=>records.some(r=>r.model===m.id));
+    return `<tr class="bg-indigo-50/60 font-semibold" data-cost-day="${date}"><th scope="row" class="px-6 py-3 text-left whitespace-nowrap">${date}</th><td class="px-6 py-3 whitespace-nowrap">${$('costModel').value?'筛选小计':'当日合计'} · ${models.length} 个模型</td>${cells(sum(records))}</tr>`+models.map(m=>`<tr data-cost-model="${m.id}"><td class="px-6 py-3 text-gray-400 text-[12px]">模型明细</td><th scope="row" class="px-6 py-3 text-left font-medium whitespace-nowrap">${m.name}</th>${cells(sum(records.filter(r=>r.model===m.id)))}</tr>`).join('');
+  }).join('');
+  $('costEmpty').classList.toggle('hidden',rows.length>0);
+  const total=sum(rows);
+  $('costSubtotal').textContent=`共 ${days.length} 天 · 输入 ${total.inputTokens.toLocaleString('zh-CN')} Tokens · 输出 ${total.outputTokens.toLocaleString('zh-CN')} Tokens · ${$('costModel').value?'筛选合计':'合计'} ¥ ${money(total.cents/100)}`;
+}
+function canManage(id){return acct.role==='super'||(acct.role==='dept'&&acct.dept===id);}
+function openDefault(){
+  if(!canManage(curDept))return;
+  $('defaultWho').textContent=deptName(curDept);
+  $('defaultInput').value=dept(curDept).defaultQuota;
+  checkDefault();$('defaultModal').classList.remove('hidden');
+}
+function closeDefault(){$('defaultModal').classList.add('hidden');}
+function checkDefault(){
+  const input=$('defaultInput'),v=input.valueAsNumber,mem=memOf(curDept),following=mem.filter(m=>!m.customQuota);
+  const total=mem.reduce((s,m)=>s+(m.customQuota?m.quota:v),0);
+  const invalid=!input.validity.valid||!Number.isFinite(v)||v<0;
+  const below=following.some(m=>v<m.base);
+  const bad=invalid||total>dept(curDept).quota||below;
+  $('defaultTip').textContent=invalid?'请输入有效的非负金额，最多两位小数':below?'统一额度不能低于跟随员工本月已使用费用':total>dept(curDept).quota?`分配合计超出部门额度 ¥ ${money(total-dept(curDept).quota)}`:`影响 ${following.length} 人，保留 ${mem.length-following.length} 人单独设置；分配合计 ¥ ${money(total)}，剩余 ¥ ${money(dept(curDept).quota-total)}`;
+  $('defaultTip').className=`text-[12px] mt-4 ${bad?'text-red-600':'text-gray-500'}`;
+  $('defaultSave').disabled=bad;$('defaultSave').style.opacity=bad?.45:1;
+  return !bad;
+}
+function saveDefault(){
+  if(!canManage(curDept)||!checkDefault())return;
+  const v=$('defaultInput').valueAsNumber;
+  dept(curDept).defaultQuota=v;
+  memOf(curDept).filter(m=>!m.customQuota).forEach(m=>m.quota=v);
+  closeDefault();renderTeam();renderDept();renderMyKey();renderCost();toast('部门统一员工额度已更新');
+}
+function changeQuotaMode(){
+  const follow=document.querySelector('input[name="quotaMode"]:checked').value==='default';
+  $('cfgQuota').disabled=follow;
+  $('cfgQuota').value=follow?dept(curDept).defaultQuota:MEMBERS[cfgIdx].quota;
+  checkQuota();
+}
+
+/* ============ 月份筛选 ============ */
+function initRange(){
+  const opt=MONTHS.map(m=>`<option value="${m}">${m.replace('-','年')}月</option>`).join('');
+  $('mFrom').innerHTML=opt;$('mTo').innerHTML=opt;
+  $('mFrom').value=CUR;$('mTo').value=CUR;
+}
+function applyRange(){
+  let f=$('mFrom').value,t=$('mTo').value;
+  if(MONTHS.indexOf(f)>MONTHS.indexOf(t)){t=f;$('mTo').value=f;toast('结束月份不能早于开始月份，已自动对齐');}
+  range={from:f,to:t};renderTeam();
+}
+function thisMonth(){$('mFrom').value=CUR;$('mTo').value=CUR;applyRange();}
+function initDeptRange(){
+  const opt=MONTHS.map(m=>`<option value="${m}">${m.replace('-','年')}月</option>`).join('');
+  $('dFrom').innerHTML=opt;$('dTo').innerHTML=opt;
+  $('dFrom').value=CUR;$('dTo').value=CUR;
+}
+function applyDeptRange(){
+  let f=$('dFrom').value,t=$('dTo').value;
+  if(MONTHS.indexOf(f)>MONTHS.indexOf(t)){t=f;$('dTo').value=f;toast('结束月份不能早于开始月份，已自动对齐');}
+  dRange={from:f,to:t};renderDept();
+}
+function deptThisMonth(){$('dFrom').value=CUR;$('dTo').value=CUR;applyDeptRange();}
+
+/* ============ 部门与额度 ============ */
+function deptStat(d){
+  const n=monthsIn(dRange.from,dRange.to).length;
+  const quota=d.quota*n;
+  let alloc,used;
+  if(d.parent){
+    alloc=memOf(d.id).reduce((s,m)=>s+monthsIn(dRange.from,dRange.to).reduce((sum,month)=>sum+quotaIn(m,month),0),0);
+    used=memOf(d.id).reduce((s,m)=>s+usedIn(m,dRange),0);
+  }else{
+    alloc=kids(d.id).reduce((s,c)=>s+c.quota,0)*n;
+    used=kids(d.id).reduce((s,c)=>s+deptStat(c).used,0);
+  }
+  return {n,quota,alloc,used,pct:quota?used/quota*100:0};
+}
+function renderDept(){
+  if(acct.role!=='super')return;
+  const n=monthsIn(dRange.from,dRange.to).length;
+  $('dRangeTip').textContent=`共 ${n} 个月`;
+  const total=PLATFORM_QUOTA*n;
+  const alloc=l1().reduce((s,d)=>s+d.quota,0)*n;
+  const used=l1().reduce((s,d)=>s+deptStat(d).used,0);
+  const pct=total?used/total*100:0;
+  $('pfQuota').textContent=money(total);
+  $('pfAlloc').textContent=money(alloc);
+  $('pfLeft').textContent=money(total-alloc);
+  $('pfUsed').textContent=money(used);
+  $('pfPct').textContent=pct.toFixed(1);
+  $('pfBar').style.width=Math.min(pct,100)+'%';
+  $('pfBar').style.background=barColor(pct);
+  $('pfDept').textContent=DEPTS.length;
+  $('pfL1').textContent=l1().length;
+  $('pfL2').textContent=DEPTS.length-l1().length;
+
+  let html='';
+  l1().forEach(d=>{
+    html+=deptRow(d,true);
+    kids(d.id).forEach(c=>html+=deptRow(c,false));
+  });
+  $('deptRows').innerHTML=html;
+}
+function deptRow(d,isL1){
+  const s=deptStat(d),color=barColor(s.pct);
+  const txt=s.pct>=90?'text-red-600':s.pct>=70?'text-amber-600':'text-gray-700';
+  const label=isL1
+    ? `<span class="tag bg-indigo-100 text-indigo-700 mr-2">一级</span><span class="font-bold text-[13.5px]">${d.name}</span>`
+    : `<span class="text-gray-300 mr-1.5">└</span><span class="tag bg-gray-100 text-gray-500 mr-2">二级</span><span class="font-medium">${d.name}</span>`;
+  const sub=isL1?`下设 ${kids(d.id).length} 个二级部门`:`${memOf(d.id).length} 名成员`;
+  const jump=isL1?'':`<button class="btn-o ml-1.5" onclick="gotoDept('${d.id}')">成员额度</button>`;
+  return `<tr class="hover:bg-gray-50/70 ${isL1?'bg-gray-50/40':''}">
+    <td class="px-4 py-4 whitespace-nowrap"><div class="${isL1?'':'pl-4'}">${label}<div class="text-[11px] text-gray-400 mt-0.5">${sub}</div></div></td>
+    <td class="px-4 py-4 whitespace-nowrap">
+      <div class="flex items-center gap-2">
+        <div class="w-6 h-6 shrink-0 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-[11px] font-semibold">${d.admin[0]}</div>
+        <span class="text-gray-600">${d.admin}</span>
+      </div></td>
+    <td class="px-4 py-4 text-right font-semibold whitespace-nowrap">¥ ${money(s.quota)}</td>
+    <td class="px-4 py-4 text-right text-gray-500 whitespace-nowrap">¥ ${money(s.alloc)}<div class="text-[11px] text-gray-400">余 ¥ ${money(s.quota-s.alloc)}</div></td>
+    <td class="px-4 py-4 text-right whitespace-nowrap">¥ ${money(s.used)}</td>
+    <td class="px-4 py-4">
+      <div class="flex items-center gap-2.5">
+        <div class="bar flex-1"><i style="width:${Math.min(s.pct,100)}%;background:${color}"></i></div>
+        <span class="text-[12px] font-semibold ${txt} w-11 text-right">${s.pct.toFixed(1)}%</span>
+      </div></td>
+    <td class="px-4 py-4 text-right whitespace-nowrap"><button class="btn-o" onclick="openDep('${d.id}')">配置</button>${jump}</td>
+  </tr>`;
+}
+function gotoDept(id){curDept=id;$('deptSel').value=id;renderTeam();switchTab('team');}
+
+/* ============ 我的团队 ============ */
+function initDeptSel(){
+  $('deptSel').innerHTML=l1().map(d=>
+    `<optgroup label="${d.name}">`+kids(d.id).map(c=>`<option value="${c.id}">${c.name}</option>`).join('')+`</optgroup>`
+  ).join('');
+  $('deptSel').value=curDept;
+}
+function switchDept(){curDept=$('deptSel').value;renderTeam();}
+function calc(m){
+  const ms=monthsIn(range.from,range.to);
+  const quota=ms.reduce((s,month)=>s+quotaIn(m,month),0);
+  const used=usedIn(m,range);
+  return {months:ms.length,quota,used,pct:quota?used/quota*100:0};
+}
+function renderTeam(){
+  if(acct.role==='user')return;
+  const ms=monthsIn(range.from,range.to);
+  $('rangeTip').textContent=`共 ${ms.length} 个月`;
+  $('deptSel').value=curDept;
+  const d=dept(curDept);
+  $('deptWho').textContent=`部门管理员：${d.admin} · 所属 ${deptName(d.parent)}`;
+  const kw=$('kw').value.trim().toLowerCase();
+  const mem=memOf(curDept);
+  const list=mem.filter(m=>!kw||m.name.toLowerCase().includes(kw)||m.post.toLowerCase().includes(kw));
+
+  /* 概览：部门额度按周期月数换算 */
+  const totalQuota=d.quota*ms.length;
+  const alloc=mem.reduce((s,m)=>s+calc(m).quota,0);
+  const following=mem.filter(m=>!m.customQuota).length;
+  $('defaultQuota').textContent=money(d.defaultQuota);
+  $('defaultSummary').textContent=`${following} 人跟随统一额度 · ${mem.length-following} 人单独设置 · 当前月配置，新员工默认跟随`;
+  const used=mem.reduce((s,m)=>s+calc(m).used,0);
+  const pct=totalQuota?used/totalQuota*100:0;
+  $('sumQuota').textContent=money(totalQuota);
+  $('sumAlloc').textContent=money(alloc);
+  $('sumLeft').textContent=money(totalQuota-alloc);
+  $('sumUsed').textContent=money(used);
+  $('sumPct').textContent=pct.toFixed(1);
+  $('sumBar').style.width=Math.min(pct,100)+'%';
+  $('sumBar').style.background=pct>=90?'#dc2626':pct>=70?'#f59e0b':'#4f46e5';
+  $('sumMem').textContent=mem.length;
+  $('sumWarn').textContent=mem.filter(m=>calc(m).pct>=90).length;
+
+  $('teamEmpty').classList.toggle('hidden',list.length>0);
+  $('teamRows').innerHTML=list.map(m=>{
+    const c=calc(m),i=MEMBERS.indexOf(m);
+    const color=c.pct>=90?'#dc2626':c.pct>=70?'#f59e0b':'#4f46e5';
+    const txt=c.pct>=90?'text-red-600':c.pct>=70?'text-amber-600':'text-gray-700';
+    const shown=m.models.slice(0,2).map(id=>`<span class="tag bg-indigo-50 text-indigo-600">${modelName(id)}</span>`).join(' ');
+    const more=m.models.length>2?`<span class="tag bg-gray-100 text-gray-500" title="${m.models.map(modelName).join('、')}">+${m.models.length-2}</span>`:'';
+    return `<tr class="hover:bg-gray-50/70">
+      <td class="px-5 py-4">
+        <div class="flex items-center gap-2.5">
+          <div class="w-7 h-7 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-[11.5px] font-semibold">${m.name[0]}</div>
+          <span class="font-semibold">${m.name}</span>
+        </div></td>
+      <td class="px-5 py-4 text-gray-500">${m.post}</td>
+      <td class="px-5 py-4"><div class="flex flex-wrap gap-1.5">${shown}${more}</div></td>
+      <td class="px-5 py-4 text-right">¥ ${money(c.quota)}<div class="text-[11px] text-gray-400 mt-1">${range.to===CUR?(m.customQuota?'单独设置':'部门统一'):'历史额度'}</div></td>
+      <td class="px-5 py-4 text-right">¥ ${money(c.used)}</td>
+      <td class="px-5 py-4">
+        <div class="flex items-center gap-2.5">
+          <div class="bar flex-1"><i style="width:${Math.min(c.pct,100)}%;background:${color}"></i></div>
+          <span class="text-[12px] font-semibold ${txt} w-11 text-right">${c.pct.toFixed(1)}%</span>
+        </div></td>
+      <td class="px-5 py-4 text-right"><button class="btn-o" onclick="openCfg(${i})">配置</button></td>
+    </tr>`;}).join('');
+}
+
+/* ============ 配置弹窗 ============ */
+function openCfg(i){
+  const m=MEMBERS[i];
+  if(!m||!canManage(m.dept)||m.dept!==curDept)return;
+  cfgIdx=i;
+  $('cfgWho').textContent=`${m.name} · ${m.post} · 当前月生效`;
+  document.querySelector(`input[name="quotaMode"][value="${m.customQuota?'custom':'default'}"]`).checked=true;
+  $('cfgQuota').value=m.quota;
+  $('cfgQuota').disabled=!m.customQuota;
+  $('cfgModels').innerHTML=MODELS.map(x=>`
+    <label class="flex items-center gap-3 border border-gray-200 rounded-xl px-3.5 py-2.5 cursor-pointer hover:border-indigo-300">
+      <input type="checkbox" value="${x.id}" ${m.models.includes(x.id)?'checked':''} class="w-4 h-4 accent-indigo-600">
+      <span class="text-[13px] font-medium flex-1">${x.name}</span>
+      <span class="text-[11.5px] text-gray-400 mono">${x.id}</span>
+    </label>`).join('');
+  checkQuota();
+  $('cfgModal').classList.remove('hidden');
+}
+function closeCfg(){$('cfgModal').classList.add('hidden');cfgIdx=-1;}
+function checkQuota(){
+  const d=dept(curDept);
+  const others=memOf(curDept).reduce((s,m)=>m===MEMBERS[cfgIdx]?s:s+m.quota,0);
+  const left=d.quota-others;
+  const input=$('cfgQuota'),v=input.valueAsNumber,min=MEMBERS[cfgIdx].base;
+  const invalid=!Number.isFinite(v)||v<0||!input.validity.valid;
+  const bad=invalid||v>left||v<min;
+  $('cfgQuotaTip').textContent=invalid?'请输入有效的非负金额，最多两位小数':v>left?`超出部门可分配余额，最多 ¥ ${money(left)}`:v<min?`不能低于本月已使用费用 ¥ ${money(min)}`:`本月已使用 ¥ ${money(min)}，可设置上限 ¥ ${money(left)}`;
+  $('cfgQuotaTip').className=`text-[11.5px] mt-2 ${bad?'text-red-600':'text-gray-400'}`;
+  $('cfgSave').disabled=bad;
+  $('cfgSave').style.opacity=bad?.45:1;
+  return !bad;
+}
+function saveCfg(){
+  if(cfgIdx<0||!canManage(MEMBERS[cfgIdx].dept)||!checkQuota())return;
+  const models=[...$('cfgModels').querySelectorAll('input:checked')].map(c=>c.value);
+  if(!models.length){toast('请至少选择 1 个可用模型');return;}
+  MEMBERS[cfgIdx].customQuota=document.querySelector('input[name="quotaMode"]:checked').value==='custom';
+  MEMBERS[cfgIdx].quota=parseFloat($('cfgQuota').value||0);
+  MEMBERS[cfgIdx].models=models;
+  closeCfg();renderTeam();renderDept();renderMyKey();toast('配置已保存');
+}
+
+/* ============ 部门配置弹窗 ============ */
+function depBound(d){
+  if(d.parent){
+    const sib=kids(d.parent).reduce((s,c)=>c.id===d.id?s:s+c.quota,0);
+    return {max:dept(d.parent).quota-sib,min:memOf(d.id).reduce((s,m)=>s+m.quota,0),
+      maxTip:`不超过${deptName(d.parent)}额度 ¥ ${money(dept(d.parent).quota)} 减去同级部门已分配部分`,
+      minTip:`不低于本部门成员已分配合计`};
+  }
+  const sib=l1().reduce((s,c)=>c.id===d.id?s:s+c.quota,0);
+  return {max:PLATFORM_QUOTA-sib,min:kids(d.id).reduce((s,c)=>s+c.quota,0),
+    maxTip:`不超过平台总额度 ¥ ${money(PLATFORM_QUOTA)} 减去其他一级部门已分配部分`,
+    minTip:`不低于下设二级部门已分配合计`};
+}
+function openDep(id){
+  depId=id;const d=dept(id);
+  $('depWho').textContent=d.parent?`${d.name} · 二级部门 · 所属${deptName(d.parent)}`:`${d.name} · 一级部门`;
+  $('depQuota').value=d.quota;
+  const b=depBound(d);
+  $('depQuotaHint').textContent=`${b.maxTip}；${b.minTip} ¥ ${money(b.min)}。`;
+  const cand=d.parent?memOf(id).map(m=>m.name):[d.admin,...kids(id).map(c=>c.admin)];
+  const uniq=[...new Set([d.admin,...cand])];
+  $('depAdmin').innerHTML=uniq.map(n=>`<option value="${n}" ${n===d.admin?'selected':''}>${n}</option>`).join('');
+  checkDep();
+  $('depModal').classList.remove('hidden');
+}
+function closeDep(){$('depModal').classList.add('hidden');depId='';}
+function checkDep(){
+  const d=dept(depId),b=depBound(d);
+  const v=parseFloat($('depQuota').value||0);
+  const bad=v>b.max||v<b.min;
+  $('depQuotaTip').innerHTML=v>b.max
+    ? `<span class="text-red-600 font-medium">超出可分配上限 ¥ ${money(b.max)}</span>`
+    : v<b.min
+    ? `<span class="text-red-600 font-medium">低于下级已分配合计 ¥ ${money(b.min)}，请先下调下级额度</span>`
+    : `可设置区间 ¥ ${money(b.min)} ~ ¥ ${money(b.max)}`;
+  $('depSave').disabled=bad;
+  $('depSave').style.opacity=bad?.45:1;
+  $('depSave').style.cursor=bad?'not-allowed':'pointer';
+}
+function saveDep(){
+  const d=dept(depId);
+  d.quota=parseFloat($('depQuota').value||0);
+  d.admin=$('depAdmin').value;
+  closeDep();renderDept();renderTeam();toast('部门配置已保存');
+}
+
+/* ============ 平台总额度 ============ */
+function openPf(){$('pfInput').value=PLATFORM_QUOTA;checkPf();$('pfModal').classList.remove('hidden');}
+function closePf(){$('pfModal').classList.add('hidden');}
+function checkPf(){
+  const min=l1().reduce((s,d)=>s+d.quota,0);
+  const v=parseFloat($('pfInput').value||0);
+  const bad=v<min;
+  $('pfTip').innerHTML=bad
+    ? `<span class="text-red-600 font-medium">低于一级部门已分配合计 ¥ ${money(min)}，请先下调部门额度</span>`
+    : `一级部门已分配合计 ¥ ${money(min)}，设置后未分配 ¥ ${money(v-min)}`;
+  $('pfSave').disabled=bad;
+  $('pfSave').style.opacity=bad?.45:1;
+  $('pfSave').style.cursor=bad?'not-allowed':'pointer';
+}
+function savePf(){
+  PLATFORM_QUOTA=parseFloat($('pfInput').value||0);
+  closePf();renderDept();toast('平台总额度已更新');
+}
+
+/* init */
+$('costMonth').innerHTML=MONTHS.slice().reverse().map(m=>`<option value="${m}">${m.replace('-','年')}月</option>`).join('');
+initRole();initRange();initDeptRange();initDeptSel();applyRole();
+</script>
+</body>
+</html>
