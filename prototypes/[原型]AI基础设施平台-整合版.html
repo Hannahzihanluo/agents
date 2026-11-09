@@ -804,14 +804,14 @@
     <!-- ===== 页面：会话记录（消耗与执行情况留存） ===== -->
     <section id="pg-chatlog" class="hidden resp-pad px-8 pb-10">
       <div id="cl-listview">
-      <h1 class="text-xl font-bold mb-1">会话记录 <span class="text-[11px] font-normal text-gray-400 ml-2">在原会话管理字段基础上新增消耗 tokens、执行轮数、执行状态 · 深度智能体才统计轮数，是各项执行上限取值的依据</span></h1>
+      <h1 class="text-xl font-bold mb-1">会话记录 <span class="text-[11px] font-normal text-gray-400 ml-2">一行一条 trace（一次输入到一次输出）· 新增消耗 tokens、自循环轮数、执行状态 · 自循环轮数只有深度智能体才统计，是各项执行上限取值的依据</span></h1>
 
       <!-- 汇总卡片 -->
       <div class="grid grid-cols-4 resp-grid-4 gap-3 my-4 max-w-[1240px]">
         <div class="card p-3.5">
-          <div class="text-[11px] text-gray-400">会话数</div>
-          <div class="text-[20px] font-bold mt-1 leading-none"><span id="cl-sum-cnt">0</span> <span class="text-[11px] font-normal text-gray-400">次</span></div>
-          <div class="text-[10.5px] text-gray-400 mt-1.5">深度智能体 <span id="cl-sum-deep" class="text-gray-600 font-semibold">0</span> 次</div>
+          <div class="text-[11px] text-gray-400">trace 数</div>
+          <div class="text-[20px] font-bold mt-1 leading-none"><span id="cl-sum-cnt">0</span> <span class="text-[11px] font-normal text-gray-400">条</span></div>
+          <div class="text-[10.5px] text-gray-400 mt-1.5">归属 <span id="cl-sum-sess" class="text-gray-600 font-semibold">0</span> 个会话 · 深度智能体 <span id="cl-sum-deep" class="text-gray-600 font-semibold">0</span> 条</div>
         </div>
         <div class="card p-3.5">
           <div class="text-[11px] text-gray-400">消耗 tokens</div>
@@ -859,7 +859,7 @@
               <th class="px-3 font-medium whitespace-nowrap">输出</th>
               <th class="px-3 font-medium whitespace-nowrap text-right">响应时长(s)</th>
               <th class="px-3 font-medium whitespace-nowrap bg-violet-50/60">消耗 tokens</th>
-              <th class="px-3 font-medium whitespace-nowrap text-right bg-violet-50/60">执行轮数</th>
+              <th class="px-3 font-medium whitespace-nowrap text-right bg-violet-50/60">自循环轮数</th>
               <th class="px-3 font-medium whitespace-nowrap bg-violet-50/60">执行状态</th>
               <th class="px-3 font-medium whitespace-nowrap">会话来源</th>
               <th class="px-3 font-medium whitespace-nowrap">用户反馈</th>
@@ -880,7 +880,7 @@
         </div>
       </div>
       <p class="text-[11px] text-gray-400 mt-2.5 max-w-[1240px] leading-relaxed">
-        紫色底三列为本次新增。消耗 tokens 一列内展示输入、输出与折算金额；执行轮数仅统计深度智能体自主循环的轮次，普通会话型智能体显示「—」。金额按所用模型的输入/输出单价分别折算，口径与模型服务返回的用量一致，可与实际计费对账。点击任意一行查看分轮消耗明细，点击会话 ID 查看完整输入输出。
+        每行是一条 trace：一次用户输入到一次输出。同一会话 ID 下的多次来回会占多行，行上标出该会话共几条 trace。紫色底三列为本次新增，消耗 tokens 一列内展示输入、输出与折算金额；自循环轮数指该 trace 内深度智能体自主循环的次数，会话型智能体显示「—」。金额按所用模型的输入/输出单价分别折算，口径与模型服务返回的用量一致，可与实际计费对账。traceID 与执行链路ID 不在列表展示，进会话详情后在对应 trace 上点击即可复制。点击任意一行查看分轮消耗明细，点击会话 ID 进入会话详情看该会话下的全部 trace。
       </p>
       </div>
 
@@ -891,13 +891,14 @@
     <!-- ===== 页面：技能库（Skills / MCP / 工具 / 数据表 / 看板） ===== -->
     <section id="pg-skills" class="hidden resp-pad px-8 pb-10">
       <div id="skill-pagehead">
-        <h1 class="text-xl font-bold mb-1">技能库 <span class="text-[11px] font-normal text-gray-400 ml-2">智能体可复用能力的统一沉淀 · Skills / MCP / 工具 / 数据表 / 看板，按授权分发给智能体</span></h1>
+        <h1 class="text-xl font-bold mb-1">技能库 <span class="text-[11px] font-normal text-gray-400 ml-2">智能体可复用能力的统一沉淀 · Skills / MCP / 工具 / 数据表 / 看板 / 快捷操作，按授权分发给智能体</span></h1>
         <div class="border-b border-gray-200 mt-3 max-w-[1200px]">
           <span class="rtab active" data-sk="skills" onclick="showSkillTab('skills')">Skills</span>
           <span class="rtab" data-sk="mcp" onclick="showSkillTab('mcp')">MCP</span>
           <span class="rtab" data-sk="tool" onclick="showSkillTab('tool')">工具</span>
           <span class="rtab" data-sk="table" onclick="showSkillTab('table')">数据表</span>
-          <span class="rtab" data-sk="board" onclick="showSkillTab('board')">看板 <span class="tag bg-violet-100 text-violet-700 ml-1">新</span></span>
+          <span class="rtab" data-sk="board" onclick="showSkillTab('board')">看板</span>
+          <span class="rtab" data-sk="quick" onclick="showSkillTab('quick')">快捷操作 <span class="tag bg-violet-100 text-violet-700 ml-1">新</span></span>
         </div>
       </div>
       <!-- 筛选区 -->
@@ -924,6 +925,7 @@
         <div id="sk-pane-tool" class="hidden"></div>
         <div id="sk-pane-table" class="hidden"></div>
         <div id="sk-pane-board" class="hidden"></div>
+        <div id="sk-pane-quick" class="hidden"></div>
       </div>
       <div id="skill-detailview" class="hidden max-w-[1200px]">
         <div class="flex items-center gap-3 mb-3">
@@ -931,6 +933,8 @@
         </div>
         <div id="skill-detail-body"></div>
       </div>
+      <!-- 功能型技能（Skill 代码包）详情页：左文件树 + 右 Preview / Code -->
+      <div id="fsk-detailview" class="hidden"></div>
       <!-- 数据表详情页 -->
       <div id="dt-detailview" class="hidden max-w-[1200px]">
         <div class="flex items-center gap-3 mb-3">
@@ -961,7 +965,7 @@
         <div class="ml-auto flex gap-2">
           <button class="btn-o" onclick="openAppSetting()">应用设置</button>
           <button class="btn-o" onclick="toast('配置已保存（示意）')">保 存</button>
-          <button class="btn-p" onclick="toast('已发布更新（示意）')">更 新</button>
+          <button class="btn-p" onclick="acUpdate()">更 新</button>
         </div>
       </div>
 
@@ -1049,14 +1053,34 @@
           <div class="card p-4 mb-3">
             <div class="flex items-center gap-2 cursor-pointer select-none" onclick="toggleCapSec('cap-skills')">
               <span class="text-gray-400 text-xs" id="arrow-cap-skills">▸</span>
-              <span class="font-bold text-[13.5px]">skills</span><span class="text-gray-300 text-xs">ⓘ</span>
-              <button class="ml-auto text-gray-400 hover:text-violet-600" onclick="event.stopPropagation();toast('添加 skill（示意）')">＋</button>
+              <span class="font-bold text-[13.5px]">skills</span>
+              <span class="text-gray-300 text-xs" title="挂载技能库里授权可用的 Skill 代码包，按版本应用；技能库发布新版本时通知本智能体的管理员，仅有发布权限的管理员可切版本并发布">ⓘ</span>
+              <span id="cap-skills-badge" class="hidden tag bg-amber-50 text-amber-600">🔔 <span id="cap-skills-badge-n">0</span></span>
+              <button class="ml-auto text-gray-400 hover:text-violet-600 text-base leading-none" onclick="event.stopPropagation();toast('添加 skill（示意）')">＋</button>
             </div>
-            <div id="cap-skills" class="hidden mt-3 flex flex-wrap gap-2">
-              <span class="tag bg-violet-50 text-violet-700 !text-[11.5px] !px-3 !py-1.5">sales-evening-report</span>
-              <span class="tag bg-violet-50 text-violet-700 !text-[11.5px] !px-3 !py-1.5">customer-quote-extractor</span>
-              <span class="tag bg-violet-50 text-violet-700 !text-[11.5px] !px-3 !py-1.5">sales-visit-analysis</span>
+            <div id="cap-skills" class="hidden mt-3 space-y-2"></div>
+          </div>
+
+          <!-- SubAgent：挂在主智能体下的子能力，各自带模型、提示词与数据表 -->
+          <div class="card p-4 mb-3">
+            <div class="flex items-center gap-2 cursor-pointer select-none" onclick="toggleCapSec('cap-sub')">
+              <span class="text-gray-400 text-xs" id="arrow-cap-sub">▸</span>
+              <span class="font-bold text-[13.5px]">SubAgent</span>
+              <span class="text-gray-300 text-xs" title="按场景拆出的子智能体，各自配模型、提示词与可用数据表，由主智能体按能力描述分派">ⓘ</span>
+              <button class="ml-auto text-gray-400 hover:text-violet-600 text-base leading-none" onclick="event.stopPropagation();openSubCfg(null)">＋</button>
             </div>
+            <div id="cap-sub" class="hidden mt-3 space-y-2"></div>
+          </div>
+
+          <!-- 数据表：主智能体自己可查的表，与 SubAgent 各自挂的表相互独立 -->
+          <div class="card p-4 mb-3">
+            <div class="flex items-center gap-2 cursor-pointer select-none" onclick="toggleCapSec('cap-dt')">
+              <span class="text-gray-400 text-xs" id="arrow-cap-dt">▸</span>
+              <span class="font-bold text-[13.5px]">数据表</span>
+              <span class="text-gray-300 text-xs" title="主智能体可查询分析的数据表，只能从技能库里授权可用的表中挂载">ⓘ</span>
+              <button class="ml-auto text-gray-400 hover:text-violet-600 text-base leading-none" onclick="event.stopPropagation();openAcDtPick()">＋</button>
+            </div>
+            <div id="cap-dt" class="hidden mt-3 space-y-2"></div>
           </div>
 
           <!-- 工具 / MCP / 开场白 / 能力定义 / 快捷指令 -->
@@ -1442,7 +1466,7 @@
         <tr><td class="py-3">拜访复盘报告</td><td>路书（销售AI）</td><td class="text-right text-gray-300">执行中</td><td class="text-right text-gray-300">—</td><td class="text-right text-gray-300">—</td><td class="text-right text-gray-300">2</td><td><span class="tag bg-blue-100 text-blue-600">执行中</span></td><td class="text-gray-400 text-[11.5px]">2026-07-28 10:41</td></tr>
       </tbody>
     </table>
-    <p class="text-[11px] text-gray-400 mt-3 leading-relaxed">执行轮数仅统计深度智能体自主循环的轮次。完整的分轮消耗明细见「会话记录」页面。</p>
+    <p class="text-[11px] text-gray-400 mt-3 leading-relaxed">轮数指深度智能体在单条 trace 内自主循环的次数。完整的分轮消耗明细见「会话记录」页面。</p>
   </div>
 </div>
 
@@ -1451,11 +1475,11 @@
   <div class="bg-white rounded-2xl w-[760px] p-6 fade-in max-h-[85vh] overflow-y-auto">
     <div class="flex items-start justify-between mb-1">
       <div>
-        <h3 class="font-bold" id="cld-title">会话消耗明细</h3>
+        <h3 class="font-bold" id="cld-title">trace 消耗明细</h3>
         <p class="text-[11.5px] text-gray-400 mt-0.5" id="cld-sub"></p>
       </div>
       <div class="flex items-center gap-2 shrink-0">
-        <button class="btn-o !py-1 !px-3 text-[11.5px]" id="cld-gofull">查看完整输入输出</button>
+        <button class="btn-o !py-1 !px-3 text-[11.5px]" id="cld-gofull">查看所属会话</button>
         <button class="text-gray-400 hover:text-gray-600" onclick="closeClDetail()">✕</button>
       </div>
     </div>
@@ -1466,10 +1490,10 @@
       <div class="rounded-xl bg-gray-50 px-3 py-2.5"><div class="text-[10.5px] text-gray-400">金额</div><div class="text-[15px] font-bold mt-0.5">¥ <span id="cld-amt">0</span></div></div>
       <div class="rounded-xl bg-gray-50 px-3 py-2.5"><div class="text-[10.5px] text-gray-400">单轮最高消耗</div><div class="text-[15px] font-bold mt-0.5">¥ <span id="cld-peak">0</span></div></div>
     </div>
-    <div class="text-[11.5px] text-gray-500 mb-1.5">分轮明细 <span class="text-gray-400">· 越往后单轮消耗越高，因为每轮都要重新带上此前全部思考与工具返回结果</span></div>
+    <div class="text-[11.5px] text-gray-500 mb-1.5">本 trace 自循环分轮明细 <span class="text-gray-400">· 越往后单轮消耗越高，因为每轮都要重新带上此前全部思考与工具返回结果</span></div>
     <table class="w-full text-[12px]">
       <thead><tr class="text-left text-gray-400 border-b border-gray-100">
-        <th class="py-2 font-medium">轮次</th><th class="font-medium">本轮动作</th>
+        <th class="py-2 font-medium">自循环轮次</th><th class="font-medium">本轮动作</th>
         <th class="font-medium text-right">输入 tokens</th><th class="font-medium text-right">输出 tokens</th><th class="font-medium text-right">金额</th>
       </tr></thead>
       <tbody id="cld-tbody"></tbody>
@@ -1497,18 +1521,29 @@
       </select>
     </div>
 
-    <!-- 定时触发：触发时间 + 一次性/重复 -->
+    <!-- 定时触发：触发时间 + 一次性/重复 + 重复方式（按分钟 / 天 / 周 / 月） -->
     <div id="rt-timer-box">
       <div class="mb-3">
         <label class="text-[12px] font-semibold text-gray-600 block mb-1.5">触发时间 <span class="text-red-400">*</span></label>
-        <input id="rt-time" type="datetime-local" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-[12.5px] text-gray-700 focus:outline-violet-300">
+        <input id="rt-time" type="datetime-local" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-[12.5px] text-gray-700 focus:outline-violet-300" onchange="rtTimeChange()">
       </div>
       <div class="mb-3">
         <label class="text-[12px] font-semibold text-gray-600 block mb-1.5">类型 <span class="text-red-400">*</span></label>
         <div class="flex gap-5 text-[12.5px] text-gray-700">
-          <label class="flex items-center gap-1.5 cursor-pointer"><input type="radio" name="rt-kind" value="一次性任务" checked class="accent-violet-600"> 一次性任务</label>
-          <label class="flex items-center gap-1.5 cursor-pointer"><input type="radio" name="rt-kind" value="重复任务" class="accent-violet-600"> 重复任务</label>
+          <label class="flex items-center gap-1.5 cursor-pointer"><input type="radio" name="rt-kind" value="一次性任务" checked class="accent-violet-600" onchange="rtKindChange()"> 一次性任务</label>
+          <label class="flex items-center gap-1.5 cursor-pointer"><input type="radio" name="rt-kind" value="重复任务" class="accent-violet-600" onchange="rtKindChange()"> 重复任务</label>
         </div>
+      </div>
+      <div id="rt-rpt-box" class="hidden mb-3">
+        <label class="text-[12px] font-semibold text-gray-600 block mb-1.5">重复方式 <span class="text-red-400">*</span></label>
+        <div class="border border-gray-100 rounded-xl bg-gray-50/60 p-2.5">
+          <div class="flex items-center gap-1 mb-2" id="rt-rpt-units"></div>
+          <div id="rt-rpt-detail"></div>
+        </div>
+      </div>
+      <div id="rt-until-box" class="hidden mb-3">
+        <label class="text-[12px] font-semibold text-gray-600 block mb-1.5">截止时间 <span class="text-red-400">*</span></label>
+        <input id="rt-until" type="datetime-local" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-[12.5px] text-gray-700 focus:outline-violet-300">
       </div>
     </div>
 
@@ -1611,7 +1646,7 @@
   </div>
 </div>
 
-<!-- ===== 任务处理弹窗（补充处理说明即办结，不选执行方） ===== -->
+<!-- ===== 任务处理弹窗（按类型提交记录或办结） ===== -->
 <div id="modal-taskhandle" class="hidden fixed inset-0 z-50 modal-bg flex items-center justify-center" onclick="if(event.target===this)closeTaskHandle()">
   <div class="bg-white rounded-2xl w-[520px] p-6 fade-in">
     <div class="flex items-center justify-between mb-1"><h3 class="font-bold">任务处理</h3><button class="text-gray-400 hover:text-gray-600" onclick="closeTaskHandle()">✕</button></div>
@@ -1620,7 +1655,8 @@
       <label class="text-[12px] font-semibold text-gray-600 block mb-1.5">处理说明 <span class="text-red-400">*</span> <span class="text-gray-400 font-normal" id="th-note-hint">（办结后写入任务时间线）</span></label>
       <textarea id="th-note" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-[12.5px] h-24 focus:outline-violet-300" placeholder="填写处理结论，如：已联系客户完成固件回滚，设备恢复在线"></textarea>
     </div>
-    <p class="text-[11px] text-gray-400 mt-2">提交后任务直接办结，无需选择处理人或智能体；办结不可撤销</p>
+    <div id="th-options" class="flex flex-wrap gap-2 mt-2"></div>
+    <p id="th-policy" class="text-[11px] text-gray-400 mt-2"></p>
     <div class="flex gap-2 mt-4">
       <button class="btn-p flex-1" onclick="confirmTaskHandle()">确认处理</button>
       <button class="btn-o" onclick="closeTaskHandle()">取消</button>
@@ -1783,7 +1819,7 @@
 
 <!-- ===== 任务类型配置弹窗（新增/编辑二级类型 + 类型编码 + 必须参数） ===== -->
 <div id="modal-typecfg" class="hidden fixed inset-0 z-50 modal-bg flex items-center justify-center" onclick="if(event.target===this)closeTypeCfg()">
-  <div class="bg-white rounded-2xl w-[480px] p-6 fade-in">
+  <div class="bg-white rounded-2xl w-[480px] p-6 fade-in max-h-[90vh] overflow-y-auto">
     <div class="flex items-center justify-between mb-1"><h3 class="font-bold" id="tc-title">编辑任务类型</h3><button class="text-gray-400 hover:text-gray-600" onclick="closeTypeCfg()">✕</button></div>
     <p class="text-[11.5px] text-gray-400 mb-4" id="tc-subtitle"></p>
     <div class="mb-3">
@@ -1812,6 +1848,12 @@
         <button type="button" class="w-full px-3 py-2 text-[11.5px] text-violet-600 hover:bg-violet-50/60 border-t border-gray-100 text-left" onclick="tcParamAdd()">+ 添加参数</button>
       </div>
       <p class="text-[11px] text-gray-400 mt-1.5">参数描述随任务类型清单一并返回给业务系统，用于说明该字段填什么；派单不在此配置，处理人由建任务的一方指定</p>
+    </div>
+    <div class="mt-3">
+      <label class="text-[12px] font-semibold text-gray-600 block mb-1.5">默认处理选项（每行一项）</label>
+      <textarea id="tc-handle-options" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-[12px] h-20 focus:outline-violet-300" placeholder="已联系客户，等待反馈&#10;已完成处理，申请复核"></textarea>
+      <label class="flex items-center gap-2 text-[12px] text-gray-600 mt-2"><input id="tc-manual-close" type="checkbox" checked class="accent-violet-600">允许手动关闭</label>
+      <p class="text-[11px] text-gray-400 mt-1">关闭后由 Agent 判断闭环，子任务继承主任务类型。</p>
     </div>
     <div class="flex gap-2 mt-4">
       <button class="btn-p flex-1" onclick="saveTypeCfg()">保存</button>
@@ -2072,6 +2114,151 @@
   </div>
 </div>
 
+<!-- ===== 智能体配置：配置 SubAgent ===== -->
+<div id="modal-subcfg" class="hidden fixed inset-0 z-50 modal-bg flex items-center justify-center" onclick="if(event.target===this)closeSubCfg()">
+  <div class="bg-white rounded-2xl w-[620px] max-h-[86vh] flex flex-col fade-in">
+    <div class="flex items-center justify-between px-6 pt-6 pb-4 shrink-0">
+      <h3 class="font-bold text-[15px]" id="subc-title">配置 SubAgent</h3>
+      <button class="text-gray-400 hover:text-gray-600" onclick="closeSubCfg()">✕</button>
+    </div>
+    <div class="flex-1 overflow-y-auto px-6">
+      <div class="text-[12px] font-semibold mb-1.5"><span class="text-red-500">*</span> SubAgent 名称</div>
+      <div class="relative mb-4">
+        <input id="subc-name" maxlength="20" class="w-full border border-gray-200 rounded-lg px-3 py-2.5 pr-16 text-[12.5px] focus:outline-violet-300" placeholder="请输入名称，例如：数据分析助手" oninput="document.getElementById('subc-name-cnt').textContent=this.value.length+' / 20'">
+        <span class="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] text-gray-400" id="subc-name-cnt">0 / 20</span>
+      </div>
+      <div class="text-[12px] font-semibold mb-1.5"><span class="text-red-500">*</span> 能力描述</div>
+      <textarea id="subc-desc" rows="3" maxlength="500" class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-[12.5px] leading-relaxed focus:outline-violet-300" placeholder="请输入能力描述…" oninput="document.getElementById('subc-desc-cnt').textContent=this.value.length+' / 500'"></textarea>
+      <div class="text-right text-[11px] text-gray-400 mb-4" id="subc-desc-cnt">0 / 500</div>
+      <div class="text-[12px] font-semibold mb-1.5"><span class="text-red-500">*</span> 模型</div>
+      <select id="subc-model" class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-[12.5px] bg-white focus:outline-violet-300" onchange="subcSetModel(this.value)"></select>
+      <div class="flex justify-end mt-2 mb-4" id="subc-think"></div>
+      <div class="text-[12px] font-semibold mb-1.5"><span class="text-red-500">*</span> 提示词</div>
+      <textarea id="subc-prompt" rows="4" maxlength="30000" class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-[12.5px] leading-relaxed focus:outline-violet-300" placeholder="请输入提示词内容…" oninput="document.getElementById('subc-prompt-cnt').textContent=this.value.length+' / 30000'"></textarea>
+      <div class="text-right text-[11px] text-gray-400 mb-1" id="subc-prompt-cnt">0 / 30000</div>
+      <div class="border-t border-gray-100 pt-4 mb-3">
+        <div class="flex items-center gap-2">
+          <span class="font-bold text-[13px]">知识库</span><span class="text-gray-300 text-xs" title="SubAgent 可检索的知识范围">ⓘ</span>
+          <label class="flex items-center gap-1.5 text-[12px] text-gray-500 cursor-pointer ml-2">使用客户空间 <span class="sw off" id="subc-sw-space" onclick="this.classList.toggle('off')"></span></label>
+          <button class="ml-auto text-gray-400 hover:text-violet-600 text-base leading-none" onclick="toast('添加知识库（示意）：按知识空间授权范围勾选')">⊕</button>
+        </div>
+      </div>
+      <div class="border-t border-gray-100 pt-4 pb-5">
+        <div class="flex items-center gap-2">
+          <span class="font-bold text-[13px]">数据表</span><span class="text-gray-300 text-xs" title="本 SubAgent 可查询的数据表，与主智能体挂载的表相互独立">ⓘ</span>
+          <span class="text-[11px] text-violet-600" id="subc-dt-cnt"></span>
+          <button class="ml-auto text-gray-400 hover:text-violet-600 text-base leading-none" onclick="subcToggleDtPick()">⊕</button>
+        </div>
+        <div id="subc-dt-box" class="hidden mt-2.5 border border-gray-100 rounded-xl overflow-hidden">
+          <input id="subc-dt-kw" class="w-full border-0 border-b border-gray-100 px-3.5 py-2 text-[12px] focus:outline-none" placeholder="搜索数据表名称" oninput="renderSubcDtPick()">
+          <div id="subc-dt-pick" class="max-h-[168px] overflow-y-auto"></div>
+        </div>
+        <div id="subc-dt-sel" class="mt-2.5 flex flex-wrap gap-2"></div>
+      </div>
+    </div>
+    <div class="flex justify-end gap-2 px-6 py-4 border-t border-gray-100 shrink-0">
+      <button class="btn-o" onclick="closeSubCfg()">取 消</button>
+      <button class="btn-p" onclick="saveSubCfg()">保 存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 智能体配置：挂载数据表（主智能体级） ===== -->
+<div id="modal-acdt" class="hidden fixed inset-0 z-50 modal-bg flex items-center justify-center" onclick="if(event.target===this)closeAcDtPick()">
+  <div class="bg-white rounded-2xl w-[520px] p-6 fade-in">
+    <div class="flex items-center justify-between mb-1">
+      <h3 class="font-bold">挂载数据表</h3>
+      <button class="text-gray-400 hover:text-gray-600" onclick="closeAcDtPick()">✕</button>
+    </div>
+    <p class="text-[11px] text-gray-400 mb-3">只列技能库里授权可用的数据表</p>
+    <div class="border border-gray-100 rounded-xl overflow-hidden">
+      <input id="acdt-kw" class="w-full border-0 border-b border-gray-100 px-3.5 py-2 text-[12px] focus:outline-none" placeholder="搜索数据表名称" oninput="renderAcDtPick()">
+      <div id="acdt-list" class="max-h-[320px] overflow-y-auto"></div>
+    </div>
+    <div class="flex justify-end gap-2 mt-5 pt-4 border-t border-gray-100">
+      <button class="btn-o" onclick="closeAcDtPick()">取 消</button>
+      <button class="btn-p" onclick="saveAcDt()">确 定</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 功能型技能：自动修改 Skill（也用于自动创建） ===== -->
+<div id="modal-fskauto" class="hidden fixed inset-0 z-50 modal-bg flex items-center justify-center" onclick="if(event.target===this)closeFskAuto()">
+  <div class="bg-white rounded-2xl w-[620px] p-6 fade-in">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="font-bold text-violet-700" id="fska-title">✦ 自动修改 Skill</h3>
+      <button class="text-gray-400 hover:text-gray-600" onclick="closeFskAuto()">✕</button>
+    </div>
+    <div class="text-[12px] font-semibold mb-1.5"><span class="text-red-500">*</span> 详细描述创建修改 skill 的要求</div>
+    <textarea id="fska-req" rows="4" maxlength="30000" class="w-full text-[12px] border border-gray-200 rounded-lg px-3 py-2.5 leading-relaxed focus:outline-none focus:border-violet-300" placeholder="输入技能的要求，描述此技能需要实现什么业务逻辑、如何处理输入等（限制 30000 字以内）…" oninput="document.getElementById('fska-cnt').textContent=this.value.length+' / 30000'"></textarea>
+    <div class="text-right text-[11px] text-gray-400 mb-3" id="fska-cnt">0 / 30000</div>
+    <div class="text-[12px] font-semibold text-gray-600 mb-2">🗄 选择需要使用的知识库</div>
+    <div class="border border-gray-100 rounded-xl divide-y divide-gray-100 mb-3">
+      <div class="flex items-center gap-2 px-3.5 py-3 text-[12.5px] cursor-pointer hover:bg-gray-50" onclick="toast('展开「公司知识仓库」（示意）：按空间勾选可被 Skill 检索的知识范围')">
+        <span class="text-emerald-500">🔒</span><span class="text-gray-600">公司知识仓库</span><span class="ml-auto text-gray-300">⌄</span></div>
+      <div class="flex items-center gap-2 px-3.5 py-3 text-[12.5px] cursor-pointer hover:bg-gray-50" onclick="toast('展开「客户知识空间」（示意）')">
+        <span class="text-emerald-500">🔒</span><span class="text-gray-600">客户知识空间</span><span class="ml-auto text-gray-300">⌄</span></div>
+      <div class="flex items-center gap-2 px-3.5 py-3 text-[12.5px] cursor-pointer hover:bg-gray-50" onclick="toast('展开「自定义知识库」（示意）')">
+        <span class="text-emerald-500">🔒</span><span class="text-gray-600">自定义知识库</span><span class="ml-auto text-gray-300">⌄</span></div>
+    </div>
+    <div class="space-y-2">
+      <div class="rounded-xl bg-gray-50 overflow-hidden">
+        <div class="flex items-center gap-2 px-3.5 py-3 text-[12.5px] cursor-pointer hover:bg-violet-50" onclick="fskaToggleDt()">
+          <span>🗄</span><span class="text-gray-600">选择可使用的数据表</span>
+          <span id="fska-dt-cnt" class="text-[11px] text-violet-600"></span>
+          <span class="ml-auto text-gray-300" id="fska-dt-arrow">›</span>
+        </div>
+        <div id="fska-dt-box" class="hidden border-t border-gray-100 bg-white">
+          <input id="fska-dt-kw" class="w-full border-0 border-b border-gray-100 px-3.5 py-2 text-[12px] focus:outline-none" placeholder="搜索数据表名称" oninput="renderFskaDt()">
+          <div id="fska-dt-list" class="max-h-[168px] overflow-y-auto"></div>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 px-3.5 py-3 rounded-xl bg-gray-50 text-[12.5px] cursor-pointer hover:bg-violet-50" onclick="toast('选择可使用的 MCP（示意）：清单取技能库已接入且授权可用的 MCP 服务')">
+        <span>⚙</span><span class="text-gray-600">选择可使用的 MCP</span><span class="ml-auto text-gray-300">›</span></div>
+      <div class="flex items-center gap-2 px-3.5 py-3 rounded-xl bg-gray-50 text-[12.5px] cursor-pointer hover:bg-violet-50" onclick="toast('选择工具列表（示意）：清单取技能库工具页签')">
+        <span class="text-violet-500">⚡</span><span class="text-gray-600">选择工具列表</span><span class="ml-auto text-gray-300">›</span></div>
+    </div>
+    <div class="flex justify-end gap-2 mt-5 pt-4 border-t border-gray-100">
+      <button class="btn-o" onclick="closeFskAuto()">取 消</button>
+      <button class="btn-p" onclick="fskAutoRun()">开始编写</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 功能型技能：版本更新及发布 ===== -->
+<div id="modal-fskver" class="hidden fixed inset-0 z-50 modal-bg flex items-center justify-center" onclick="if(event.target===this)closeFskVer()">
+  <div class="bg-white rounded-2xl w-[740px] p-6 fade-in">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="font-bold text-violet-700">⟳ 版本更新及发布</h3>
+      <button class="text-gray-400 hover:text-gray-600" onclick="closeFskVer()">✕</button>
+    </div>
+    <div class="flex items-center mb-3">
+      <span class="text-[13px] font-bold">版本历史记录</span>
+      <button class="btn-o !py-1 !px-3 text-[11.5px] !text-violet-600 !border-violet-200 ml-auto" onclick="openFskVerNew()">＋ 新增版本上传</button>
+    </div>
+    <div id="fskver-list" class="space-y-2.5 max-h-[400px] overflow-y-auto"></div>
+  </div>
+</div>
+
+<!-- ===== 功能型技能：新增版本上传（修改说明必填） ===== -->
+<div id="modal-fskvernew" class="hidden fixed inset-0 z-50 modal-bg flex items-center justify-center" onclick="if(event.target===this)closeFskVerNew()">
+  <div class="bg-white rounded-2xl w-[560px] p-6 fade-in">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="font-bold">新增版本上传</h3>
+      <button class="text-gray-400 hover:text-gray-600" onclick="closeFskVerNew()">✕</button>
+    </div>
+    <div class="text-[12px] font-semibold mb-1.5">Skill 代码包</div>
+    <div id="fskvn-file" class="border border-dashed border-gray-200 rounded-lg py-6 text-center cursor-pointer hover:border-violet-300 text-[12.5px] text-violet-600 mb-4" onclick="fskvnPickFile()">＋ 上传代码包</div>
+    <div class="text-[12px] font-semibold mb-1.5"><span class="text-red-500">*</span> 版本修改说明</div>
+    <textarea id="fskvn-note" rows="3" maxlength="100" class="w-full text-[12px] border border-gray-200 rounded-lg px-3 py-2.5 leading-relaxed focus:outline-none focus:border-violet-300" placeholder="写这版动了哪块，100 字以内" oninput="document.getElementById('fskvn-cnt').textContent=this.value.length+' / 100'"></textarea>
+    <div class="text-right text-[11px] text-gray-400" id="fskvn-cnt">0 / 100</div>
+    <div class="flex justify-end gap-2 mt-5 pt-4 border-t border-gray-100">
+      <button class="btn-o" onclick="closeFskVerNew()">取 消</button>
+      <button class="btn-p" onclick="fskVerNewSave()">确 定</button>
+    </div>
+  </div>
+</div>
+
 <!-- ===== 数据表：编辑基本信息 ===== -->
 <div id="modal-dtedit" class="hidden fixed inset-0 z-50 modal-bg flex items-center justify-center" onclick="if(event.target===this)closeDtEdit()">
   <div class="bg-white rounded-2xl w-[560px] p-6 fade-in">
@@ -2083,8 +2270,6 @@
     <input id="dte-name" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-[12.5px] focus:outline-violet-300">
     <label class="text-[12px] font-semibold text-gray-600 block mb-1.5 mt-4"><span class="text-red-400">*</span> 数据表描述</label>
     <textarea id="dte-desc" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-[12.5px] h-24 focus:outline-violet-300"></textarea>
-    <label class="text-[12px] font-semibold text-gray-600 block mb-1.5 mt-4"><span class="text-red-400">*</span> 智能体应用权限</label>
-    <select id="dte-wperm" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-[12.5px] focus:outline-violet-300 bg-white"></select>
     <div class="flex justify-end gap-2 mt-5 pt-4 border-t border-gray-100">
       <button class="btn-o" onclick="closeDtEdit()">取 消</button>
       <button class="btn-p" onclick="saveDtEdit()">确 定</button>
@@ -2110,6 +2295,19 @@
       <select id="dts-perm" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-[12.5px] focus:outline-violet-300 bg-white">
         <option value="可使用">可使用（仅查看数据与在会话中取数）</option><option value="可管理">可管理（可改字段与口径、可再分享、可删除）</option>
       </select>
+    </div>
+    <div class="border-t border-gray-100 mt-4 pt-4">
+      <div class="flex items-center gap-2 mb-2">
+        <span class="text-[12px] font-semibold text-gray-600">智能体应用权限</span>
+        <span class="text-gray-300 text-xs" title="智能体代某人操作这张表时能做到哪一步。四档递进，后一档包含前一档的动作">ⓘ</span>
+        <div class="ml-auto flex items-center gap-4">
+          <label class="flex items-center gap-1.5 text-[12px] cursor-pointer"><input type="radio" name="dts-wmode" value="uni" class="accent-violet-600" onchange="dtsSetWmode('uni')"><span>统一设置</span></label>
+          <label class="flex items-center gap-1.5 text-[12px] cursor-pointer"><input type="radio" name="dts-wmode" value="adv" class="accent-violet-600" onchange="dtsSetWmode('adv')"><span>高级设置</span></label>
+        </div>
+      </div>
+      <label class="text-[11.5px] text-gray-500 block mb-1.5" id="dts-wperm-label">统一档位</label>
+      <select id="dts-wperm" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-[12.5px] focus:outline-violet-300 bg-white" onchange="dtsSetWperm(this.value)"></select>
+      <div id="dts-wadv" class="hidden mt-3 space-y-2"></div>
     </div>
     <div class="flex items-center gap-1.5 mt-4 text-[12px]">
       <span class="font-semibold text-gray-600">已授权用户</span>
@@ -2194,6 +2392,73 @@
     <div class="flex gap-2 mt-5">
       <button class="btn-o flex-1" onclick="closeBoardShare()">关闭</button>
       <button class="btn-p flex-1" onclick="saveBoardShare()">确 定</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 快捷操作配置弹窗 ===== -->
+<div id="modal-quickcfg" class="hidden fixed inset-0 z-50 modal-bg flex items-center justify-center" onclick="if(event.target===this)closeQuickCfg()">
+  <div class="bg-white rounded-2xl w-[520px] p-6 fade-in max-h-[90vh] overflow-y-auto">
+    <div class="flex items-center justify-between mb-4"><h3 class="font-bold" id="qc-title">新建快捷操作</h3><button class="text-gray-400 hover:text-gray-600" onclick="closeQuickCfg()">✕</button></div>
+    <div class="flex gap-2.5 mb-3">
+      <div class="w-20">
+        <label class="text-[12px] font-semibold text-gray-600 block mb-1.5"><span class="text-red-400">*</span> 图标</label>
+        <input id="qc-icon" maxlength="2" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-[14px] text-center focus:outline-violet-300">
+      </div>
+      <div class="flex-1">
+        <label class="text-[12px] font-semibold text-gray-600 block mb-1.5"><span class="text-red-400">*</span> 快捷名称</label>
+        <input id="qc-name" maxlength="6" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-[12.5px] focus:outline-violet-300" placeholder="如 查商机">
+      </div>
+    </div>
+    <label class="text-[12px] font-semibold text-gray-600 block mb-1.5"><span class="text-red-400">*</span> 关联类型</label>
+    <select id="qc-kind" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-[12.5px] focus:outline-violet-300 bg-white mb-3" onchange="qcSetKind()">
+      <option value="agent">关联智能体查询</option><option value="page">关联系统页面</option>
+    </select>
+    <div id="qc-agent-wrap">
+      <label class="text-[12px] font-semibold text-gray-600 block mb-1.5"><span class="text-red-400">*</span> 关联智能体</label>
+      <select id="qc-agent" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-[12.5px] focus:outline-violet-300 bg-white mb-3"></select>
+      <label class="text-[12px] font-semibold text-gray-600 block mb-1.5"><span class="text-red-400">*</span> 默认输入提示词</label>
+      <input id="qc-prompt" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-[12.5px] focus:outline-violet-300 mb-3" placeholder="点击后自动发给智能体的内容">
+    </div>
+    <div id="qc-page-wrap" class="hidden">
+      <label class="text-[12px] font-semibold text-gray-600 block mb-1.5"><span class="text-red-400">*</span> 关联业务系统
+        <span class="text-[11px] text-gray-400 font-normal ml-1">仅启用中的已对接系统</span></label>
+      <select id="qc-biz" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-[12.5px] focus:outline-violet-300 bg-white mb-3" onchange="qcOnBiz()"></select>
+      <label class="text-[12px] font-semibold text-gray-600 block mb-1.5"><span class="text-red-400">*</span> 系统页面</label>
+      <select id="qc-page" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-[12.5px] focus:outline-violet-300 bg-white mb-3 disabled:bg-gray-50 disabled:text-gray-300"></select>
+      <label class="text-[12px] font-semibold text-gray-600 block mb-1.5">打开方式</label>
+      <select id="qc-open" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-[12.5px] focus:outline-violet-300 bg-white mb-3">
+        <option value="embed">工作台内嵌打开</option><option value="blank">新窗口打开</option>
+      </select>
+    </div>
+    <label class="text-[12px] font-semibold text-gray-600 block mb-1.5">可用范围
+      <span class="text-[11px] text-gray-400 font-normal ml-1">授权直接发到用户，与看板权限无关</span></label>
+    <div class="flex items-center gap-5 mb-3">
+      <label class="flex items-center gap-1.5 text-[12.5px] cursor-pointer"><input type="radio" name="qc-scope" value="auth" class="accent-violet-600" onchange="qcSetScope('auth')"><span>授权可用</span></label>
+      <label class="flex items-center gap-1.5 text-[12.5px] cursor-pointer"><input type="radio" name="qc-scope" value="public" class="accent-violet-600" onchange="qcSetScope('public')"><span>公开可用</span></label>
+    </div>
+    <div id="qc-auth-wrap">
+      <label class="text-[12px] font-semibold text-gray-600 block mb-1.5"><span class="text-red-400">*</span> 选择授权对象
+        <span class="text-[11px] text-gray-400 font-normal ml-1">来自飞书组织架构 · 勾选二级部门即授权该部门全员</span></label>
+      <input id="qc-kw" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-[12.5px] focus:outline-violet-300" placeholder="搜索部门或人员" oninput="renderQcUsers()">
+      <div id="qc-users" class="border border-gray-200 border-t-0 rounded-b-lg max-h-[200px] overflow-y-auto -mt-0.5"></div>
+    </div>
+    <div class="flex items-center gap-1.5 mt-3 text-[12px]">
+      <span class="font-semibold text-gray-600">已授权用户</span>
+      <span id="qc-count" class="text-violet-600 cursor-pointer hover:underline font-semibold" onclick="qcToggleGranted()">0</span>
+    </div>
+    <div id="qc-granted" class="hidden mt-2 border border-gray-100 rounded-lg divide-y divide-gray-100 max-h-[140px] overflow-y-auto"></div>
+    <div class="flex items-end gap-3 mt-3">
+      <div class="w-24">
+        <label class="text-[12px] font-semibold text-gray-600 block mb-1.5">排序</label>
+        <input id="qc-sort" type="number" min="1" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-[12.5px] focus:outline-violet-300">
+      </div>
+      <label class="flex items-center gap-1.5 text-[12.5px] cursor-pointer pb-2.5">
+        <input id="qc-enabled" type="checkbox" class="accent-violet-600"><span>启用</span></label>
+    </div>
+    <div class="flex gap-2 mt-5">
+      <button class="btn-o flex-1" onclick="closeQuickCfg()">取消</button>
+      <button class="btn-p flex-1" onclick="saveQuickCfg()">保 存</button>
     </div>
   </div>
 </div>
@@ -2608,7 +2873,8 @@ const VERSIONS = [
   {v:'v22', date:'2026-09-03', title:'任务执行子任务可操作 + 报价Agent skill 表单闭环', desc:'三处待办均可展开并处理子任务、一键转智能体会话；新增报价Agent：skill 生成表单 → 提交回传 → 智能体出报价单。', file:'versions/[原型]AI基础设施平台-整合版-v22-2026-09-03.html'},
   {v:'v23', date:'2026-09-09', title:'智能体伙伴纵向栏 + 每个智能体独立会话 + 收藏体系收敛', desc:'工作台布局重构：智能体伙伴改最左纵向栏、每个智能体独立会话、收藏统一收敛为「我的看板」，下线流程看板。', file:'versions/[原型]AI基础设施平台-整合版-v23-2026-09-09.html'},
   {v:'v24', date:'2026-09-10', title:'任务执行统一「处理」动作 + 子任务权限与主任务自动完成', desc:'主子任务统一「处理」动作（可选人工或智能体执行），处理权限按归属收敛，子任务全部完成时主任务自动办结。', file:'versions/[原型]AI基础设施平台-整合版-v24-2026-09-10.html'},
-  {v:'工作版', date:'2026-10-30', title:'模型思考等级可配 + 经营看板更新时间对齐工作看板', desc:'平台配置的模型可配「是否支持思考 / 是否支持思考等级 / 可选等级与默认值」，每一档后配该档模型参数；智能体配置与调试会话框的深度思考按该模型能力选等级；智能体配置页三栏改为各自内部滚动、不再撑出屏幕。', file:'SELF'},
+  {v:'工作版', date:'2026-11-08', title:'Skill 版本三态发布 + 能力配置按版本应用 skill，定时任务可按分钟重复', desc:'Skill 版本改三态，发布只通知智能体管理员，能力配置的 skills 可跟随最新或锁定版本。定时任务重复方式补齐分钟 / 天 / 周 / 月，按分钟最低 5 分钟并可设每日区间与截止时间。', file:'SELF'},
+  {v:'线上版本 2026-11-04', date:'2026-11-04', release:true, title:'线上版本 2026-11-04', desc:'优化任务处理策略前的线上冻结快照。', file:'versions/[原型]AI基础设施平台-整合版-线上版本-2026-11-04.html'},
   {v:'Agent平台261021版本', date:'2026-10-21', release:true, title:'数据表能力成型：新增两选与上传解析、编辑收到详情页、分享到人', desc:'Agent 平台 261021 正式版（已冻结）。数据表新增先选上传文件 / 自定义，上传后表名描述自动解析填充；编辑入口收到详情页，可改应用权限；字段表收为业务语义六列，分享改分享到人；看板更新时间收到看板级；任务执行的执行方式在事件触发下转为选填。', file:'versions/[原型]AI基础设施平台-整合版-Agent平台261021版本-2026-10-21.html'},
   {v:'智能体平台任务中心1.1', date:'2026-09-18', release:true, title:'评审调整：处理动作与任务配置收敛，列表改日期筛选，办结为终态', desc:'任务中心 1.1 正式版（已冻结）。处理动作与任务配置收敛，列表改日期筛选（默认近 3 个月），办结为终态，子任务只在本层添加、可派智能体执行；平台我的任务增手动新建入口，扩展字段收为统一字段、格式同备注。', file:'versions/[原型]AI基础设施平台-整合版-智能体平台任务中心1.1-2026-09-18.html'},
   {v:'智能体平台任务中心1.0', date:'2026-09-15', release:true, title:'任务中心正式版：任务执行闭环 + 任务配置以权限取代审核', desc:'任务中心 1.0 正式版（已冻结）。任务执行：主子任务统一「处理」动作、转交跟进、按任务类型筛选、飞书待办同步状态（已同步 / 未开启同步 / 同步失败可重试）、任务删除（创建人 / 管理员 / 任务类型管理者三者任一可删，级联子任务并撤回待办）。任务配置：新增用户管理与功能权限树，任务类型与业务对接去掉备案审核改为保存即生效 + 测试模式 + 连通性校验，派单由业务系统定义，订阅智能体可选填。', file:'versions/[原型]AI基础设施平台-整合版-智能体平台任务中心1.0-2026-09-15.html'},
@@ -2620,7 +2886,7 @@ function isEmbed(){return /[?&]embed=1\b/.test(location.search)}
 function renderVersionList(){
   const tbody=document.getElementById('ver-tbody');
   /* 工作版置顶，正式版与移动版紧随其后（命名版本不参与 vNN 排序），其余按版本号倒序 */
-  const PIN=[LATEST_VER,'Agent平台261021版本','智能体平台任务中心1.1','智能体平台任务中心1.0','移动版'];
+  const PIN=[LATEST_VER,'线上版本 2026-11-04','Agent平台261021版本','智能体平台任务中心1.1','智能体平台任务中心1.0','移动版'];
   const sorted=[...VERSIONS].sort((a,b)=>{
     const pa=PIN.indexOf(a.v),pb=PIN.indexOf(b.v);
     if(pa>=0||pb>=0)return (pa<0?9:pa)-(pb<0?9:pb);
@@ -2662,9 +2928,9 @@ const PAGE_SPECS={
   fields:'智能体名称、创建方、创建时间、已挂载技能、已挂载知识资源、状态标签（授权可用 / 已发布）、简介。',
   logic:'只展示当前用户有授权的智能体；卡片点击进入配置页，返回时回到本列表；创建入口按智能体类型分流。'},
 'agentconfig':{name:'智能体平台 · 智能体配置',
-  desc:'单个智能体的能力装配页：挂载技能（Skills / MCP / 工具 / 数据表）、挂载知识库与项目空间、设置执行上限。',
-  fields:'智能体名称与头像、基座模型、提示词、技能挂载清单、知识资源挂载清单、执行轮数与超时上限。',
-  logic:'从卡片进入，页头返回我的智能体；技能与知识资源只能选择已授权对象；保存即生效，无需审核。'},
+  desc:'单个智能体的能力装配页：挂载技能（Skills / MCP / 工具 / 数据表）、拆分 SubAgent、挂载知识库与项目空间、设置执行上限。',
+  fields:'智能体名称与头像、基座模型、提示词、技能挂载清单（含版本号、版本时间、版本选择器）、SubAgent 清单、数据表挂载清单、知识资源挂载清单、执行轮数与超时上限。SubAgent 配置项：名称（必填，20 字内）、能力描述（必填，500 字内）、模型（必填）与思考配置、提示词（必填，30000 字内）、知识库、可用数据表。',
+  logic:'从卡片进入，页头返回我的智能体；技能与知识资源只能选择已授权对象；保存即生效，无需审核。SubAgent 按场景拆出的子能力各自配模型、思考档位、提示词与可用数据表，主智能体按能力描述决定何时分派；校验顺序为名称 → 能力描述 → 提示词。SubAgent 的思考配置按所选模型的能力渲染，换模型时回到该模型的默认档位。数据表只能从技能库里授权可用的表中挂载，待授权的表不进清单；主智能体挂载的表与各 SubAgent 挂载的表相互独立，互不继承。两处数据表选择器都可按表名模糊筛选，已勾中但被筛掉的表不丢选中状态，每次打开清空关键词；表后的权限标签显示该表的智能体应用权限通用档，有按人特配时另挂「N 人特配」。skills 每条显示当前应用的版本号与版本时间，可选「跟随技能库最新」或锁定到某个版本；可选清单只给已发布与历史版本，待发布版本不进清单。技能库发布新版本时通知本智能体的管理员，仅有发布权限的管理员可切换版本；跟随最新的挂载在技能库发新版后、锁定的挂载在手动改版本后，都会标出待生效版本并提示去发布，切版本只落草稿，点页头「更 新」才真正生效。'},
 'wfconfig':{name:'智能体平台 · 工作流配置',
   desc:'工作流Agent 的节点编排画布：节点可增删、拖拽与连线，选中节点在右侧配置输入、能力参数与输出。',
   fields:'页头：智能体名称、正式版本时间、当前版本时间、状态标签。画布：节点（开始 / Agent / 大模型节点 / 问题分类 / 知识库检索 / 直接回复 / 工具 / MCP 等）、连线、缩放比例。大模型 / Agent 节点配置：描述、输入参数、基座模型与提示词（大模型节点）、输出格式（文本 / JSON解析）、输出参数名。问题分类节点配置：描述、输入参数、分类方式（模型判断 / 代码处理）、分类清单、上下文配置、执行节点提示。直接回复节点配置：描述、回复方式（上一个节点直接输出 / 结束不做任何处理 / 输出固定内容）、固定内容与引用参数。',
@@ -2691,12 +2957,12 @@ const PAGE_SPECS={
   logic:'筛选区分两行，任务类型 / 日期区间 / 处理人 收进「更多筛选」且默认收起，收起时开关上标出已生效的条数（日期区间按是否偏离默认近 3 个月判断），避免条件被藏起来看不见；视角 / 状态 / 任务类型 / 日期区间 / 处理人 / 关键字可叠加，日期默认近 3 个月（未完成取创建时间、已完成取完成时间）；处理人候选取列表中实际出现的处理人，可下拉选也可输入关键字模糊匹配，子任务按自身处理人、已转交的主任务按接手人匹配；导出按当前筛选条件导出列表，结果为空时不导出并提示；处理动作统一，可选人工或派智能体执行；子任务全部完成时主任务自动办结且办结为终态；删除权限为创建人 / 管理员 / 任务类型管理者三者任一，删除级联子任务并撤回飞书待办。'},
 'runs-agent':{name:'智能体平台 · 任务执行 · Agent | 执行任务',
   desc:'智能体侧的定时与触发类任务管理，区分会话创建与后台创建，可查看每条任务的执行记录。',
-  fields:'名称、触发方式、执行方式、创建方式、执行内容、执行智能体、状态、更新人、更新时间、操作。',
-  logic:'按启用状态 / 创建方式 / 智能体 / 名称组合筛选；新建任务走弹窗配置；已过期或已停用的任务不再触发；执行记录按任务维度留存。执行方式在定时触发下必填，在事件触发下为选填，不选时记为静默执行，结果只进「输出方式」所选看板。'},
+  fields:'名称、触发方式、执行方式、创建方式、执行内容、执行智能体、状态、更新人、更新时间、操作。定时触发配置项：触发时间、类型（一次性 / 重复）、重复方式（按分钟 / 按天 / 按周 / 按月）、每隔 XX 分钟、每日循环区间、截止时间。',
+  logic:'按启用状态 / 创建方式 / 智能体 / 名称组合筛选；新建任务走弹窗配置；已过期或已停用的任务不再触发；执行记录按任务维度留存。执行方式在定时触发下必填，在事件触发下为选填，不选时记为静默执行，结果只进「输出方式」所选看板。定时触发选重复任务时须选重复方式：按分钟可设每隔 XX 分钟，最低 5 分钟、只收 5 以上的整数；按天可勾仅工作日，按周至少选一天，按月选 1–28 日。按分钟可另给每日循环区间，选填，不填即全天，起止要么都不填要么都填且开始须早于结束。触发时间为首次执行时间，按分钟且首次时刻落在每日区间外时提示顺延到区间开始，不拦截保存。重复任务的截止时间必填且须晚于触发时间，一次性任务不需要重复方式与截止时间。'},
 'skills-skills':{name:'智能体平台 · 技能库 · Skills',
-  desc:'智能体可复用能力的沉淀，分流程型（多节点流转，有独占详情页）与功能型（单点能力）两类。',
-  fields:'技能名称、形态、节点数 / 负责人、使用状态、授权状态、关联智能体。',
-  logic:'新增入口统一在列表右上角；流程型技能点击进入独占详情页，页头只留返回按钮；筛选条件（使用状态 / 授权状态 / 名称 / 智能体）对各页签通用。'},
+  desc:'智能体可复用能力的沉淀，分流程型（多节点流转，有独占详情页）与功能型（Skill 代码包，含 SKILL.md 与脚本，按版本发布）两类。',
+  fields:'流程型卡片：技能名称、形态、节点数、在途、按时完成率、负责人、启停开关。功能型卡片：授权状态与使用状态双角标、技能名称、能力说明（超长折叠，可展开）、关联智能体、创建人、更新时间、引用次数、编辑 / 分享 / 删除。',
+  logic:'新增入口统一在列表右上角，「自动创建 Skill」在新增按钮左侧、点击进自动创建弹窗；筛选条件（使用状态 / 授权状态 / 名称 / 智能体）对各页签通用。流程型技能点击进入独占详情页。功能型技能按四列卡片分页展示，每页 8 项；点技能名或「编辑」进 Skill 详情页，分享只做示意，删除时若已被智能体引用需先解除引用。'},
 'skills-mcp':{name:'智能体平台 · 技能库 · MCP',
   desc:'外部 MCP Server 的接入清单，接入后作为能力挂载给智能体。',
   fields:'MCP 名称、能力说明、使用状态、授权状态、关联智能体。',
@@ -2708,11 +2974,16 @@ const PAGE_SPECS={
 'skills-table':{name:'智能体平台 · 技能库 · 数据表',
   desc:'智能体可读写的结构化数据，不再区分上传表与自定义表，一张表按智能体应用权限决定能被怎么用，列表为表格形态。',
   fields:'数据表、智能体应用权限、使用状态、关联智能体、应用授权、创建人、更新时间、操作。',
-  logic:'「+ 添加数据表」在列表右上角，点击先出弹窗二选上传文件 / 自定义数据表：选上传文件在弹窗内传文件，再进配置页，表名与描述按解析结果自动填好；选自定义数据表直接进配置页。表名点击进入数据表详情页。列表「编辑」与表名一样进数据表详情页。智能体应用权限为只读 / 可读写 / 可读写改 / 可读写改删四档递进，后一档包含前一档的动作，在详情页头卡「编辑」里改。'},
+  logic:'「+ 添加数据表」在列表右上角，点击先出弹窗二选上传文件 / 自定义数据表：选上传文件在弹窗内传文件，再进配置页，表名与描述按解析结果自动填好；选自定义数据表直接进配置页。表名点击进入数据表详情页。列表「编辑」与表名一样进数据表详情页。智能体应用权限为只读 / 可读写 / 可读写改 / 可读写改删四档递进，后一档包含前一档的动作，建表时定初始档位，之后统一在列表「分享」里按人配；列表权限列显示通用档，有按人特配时另挂「N 人特配」。'},
 'skills-board':{name:'智能体平台 · 技能库 · 看板配置',
   desc:'工作台看板的配置侧，看板分工作看板与经营看板两类，含内容配置与分享范围配置。列表上方有看板类型、可用范围与名称搜索三项筛选。',
   fields:'筛选项：看板类型（工作看板 / 经营看板）、可用范围（公开可用 / 授权可用）、看板名称搜索。卡片：看板名称、看板类型、可用范围、启停开关、执行智能体、数据维度、创建人与时间、已授权人数、操作。工作看板配置的每个数据维度：图标、维度名称、单位、查询输入、执行方式、执行对象（数据表 / 智能体 / MCP + MCP 工具）、更新时间（仅智能体执行）。',
   logic:'新建入口在列表右上角；筛选条为看板专用，与技能库共用筛选条不互通，条件在会话内保持，切开其他页签再回来不丢；筛选无结果时提示换条件或重置；可见范围为授权可用时需维护授权名单与权限档位；候选用户取平台用户列表，用户停用或删除时授权记录同步失效并重新计数；工作台侧按权限过滤可见看板。工作看板的执行方式按维度各自配置，分数据表执行 / 智能体执行 / MCP 执行三种：选数据表执行时需指定数据表；选智能体执行时需指定执行智能体；选 MCP 执行时需先选 MCP 服务再选该服务下的 MCP 工具，工具清单来自服务端声明的能力清单，未选 MCP 时工具下拉置灰，换 MCP 时已选工具清空；必填未选不允许保存。更新时间统一配在看板上（触发时间 + 一次性 / 重复，重复分按天 / 按周 / 按月，按天可勾仅工作日，重复需填截止时间），只管住智能体执行的维度，数据表执行与 MCP 执行在点维度时实时取数；有智能体执行的维度时触发时间与截止时间必填。工作看板只配联动智能体，默认取维度所选的执行智能体，手动改过后不再自动跟随；数据维度上限 12 个。工作台点维度统一进入会话，数据表执行与 MCP 执行的维度由联动智能体取数作答并在气泡标注取数来源。经营看板无数据维度，更新时间与工作看板同一套配置逻辑，直接管住整块产物的重算，触发时间必填、重复时截止时间必填。经营看板配置分两步：第一步填名称、执行智能体、更新时间与看板输入，保存配置后「下一步」才可点，进第二步预览产物；配置改动后需重新保存，预览始终跑已保存的配置。两类看板都不设所属角色。'},
+'skills-quick':{name:'智能体平台 · 技能库 · 快捷操作',
+  desc:'AI 工作台首页「常用能力」的配置源，把原业务系统的高频动作收成一排快捷入口。授权直接发到用户，不基于看板权限：用户看不到某看板也不影响其快捷操作的显示。列表上方有关联类型、可用范围与名称搜索三项筛选。',
+  fields:'卡片：图标、快捷名称、关联类型（智能体查询 / 系统页面）、可用范围、启停开关、跳转目标、默认输入提示词或打开方式、创建人与时间、已授权人数、排序、操作。配置项：图标（必填）、快捷名称（必填，6 字内）、关联类型（必填）、关联智能体 + 默认输入提示词（智能体类型必填）、关联业务系统 + 系统页面 + 打开方式（页面类型必填）、可用范围（公开可用 / 授权可用）、授权对象、排序、启用。',
+  logic:'新建入口在列表右上角；筛选条为快捷操作专用，与技能库共用筛选条不互通。关联类型决定配置项显隐与点击行为：选关联智能体查询时需指定智能体与默认输入提示词，工作台点击后自动切到该智能体、发起会话并把提示词直接发出；选关联系统页面时只能从已对接且启用中的业务系统里选，页面清单取自对接时系统声明的页面清单，未选系统时页面下拉置灰、换系统时已选页面清空，工作台点击后直接跳转该页面不进会话。可用范围为授权可用时须维护授权名单，候选用户取飞书组织架构，勾选二级部门即授权该部门全员。停用需二次确认并说明影响人数，停用后工作台首页不再展示，配置与授权名单保留；删除连带清除授权名单。工作台首页按「已授权 + 已启用」过滤，并按排序值升序展示。',
+},
 'dt-new':{name:'智能体平台 · 新增数据表',
   desc:'先在弹窗里二选形态（上传文件 / 自定义数据表），再进独占页面配置：基本信息 → 智能体应用权限 → 数据文件或字段生成方式 → 进入详情页校对字段。',
   fields:'弹窗：上传文件 / 自定义数据表二选，选上传文件时弹窗内出上传区（下载模板、文件列表、50MB / 10 sheet / 5000 行限制提醒）。配置页：数据表名称（必填）、数据表描述（必填）、智能体应用权限（必填，默认可读写）。上传形态出「数据文件」区（已传文件、已解析字段数、重新选择文件），自定义形态出「字段生成方式」区（自动生成 / 手动添加）。字段只含字段名、类型、中文名、数据示例、业务含义、枚举说明。',
@@ -2720,7 +2991,11 @@ const PAGE_SPECS={
 'dt-detail':{name:'智能体平台 · 数据表详情',
   desc:'单张数据表的字段、查询口径与数据内容，字段描述是智能体理解该表的依据。',
   fields:'字段名、类型、中文名、数据示例、业务含义、枚举说明、操作。页签为字段及描述、查询口径、数据，开了写权限的表另有写入记录。',
-  logic:'页头只留返回按钮；字段只描述业务语义，不再配置对智能体可见 / 可筛选 / 可聚合与确认状态，解析或声明后即可被查询；所有表的字段都可改名、可新增与删除，数据页单元格可直接编辑，唯一键行不可删除，改其中文名时唯一键标记同步更新，至少保留一个字段。写入记录与唯一键只在权限非只读时出现，智能体按档位直接写入、不再进待确认队列，留痕以一次执行为批次并可整批撤销。智能体应用权限、数据表名称与描述可改：入口是详情页头卡的「编辑」，三项在同一个弹窗里改，名称与描述必填，列表「编辑」与表名都只进详情页；权限由只读提到可写时自动补唯一键「记录编号」并把维护方式改为智能体自动更新，由可写收回只读时写入记录页签隐藏、维护方式改回手工维护，已写入的数据不动。分享入口只在数据表列表页，详情页不提供。分享弹窗只管分享到人：可用范围选授权可用时从飞书组织架构勾选部门或人员并分配可使用 / 可管理，组织树为一级部门分组 + 二级部门 + 人三层，勾选粒度是二级部门与人、勾二级部门即授权该部门全员，无归属部门的人平铺在树的最后，选公开可用时人员区置灰且名单清空，授权可用且名单为空不允许保存。关联智能体为被引用情况的只读展示，不在此处增删。查询口径表只有口径名称、参数、过滤与聚合规则三列。'},
+  logic:'页头只留返回按钮；字段只描述业务语义，不再配置对智能体可见 / 可筛选 / 可聚合与确认状态，解析或声明后即可被查询；所有表的字段都可改名、可新增与删除，数据页单元格可直接编辑，唯一键行不可删除，改其中文名时唯一键标记同步更新，至少保留一个字段。写入记录与唯一键只在权限非只读时出现，智能体按档位直接写入、不再进待确认队列，留痕以一次执行为批次并可整批撤销。数据表名称与描述可改：入口是详情页头卡的「编辑」，两项必填，列表「编辑」与表名都只进详情页。分享入口只在数据表列表页，详情页不提供。分享弹窗管两件事：一是分享到人，可用范围选授权可用时从飞书组织架构勾选部门或人员并分配可使用 / 可管理，组织树为一级部门分组 + 二级部门 + 人三层，勾选粒度是二级部门与人、勾二级部门即授权该部门全员，无归属部门的人平铺在树的最后，选公开可用时人员区置灰且名单清空，授权可用且名单为空不允许保存；二是智能体应用权限，分统一设置与高级设置两种，统一设置下一档对所有人生效，高级设置下先定通用档（未单独配置的用户走这档），再对每个高于通用档的档位分别挑人，一个人只能落在一档、勾新档位时自动从原档位摘掉，通用档提上去后低于它的特配自动失效。高级设置的候选人：授权可用取本表已授权与本次新勾的人，被移出名单的人特配同步失效；公开可用没有名单，候选取平台全员、特配按人单独留存。高级设置下没有任何特配不允许保存。唯一键与维护方式按表的实际最高档判断（通用档与各档特配里取最高），由只读变可写时自动补唯一键「记录编号」并把维护方式改为智能体自动更新，收回只读时写入记录页签隐藏、维护方式改回手工维护，已写入的数据不动。关联智能体为被引用情况的只读展示，不在此处增删。查询口径表只有口径名称、参数、过滤与聚合规则三列。'},
+'func-skill':{name:'智能体平台 · 功能型技能详情',
+  desc:'单个 Skill 代码包的内容视图：左侧文件树（scripts / tests / SKILL.md），右侧按 Preview / Code 两态看文件，顶部可调试、自动修改与发布版本。',
+  fields:'页头：技能名称、开始调试、自动修改 Skill、版本更新及发布、保存。左栏：文件树、当前版本号、发布状态、更新时间、创建人。右栏：Preview / Code 切换、行数与文件大小、文件内容。自动修改弹窗：需求描述（必填，30000 字内）、知识库选择（公司知识仓库 / 客户知识空间 / 自定义知识库）、可使用的数据表（可展开勾选，每项带智能体应用权限）、可使用的 MCP、工具列表。版本弹窗：版本号、更新时间、创建人、发布状态、版本修改说明、发布按钮、新增版本上传。',
+  logic:'页头只留返回按钮，进入后技能库标题与页签整块隐藏。保存只落草稿，须经「版本更新及发布」发布后才对引用的智能体生效。自动创建从列表右上角进、自动修改从详情页进，两者共用同一弹窗，需求描述为空不允许提交。可使用的数据表只列技能库里授权可用的表，待授权的表不进清单；展开区顶部可按表名模糊筛选，已勾中但被筛掉的表不丢选中状态，无匹配时提示换关键词；可多选、选中数量回显在标题行，生成的取数逻辑按所选表的字段口径写；数据表为选填，每次打开弹窗清空上次的勾选与关键词。版本历史每个版本都带修改说明：新增版本上传时代码包与修改说明均必填，修改说明限 100 字以内；未上传或未填说明不允许确定。版本分三态：同一时间只有一个版本为已发布，发布新版本时原已发布版本转为历史，从未发布过的版本为待发布；历史与待发布版本都可再次发布。发布动作不直接改智能体的生效版本，只通知引用本 Skill 的智能体管理员，由有发布权限的管理员在智能体能力配置里切版本并更新后才生效。删除技能时若已被智能体引用，需先解除引用。'},
 'flow-skill':{name:'智能体平台 · 流程型技能详情',
   desc:'流程型技能的骨架视图：节点编排、节点智能体与在途任务概况。',
   fields:'流程名称、节点数、流程负责人、执行说明、在途任务数、各节点配置。',
@@ -2734,13 +3009,13 @@ const PAGE_SPECS={
   fields:'用户ID、姓名、登录账号、邮箱、角色、智能体数、操作。',
   logic:'保存即生效，不设审核；无权限的入口前端不渲染，接口每次操作重新校验；数据管理权限按对象类型（智能体 / 知识库 / 项目空间 / 技能库 / 任务类型）分别授权。'},
 'chatlog':{name:'智能体平台 · 会话记录',
-  desc:'会话的消耗与执行情况留存，是各项执行上限取值的依据。',
-  fields:'应用渠道、智能体、智能体id、创建时间、问题、输出、响应时长、消耗 tokens、执行轮数、执行状态、会话来源、用户反馈、用户名、会话ID。',
-  logic:'消耗 tokens 一列内展示输入、输出与折算金额，口径与模型服务返回的用量一致，可与实际计费对账；执行轮数仅统计深度智能体的自主循环轮次，会话型智能体显示「—」；异常占比偏高说明上限设置过紧；点击行查看分轮消耗明细，点击会话 ID 进入会话详情看完整输入输出。'},
+  desc:'trace 粒度的消耗与执行情况留存，是各项执行上限取值的依据。一行 = 一条 trace（一次输入到一次输出），同一会话 ID 的多次来回占多行。',
+  fields:'应用渠道、智能体、智能体id、创建时间、问题、输出、响应时长、消耗 tokens、自循环轮数、执行状态、会话来源、用户反馈、用户名、会话ID。traceID 与执行链路ID 不在列表展示，只在会话详情里给出。',
+  logic:'汇总卡片同时给 trace 数与其归属的会话数。消耗 tokens 一列内展示输入、输出与折算金额，口径与模型服务返回的用量一致，可与实际计费对账；自循环轮数指该 trace 内深度智能体自主循环的次数，会话型智能体显示「—」；异常占比偏高说明上限设置过紧。traceID 与执行链路ID 不占列表列宽，排查时进会话详情点击复制。点击行查看分轮消耗明细，点击会话 ID 进入会话详情看该会话下的全部 trace。'},
 'chatlog-detail':{name:'智能体平台 · 会话详情',
-  desc:'单条会话的完整留存：用户原始输入（含附件）、逐步执行过程、最终完整输出。涉及子智能体的会话可逐层展开到每一个子会话。',
-  fields:'会话概要（智能体、应用渠道、用户、创建时间、响应时长、消耗与金额、执行状态）；完整输入与附件清单；执行过程（思考 / 工具调用的入参与返回 / 子智能体会话）；完整输出与用户反馈。',
-  logic:'从列表的会话 ID 进入，页头返回会话记录。过程按步展开：思考直接平铺，工具调用可展开看入参与返回原文（失败的调用标红），子智能体会话折叠时只给一行摘要（智能体、子会话 ID、耗时、消耗），展开后是一个与主会话同构的完整会话体——主智能体下发的输入、它自己的执行过程、返回给主智能体的输出；子会话内再调用子智能体时继续同样展开，层数不限，含下级会话的节点在摘要上标注。右上角「全部展开」一次性铺开所有层级。未留存逐步原文的历史会话按分轮记录还原过程，并在过程区标注。'},
+  desc:'一个会话 ID 下的全部 trace，在「交互记录」里按时间正序铺开，每条 trace 是一组「用户输入 → 执行过程 → 输出」，子智能体会话穿插在过程中可逐层展开。',
+  fields:'会话概要（智能体、应用渠道、用户、会话开始时间、trace 条数与自循环合计、响应时长合计、消耗与金额合计、最后一条 trace 的执行状态）；交互记录内每条 trace 的序号、traceID、执行链路ID（两者均点击复制）、时间、耗时与消耗、自循环轮数、用户输入与附件、执行过程（思考 / 工具调用的入参与返回 / 子智能体会话）、输出与用户反馈。',
+  logic:'从列表的会话 ID 进入，页头返回会话记录。该会话下的 trace 在「交互记录」里按时间正序纵向排列，每条一张卡片，卡头给「traceN · traceID · 执行链路ID · 时间 · 耗时与消耗 · 自循环轮数 · 执行状态」——trace 与执行链路是两个维度，两个 ID 并列展示，点击任一即复制到剪贴板；会话概要里的会话ID 同样可点击复制；从列表点进来的那条标「从列表进入」并描边高亮。trace 内过程按步展开：思考直接平铺，工具调用可展开看入参与返回原文（失败的调用标红），子智能体会话折叠时只给一行摘要（智能体、子会话 ID、耗时、消耗），展开后是一个与主会话同构的完整会话体——主智能体下发的输入、它自己的执行过程、返回给主智能体的输出；子会话内再调用子智能体时继续同样展开，层数不限，含下级会话的节点在摘要上标注。右上角「全部展开」一次性铺开所有 trace 的所有层级。未留存逐步原文的历史 trace 按自循环分轮记录还原，并在过程区标注。'},
 'wb-chat':{name:'AI 工作台 · 智能体伙伴与会话',
   desc:'用户侧工作入口：最左为智能体伙伴纵向栏，每个智能体一个独立会话，会话区顶部常驻「我的工作看板」，任务中心是其中一个分区。',
   fields:'智能体伙伴列表、会话消息、工作看板指标、任务中心待办 / 跟进 / 关注计数、快捷动作。',
@@ -2823,6 +3098,7 @@ function pageKey(){
   if(vis('pg-skills')){
     if(vis('dt-newview'))return 'dt-new';
     if(vis('dt-detailview'))return 'dt-detail';
+    if(vis('fsk-detailview'))return 'func-skill';
     if(vis('skill-detailview'))return 'flow-skill';
     return 'skills-'+skTab;
   }
@@ -2859,7 +3135,7 @@ function showPage(pg){
   emitPage();
 }
 
-/* ================= 会话记录（消耗 tokens / 执行轮数 / 执行状态） =================
+/* ================= 会话记录（执行链路粒度：消耗 tokens / 自循环轮数 / 执行状态） =================
    执行状态沿用需求文档的六种结束原因；异常场景在状态后标注具体原因（如无输出）。 */
 const CL_STATUS={
   done:   {n:'正常完成',      kind:'ok',   cls:'bg-emerald-100 text-emerald-700'},
@@ -2869,40 +3145,51 @@ const CL_STATUS={
   abort:  {n:'用户主动中止',  kind:'gray', cls:'bg-gray-100 text-gray-500'},
   error:  {n:'执行异常',      kind:'bad',  cls:'bg-red-100 text-red-600'}
 };
-/* deep=深度智能体（统计轮数）；rounds 为分轮消耗，普通会话型为空
-   ch=应用渠道，aid=智能体id，q=问题，a=输出，rt=响应时长(s)，src=会话来源，fb=用户反馈，sid=会话ID */
+/* 一行 = 一条 trace（一次输入到一次输出）。tid=traceID，lkid=执行链路ID（编排侧，与 trace 非同一维度），
+   sid=会话ID，同一会话的多条 trace 共用 sid。
+   deep=深度智能体（统计自循环轮数）；rounds 为该 trace 内的自循环分轮消耗，会话型为空
+   ch=应用渠道，aid=智能体id，q=本 trace 输入，a=本 trace 输出，rt=响应时长(s)，src=会话来源，fb=用户反馈 */
 const CHATLOGS=[
-  {id:'C-2098',title:'生成一页纸方案 v3',agent:'KA 主理智能体',aid:'aibot_178_9200',user:'罗紫函',ch:'预览',deep:true,st:'done',date:'2026-09-27 15:20',rt:742,src:'skills: ka-solution-1, lark-…',fb:'赞',sid:'a9d3ce…',
+  {id:'C-2102',title:'一页纸方案补风险与应对',agent:'KA 主理智能体',aid:'aibot_178_9200',user:'罗紫函',ch:'预览',deep:true,st:'done',date:'2026-09-27 15:48',rt:114,src:'skills: ka-solution-1, lark-…',fb:'赞',tid:'tr-8f2a93',lkid:'lk-8f2a93',sid:'a9d3ce…',
+   q:'再加一段风险与应对，三条以内，每条要挂到实施节奏的具体阶段上',a:'已补入「风险与应对」三条，均挂到实施节奏的具体节点…',
+   rounds:[[4900,620,'检索标杆案例的同类风险处置'],[3800,880,'挂到实施阶段并核对篇幅，输出终稿']]},
+  {id:'C-2101',title:'一页纸方案收益口径修正',agent:'KA 主理智能体',aid:'aibot_178_9200',user:'罗紫函',ch:'预览',deep:true,st:'done',date:'2026-09-27 15:34',rt:142,src:'skills: ka-solution-1, lark-…',fb:'-',tid:'tr-8f2a92',lkid:'lk-8f2a92',sid:'a9d3ce…',
+   q:'收益测算的口径再确认一下：年化节省里有没有算司机工资？',a:'已补入司机工资重算，年化节省从 1,180 万元修正为 1,641 万元…',
+   rounds:[[2600,300,'确认工资未计入，派发重算'],[5200,480,'子智能体按行车工时分摊重算'],[3600,470,'同步修正方案内金额与口径附注']]},
+  {id:'C-2100',title:'生成一页纸方案初稿',agent:'KA 主理智能体',aid:'aibot_178_9200',user:'罗紫函',ch:'预览',deep:true,st:'done',date:'2026-09-27 15:20',rt:486,src:'skills: ka-solution-1, lark-…',fb:'-',tid:'tr-8f2a91',lkid:'lk-8f2a91',sid:'a9d3ce…',
    q:'对客户"远航物流"生成一页纸方案，突出智能调度收益',a:'全部步骤已完成。方案含现状诊断、调度优化路径…',
-   rounds:[[3200,620,'检索项目空间历史方案'],[7400,880,'调用知识库检索客户背景'],[12600,1450,'生成方案初稿'],[18900,2100,'自查并补充实施节奏'],[9200,1680,'输出终稿']]},
-  {id:'C-2097',title:'远航物流调度需求调研报告',agent:'KA 主理智能体',aid:'aibot_178_9200',user:'罗紫函',ch:'预览',deep:true,st:'turn',date:'2026-09-27 11:02',rt:1284,src:'skills: ka-research-1, lark-…',fb:'-',sid:'02a8c4…',
-   q:'整理远航物流调度需求调研报告，覆盖全部访谈对象',a:'已完成 6 个维度，数据口径与两名访谈对象未覆盖…',
-   rounds:[[3400,700,'拆解调研维度'],[8900,1100,'检索同行业案例'],[15200,1600,'调用工具读取会议纪要'],[23400,1900,'整理访谈要点'],[31800,2200,'尝试补充数据口径'],[40100,2400,'再次检索数据口径'],[48600,2600,'继续补充未覆盖维度'],[52300,3100,'触达轮数上限，收尾输出已完成部分']]},
-  {id:'C-2096',title:'客户报价核算',agent:'报价 Agent',aid:'aibot_204_1130',user:'陈嘉禾',ch:'飞书',deep:false,st:'done',date:'2026-09-27 09:48',rt:38,src:'-',fb:'赞',sid:'44a972…',
+   rounds:[[3200,620,'检索项目空间调研文档与台账'],[7400,880,'调用知识库检索方案结构与测算口径'],[12600,1450,'派发子智能体生成方案主体'],[2900,350,'核对子会话回传的收益数据'],[5100,680,'补实施节奏并核对篇幅，输出初稿']]},
+  {id:'C-2099',title:'远航物流调度需求调研报告',agent:'KA 主理智能体',aid:'aibot_178_9200',user:'罗紫函',ch:'预览',deep:true,st:'turn',date:'2026-09-27 11:02',rt:1188,src:'skills: ka-research-1, lark-…',fb:'-',tid:'tr-3b17c1',lkid:'lk-3b17c1',sid:'02a8c4…',
+   q:'缺的两位我后面补，先按现有 6 位把报告整理出来',a:'已完成 6 个维度，数据口径与两名访谈对象未覆盖…',
+   rounds:[[8900,1100,'派发子智能体拆解调研维度'],[15200,1600,'检索同行业案例作颗粒度参照'],[23400,1900,'解析访谈记录并对齐维度'],[31800,2200,'整理维度 1~3'],[40100,2400,'整理维度 4~6'],[48600,2600,'尝试补充维度 7 数据口径'],[22800,1600,'再次检索数据口径仍未命中'],[20300,1100,'触达轮数上限，收尾输出已完成部分']]},
+  {id:'C-2098',title:'核对调研访谈记录完整性',agent:'KA 主理智能体',aid:'aibot_178_9200',user:'罗紫函',ch:'预览',deep:true,st:'done',date:'2026-09-27 10:46',rt:96,src:'skills: ka-research-1, lark-…',fb:'-',tid:'tr-3b17c0',lkid:'lk-3b17c0',sid:'02a8c4…',
+   q:'远航调研的 8 位访谈对象，记录都传到项目空间了吗？',a:'项目空间里只有 6 位访谈对象的记录，缺赵主管、陈专员…',
+   rounds:[[5400,480,'检索项目空间访谈记录'],[7200,620,'解析文档核对访谈对象清单']]},
+  {id:'C-2096',title:'客户报价核算',agent:'报价 Agent',aid:'aibot_204_1130',user:'陈嘉禾',ch:'飞书',deep:false,st:'done',date:'2026-09-27 09:48',rt:38,src:'-',fb:'赞',tid:'tr-44a972',lkid:'lk-44a972',sid:'44a972…',
    q:'按最新价目表核算山东正丰 3 条线路报价',a:'报价单已生成，含三条线路单价与总价…',rounds:[]},
-  {id:'C-2095',title:'批量核对上月对账差异',agent:'财务对账智能体',aid:'aibot_311_4502',user:'苏未迟',ch:'预览',deep:true,st:'cost',date:'2026-09-26 17:12',rt:1106,src:'skills: fin-recon-2, lark-…',fb:'-',sid:'a5f337…',
+  {id:'C-2095',title:'批量核对上月对账差异',agent:'财务对账智能体',aid:'aibot_311_4502',user:'苏未迟',ch:'预览',deep:true,st:'cost',date:'2026-09-26 17:12',rt:1106,src:'skills: fin-recon-2, lark-…',fb:'-',tid:'tr-a5f337',lkid:'lk-a5f337',sid:'a5f337…',
    q:'核对上月全部对账差异并列出待处理清单',a:'已核对 82% 批次，剩余清单见附表…',
    rounds:[[5600,900,'读取对账文件'],[14200,1300,'逐笔比对差异'],[26800,1700,'调用工具拉取流水'],[38400,2000,'继续比对剩余批次'],[46900,2300,'触达消耗上限，输出已核对结果与剩余清单']]},
-  {id:'C-2094',title:'查询销售拜访数据',agent:'销售AI-test',aid:'aibot_156_7781',user:'林书言',ch:'预览',deep:true,st:'stall',date:'2026-09-26 14:30',rt:603,src:'skills: crm-query-1',fb:'踩',sid:'902d61…',
+  {id:'C-2094',title:'查询销售拜访数据',agent:'销售AI-test',aid:'aibot_156_7781',user:'林书言',ch:'预览',deep:true,st:'stall',date:'2026-09-26 14:30',rt:603,src:'skills: crm-query-1',fb:'踩',tid:'tr-902d61',lkid:'lk-902d61',sid:'902d61…',
    q:'查询上周华东区销售拜访数据，按人汇总',a:'未取到数据：CRM 查询参数不符，已说明原因…',
    rounds:[[3100,580,'调用 CRM 查询接口'],[6800,640,'参数不符，重试查询'],[10400,690,'再次重试同一查询'],[13900,720,'第三次重试，判定无进展'],[7200,1240,'终止并说明未取到数据的原因']]},
-  {id:'C-2093',title:'拜访复盘报告',agent:'路书（销售AI）',aid:'aibot_156_7782',user:'周砚',ch:'飞书',deep:true,st:'done',date:'2026-09-25 16:05',rt:296,src:'skills: visit-review-1',fb:'赞',sid:'091ef3…',
+  {id:'C-2093',title:'拜访复盘报告',agent:'路书（销售AI）',aid:'aibot_156_7782',user:'周砚',ch:'飞书',deep:true,st:'done',date:'2026-09-25 16:05',rt:296,src:'skills: visit-review-1',fb:'赞',tid:'tr-091ef3',lkid:'lk-091ef3',sid:'091ef3…',
    q:'生成徐州聚鸿拜访复盘报告',a:'复盘报告已生成，整体评分 74/100…',
    rounds:[[2900,540,'读取拜访记录'],[6400,820,'提取客户关键信息'],[11200,1360,'生成复盘报告']]},
-  {id:'C-2092',title:'每周项目进度汇总 W39',agent:'KA 主理智能体',aid:'aibot_178_9200',user:'系统定时',ch:'定时任务',deep:true,st:'done',date:'2026-09-25 09:00',rt:318,src:'skills: proj-digest-1',fb:'-',sid:'2a69aa…',
+  {id:'C-2092',title:'每周项目进度汇总 W39',agent:'KA 主理智能体',aid:'aibot_178_9200',user:'系统定时',ch:'定时任务',deep:true,st:'done',date:'2026-09-25 09:00',rt:318,src:'skills: proj-digest-1',fb:'-',tid:'tr-2a69aa',lkid:'lk-2a69aa',sid:'2a69aa…',
    q:'汇总本周各项目空间进度并识别风险项',a:'本周 7 个项目空间进度汇总，识别风险项 2 个…',
    rounds:[[4100,700,'汇总各项目空间进度'],[9600,1180,'识别风险项'],[14300,1520,'输出汇总与风险提示']]},
-  {id:'C-2091',title:'技术故障诊断建议',agent:'技术诊断助手',aid:'aibot_422_3310',user:'刘洋',ch:'预览',deep:true,st:'error',date:'2026-09-24 20:17',rt:212,src:'skills: diag-log-1',fb:'踩',sid:'7b1c08…',err:'无输出',
+  {id:'C-2091',title:'技术故障诊断建议',agent:'技术诊断助手',aid:'aibot_422_3310',user:'刘洋',ch:'预览',deep:true,st:'error',date:'2026-09-24 20:17',rt:212,src:'skills: diag-log-1',fb:'踩',tid:'tr-7b1c08',lkid:'lk-7b1c08',sid:'7b1c08…',err:'无输出',
    q:'分析昨夜调度服务超时告警的根因',a:'—',
    rounds:[[4800,760,'读取故障日志'],[11300,0,'工具返回内容超长被截断，本轮未产出内容']]},
-  {id:'C-2090',title:'客服工单分类',agent:'智能客服-CASE单',aid:'aibot_088_2204',user:'张倩',ch:'客服系统',deep:false,st:'done',date:'2026-09-24 15:33',rt:12,src:'-',fb:'-',sid:'c4e590…',
+  {id:'C-2090',title:'客服工单分类',agent:'智能客服-CASE单',aid:'aibot_088_2204',user:'张倩',ch:'客服系统',deep:false,st:'done',date:'2026-09-24 15:33',rt:12,src:'-',fb:'-',tid:'tr-c4e590',lkid:'lk-c4e590',sid:'c4e590…',
    q:'对新进 24 条工单做问题类型分类',a:'24 条工单已分类，技术故障 9 条、咨询 11 条…',rounds:[]},
-  {id:'C-2089',title:'生成季度经营看板',agent:'KA 主理智能体',aid:'aibot_178_9200',user:'罗紫函',ch:'预览',deep:true,st:'abort',date:'2026-09-24 10:26',rt:401,src:'skills: dash-build-1',fb:'-',sid:'e83b47…',
+  {id:'C-2089',title:'生成季度经营看板',agent:'KA 主理智能体',aid:'aibot_178_9200',user:'罗紫函',ch:'预览',deep:true,st:'abort',date:'2026-09-24 10:26',rt:401,src:'skills: dash-build-1',fb:'-',tid:'tr-e83b47',lkid:'lk-e83b47',sid:'e83b47…',
    q:'生成 Q3 经营看板，含毛利与客户结构',a:'已确认指标口径并拉取数据，用户中止…',
    rounds:[[3600,640,'确认看板指标口径'],[8200,1020,'拉取经营数据'],[12400,1380,'用户主动中止']]},
-  {id:'C-2088',title:'招聘 JD 优化',agent:'招聘助手',aid:'aibot_509_6612',user:'赵敏',ch:'飞书',deep:false,st:'done',date:'2026-09-23 14:02',rt:26,src:'-',fb:'赞',sid:'16fa2d…',
+  {id:'C-2088',title:'招聘 JD 优化',agent:'招聘助手',aid:'aibot_509_6612',user:'赵敏',ch:'飞书',deep:false,st:'done',date:'2026-09-23 14:02',rt:26,src:'-',fb:'赞',tid:'tr-16fa2d',lkid:'lk-16fa2d',sid:'16fa2d…',
    q:'优化算法工程师 JD，突出业务场景',a:'JD 已优化，补充三项业务场景描述…',rounds:[]},
-  {id:'C-2087',title:'知识库内容查重',agent:'知识治理智能体',aid:'aibot_377_8850',user:'苏未迟',ch:'预览',deep:true,st:'turn',date:'2026-09-23 11:19',rt:894,src:'skills: kb-dedup-1',fb:'-',sid:'5d0c9f…',
+  {id:'C-2087',title:'知识库内容查重',agent:'知识治理智能体',aid:'aibot_377_8850',user:'苏未迟',ch:'预览',deep:true,st:'turn',date:'2026-09-23 11:19',rt:894,src:'skills: kb-dedup-1',fb:'-',tid:'tr-5d0c9f',lkid:'lk-5d0c9f',sid:'5d0c9f…',
    q:'对公司知识仓库做全量查重，输出重复清单',a:'已查重 1,240 篇，重复 63 组，剩余范围未覆盖…',
    rounds:[[4200,680,'抽取待查重文档'],[10800,1150,'逐篇比对相似度'],[19600,1580,'继续比对剩余文档'],[28300,1840,'仍有未覆盖范围'],[35100,2050,'触达轮数上限，输出已查重结果']]}
 ];
@@ -2963,6 +3250,7 @@ function renderChatLog(){
   const amts=list.map(r=>clStat(r).amt);
   const err=list.filter(r=>['warn','bad'].includes(CL_STATUS[r.st].kind)).length;
   $c('cl-sum-cnt').textContent=list.length;
+  $c('cl-sum-sess').textContent=new Set(list.map(r=>r.sid)).size;
   $c('cl-sum-deep').textContent=list.filter(r=>r.deep).length;
   $c('cl-sum-tk').textContent=clNum(sIn+sOut);
   $c('cl-sum-in').textContent=clNum(sIn);
@@ -2975,6 +3263,8 @@ function renderChatLog(){
   $c('cl-empty').classList.toggle('hidden',list.length>0);
   $c('cl-total').textContent=`共 ${list.length} 条`;
   const cut=(s,n)=>s.length>n?s.slice(0,n)+'…':s;
+  /* 同一会话 ID 在列表里占多行，行上标出该会话共有几条 trace */
+  const sameSid={};CHATLOGS.forEach(r=>sameSid[r.sid]=(sameSid[r.sid]||0)+1);
   $c('cl-tbody').innerHTML=list.map(r=>{
     const c=clStat(r),s=CL_STATUS[r.st];
     const idx=CHATLOGS.indexOf(r);
@@ -3006,14 +3296,17 @@ function renderChatLog(){
       </td>
       <td class="px-3 whitespace-nowrap">${r.fb==='赞'?'<span class="text-emerald-600">赞</span>':r.fb==='踩'?'<span class="text-red-500">踩</span>':'<span class="text-gray-300">-</span>'}</td>
       <td class="px-3 text-gray-600 whitespace-nowrap">${r.user}</td>
-      <td class="px-3 whitespace-nowrap"><span class="text-violet-600 font-semibold cursor-pointer hover:underline" title="查看完整输入输出" onclick="event.stopPropagation();openClSession(${idx})">${r.sid}</span></td>
+      <td class="px-3 whitespace-nowrap"><span class="text-violet-600 font-semibold cursor-pointer hover:underline" title="查看该会话 ID 下的全部 trace" onclick="event.stopPropagation();openClSession(${idx})">${r.sid}</span>${sameSid[r.sid]>1?`<div class="text-[10px] text-gray-400 mt-0.5">${sameSid[r.sid]} 条 trace</div>`:''}</td>
     </tr>`;
   }).join('');
 }
 function openClDetail(i){
   const r=CHATLOGS[i],c=clStat(r),s=CL_STATUS[r.st];
   $c('cld-title').textContent=r.title;
-  $c('cld-sub').innerHTML=`${r.ch} · ${r.agent} · ${r.aid} · ${r.user} · ${r.date} · 响应时长 ${r.rt}s · 会话ID <span class="text-violet-600">${r.sid}</span>`
+  $c('cld-sub').innerHTML=`${r.ch} · ${r.agent} · ${r.aid} · ${r.user} · ${r.date} · 响应时长 ${r.rt}s`
+    +` · traceID <span class="col-mono text-gray-600 cursor-pointer hover:text-violet-600" onclick="clCopy('${r.tid}','traceID')" title="点击复制 traceID">${r.tid}</span>`
+    +` · 执行链路ID <span class="col-mono text-gray-600 cursor-pointer hover:text-violet-600" onclick="clCopy('${r.lkid}','执行链路ID')" title="点击复制执行链路ID">${r.lkid}</span>`
+    +` · 会话ID <span class="col-mono text-gray-600 cursor-pointer hover:text-violet-600" onclick="clCopy('${r.sid}','会话ID')" title="点击复制会话ID">${r.sid}</span>`
     +`<div class="mt-1.5 text-gray-500">问：${r.q}</div><div class="text-gray-500">答：${r.a}</div>`;
   $c('cld-in').textContent=clNum(c.in);
   $c('cld-out').textContent=clNum(c.out);
@@ -3033,7 +3326,7 @@ function openClDetail(i){
   }
 
   if(!r.deep||!r.rounds.length){
-    $c('cld-tbody').innerHTML=`<tr><td colspan="5" class="py-6 text-center text-[11.5px] text-gray-400">会话型智能体不统计执行轮数，此处仅展示整体消耗</td></tr>`;
+    $c('cld-tbody').innerHTML=`<tr><td colspan="5" class="py-6 text-center text-[11.5px] text-gray-400">会话型智能体不统计自循环轮数，此处仅展示整体消耗</td></tr>`;
     $c('cld-note').textContent='';
   }else{
     $c('cld-tbody').innerHTML=r.rounds.map((x,n)=>{
@@ -3340,6 +3633,10 @@ const DATA_TABLES=[
      {name:'超时单量趋势',params:'时间范围 · 受理团队',rule:'按月分组 SUM(超时单量)',refs:'—'},
    ]},
 ];
+/* 授权到人的智能体应用权限：wmode=uni 时全员同档；adv 时 wgrants 里的人走更高档 */
+DATA_TABLES.forEach(t=>{if(!t.wmode){t.wmode='uni';t.wgrants=[]}});
+Object.assign(DATA_TABLES.find(t=>t.id==='dt-risk'),
+  {wmode:'adv',wgrants:[{name:'何伟文',perm:'rwu'},{name:'木明',perm:'rwud'}]});
 /* 智能体应用权限：四档递进，后一档包含前一档的动作。只读表不生成唯一键，也没有写入记录 */
 const DT_WPERM={read:'只读',rw:'可读写',rwu:'可读写改',rwud:'可读写改删'};
 const DT_WPERM_OPTS=[
@@ -3349,7 +3646,30 @@ const DT_WPERM_OPTS=[
   ['rwud','可读写改删 — 可新增、修改与删除'],
 ];
 const DT_WPERM_CLS={read:'bg-gray-100 text-gray-600',rw:'bg-sky-50 text-sky-700',rwu:'bg-violet-100 text-violet-700',rwud:'bg-amber-100 text-amber-700'};
-function dtCanWrite(t){return (t.wperm||'read')!=='read'}
+/* wmode: uni=统一设置（wperm 对所有人生效）/ adv=高级设置（wperm 为通用档，wgrants 里的人走更高档） */
+function dtWLv(k){return ['read','rw','rwu','rwud'].indexOf(k)}
+function dtWGrants(t){return t.wmode==='adv'?(t.wgrants||[]):[]}
+/* 表的实际最高档：唯一键与写入记录按这个判断，不看通用档 */
+function dtMaxWperm(t){return dtWGrants(t).reduce((a,g)=>dtWLv(g.perm)>dtWLv(a)?g.perm:a,t.wperm||'read')}
+function dtCanWrite(t){return dtMaxWperm(t)!=='read'}
+/* 权限标签：统一设置只出档位，高级设置额外标出特配人数 */
+function dtWpermTags(t,pfx){
+  const wp=t.wperm||'read',n=dtWGrants(t).length;
+  return `<span class="tag ${DT_WPERM_CLS[wp]} whitespace-nowrap">${pfx||''}${DT_WPERM[wp]}</span>`
+    +(n?`<span class="tag bg-gray-100 text-gray-500 whitespace-nowrap">${n} 人特配</span>`:'');
+}
+/* 三处数据表选择器共用：只列授权可用的表，按表名模糊筛选 */
+function dtAuthPool(){return DATA_TABLES.filter(t=>t.auth==='授权可用')}
+function dtPickRows(kw,sel,onPick){
+  const k=(kw||'').trim().toLowerCase();
+  const hit=dtAuthPool().filter(t=>!k||t.name.toLowerCase().includes(k));
+  if(!hit.length)return '<div class="px-3.5 py-3 text-[11.5px] text-gray-300">没有匹配的数据表</div>';
+  return hit.map(t=>`<label class="flex items-center gap-2.5 px-3.5 py-2.5 text-[12px] cursor-pointer hover:bg-gray-50 border-b border-gray-50 last:border-0">
+    <input type="checkbox" ${sel.includes(t.id)?'checked':''} class="accent-violet-600" onchange="${onPick}('${t.id}')">
+    <span class="text-gray-600 truncate">${t.name}</span>
+    <span class="ml-auto shrink-0 flex items-center gap-1">${dtWpermTags(t,'智能体')}</span>
+  </label>`).join('');
+}
 function dtHasFile(t){return t.srcType==='上传文件'}
 function toolItems(){
   const meta=[
@@ -3400,7 +3720,7 @@ function skPageHead(show){
   document.getElementById('skill-pagehead').classList.toggle('hidden',!show);
 }
 /* 列表头部统一形态：左标题与说明，右上新增按钮。后续新增列表沿用此函数 */
-const SK_ADD_LABEL={skills:'+ 添加技能',mcp:'+ 添加 MCP',tool:'+ 添加工具',table:'+ 添加数据表',board:'+ 新建看板'};
+const SK_ADD_LABEL={skills:'+ 添加技能',mcp:'+ 添加 MCP',tool:'+ 添加工具',table:'+ 添加数据表',board:'+ 新建看板',quick:'+ 新建快捷操作'};
 function skPaneHead(title,note,tab,extra){
   return `<div class="flex items-start gap-3 mb-3">
     <div class="flex-1 min-w-0">
@@ -3463,7 +3783,6 @@ function dtRow(t){
   const authCls=t.auth==='授权可用'?'bg-emerald-50 text-emerald-600':'bg-amber-50 text-amber-600';
   const used=t.use==='使用中';
   const useCls=used?'bg-emerald-50 text-emerald-600 border-emerald-200':'bg-sky-50 text-sky-600 border-sky-200';
-  const wp=t.wperm||'read';
   return `<tr class="border-b border-gray-50 last:border-0 hover:bg-violet-50/30 transition align-top">
     <td class="px-4 py-3">
       <div class="flex items-center gap-1.5">
@@ -3472,7 +3791,7 @@ function dtRow(t){
       </div>
       <p class="text-[11px] text-gray-400 leading-relaxed mt-1 max-w-[320px] sk-desc">${t.desc}</p>
     </td>
-    <td class="px-3 py-3"><span class="tag ${DT_WPERM_CLS[wp]} whitespace-nowrap">${DT_WPERM[wp]}</span></td>
+    <td class="px-3 py-3"><div class="flex flex-wrap items-center gap-1">${dtWpermTags(t)}</div></td>
     <td class="px-3 py-3"><span class="text-[10.5px] font-semibold px-1.5 py-0.5 rounded border ${useCls} whitespace-nowrap">${used?'已使用':'未使用'}</span></td>
     <td class="px-3 py-3 text-gray-600 text-[11.5px]">${t.agents.length?t.agents.join('、'):'--'}</td>
     <td class="px-3 py-3"><span class="tag ${authCls} whitespace-nowrap">${t.auth}</span></td>
@@ -3494,15 +3813,94 @@ function dtDelTable(id){
 function flowAsItems(){
   return flows.map(f=>({flow:f,name:f.name,desc:'触发器：'+f.scope,agents:(f.nodes||[]).map(n=>n.agent).filter(Boolean),auth:'授权可用',use:f.enabled?'使用中':'未使用'}));
 }
-function funcSkillItems(){
-  return [
-    {icon:'📋',name:'任务拆解',desc:'需求/方案 → 行动项任务列表，确认后下发任务中心',by:'KA 主理智能体',agents:['KA 主理智能体'],auth:'授权可用',use:'使用中'},
-    {icon:'📊',name:'每周分析总结',desc:'项目周报生成 + 行动项自动入任务中心',by:'KA 主理智能体',agents:['KA 主理智能体'],auth:'授权可用',use:'使用中'},
-    {icon:'📝',name:'拜访复盘',desc:'拜访录音 → 复盘报告 + 跟进任务',by:'销售AI-test',agents:['路书（销售AI）'],auth:'授权可用',use:'使用中'},
-    {icon:'⏰',name:'主动运营-续费临近',desc:'续费前 60 天自动创建客成跟进任务',by:'平台 · 定时任务',agents:['客成助手'],auth:'授权可用',use:'使用中'},
-    {icon:'🔍',name:'任务小助手',desc:'每日简报 / 超时未处理提醒 / 完成提醒',by:'平台跟进引擎',agents:['KA 主理智能体','客成助手','路书（销售AI）'],auth:'授权可用',use:'使用中'},
-    {icon:'📥',name:'工单一键建任务',desc:'天润 case 单 → 平台任务（客户/优先级映射）',by:'客服系统对接',agents:['客成助手'],auth:'待授权',use:'未使用'},
-  ];
+/* ===== 功能型技能（Skill 代码包） =====
+   一个 Skill 即一个代码包：SKILL.md 写能力说明与判定口径，scripts / tests 放可执行脚本与用例
+   dn=中文显示名；refs=被引用次数；vers=版本历史，每次上传一个版本且必填修改说明，发布后才对智能体生效 */
+const FSK_FILES=['scripts/analyze.py','scripts/validate_report.py','tests/test_analyze.py','SKILL.md'];
+const FUNC_SKILLS=[
+  {id:'fsk-01',name:'maintenance-workorder-check',dn:'检修工单判定',desc:'冷链设备检修工单判定门禁。在温度/门磁等诊断流程判定「需要下单检修」前，先查该设备是否已有在途检修工单，返回归一化判定值（需要下单 / 已有工单等待 / 建议观察 / 转一线修改检修内容），由调用方映射到自己的标识输出。',agents:['智能客服2.0-冷链设备诊断'],by:'lvjiandie',at:'2026-11-06 10:50:28',refs:1,auth:'授权可用',use:'使用中',ver:'v3',
+   triggers:['检修工单','维修工单','下单检修','是否有工单','工单判定','检修判定','工单检查'],
+   vers:[{v:'v3',at:'2026-11-06 10:49:46',by:'lvjiandie',st:'已发布',note:'判定值补充「转一线修改检修内容」，并把在途工单的查询窗口放宽到近 3 天。'},
+         {v:'v2',at:'2026-11-02 13:54:44',by:'lvjiandie',st:'历史',note:'新增工单内容关键词匹配，避免温度类诊断命中门磁工单。'},
+         {v:'v1',at:'2026-10-30 14:06:08',by:'lvjiandie',st:'历史',note:'首版：按设备号查在途检修工单并返回归一化判定值。'}]},
+  {id:'fsk-02',name:'zibao-mirror-diagnose',dn:'紫宝盒镜像诊断',desc:'用于排查紫宝盒视频机实时视频图像是否为镜像或翻转，并设置镜像/翻转属性参数。',agents:['智能客服2.0-紫宝盒诊断','紫宝盒硬件诊断测试'],by:'libishan',at:'2026-11-06 10:49:07',refs:1,auth:'授权可用',use:'使用中',ver:'v2',triggers:['镜像','翻转','画面方向','视频机']},
+  {id:'fsk-03',name:'guangdong-overspeed-verify',dn:'两客一危超速核实',desc:'职责：核实两客一危一重平台的超速通报是否成立，判别 GPS 速度漂移误报（可申诉）与司机真实超速（不可申诉），输出核实结论与申诉依据明细。',agents:['智能客服2.0-基础定位诊断','G7易流硬件产品专家'],by:'leidonghua',at:'2026-11-06 10:13:46',refs:4,auth:'授权可用',use:'使用中',ver:'v4',triggers:['超速','通报','申诉','速度漂移']},
+  {id:'fsk-04',name:'device-health-inspection',dn:'设备健康巡检',desc:'设备健康巡检：通过 ics_device_health_metric MCP 接口拉取 DeviceHealthMetricDay 日统计指标（主机在线率、定位有效率、拍照成功率等），按阈值给出健康分与异常项清单。',agents:['设备健康巡检专家','KA 主理智能体'],by:'wangjinsheng',at:'2026-11-06 10:02:44',refs:2,auth:'授权可用',use:'使用中',ver:'v2',triggers:['健康巡检','在线率','日统计指标'],
+   vers:[{v:'v2',at:'2026-11-06 10:02:44',by:'wangjinsheng',st:'已发布',note:'健康分阈值按设备型号分档，异常项补充拍照成功率维度。'},
+         {v:'v1',at:'2026-10-28 15:20:10',by:'wangjinsheng',st:'历史',note:'首版：拉取日统计指标并输出健康分与异常项清单。'}]},
+  {id:'fsk-05',name:'cold-chain-pricing',dn:'冷链产品报价',desc:'冷链产品报价方案：在需求澄清完成后，根据场景与货主过滤报价数据集，完成套装/单品匹配、配置校验、服务年限折算，输出可直接发客户的报价方案。',agents:['产品报价方案助手','KA 主理智能体'],by:'luozihan',at:'2026-11-07 16:42:08',refs:2,auth:'授权可用',use:'使用中',ver:'v2',triggers:['报价','套装','配置校验'],
+   vers:[{v:'v2',at:'2026-11-07 16:42:08',by:'luozihan',st:'已发布',note:'服务年限折算改按签约起始日计算，套装匹配补充冷链温区校验。'},
+         {v:'v1',at:'2026-11-06 08:35:32',by:'luozihan',st:'历史',note:'首版：按场景与货主过滤报价数据集并输出报价方案。'}]},
+  {id:'fsk-06',name:'safety-camera-event-diagnosis',dn:'安全事件正误报判定',desc:'职责：判定客户反馈的 ADAS/DMS（双防）安全事件是正报还是误报（核心）。流程：从设备功能维护的 item 清单取事件配置，调取事件图片与视频，按遮挡、抖动、标定偏移等特征逐项排除。',agents:['G7易流硬件产品专家','智能客服2.0-紫宝盒诊断'],by:'leidonghua',at:'2026-11-06 01:08:27',refs:3,auth:'授权可用',use:'使用中',ver:'v3',triggers:['双防','ADAS','DMS','误报','安全事件']},
+  {id:'fsk-07',name:'annual-ns-params',dn:'年审参数下发',desc:'查询前一天开始的年审工单，按八种状态筛选普货/危货设备，生成汇总计划并在授权后下发 JT/T 808 0x8103 终端参数设置指令，下发结果回写工单。',agents:['G7易流硬件产品专家'],by:'leidonghua',at:'2026-11-06 01:02:25',refs:2,auth:'授权可用',use:'使用中',ver:'v2',triggers:['年审','参数下发','0x8103']},
+  {id:'fsk-08',name:'positioning-environment-diagnose',dn:'定位环境核实',desc:'职责：核实设备在指定反馈时点是否处于影响 GPS 定位的环境——凡是可能影响定位的场所都算：隧道、涵洞、高架桥下、地下车库、金属货箱与密集楼宇，输出环境判定与可信度。',agents:['智能客服2.0-基础定位诊断','G7易流硬件产品专家'],by:'leidonghua',at:'2026-11-06 00:32:40',refs:2,auth:'授权可用',use:'使用中',ver:'v3',triggers:['定位漂移','隧道','地库','信号遮挡']},
+  {id:'fsk-09',name:'service-expiry-renewal-task',dn:'服务到期续费任务',desc:'服务到期前 60 天拉取在保设备清单，按客户聚合生成续费跟进任务并写入任务中心，到期未续的设备进入二次提醒名单。',agents:['客成助手','KA 主理智能体'],by:'zhaomin',at:'2026-11-05 19:20:11',refs:6,auth:'授权可用',use:'使用中',ver:'v2',triggers:['续费','服务到期','在保设备'],
+   vers:[{v:'v2',at:'2026-11-05 19:20:11',by:'zhaomin',st:'已发布',note:'续费任务按客户聚合，到期未续设备增加二次提醒名单。'},
+         {v:'v1',at:'2026-10-22 09:14:36',by:'zhaomin',st:'历史',note:'首版：到期前 60 天拉取在保设备并生成续费跟进任务。'}]},
+  {id:'fsk-10',name:'history-video-extraction',dn:'历史视频取证',desc:'按设备号与时间窗提取历史视频片段，校验存储状态与时间戳偏差，输出可下载的取证片段清单与缺失时段说明。',agents:['智能客服2.0-紫宝盒诊断'],by:'libishan',at:'2026-11-05 17:04:58',refs:3,auth:'授权可用',use:'使用中',ver:'v2',triggers:['历史视频','取证','时间戳']},
+  {id:'fsk-11',name:'manual-escalation-sign-gsp',dn:'转人工签核',desc:'诊断结论需一线确认时生成签核单，按 GSP 规则校验必填项与责任人，推送至对应处理组并跟踪签核状态。',agents:['智能客服2.0-冷链设备诊断'],by:'lvjiandie',at:'2026-11-05 15:38:02',refs:2,auth:'待授权',use:'未使用',ver:'v1',triggers:['转人工','签核','GSP']},
+  {id:'fsk-12',name:'camera-image-quality-diagnosis',dn:'摄像头画质诊断',desc:'判定摄像头画面模糊、偏色、黑屏与遮挡四类画质问题，结合镜头状态与标定参数给出处理建议（远程重启 / 清洁镜头 / 下单检修）。',agents:['紫宝盒硬件诊断测试'],by:'libishan',at:'2026-11-05 11:12:36',refs:0,auth:'待授权',use:'未使用',ver:'v1',triggers:['画质','模糊','黑屏','遮挡']},
+];
+/* 未单独写版本历史的技能，初始化出一条已发布的首版，保证版本弹窗与发布动作有数据可操作 */
+FUNC_SKILLS.forEach(s=>{if(!s.vers)s.vers=[{v:s.ver,at:s.at,by:s.by,st:'已发布',note:'首版发布：'+s.dn+'，按 SKILL.md 口径输出判定结论。'}]});
+function funcSkillItems(){return FUNC_SKILLS}
+function fskGet(id){return FUNC_SKILLS.find(s=>s.id===id)}
+/* ---- 功能型技能列表：四列卡片 + 分页，卡片点名称或「编辑」进 Skill 详情页 ---- */
+let fskPage=1;
+const FSK_PER=8;
+function renderFskPane(){
+  const list=funcSkillItems().filter(skMatch);
+  const head=`<div class="text-[11.5px] font-bold text-gray-400 mb-2.5">功能型技能 <span class="font-normal">单点能力以 Skill 代码包形态沉淀：SKILL.md 定判定口径 · scripts 放可执行脚本 · 按版本发布给智能体</span></div>`;
+  if(!list.length)return head+skEmpty('功能型技能');
+  const pages=Math.max(1,Math.ceil(list.length/FSK_PER));
+  if(fskPage>pages)fskPage=pages;
+  const rows=list.slice((fskPage-1)*FSK_PER,fskPage*FSK_PER);
+  return head+`<div class="grid grid-cols-4 resp-grid-4 gap-3.5">${rows.map(fskCard).join('')}</div>`
+    +fskPager(list.length,pages);
+}
+function fskCard(s){
+  const authCls=s.auth==='授权可用'?'text-emerald-600':'text-amber-600';
+  const useCls=s.use==='使用中'?'text-violet-600':'text-gray-400';
+  return `<div class="card p-4 flex flex-col">
+    <div class="flex justify-end gap-1.5 text-[10px] font-semibold">
+      <span class="${authCls}">${s.auth}</span><span class="text-gray-200">|</span><span class="${useCls}">${s.use}</span>
+    </div>
+    <div class="text-[13px] font-bold leading-5 mt-1.5 break-all cursor-pointer hover:text-violet-600" onclick="openFskDetail('${s.id}')">${s.name}</div>
+    <div class="rounded-lg bg-gray-50 px-2.5 py-2 mt-2.5">
+      <p class="sk-desc text-[11px] text-gray-500 leading-relaxed">${s.desc}</p>
+      <span class="text-[10.5px] text-violet-600 cursor-pointer hover:underline" onclick="skToggleDesc(this)">展开</span>
+    </div>
+    <div class="text-[10.5px] text-gray-500 mt-2.5 truncate" title="${s.agents.join('、')||'暂未关联'}">关联智能体: ${s.agents.join('、')||'—'}</div>
+    <div class="flex items-center gap-2 mt-2 text-[10px] text-gray-300">
+      <span>@${s.by}</span><span class="ml-auto">${s.at}</span>
+    </div>
+    <div class="flex items-center mt-2.5 pt-2.5 border-t border-gray-100">
+      <span class="text-[10.5px] text-gray-400">⤓ ${s.refs}</span>
+      <div class="flex items-center gap-1.5 ml-auto">
+        <button class="btn-p !py-1 !px-2.5 text-[10.5px]" onclick="openFskDetail('${s.id}')">编 辑</button>
+        <button class="btn-o !py-1 !px-2.5 text-[10.5px]" onclick="toast('分享「${s.name}」（示意）')">分 享</button>
+        <button class="!py-1 !px-2.5 text-[10.5px] rounded-md border border-red-200 text-red-500 hover:bg-red-50" onclick="fskDel('${s.id}')">删 除</button>
+      </div>
+    </div>
+  </div>`;
+}
+function fskPager(total,pages){
+  const btn=(p,label,dis)=>dis?`<span class="px-2 py-0.5 text-gray-200">${label}</span>`
+    :`<span class="px-2 py-0.5 cursor-pointer hover:text-violet-600" onclick="fskGoPage(${p})">${label}</span>`;
+  const nums=[];
+  for(let p=1;p<=pages;p++){
+    nums.push(p===fskPage
+      ?`<span class="w-6 h-6 inline-flex items-center justify-center rounded border border-violet-500 text-violet-600 font-semibold">${p}</span>`
+      :`<span class="w-6 h-6 inline-flex items-center justify-center rounded border border-gray-200 cursor-pointer hover:border-violet-300 hover:text-violet-600" onclick="fskGoPage(${p})">${p}</span>`);
+  }
+  return `<div class="flex items-center justify-end gap-2 pt-3.5 text-[11.5px] text-gray-400">
+    <span>共 ${total} 项</span>${btn(fskPage-1,'‹',fskPage<=1)}${nums.join('')}${btn(fskPage+1,'›',fskPage>=pages)}
+  </div>`;
+}
+function fskGoPage(p){fskPage=p;renderSkillLib()}
+function fskDel(id){
+  const s=fskGet(id);if(!s)return;
+  toast(`删除「${s.name}」（示意）：已被 ${s.agents.length} 个智能体引用时需先解除引用`);
 }
 function skAllAgents(){
   const s=new Set();
@@ -3517,7 +3915,7 @@ function skFillAgentSel(){
 function applySkillFilter(){
   skFilter={use:document.getElementById('sf-use').value,auth:document.getElementById('sf-auth').value,
     kw:document.getElementById('sf-kw').value.trim(),agent:document.getElementById('sf-agent').value};
-  dtPage=1;renderSkillLib();
+  dtPage=1;fskPage=1;renderSkillLib();
   const on=Object.values(skFilter).filter(Boolean).length;
   toast(on?`已按 ${on} 个条件筛选`:'已展示全部');
 }
@@ -3525,7 +3923,7 @@ function resetSkillFilter(){
   skFilter={use:'',auth:'',kw:'',agent:''};
   ['sf-use','sf-auth','sf-agent'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('sf-kw').value='';
-  dtPage=1;renderSkillLib();toast('筛选条件已重置');
+  dtPage=1;fskPage=1;renderSkillLib();toast('筛选条件已重置');
 }
 /* ---- 看板 tab：不分 tab，统一列表 + 看板类型标签，卡片沿用技能卡样式 ---- */
 /* 看板的筛选条单列一行：共用筛选条那四项（使用状态/授权状态/智能体）对看板不适用 */
@@ -3674,7 +4072,7 @@ function renderBdPubBody(b){
             <div class="text-[9.5px] text-gray-400 truncate mt-0.5">${v.sub}</div>
           </div>`}).join('')
           ||'<div class="text-[10.5px] text-gray-400 py-2">尚未配置数据维度，发布后工作台里这块是空的</div>'}</div>
-        <div class="text-[9.5px] text-gray-400 mt-1.5 px-0.5">维度口径与执行方式在「技能库 · 看板」按维度配置 · 更新 ${dimsFreqText(b)} · 点任一维度即在会话中展开查询 · 联动智能体 ${agentNick(boardLink(b))} 可直接追问本看板数据</div>
+        <div class="text-[9.5px] text-gray-400 mt-1.5 px-0.5">更新 ${dimsFreqText(b)} · 点维度展开查询 · 可向 ${agentNick(boardLink(b))} 追问</div>
       </div>
     </div>
   </div>`;
@@ -3880,6 +4278,236 @@ function saveBoardShare(){
   toast(shScope==='public'?`「${b.name}」已设为公开可用，全员可见`
     :`「${b.name}」已授权 ${b.grants.length} 人${added?`（新增 ${added} 人 · ${perm}）`:''}`);
 }
+/* ===== 快捷操作：工作台首页「常用能力」的配置源 =====
+   授权直接发到用户，不走看板权限：看板停用或无权限也不影响快捷操作的显示 */
+const QUICKS=[
+  {id:'q1',icon:'💼',name:'查商机',kind:'agent',agent:'路书（销售AI）',prompt:'查商机列表',
+   scope:'auth',grants:[{name:'罗紫函',perm:'可使用'},{name:'任思宇',perm:'可使用'}],sort:1,enabled:true,by:'罗紫函',at:'2026-11-05 09:10'},
+  {id:'q2',icon:'🏢',name:'查客户',kind:'agent',agent:'路书（销售AI）',prompt:'查客户列表',
+   scope:'public',grants:[],sort:2,enabled:true,by:'罗紫函',at:'2026-11-05 09:12'},
+  {id:'q3',icon:'📝',name:'填线索',kind:'agent',agent:'路书（销售AI）',prompt:'填写客户线索',
+   scope:'auth',grants:[{name:'罗紫函',perm:'可使用'},{name:'任思宇',perm:'可使用'},{name:'郝可欣',perm:'可使用'}],sort:3,enabled:true,by:'罗紫函',at:'2026-11-05 09:15'},
+  {id:'q4',icon:'📋',name:'查合同报价',kind:'agent',agent:'报价Agent',prompt:'查合同及报价单',
+   scope:'auth',grants:[{name:'罗紫函',perm:'可使用'}],sort:4,enabled:true,by:'平台团队',at:'2026-11-05 09:20'},
+  {id:'q5',icon:'🚗',name:'写拜访',kind:'agent',agent:'路书（销售AI）',prompt:'写拜访跟进',
+   scope:'public',grants:[],sort:5,enabled:true,by:'罗紫函',at:'2026-11-05 09:22'},
+  {id:'q6',icon:'📄',name:'写周报',kind:'agent',agent:'KA 主理智能体',prompt:'写 KA 周报',
+   scope:'auth',grants:[{name:'王磊',perm:'可使用'}],sort:6,enabled:true,by:'王磊',at:'2026-11-05 09:26'},
+  {id:'q7',icon:'🗂️',name:'客户档案',kind:'page',biz:'CRM',page:'客户档案',open:'embed',
+   scope:'public',grants:[],sort:7,enabled:true,by:'平台团队',at:'2026-11-05 09:30'},
+  {id:'q8',icon:'🎫',name:'在途工单',kind:'page',biz:'客成系统',page:'在途工单',open:'embed',
+   scope:'auth',grants:[{name:'何伟文',perm:'可使用'}],sort:8,enabled:false,by:'何伟文',at:'2026-11-05 09:34'},
+];
+let qFilter={kind:'',scope:'',kw:''};
+function qMatch(q){
+  if(qFilter.kind&&q.kind!==qFilter.kind)return false;
+  if(qFilter.scope&&q.scope!==qFilter.scope)return false;
+  if(qFilter.kw&&!q.name.toLowerCase().includes(qFilter.kw.toLowerCase()))return false;
+  return true;
+}
+function qFilterBar(){
+  const sel=(id,ph,opts,cur)=>`<select id="${id}" class="text-[11.5px] border border-gray-200 rounded-md px-2 py-1.5 bg-white text-gray-600 focus:outline-none focus:border-violet-300">
+    <option value="">${ph}</option>${opts.map(([v,t])=>`<option value="${v}"${v===cur?' selected':''}>${t}</option>`).join('')}</select>`;
+  return `<div class="flex items-center gap-2 flex-wrap mb-3">
+    ${sel('qf-kind','关联类型',[['agent','关联智能体查询'],['page','关联系统页面']],qFilter.kind)}
+    ${sel('qf-scope','可用范围',[['public','公开可用'],['auth','授权可用']],qFilter.scope)}
+    <input id="qf-kw" class="text-[11.5px] border border-gray-200 rounded-md px-2.5 py-1.5 w-44 focus:outline-none focus:border-violet-300" placeholder="搜索快捷操作名称" value="${attrEsc(qFilter.kw)}" onkeydown="if(event.key==='Enter')applyQFilter()">
+    <button class="btn-p !py-1.5 !px-4 text-[11.5px]" onclick="applyQFilter()">搜索</button>
+    <button class="btn-o !py-1.5 !px-4 text-[11.5px]" onclick="resetQFilter()">重置</button>
+  </div>`;
+}
+function applyQFilter(){
+  qFilter={kind:document.getElementById('qf-kind').value,scope:document.getElementById('qf-scope').value,
+    kw:document.getElementById('qf-kw').value.trim()};
+  renderQuickList();
+  const on=Object.values(qFilter).filter(Boolean).length;
+  toast(on?`已按 ${on} 个条件筛选，命中 ${QUICKS.filter(qMatch).length} 个快捷操作`:'已展示全部快捷操作');
+}
+function resetQFilter(){
+  qFilter={kind:'',scope:'',kw:''};
+  renderQuickList();toast('筛选条件已重置');
+}
+function qKindTag(q){
+  const ag=q.kind==='agent';
+  return `<span class="tag ${ag?'bg-violet-100 text-violet-700':'bg-amber-50 text-amber-600'} shrink-0">${ag?'智能体查询':'系统页面'}</span>`;
+}
+function qScopeTag(q){
+  return `<span class="tag ${q.scope==='public'?'bg-sky-50 text-sky-600':'bg-emerald-50 text-emerald-600'} shrink-0" title="${q.scope==='public'?'全员可见':'仅授权用户可见'}">${q.scope==='public'?'公开可用':'授权可用'}</span>`;
+}
+function qTarget(q){
+  return q.kind==='agent'?`联动智能体：${agentNick(q.agent)}`:`跳转：${q.biz} › ${q.page}`;
+}
+/* 卡片：图标名称 + 类型/范围标签 + 启停 + 跳转目标 + 默认提示词 + 授权人数 + 操作 */
+function qCfgCard(q){
+  const ag=q.kind==='agent';
+  return `<div class="card p-4 flex flex-col ${q.enabled?'':'opacity-60'}">
+    <div class="flex items-start gap-2">
+      <span class="text-[15px] leading-5">${q.icon}</span>
+      <span class="text-[13px] font-bold leading-5 flex-1">${q.name}</span>
+      ${qKindTag(q)}${qScopeTag(q)}
+      <span class="sw ${q.enabled?'':'off'} shrink-0" onclick="event.stopPropagation();toggleQuickEnabled('${q.id}')" title="启用 / 停用"></span>
+    </div>
+    <div class="text-[10.5px] text-gray-400 mt-2 truncate" title="${attrEsc(qTarget(q))}">${qTarget(q)}</div>
+    <p class="text-[11px] text-gray-400 mt-1.5 leading-relaxed">${ag?`默认输入：<span class="text-gray-500">${q.prompt}</span>`
+      :`打开方式：${q.open==='blank'?'新窗口':'工作台内嵌'}`}</p>
+    <div class="flex items-center gap-2 mt-auto pt-2 text-[10px] text-gray-300">
+      <span>@${q.by||'—'}</span><span>${q.at||'—'}</span>
+      <span class="ml-auto">${q.scope==='public'?'全员可见':`已授权 ${(q.grants||[]).length} 人`}</span>
+    </div>
+    <div class="flex items-center mt-2.5 pt-2.5 border-t border-gray-100 text-[10.5px]">
+      <span class="text-gray-400">排序 ${q.sort}</span>
+      <span class="ml-auto flex items-center gap-3">
+        <span class="text-violet-600 cursor-pointer hover:underline" onclick="openQuickCfg('${q.id}')">编辑</span>
+        <span class="text-gray-400 cursor-pointer hover:text-red-500" onclick="delQuick('${q.id}')">删除</span>
+      </span>
+    </div>
+  </div>`;
+}
+function renderQuickList(){
+  const el=document.getElementById('sk-pane-quick');if(!el)return;
+  const list=QUICKS.filter(qMatch).sort((a,b)=>a.sort-b.sort);
+  const filtered=Object.values(qFilter).some(Boolean);
+  const empty=`<div class="col-span-3 text-[11.5px] text-gray-300 text-center py-10 border border-dashed border-gray-200 rounded-xl">${
+    filtered?'没有符合筛选条件的快捷操作，换个条件或点「重置」':'暂无快捷操作，点右上「+ 新建快捷操作」创建'}</div>`;
+  el.innerHTML=skPaneHead('快捷操作','工作台首页「常用能力」的配置源 · 授权直接发到用户，与看板权限无关','quick')
+    +qFilterBar()
+    +`<div class="grid grid-cols-3 resp-grid-3 gap-3.5">${list.map(q=>qCfgCard(q)).join('')||empty}</div>`;
+}
+function toggleQuickEnabled(id){
+  const q=QUICKS.find(x=>x.id===id);if(!q)return;
+  if(q.enabled){
+    const who=q.scope==='public'?'全员':`已授权的 ${(q.grants||[]).length} 人`;
+    if(!confirm(`确认停用快捷操作「${q.name}」？\n\n影响范围：${who}。\n停用后工作台首页常用能力区不再展示本操作，配置与授权名单保留，可随时重新启用。`))return;
+  }
+  q.enabled=!q.enabled;
+  renderQuickList();
+  toast(q.enabled?`「${q.name}」已启用，工作台首页常用能力区可见`:`「${q.name}」已停用，工作台首页不再展示`);
+}
+function delQuick(id){
+  const i=QUICKS.findIndex(x=>x.id===id);if(i<0)return;
+  if(!confirm(`确认删除快捷操作「${QUICKS[i].name}」？\n\n删除后授权名单一并清除，不可恢复。`))return;
+  const n=QUICKS[i].name;QUICKS.splice(i,1);
+  renderQuickList();toast(`「${n}」已删除`);
+}
+/* ---- 快捷操作配置弹窗 ---- */
+let qCfgId=null,qcGrants=[],qcPick=[],qcPickDept=[],qcOpenDept=['d-mkt-ka'],qcScope='auth';
+function openQuickCfg(id){
+  const q=id?QUICKS.find(x=>x.id===id):null;
+  qCfgId=id||null;
+  qcGrants=JSON.parse(JSON.stringify(q?.grants||[]));qcPick=[];qcPickDept=[];
+  qcScope=q?.scope||'auth';
+  document.getElementById('qc-title').textContent=q?`编辑快捷操作 · ${q.name}`:'新建快捷操作';
+  document.getElementById('qc-icon').value=q?.icon||'⚡';
+  document.getElementById('qc-name').value=q?.name||'';
+  document.getElementById('qc-kind').value=q?.kind||'agent';
+  document.getElementById('qc-prompt').value=q?.prompt||'';
+  document.getElementById('qc-open').value=q?.open||'embed';
+  document.getElementById('qc-sort').value=q?.sort||(QUICKS.length+1);
+  document.getElementById('qc-enabled').checked=q?q.enabled:true;
+  qcFillAgent(q?.agent||'');
+  qcFillBiz(q?.biz||'');
+  qcFillPage(q?.biz||'',q?.page||'');
+  document.getElementById('qc-kw').value='';
+  document.getElementById('qc-granted').classList.add('hidden');
+  document.querySelectorAll('input[name="qc-scope"]').forEach(r=>r.checked=r.value===qcScope);
+  qcSetKind();qcSetScope(qcScope);
+  document.getElementById('modal-quickcfg').classList.remove('hidden');
+}
+function closeQuickCfg(){document.getElementById('modal-quickcfg').classList.add('hidden')}
+function qcFillAgent(cur){
+  document.getElementById('qc-agent').innerHTML='<option value="">请选择智能体</option>'
+    +myApps.concat(agents.map(a=>a.name)).filter((v,i,a)=>a.indexOf(v)===i)
+      .map(n=>`<option value="${n}"${n===cur?' selected':''}>${n}</option>`).join('');
+}
+function qcFillBiz(cur){
+  document.getElementById('qc-biz').innerHTML='<option value="">请选择业务系统</option>'
+    +bizPageOpts().map(s=>`<option value="${s.name}"${s.name===cur?' selected':''}>${s.name}</option>`).join('');
+}
+/* 页面清单跟随所选系统；未选系统时页面下拉置灰，换系统时已选页面清空 */
+function qcFillPage(biz,cur){
+  const s=bizSystems.find(x=>x.name===biz),sel=document.getElementById('qc-page');
+  sel.disabled=!s;
+  sel.innerHTML=s?'<option value="">请选择系统页面</option>'
+    +(s.pages||[]).map(p=>`<option value="${p}"${p===cur?' selected':''}>${p}</option>`).join('')
+    :'<option value="">请先选择业务系统</option>';
+}
+function qcOnBiz(){qcFillPage(document.getElementById('qc-biz').value,'')}
+function qcSetKind(){
+  const ag=document.getElementById('qc-kind').value==='agent';
+  document.getElementById('qc-agent-wrap').classList.toggle('hidden',!ag);
+  document.getElementById('qc-page-wrap').classList.toggle('hidden',ag);
+}
+function qcSetScope(s){
+  qcScope=s;
+  const wrap=document.getElementById('qc-auth-wrap');
+  wrap.classList.toggle('opacity-40',s==='public');
+  wrap.classList.toggle('pointer-events-none',s==='public');
+  renderQcUsers();renderQcGranted();
+}
+function renderQcUsers(){
+  document.getElementById('qc-users').innerHTML=orgPickerHTML('qc',{grants:qcGrants,pick:qcPick,pickDept:qcPickDept,open:qcOpenDept});
+}
+function qcToggleDept(id){
+  qcOpenDept=qcOpenDept.includes(id)?qcOpenDept.filter(x=>x!==id):[...qcOpenDept,id];
+  renderQcUsers();
+}
+function qcToggleDeptPick(id,on){
+  qcPickDept=on?[...new Set([...qcPickDept,id])]:qcPickDept.filter(x=>x!==id);
+  renderQcUsers();
+}
+function qcTogglePick(n,on){
+  qcPick=on?[...new Set([...qcPick,n])]:qcPick.filter(x=>x!==n);
+}
+function qcPickedNames(){
+  return [...new Set([...qcPickDept.flatMap(id=>fsSubMembers(id)),...qcPick])];
+}
+function qcToggleGranted(){
+  const el=document.getElementById('qc-granted');
+  el.classList.toggle('hidden');
+  if(!el.classList.contains('hidden'))renderQcGranted();
+}
+function renderQcGranted(){
+  document.getElementById('qc-count').textContent=qcScope==='public'?'全员':qcGrants.length;
+  const el=document.getElementById('qc-granted');
+  el.innerHTML=qcGrants.length?qcGrants.map((g,i)=>`
+    <div class="flex items-center gap-2 px-3 py-2 text-[12px]">
+      <span>${g.name}</span><span class="tag bg-gray-100 text-gray-500">${g.perm}</span>
+      <span class="text-gray-400 cursor-pointer hover:text-red-500 ml-auto text-[11px]" onclick="qcRevoke(${i})">移除</span>
+    </div>`).join(''):'<div class="px-3 py-2.5 text-[11.5px] text-gray-300">暂无已授权用户</div>';
+}
+function qcRevoke(i){qcGrants.splice(i,1);renderQcGranted();renderQcUsers()}
+function saveQuickCfg(){
+  const icon=document.getElementById('qc-icon').value.trim();
+  const name=document.getElementById('qc-name').value.trim();
+  const kind=document.getElementById('qc-kind').value;
+  if(!icon){toast('请填写图标');return}
+  if(!name){toast('请填写快捷名称');return}
+  const d={icon,name,kind,scope:qcScope,
+    sort:Number(document.getElementById('qc-sort').value)||QUICKS.length+1,
+    enabled:document.getElementById('qc-enabled').checked};
+  if(kind==='agent'){
+    d.agent=document.getElementById('qc-agent').value;
+    d.prompt=document.getElementById('qc-prompt').value.trim();
+    if(!d.agent){toast('请选择关联智能体');return}
+    if(!d.prompt){toast('请填写默认输入提示词');return}
+  }else{
+    d.biz=document.getElementById('qc-biz').value;
+    d.page=document.getElementById('qc-page').value;
+    d.open=document.getElementById('qc-open').value;
+    if(!d.biz){toast('请选择关联业务系统');return}
+    if(!d.page){toast('请选择系统页面');return}
+  }
+  const picked=qcPickedNames();
+  if(qcScope==='auth'&&!qcGrants.length&&!picked.length){toast('请至少选择一个部门或人员');return}
+  if(qcScope==='auth')picked.forEach(n=>{if(!qcGrants.some(g=>g.name===n))qcGrants.push({name:n,perm:'可使用'})});
+  d.grants=qcScope==='public'?[]:qcGrants;
+  const q=qCfgId?QUICKS.find(x=>x.id===qCfgId):null;
+  if(q)Object.assign(q,d);
+  else QUICKS.push(Object.assign({id:'q'+(Date.now()%100000),by:'罗紫函',at:'2026-11-05 10:00'},d));
+  closeQuickCfg();renderQuickList();
+  toast(`「${name}」已保存，${d.scope==='public'?'全员可用':`已授权 ${d.grants.length} 人`}`);
+}
+
 /* ---- 看板配置弹窗 ---- */
 let cfgBoardId=null,cfgBoard=null;
 function openBoardCfg(id){
@@ -4224,19 +4852,21 @@ function skillAdd(tab){
     tool:'添加工具：定义入参出参与调用方式，授权后可挂到智能体',table:'添加数据表：选择数据源与同步策略，同步后可作为看板取数口径',board:'新建看板：配置名称、联动智能体、更新时间与数据维度'};
   if(k==='board'){document.getElementById('modal-boardnew').classList.remove('hidden');return}
   if(k==='table'){openDtNew();return}
+  if(k==='quick'){openQuickCfg(null);return}
   toast(map[k]+'（示意）');
 }
 function renderSkillLib(){
   document.getElementById('skill-detailview').classList.add('hidden');
   document.getElementById('dt-detailview').classList.add('hidden');
   document.getElementById('dt-newview').classList.add('hidden');
+  document.getElementById('fsk-detailview').classList.add('hidden');
   document.getElementById('skill-listview').classList.remove('hidden');
   skPageHead(true);
   skFillAgentSel();
   const fl=flowAsItems().filter(skMatch).map(x=>x.flow);
   document.getElementById('skill-flow-wrap').innerHTML=
     skPaneHead('流程型技能','流程模板以技能形态沉淀：触发器=入口规则 · 编排=节点/路由/SLA · 骨架归技能负责人，节点配置授权节点负责人','skills',
-      `<button class="text-[12px] font-semibold text-violet-600 hover:underline whitespace-nowrap" onclick="toast('自动创建 Skill：从历史会话与任务记录中挖掘高频动作，自动沉淀成 Skill 草稿（示意）')">☆ 自动创建 Skill</button>`)
+      `<button class="btn-o !py-1.5 !px-3 text-[12px] !text-violet-600 !border-violet-200 whitespace-nowrap" onclick="openFskCreate()">☆ 自动创建 Skill</button>`)
     +`${fl.length?'':skEmpty('流程型技能')}
     <div class="grid grid-cols-2 gap-3.5">${fl.map(f=>`
       <div class="card card-asset p-4 cursor-pointer hover:ring-2 hover:ring-violet-300" onclick="openFlowSkill('${f.id}')">
@@ -4250,16 +4880,7 @@ function renderSkillLib(){
           <span>${f.nodes.length} 节点</span><span>在途 ${f.tasks}</span><span>按时完成率 ${f.onTime}</span><span class="ml-auto">负责人 ${f.owner.split('（')[0]}</span>
         </div>
       </div>`).join('')}</div>`;
-  const fn=funcSkillItems().filter(skMatch);
-  document.getElementById('skill-func-wrap').innerHTML=`
-    <div class="text-[11.5px] font-bold text-gray-400 mb-2.5">功能型技能 <span class="font-normal">单点能力与自动任务，跟随宿主智能体运行</span></div>
-    ${fn.length?'':skEmpty('功能型技能')}
-    <div class="grid grid-cols-3 resp-grid-3 gap-3.5">${fn.map(s=>`
-      <div class="card p-4">
-        <div class="flex items-center gap-2"><span class="text-[15px]">${s.icon}</span><span class="text-[13px] font-bold">${s.name}</span><span class="tag bg-gray-100 text-gray-500 ml-auto">功能型</span></div>
-        <p class="text-[11px] text-gray-400 mt-1.5 leading-relaxed">${s.desc}</p>
-        <div class="text-[10.5px] text-gray-300 mt-2">宿主：${s.by}</div>
-      </div>`).join('')}</div>`;
+  document.getElementById('skill-func-wrap').innerHTML=renderFskPane();
   renderSkillPane();
   showSkillTab(skTab);
 }
@@ -4301,7 +4922,7 @@ function dtHeadCard(t){
       <span class="text-[17px]">${t.icon}</span>
       <span class="font-bold text-[15px]">${t.name}</span>
       <span class="tag ${authCls}">${t.auth}</span>
-      <span class="tag ${DT_WPERM_CLS[t.wperm||'read']}">智能体${DT_WPERM[t.wperm||'read']}</span>
+      ${dtWpermTags(t,'智能体')}
       <button class="btn-o !py-0.5 !px-2 text-[11px] ml-auto" onclick="openDtEdit()">编 辑</button>
     </div>
     <p class="text-[11.5px] text-gray-500 mt-2 leading-relaxed">${t.desc}</p>
@@ -4511,17 +5132,24 @@ function dtRollback(b){
 }
 /* ===== 分享与授权：分享到人（部门树）+ 授权智能体 ===== */
 let dtsScope='auth',dtsGrants=[],dtsPick=[],dtsPickDept=[],dtsOpenDept=['d-mkt-ka'];
+let dtsWmode='uni',dtsWperm='read',dtsWGrants=[],dtsWOpen=[];
 function openDtShare(id){
   if(id)curDt=id;
   const t=dtGet();
   dtsScope=t.scope||'auth';
   dtsGrants=JSON.parse(JSON.stringify(t.grants||[]));
   dtsPick=[];dtsPickDept=[];
+  dtsWmode=t.wmode||'uni';
+  dtsWperm=t.wperm||'read';
+  dtsWGrants=JSON.parse(JSON.stringify(t.wgrants||[]));
+  dtsWOpen=[];
   document.getElementById('dts-kw').value='';
   document.getElementById('dts-perm').value='可使用';
   document.getElementById('dts-granted').classList.add('hidden');
   document.querySelectorAll('input[name="dts-scope"]').forEach(r=>r.checked=r.value===dtsScope);
+  document.querySelectorAll('input[name="dts-wmode"]').forEach(r=>r.checked=r.value===dtsWmode);
   document.getElementById('modal-dtshare').classList.remove('hidden');
+  renderDtsWperm();
   dtsSetScope(dtsScope);
 }
 function closeDtShare(){document.getElementById('modal-dtshare').classList.add('hidden')}
@@ -4530,7 +5158,65 @@ function dtsSetScope(s){
   const wrap=document.getElementById('dts-auth-wrap');
   wrap.classList.toggle('opacity-40',s==='public');
   wrap.classList.toggle('pointer-events-none',s==='public');
-  renderDtsUsers();renderDtsGranted();
+  renderDtsUsers();renderDtsGranted();renderDtsWadv();
+}
+/* ---- 智能体应用权限：统一一档 / 高级设置按人加档 ---- */
+/* 高级设置的候选人：授权可用取本表已授权与本次新勾的人，公开可用取平台全员 */
+function dtsWCands(){
+  if(dtsScope==='public')
+    return [...new Set([...users.map(u=>u.name),...FS_ORG.flatMap(d=>d.subs.flatMap(s=>s.members)),...FS_NO_DEPT])];
+  return [...new Set([...dtsGrants.map(g=>g.name),...dtsPickedNames()])];
+}
+function dtsSetWmode(m){
+  dtsWmode=m;renderDtsWperm();renderDtsWadv();
+}
+function dtsSetWperm(v){
+  dtsWperm=v;renderDtsWadv();
+}
+function renderDtsWperm(){
+  document.getElementById('dts-wperm-label').textContent=dtsWmode==='adv'?'通用档（未单独配置的用户走这档）':'统一档位';
+  document.getElementById('dts-wperm').innerHTML=DT_WPERM_OPTS.map(o=>
+    `<option value="${o[0]}" ${o[0]===dtsWperm?'selected':''}>${o[1]}</option>`).join('');
+  document.getElementById('dts-wadv').classList.toggle('hidden',dtsWmode!=='adv');
+}
+function dtsToggleWLv(k){
+  dtsWOpen=dtsWOpen.includes(k)?dtsWOpen.filter(x=>x!==k):[...dtsWOpen,k];
+  renderDtsWadv();
+}
+/* 一个人只能落在一档：勾新档位时先从原档位摘掉 */
+function dtsPickWUser(k,n){
+  const cur=dtsWGrants.find(g=>g.name===n);
+  dtsWGrants=dtsWGrants.filter(g=>g.name!==n);
+  if(!cur||cur.perm!==k)dtsWGrants.push({name:n,perm:k});
+  renderDtsWadv();
+}
+function renderDtsWadv(){
+  const box=document.getElementById('dts-wadv');
+  if(dtsWmode!=='adv'){box.innerHTML='';return}
+  const cands=dtsWCands();
+  /* 候选人被移出授权名单、或通用档提到该档位之上时，特配自动失效 */
+  dtsWGrants=dtsWGrants.filter(g=>cands.includes(g.name)&&dtWLv(g.perm)>dtWLv(dtsWperm));
+  const lvs=DT_WPERM_OPTS.filter(o=>dtWLv(o[0])>dtWLv(dtsWperm));
+  if(!lvs.length){box.innerHTML='<div class="text-[11.5px] text-gray-300 px-1">通用档已是最高档，没有可单独配置的档位</div>';return}
+  if(!cands.length){box.innerHTML='<div class="text-[11.5px] text-gray-300 px-1">还没有授权对象，先在上面勾选部门或人员</div>';return}
+  box.innerHTML=lvs.map(o=>{
+    const k=o[0],open=dtsWOpen.includes(k),mine=dtsWGrants.filter(g=>g.perm===k);
+    return `<div class="border border-gray-100 rounded-xl overflow-hidden">
+      <div class="flex items-center gap-2 px-3 py-2.5 cursor-pointer hover:bg-violet-50/40" onclick="dtsToggleWLv('${k}')">
+        <span class="tag ${DT_WPERM_CLS[k]}">${DT_WPERM[k]}</span>
+        <span class="text-[11.5px] text-gray-400">${mine.length?`已配 ${mine.length} 人`:'未单独配置'}</span>
+        <span class="ml-auto text-gray-300 text-[11px]">${open?'⌄':'›'}</span>
+      </div>
+      ${open?`<div class="border-t border-gray-100 max-h-[150px] overflow-y-auto">${cands.map(n=>{
+        const g=dtsWGrants.find(x=>x.name===n),other=g&&g.perm!==k;
+        return `<label class="flex items-center gap-2 px-3 py-1.5 text-[12px] cursor-pointer hover:bg-gray-50 border-b border-gray-50 last:border-0">
+          <input type="checkbox" class="accent-violet-600" ${g&&g.perm===k?'checked':''} onchange="dtsPickWUser('${k}','${n}')">
+          <span>${n}</span><span class="text-[10.5px] text-gray-400">${deptUser(n).acct}</span>
+          ${other?`<span class="text-[10.5px] text-gray-400 ml-auto">已配 ${DT_WPERM[g.perm]}</span>`:''}
+        </label>`;
+      }).join('')}</div>`:''}
+    </div>`;
+  }).join('');
 }
 function dtsToggleDept(id){
   dtsOpenDept=dtsOpenDept.includes(id)?dtsOpenDept.filter(x=>x!==id):[...dtsOpenDept,id];
@@ -4541,10 +5227,11 @@ function renderDtsUsers(){
 }
 function dtsToggleDeptPick(id,on){
   dtsPickDept=on?[...new Set([...dtsPickDept,id])]:dtsPickDept.filter(x=>x!==id);
-  renderDtsUsers();
+  renderDtsUsers();renderDtsWadv();
 }
 function dtsTogglePick(n,on){
   dtsPick=on?[...new Set([...dtsPick,n])]:dtsPick.filter(x=>x!==n);
+  renderDtsWadv();
 }
 function dtsPickedNames(){
   const fromDept=dtsPickDept.flatMap(id=>fsSubMembers(id));
@@ -4565,16 +5252,39 @@ function renderDtsGranted(){
     </div>`).join(''):'<div class="px-3 py-2.5 text-[11.5px] text-gray-300">暂无已授权用户</div>';
 }
 function dtsRevoke(i){
-  dtsGrants.splice(i,1);renderDtsGranted();renderDtsUsers();
+  dtsGrants.splice(i,1);renderDtsGranted();renderDtsUsers();renderDtsWadv();
 }
 function saveDtShare(){
   const t=dtGet(),picked=dtsPickedNames();
   if(dtsScope==='auth'&&!dtsGrants.length&&!picked.length){toast('请至少选择一个部门或人员');return}
+  if(dtsWmode==='adv'&&!dtsWGrants.length){toast('高级设置下请至少为一个用户配置高于通用档的权限，否则改回统一设置');return}
   const perm=document.getElementById('dts-perm').value;
   if(dtsScope==='auth')picked.forEach(n=>{if(!dtsGrants.some(g=>g.name===n))dtsGrants.push({name:n,perm})});
+  const wasMax=dtMaxWperm(t);
   t.scope=dtsScope;t.grants=dtsScope==='public'?[]:dtsGrants;
+  t.wmode=dtsWmode;t.wperm=dtsWperm;
+  /* 公开可用没有授权名单，特配名单按人单独留存；授权可用时跟着名单收敛 */
+  t.wgrants=dtsWmode==='adv'
+    ?(dtsScope==='public'?dtsWGrants:dtsWGrants.filter(g=>t.grants.some(x=>x.name===g.name)))
+    :[];
+  const note=dtSyncWrite(t,wasMax);
   closeDtShare();renderDtDetail();
-  toast(`「${t.name}」授权已保存：${dtsScope==='public'?'全员可用':`${t.grants.length} 人可用`}`);
+  if(!document.getElementById('skill-listview').classList.contains('hidden'))renderSkillLib();
+  const w=dtsWmode==='adv'?`智能体应用权限通用档${DT_WPERM[t.wperm]} + ${t.wgrants.length} 人特配`:`智能体应用权限${DT_WPERM[t.wperm]}`;
+  toast(`「${t.name}」授权已保存：${dtsScope==='public'?'全员可用':`${t.grants.length} 人可用`}，${w}${note}`);
+}
+/* 权限动了就同步唯一键与维护方式：按表的实际最高档判断，不看通用档 */
+function dtSyncWrite(t,wasMax){
+  const now=dtMaxWperm(t);
+  if(wasMax==='read'&&now!=='read'){
+    if(!t.pk)t.pk='记录编号';
+    if(!t.fields.some(f=>f.cn===t.pk))
+      t.fields.unshift(F('record_no','文本',t.pk,'整行的唯一标识，智能体写入时按此定位行',{smp:'自动生成'}));
+    t.syncNote='智能体自动更新';
+    return `，已补唯一键「${t.pk}」`;
+  }
+  if(wasMax!=='read'&&now==='read'){t.syncNote='手工维护';return '，已收回写入能力'}
+  return '';
 }
 /* ===== 新增数据表 =====
    第一步弹窗选形态：upload=上传文件（解析后自动填表名与描述）/ custom=自定义数据表
@@ -4796,7 +5506,7 @@ function saveDtNew(){
     sync:'ok',syncNote:canWrite?'智能体自动更新':'手工维护',
     syncAt:bzStamp(),rowCnt:hasFile?'96':'0',limit:0,
     pk:canWrite?'记录编号':'',
-    agents:[],wperm,
+    agents:[],wperm,wmode:'uni',wgrants:[],
     by:ME,at:bzStamp(),refs:0,auth:'待授权',use:'未使用',
     scope:'auth',grants:[],
     fields:[],queries:[],rows:[],writes:[]};
@@ -4814,14 +5524,12 @@ function saveDtNew(){
       :`「${name}」已创建，请在「字段及描述」里添加字段`);
   openDtDetail(t.id);
 }
-/* ===== 编辑数据表：智能体应用权限 + 表名描述 =====
-   入口只在详情页头卡；列表「编辑」进详情页 */
+/* ===== 编辑数据表：只改表名与描述 =====
+   智能体应用权限统一在「分享与授权」里按人配，这里不出现 */
 function openDtEdit(){
   const t=dtGet();if(!t)return;
   document.getElementById('dte-name').value=t.name;
   document.getElementById('dte-desc').value=t.desc;
-  document.getElementById('dte-wperm').innerHTML=DT_WPERM_OPTS.map(o=>
-    `<option value="${o[0]}" ${o[0]===(t.wperm||'read')?'selected':''}>${o[1]}</option>`).join('');
   document.getElementById('modal-dtedit').classList.remove('hidden');
 }
 function closeDtEdit(){document.getElementById('modal-dtedit').classList.add('hidden')}
@@ -4831,21 +5539,9 @@ function saveDtEdit(){
   if(!name){toast('请填写数据表名称');return}
   const desc=document.getElementById('dte-desc').value.trim();
   if(!desc){toast('请填写数据表描述：模型靠这段判断该不该调用这张表');return}
-  const wperm=document.getElementById('dte-wperm').value;
-  const was=t.wperm||'read',turnOn=was==='read'&&wperm!=='read',turnOff=was!=='read'&&wperm==='read';
-  t.name=name;t.desc=desc;t.wperm=wperm;
-  /* 从只读开写：补唯一键，智能体写入靠它定位行 */
-  if(turnOn){
-    if(!t.pk)t.pk='记录编号';
-    if(!t.fields.some(f=>f.cn===t.pk))
-      t.fields.unshift(F('record_no','文本',t.pk,'整行的唯一标识，智能体写入时按此定位行',{smp:'自动生成'}));
-    t.syncNote='智能体自动更新';
-  }
-  if(turnOff)t.syncNote='手工维护';
+  t.name=name;t.desc=desc;
   closeDtEdit();renderDtDetail();
-  toast(turnOn?`「${name}」已保存：权限提到${DT_WPERM[wperm]}，已补唯一键「${t.pk}」`
-    :turnOff?`「${name}」已保存：权限收回只读，智能体不再写入这张表`
-    :`「${name}」已保存`);
+  toast(`「${name}」已保存`);
 }
 function renderSkillPane(){
   const mcp=MCP_ITEMS.filter(skMatch),tool=toolItems().filter(skMatch),tbl=DATA_TABLES.filter(skMatch);
@@ -4858,13 +5554,15 @@ function renderSkillPane(){
     +(tool.length?g(tool):skEmpty('工具'));
   document.getElementById('sk-pane-table').innerHTML=renderDtPane(tbl);
   renderBoardCfgList();
+  renderQuickList();
 }
 let skTab='skills';
 function showSkillTab(t){
   skTab=t;
   document.querySelectorAll('#pg-skills .rtab').forEach(x=>x.classList.toggle('active',x.dataset.sk===t));
-  ['skills','mcp','tool','table','board'].forEach(p=>document.getElementById('sk-pane-'+p).classList.toggle('hidden',p!==t));
-  document.getElementById('skill-filter').classList.toggle('hidden',t==='board');
+  ['skills','mcp','tool','table','board','quick'].forEach(p=>document.getElementById('sk-pane-'+p).classList.toggle('hidden',p!==t));
+  /* 看板与快捷操作各自带专用筛选条，共用筛选条那四项对它们不适用 */
+  document.getElementById('skill-filter').classList.toggle('hidden',t==='board'||t==='quick');
   emitPage();
 }
 function openFlowSkill(id){
@@ -4881,6 +5579,257 @@ function closeFlowSkill(){
   document.getElementById('skill-detailview').classList.add('hidden');
   document.getElementById('skill-listview').classList.remove('hidden');
   renderSkillLib();
+}
+/* ===== 功能型技能详情页：左文件树 + 右 Preview / Code ===== */
+/* SKILL.md 按 Skill 字段拼出：frontmatter 声明元信息与触发词，正文写目标、适用边界与执行步骤 */
+function fskMd(s){
+  const trg=(s.triggers||[]).map(t=>'  - '+t).join('\n');
+  return `---
+name: ${s.name}
+displayName: ${s.dn}
+description: ${s.desc}
+  当诊断流程走到「${s.dn}」前，须先经本 SKILL 判定，避免重复动作。
+triggers:
+${trg}
+agent_created: true
+version: "${s.ver.replace('v','')}.2.1"
+---
+
+# ${s.dn}
+
+## 1. 目标
+- **服务对象**：${s.agents.join(' / ')||'待关联智能体'}
+- **要交付的结果**：归一化判定值之一：\`NEED_REPAIR\`（需要下单）/ \`WAIT_EXISTING\`（已有工单等待）/ \`OBSERVE\`（建议观察）/ \`ESCALATE_L1\`（转一线修改内容），外加判定依据明细
+- **成功标准**：
+  1. 正确查询设备近 3 天工单（含未完结工单）
+  2. 正确判定工单内容是否含诊断类型关键词
+  3. 按工单状态分流，给出精确判定值
+  4. 避免对有在途工单的设备重复下单
+
+## 2. 何时使用 / 何时不适用
+**使用：** 上游诊断流程已得出初步结论，需要确认是否执行下一步动作时调用。
+**不适用：** 客户仅咨询设备参数、未进入诊断流程时不调用；设备不在保修范围内时直接转人工。
+
+## 3. 执行步骤
+1. 取设备号与反馈时点，校验必填项
+2. 调 MCP 接口拉取数据，窗口为反馈时点前后各 24 小时
+3. 按判定口径逐项排除，命中即返回对应判定值
+4. 调 \`validate_report.py\` 校验输出，不合规时拦截并报错
+
+## 4. 输出格式
+\`\`\`json
+{ "verdict": "WAIT_EXISTING", "evidence": ["WO-20261103-0921 在途，内容含温度"], "checked_at": "${s.at}" }
+\`\`\`
+`;
+}
+let curFsk=null,fskFile='SKILL.md',fskView='code';
+function openFskDetail(id){
+  curFsk=id;fskFile='SKILL.md';fskView='code';
+  document.getElementById('skill-listview').classList.add('hidden');
+  document.getElementById('skill-detailview').classList.add('hidden');
+  document.getElementById('dt-newview').classList.add('hidden');
+  document.getElementById('dt-detailview').classList.add('hidden');
+  document.getElementById('fsk-detailview').classList.remove('hidden');
+  document.getElementById('skill-filter').classList.add('hidden');
+  skPageHead(false);
+  renderFskDetail();
+  emitPage();
+}
+function closeFskDetail(){
+  document.getElementById('fsk-detailview').classList.add('hidden');
+  curFsk=null;renderSkillLib();emitPage();
+}
+function fskPickFile(f){fskFile=f;renderFskDetail()}
+function fskSetView(v){fskView=v;renderFskDetail()}
+function renderFskDetail(){
+  const s=fskGet(curFsk);if(!s)return;
+  const body=fskFileBody(s,fskFile);
+  const lines=body.replace(/\n$/,'').split('\n');
+  const kb=(new TextEncoder().encode(body).length/1024).toFixed(2);
+  const pub=s.vers.find(v=>v.v===s.ver);
+  const tree=[['scripts',['scripts/analyze.py','scripts/validate_report.py']],['tests',['tests/test_analyze.py']]];
+  document.getElementById('fsk-detailview').innerHTML=`
+    <div class="flex items-center gap-3 mb-3">
+      <button class="btn-o !py-1 !px-3 text-[11px]" onclick="closeFskDetail()">返 回</button>
+      <span class="text-[15px] font-bold break-all">${s.name}</span>
+      <button class="btn-o !py-1 !px-3 text-[11px]" onclick="toast('开始调试（示意）：在调试会话里跑这版 Skill，看判定值与依据是否符合预期')">▷ 开始调试</button>
+      <div class="flex items-center gap-2 ml-auto shrink-0">
+        <button class="btn-o !py-1 !px-3 text-[11px] !text-violet-600 !border-violet-200" onclick="openFskAuto()">✦ 自动修改 Skill</button>
+        <button class="btn-o !py-1 !px-3 text-[11px] !text-violet-600 !border-violet-200" onclick="openFskVer()">⟳ 版本更新及发布</button>
+        <button class="btn-p !py-1 !px-3 text-[11px]" onclick="toast('已保存草稿（示意）：保存只落草稿，须经「版本更新及发布」发布后才对智能体生效')">保 存</button>
+      </div>
+    </div>
+    <div class="flex gap-3 items-stretch" style="height:calc(100vh - 150px)">
+      <div class="card w-[240px] shrink-0 flex flex-col overflow-hidden">
+        <div class="px-3 py-2.5 text-[11.5px] text-gray-400 border-b border-gray-100">文件列表</div>
+        <div class="flex-1 overflow-y-auto py-2 text-[12px]">
+          <div class="px-3 py-1.5 font-semibold text-gray-600 truncate">▾ 📁 ${s.name}</div>
+          ${tree.map(([dir,files])=>`
+            <div class="pl-5 py-1.5 text-gray-500">▾ 📁 ${dir}</div>
+            ${files.map(f=>`<div class="pl-9 pr-3 py-1.5 cursor-pointer truncate ${fskFile===f?'bg-violet-50 text-violet-700 font-semibold':'text-gray-500 hover:bg-gray-50'}" onclick="fskPickFile('${f}')">📄 ${f.split('/')[1]}</div>`).join('')}`).join('')}
+          <div class="pl-5 pr-3 py-1.5 cursor-pointer truncate ${fskFile==='SKILL.md'?'bg-violet-50 text-violet-700 font-semibold':'text-gray-500 hover:bg-gray-50'}" onclick="fskPickFile('SKILL.md')">📄 SKILL.md</div>
+        </div>
+        <div class="px-3 py-2.5 border-t border-gray-100 text-[11px] text-gray-400 space-y-1">
+          <div class="flex items-center gap-2"><span class="text-gray-600 font-semibold">版本: ${s.ver}</span>
+            <span class="tag ${pub&&pub.st==='已发布'?'bg-emerald-50 text-emerald-600':'bg-amber-50 text-amber-600'} ml-auto">${pub?pub.st:'待发布'}</span></div>
+          <div>🕑 ${pub?pub.at:s.at}</div>
+          <div>⚒ ${s.by}</div>
+        </div>
+      </div>
+      <div class="card flex-1 min-w-0 flex flex-col overflow-hidden">
+        <div class="flex items-center gap-2 px-3 py-2.5 border-b border-gray-100">
+          <div class="inline-flex rounded-lg bg-gray-100 p-0.5 text-[11.5px]">
+            ${[['preview','Preview'],['code','Code']].map(v=>`<span class="px-3 py-1 rounded-md cursor-pointer ${fskView===v[0]?'bg-white font-semibold text-gray-700 shadow-sm':'text-gray-400'}" onclick="fskSetView('${v[0]}')">${v[1]}</span>`).join('')}
+          </div>
+          <span class="text-[11px] text-gray-400 ml-1">${lines.length} lines <span class="text-gray-300 mx-1">·</span> ${kb} KB</span>
+          <button class="ml-auto text-gray-300 hover:text-violet-600 text-[13px]" onclick="toast('已复制文件内容（示意）')">⧉</button>
+        </div>
+        <div class="flex-1 overflow-auto">${fskView==='code'?fskCodeView(lines):fskPreviewView(body)}</div>
+      </div>
+    </div>`;
+}
+function fskCodeView(lines){
+  return `<table class="text-[12px] font-mono w-full border-collapse"><tbody>${lines.map((l,i)=>`
+    <tr><td class="text-right align-top text-gray-300 select-none w-12 pr-3 py-0.5 border-r border-gray-100">${i+1}</td>
+    <td class="pl-3 py-0.5 text-gray-700 whitespace-pre-wrap break-all">${htmlEsc(l)||'&nbsp;'}</td></tr>`).join('')}</tbody></table>`;
+}
+/* Preview 态只做阅读态呈现：标题、列表、行内强调与代码块按 markdown 层级简单渲染 */
+function fskInline(s){
+  return htmlEsc(s)
+    .replace(/\*\*(.+?)\*\*/g,'<b class="text-gray-700">$1</b>')
+    .replace(/`([^`]+?)`/g,'<code class="font-mono text-[11px] bg-gray-100 text-violet-700 rounded px-1 py-0.5">$1</code>');
+}
+function fskPreviewView(body){
+  let fence=null;
+  const out=[];
+  body.replace(/^---[\s\S]*?\n---\n/,'').split('\n').forEach(l=>{
+    if(/^```/.test(l)){
+      if(fence){out.push(`<pre class="font-mono text-[11px] bg-gray-50 text-gray-600 rounded-lg px-3 py-2.5 my-2 overflow-x-auto">${htmlEsc(fence.join('\n'))}</pre>`);fence=null}
+      else fence=[];
+      return;
+    }
+    if(fence){fence.push(l);return}
+    if(/^### /.test(l))return out.push(`<div class="text-[12.5px] font-bold mt-3">${fskInline(l.slice(4))}</div>`);
+    if(/^## /.test(l))return out.push(`<div class="text-[13.5px] font-bold mt-4">${fskInline(l.slice(3))}</div>`);
+    if(/^# /.test(l))return out.push(`<div class="text-[16px] font-black mb-1">${fskInline(l.slice(2))}</div>`);
+    if(/^\s*([-*]|\d+\.)\s/.test(l))return out.push(`<div class="text-[12px] text-gray-600 leading-relaxed pl-3">${fskInline(l)}</div>`);
+    if(!l.trim())return out.push('<div class="h-1.5"></div>');
+    out.push(`<div class="text-[12px] text-gray-600 leading-relaxed">${fskInline(l)}</div>`);
+  });
+  if(fence)out.push(`<pre class="font-mono text-[11px] bg-gray-50 text-gray-600 rounded-lg px-3 py-2.5 my-2 overflow-x-auto">${htmlEsc(fence.join('\n'))}</pre>`);
+  return `<div class="px-5 py-4 max-w-[760px]">${out.join('')}</div>`;
+}
+/* ---- 自动修改 Skill：详情页进来是改当前 Skill，列表页进来是从零创建 ---- */
+let fskAutoMode='edit';
+function openFskAuto(){
+  fskAutoMode='edit';
+  document.getElementById('fska-title').textContent='✦ 自动修改 Skill';
+  fskAutoReset();
+}
+function openFskCreate(){
+  fskAutoMode='new';
+  document.getElementById('fska-title').textContent='✦ 自动创建 Skill';
+  fskAutoReset();
+}
+function fskAutoReset(){
+  document.getElementById('fska-req').value='';
+  document.getElementById('fska-cnt').textContent='0 / 30000';
+  fskaDtSel=[];
+  document.getElementById('fska-dt-box').classList.add('hidden');
+  document.getElementById('fska-dt-kw').value='';
+  document.getElementById('fska-dt-arrow').textContent='›';
+  renderFskaDt();
+  document.getElementById('modal-fskauto').classList.remove('hidden');
+}
+function closeFskAuto(){document.getElementById('modal-fskauto').classList.add('hidden')}
+/* ---- 可使用的数据表：只列授权可用的表，勾中的表作为 Skill 的取数来源 ---- */
+let fskaDtSel=[];
+function fskaToggleDt(){
+  const hidden=document.getElementById('fska-dt-box').classList.toggle('hidden');
+  document.getElementById('fska-dt-arrow').textContent=hidden?'›':'⌄';
+}
+function renderFskaDt(){
+  document.getElementById('fska-dt-list').innerHTML=
+    dtPickRows(document.getElementById('fska-dt-kw').value,fskaDtSel,'fskaPickDt');
+  const n=fskaDtSel.length;
+  document.getElementById('fska-dt-cnt').textContent=n?`已选 ${n} 张`:'';
+}
+function fskaPickDt(id){
+  const i=fskaDtSel.indexOf(id);
+  if(i<0)fskaDtSel.push(id);else fskaDtSel.splice(i,1);
+  renderFskaDt();
+}
+function fskAutoRun(){
+  if(!document.getElementById('fska-req').value.trim())return toast('请先描述创建修改 skill 的要求');
+  const dt=fskaDtSel.length?`，已挂 ${fskaDtSel.length} 张数据表，取数逻辑按这些表的字段口径写`:'';
+  closeFskAuto();
+  toast(fskAutoMode==='new'
+    ?`开始编写（示意）：按要求生成 SKILL.md 与脚本${dt}，生成完成后进详情页校对，再走版本发布`
+    :`开始编写（示意）：改动写入当前草稿${dt}，须经「版本更新及发布」发布后才对智能体生效`);
+}
+/* ---- 版本更新及发布：每个版本带修改说明，新增版本时必填 ---- */
+function openFskVer(){document.getElementById('modal-fskver').classList.remove('hidden');renderFskVerList()}
+function closeFskVer(){document.getElementById('modal-fskver').classList.add('hidden')}
+function renderFskVerList(){
+  const s=fskGet(curFsk);if(!s)return;
+  document.getElementById('fskver-list').innerHTML=s.vers.map(v=>{
+    const cur=v.v===s.ver;
+    return `<div class="rounded-xl border ${cur?'border-violet-400':'border-gray-100'} px-4 py-3">
+      <div class="flex items-center gap-3">
+        <span class="w-9 h-9 shrink-0 rounded-full bg-violet-100 text-violet-700 text-[12px] font-bold inline-flex items-center justify-center">${v.v}</span>
+        <div class="min-w-0">
+          <div class="flex items-center gap-2"><span class="text-[13px] font-bold">Skill 代码包</span>
+            ${cur?'<span class="tag bg-violet-50 text-violet-600">当前查看</span>':''}</div>
+          <div class="text-[11px] text-gray-400 mt-0.5">更新于 ${v.at} <span class="text-gray-300 mx-1">·</span> 由 @${v.by} 创建</div>
+        </div>
+        <div class="flex items-center gap-2 ml-auto shrink-0">
+          ${v.st==='已发布'
+            ?'<span class="tag bg-emerald-50 text-emerald-600">● 已发布</span>'
+            :`<span class="tag ${v.st==='历史'?'bg-gray-100 text-gray-500':'bg-amber-50 text-amber-600'}">● ${v.st}</span>
+              <button class="btn-p !py-1 !px-3 text-[11px]" onclick="fskPublish('${v.v}')">发 布</button>`}
+        </div>
+      </div>
+      <div class="text-[11.5px] text-gray-500 leading-relaxed mt-2 pt-2 border-t border-gray-50"><span class="text-gray-400">修改说明：</span>${v.note}</div>
+    </div>`;
+  }).join('');
+}
+function fskPublish(v){
+  const s=fskGet(curFsk);if(!s)return;
+  s.vers.forEach(x=>{if(x.st==='已发布')x.st='历史'});
+  const t=s.vers.find(x=>x.v===v);if(t)t.st='已发布';
+  s.ver=v;
+  renderFskVerList();renderFskDetail();
+  const n=(s.agents||[]).length;
+  toast(`${v} 已发布：已通知 ${n} 个引用本 Skill 的智能体管理员，由管理员在能力配置切版本并更新后生效`);
+}
+function openFskVerNew(){
+  document.getElementById('fskvn-note').value='';
+  document.getElementById('fskvn-cnt').textContent='0 / 100';
+  document.getElementById('fskvn-file').textContent='＋ 上传代码包';
+  document.getElementById('fskvn-file').classList.remove('text-gray-600');
+  document.getElementById('modal-fskvernew').classList.remove('hidden');
+}
+function closeFskVerNew(){document.getElementById('modal-fskvernew').classList.add('hidden')}
+function fskvnPickFile(){
+  const el=document.getElementById('fskvn-file');
+  el.textContent='📦 '+(fskGet(curFsk)||{}).name+'.zip';
+  el.classList.add('text-gray-600');
+}
+function fskVerNewSave(){
+  const s=fskGet(curFsk);if(!s)return;
+  const note=document.getElementById('fskvn-note').value.trim();
+  if(!document.getElementById('fskvn-file').textContent.startsWith('📦'))return toast('请先上传 Skill 代码包');
+  if(!note)return toast('请填写版本修改说明');
+  const n=Math.max(...s.vers.map(v=>+v.v.replace('v','')))+1;
+  s.vers.unshift({v:'v'+n,at:nowStr(),by:'我',st:'待发布',note});
+  closeFskVerNew();renderFskVerList();
+  toast(`v${n} 已上传，待发布：发布后才对引用的智能体生效`);
+}
+function fskFileBody(s,f){
+  if(f==='SKILL.md')return fskMd(s);
+  if(f==='scripts/analyze.py')return `"""${s.dn}：主分析脚本。\n输入设备号与反馈时点，输出归一化判定值与依据明细。"""\nimport json\nfrom datetime import datetime, timedelta\n\n\ndef analyze(device_id: str, feedback_at: str) -> dict:\n    """按 SKILL.md 的判定口径给出结论，依据明细随结论一并返回。"""\n    raise NotImplementedError("示意脚本：实际逻辑由 MCP 取数后判定")\n`;
+  if(f==='scripts/validate_report.py')return `"""${s.dn}：输出校验脚本。\n校验判定值是否在枚举内、依据明细是否齐全，不合规时拦截输出。"""\n\nVALID = ["NEED_REPAIR", "WAIT_EXISTING", "OBSERVE", "ESCALATE_L1"]\n\n\ndef validate(result: dict) -> bool:\n    return result.get("verdict") in VALID and bool(result.get("evidence"))\n`;
+  return `"""${s.dn}：analyze 用例。"""\nimport pytest\n\nfrom scripts.analyze import analyze\n\n\ndef test_analyze_returns_verdict():\n    with pytest.raises(NotImplementedError):\n        analyze("DEV-0001", "2026-11-06 10:00:00")\n`;
 }
 function renderFlowDetail(){
   const f=flows.find(x=>x.id===curFlow);
@@ -5154,12 +6103,12 @@ function renderRunMine(){
       ?`<button class="text-[11px] text-gray-400 hover:text-violet-600" onclick="tcOpenTask(${t.id},${i})">详情 ›</button>`
       :`<button class="text-[11px] text-gray-400 hover:text-violet-600" onclick="openTaskDetail(${t.id})">详情 ›</button>`;
     const nameCell=s
-      ?`<div class="min-w-0"><div class="text-[10.5px] text-gray-400">${e.key}</div><div class="font-medium truncate ${s.done?'line-through text-gray-400':''}" title="${e.title}">${e.title}</div>${s.note?`<div class="text-[10.5px] text-gray-400 truncate font-normal" title="${s.note}">${s.note}</div>`:''}<div class="text-[10.5px] text-gray-400 truncate font-normal" title="${e.parent}"><span class="text-gray-300">↑ 上级任务：</span>${e.parent}</div></div>`
+      ?`<div class="min-w-0"><div class="text-[10.5px] text-gray-400">${e.key}</div><div class="font-medium truncate ${s.done?'line-through text-gray-400':''}" title="${e.title}">${e.title}</div>${s.note?`<div class="text-[10.5px] text-gray-400 truncate font-normal" title="${taskEsc(s.note)}">${taskEsc(s.note)}</div>`:''}<div class="text-[10.5px] text-gray-400 truncate font-normal" title="${e.parent}"><span class="text-gray-300">↑ 上级任务：</span>${e.parent}</div></div>`
       :`<div class="min-w-0"><div class="text-[10.5px] text-gray-400 flex items-center gap-1.5">${e.key}${t.prio?rmPrioTag[t.prio]:''}</div><div class="font-medium truncate" title="${t.title}">${t.title}</div><div class="text-[10.5px] text-gray-400 truncate font-normal" title="${t.desc||''}">${t.desc||''}</div>${t.proc?`<div class="text-[10.5px] ${t.sla&&t.sla.includes('超')?'text-red-500 font-semibold':'text-gray-400'} font-normal">${t.proc} · ${t.node}节点${t.sla?' · SLA '+t.sla:''}</div>`:''}</div>`;
     return `<tr class="border-b border-gray-50 hover:bg-violet-50/40" data-tid="${t.id}">
       <td class="px-4 py-3 min-w-[240px] max-w-[280px]">${nameCell}</td>
       <td class="px-3 text-gray-500 whitespace-nowrap">${catCell}</td>
-      <td class="px-3 whitespace-nowrap">${typeCell}</td>
+      <td class="px-3 whitespace-nowrap">${typeCell}${taskPolicyTag(t,s)}</td>
       <td class="px-3 text-gray-500 whitespace-nowrap" title="${src}">${src}</td>
       <td class="px-3 ${dueCls} whitespace-nowrap">${dueFull}</td>
       <td class="px-3 text-gray-500 whitespace-nowrap col-mono">${createdFull}</td>
@@ -5318,7 +6267,7 @@ function confirmTaskNew(){
   toast(`${base}${subTip}`);
 }
 /* 平台页操作（与工作台/飞书同源回写） */
-function ptDone(id){const t=wbTasks.find(x=>x.id===id);t.done=true;t.timeline.push(['刚刚','罗紫函 在平台任务执行页标记完成']);renderWbTasks();toast('已完成，状态已同步工作台与飞书待办')}
+function ptDone(id){openTaskHandle(id)}
 let tfTaskId=null, tfSelected=null, tfSource='panel', tfSubIdx=null;
 function ptTransfer(id,src){
   tfTaskId=id;tfSelected=null;tfSource=src||'panel';tfSubIdx=null;
@@ -5400,7 +6349,7 @@ function ptNudge(id){const t=wbTasks.find(x=>x.id===id);t.transfer.nudges++;t.ti
 /* 收回即把处理人收回自己名下，否则「返回我处理」只是视角变了、处理人还挂在对方身上 */
 function ptTakeBack(id){const t=wbTasks.find(x=>x.id===id);t.transfer=null;t.handler=ME;t.mine=true;t.timeline.push(['刚刚','罗紫函 收回任务，处理人回到罗紫函']);renderWbTasks();toast('已收回，任务返回「我处理」视角')}
 
-/* ---- 任务处理弹窗：补充处理说明即办结，不选执行方 ---- */
+/* ---- 任务处理弹窗：按类型提交记录或办结 ---- */
 let thTaskId=null,thSubIdx=null;
 /* subIdx 传入时处理的是子任务；主任务需处理人/创建人身份，子任务需归属本人 */
 function openTaskHandle(id,subPath){
@@ -5408,21 +6357,29 @@ function openTaskHandle(id,subPath){
   const s=subPath==null?null:subAt(t,subPath);
   if(s&&!subIsMine(s)){toast(`该子任务由 ${s.h} 处理，你只能处理归属自己的子任务`);return}
   if(!s&&!isMainOwner(t)){toast(`主任务处理人为 ${t.handler||'—'}，仅处理人/创建人可处理主任务`);return}
+  if(t.done||s?.done||(subPath!=null&&!s))return;
   thTaskId=id;thSubIdx=s?String(subPath):null;
   const openSubs=s?(s.subs||[]).filter(x=>!x.done).length:0;
   document.getElementById('th-taskname').innerHTML=s
-    ?`子任务 <b class="text-gray-600">#${subKeyOf(t,subPath)}「${s.n}」</b> · 上级任务：${subParentTitle(t,subPath)}${s.note?` · 处理说明：${s.note}`:''}${openSubs?` <span class="text-amber-600">· 它自己还有 ${openSubs} 个子任务未完成</span>`:''}`
+    ?`子任务 <b class="text-gray-600">#${subKeyOf(t,subPath)}「${s.n}」</b> · 上级任务：${subParentTitle(t,subPath)}${s.note?` · 处理说明：${taskEsc(s.note)}`:''}${openSubs?` <span class="text-amber-600">· 它自己还有 ${openSubs} 个子任务未完成</span>`:''}`
     :`任务：<b class="text-gray-600">${t.title}</b>${t.remark?` · 备注：${t.remark}`:''}`;
   document.getElementById('th-note').value='';
-  document.getElementById('th-note-hint').textContent=s?'（办结该子任务后写入处理说明与任务时间线）':'（办结后写入任务时间线）';
+  document.getElementById('th-note-hint').textContent=taskAuto(t,s)?'（提交记录，待Agent判断）':'（提交后办结）';
+  document.getElementById('th-policy').textContent=taskAuto(t,s)?'自动闭环：由人处理，Agent 查询关联业务数据，确认完成后自动关闭。':'提交后办结，办结不可撤销';
+  const opts=taskTypeOf(t,s)?.handleOptions||[];
+  document.getElementById('th-options').innerHTML=opts.map((o,i)=>`<button class="btn-o !py-1 text-[11px]" onclick="taskPickHandle(${i})">${taskEsc(o)}</button>`).join('');
   document.getElementById('modal-taskhandle').classList.remove('hidden');
 }
+function taskPickHandle(i){const t=wbTasks.find(x=>x.id===thTaskId),s=thSubIdx==null?null:subAt(t,thSubIdx);document.getElementById('th-note').value=taskTypeOf(t,s)?.handleOptions?.[i]||''}
 function closeTaskHandle(){document.getElementById('modal-taskhandle').classList.add('hidden')}
 function confirmTaskHandle(){
   const t=wbTasks.find(x=>x.id===thTaskId);
   const note=document.getElementById('th-note').value.trim();
   if(!note){toast('请填写处理说明');return}
-  const p=thSubIdx;
+  const p=thSubIdx,s=p==null?null:subAt(t,p);
+  if(!t||t.done||(p!=null&&!s)||s?.done)return;
+  if(s?!subIsMine(s):!isMainOwner(t)){toast('无处理权限');return}
+  if(taskAuto(t,s)){taskWaitAgent(t,s,note);closeTaskHandle();return}
   if(p!=null){
     const s=subAt(t,p),sn=subKeyOf(t,p);
     s.note=note;
@@ -5560,7 +6517,7 @@ function openTaskDetail(id){
   tdLastId=id;
   const t=wbTasks.find(x=>x.id===id);
   const info=[
-    ['任务类型',t.type||'—'],['上级任务',t.parent||'无'],['关联项目',t.proj||'个人任务'],
+    ['任务类型',taskEsc(t.type||'—')+taskPolicyTag(t)],['上级任务',t.parent||'无'],['关联项目',t.proj||'个人任务'],
     ['业务系统编号',t.bizNo||'—'],
     ['来源',t.source],['创建时间',t.createdAt||'—'],['截止时间',t.due],
     ['处理人',t.transfer?t.transfer.to+'（转交）':(t.handler||'罗紫函')],
@@ -5593,7 +6550,7 @@ function openTaskDetail(id){
       <tbody>${subs.map((s,si)=>{const path=String(si+1);return `<tr class="border-b border-gray-50">
         <td class="py-2.5 pr-3 font-medium ${s.done?'text-gray-400 line-through':''}"><span class="text-[10px] text-gray-300 mr-1">#${subKeyOf(t,path)}</span>${s.n}</td>
         <td class="text-gray-500 pr-3">${s.h}${s.agent?`<span class="tag bg-violet-100 text-violet-600 !text-[9.5px] ml-1" title="智能体为执行方，问责人仍为 ${s.h}">⚙️ ${s.agent}</span>`:''}</td>
-        <td class="text-gray-500 pr-3">${s.note||'<span class="text-gray-300">—</span>'}</td>
+        <td class="text-gray-500 pr-3">${s.note?taskEsc(s.note):'<span class="text-gray-300">—</span>'}</td>
         <td class="pr-3"><span class="tag ${s.done?'bg-emerald-100 text-emerald-700':'bg-gray-100 text-gray-500'}">${s.done?'已完成':'进行中'}</span>${(s.subs||[]).length?`<span class="text-[10px] text-gray-400 ml-1">子 ${(s.subs||[]).filter(x=>x.done).length}/${s.subs.length}</span>`:''}</td>
         <td class="pr-3 text-gray-500 whitespace-nowrap">${s.done?(s.doneAt||'—'):'<span class="text-gray-300">—</span>'}</td>
         <td class="whitespace-nowrap">${subIsMine(s)?(s.done
@@ -5602,12 +6559,13 @@ function openTaskDetail(id){
           :`<span class="text-gray-300 text-[11px]">${s.h} 处理</span>`}</td>
       </tr>`}).join('')}</tbody></table>`
       :'<div class="text-[11.5px] text-gray-300 border border-dashed border-gray-200 rounded-lg py-2.5 text-center mb-4">暂无子任务，可点右上「+ 添加子任务」随时拆解</div>'}
+    ${taskJudgePanel(t,null,null)}
     <div class="text-[12.5px] font-bold mb-2">任务处理时间线</div>
     <div class="relative pl-4 border-l-2 border-violet-100 space-y-3 ml-1">
       ${t.timeline.map(([tm,txt])=>`<div class="relative">
         <span class="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full bg-violet-400 border-2 border-white"></span>
         <div class="text-[10.5px] text-gray-400">${tm}</div>
-        <div class="text-[12px] text-gray-600 leading-relaxed">${txt}</div>
+        <div class="text-[12px] text-gray-600 leading-relaxed">${taskEsc(txt)}</div>
       </div>`).join('')}
     </div>`;
   document.getElementById('modal-taskdetail').classList.remove('hidden');
@@ -5766,7 +6724,7 @@ function saveModelCfg(){
        必须参数为 {n:参数名称, d:参数描述} 列表，描述随类型清单返回给业务系统 ---- */
 const taskTypeTree=[
   {l1:'服务一条链',prefix:'SRV',note:'售后 K3 + 客成运营，主入口=天润客服',children:[
-    {code:'SRV-FAULT',l2:'故障处理（设备问题）',params:[{n:'工单号',d:'天润客服侧的工单编号，用于双向回写状态'},{n:'客户ID',d:'客户主数据 ID，用于关联客户档案与等级'},{n:'问题描述',d:'客户原话描述的故障现象'},{n:'联系方式',d:'现场联系人电话，供上门或回访'}],enabled:true,n7:126,wip:18},
+    {code:'SRV-FAULT',manualClose:false,handleOptions:['已联系客户，等待反馈','已完成故障处理，申请复核'],l2:'故障处理（设备问题）',params:[{n:'工单号',d:'天润客服侧的工单编号，用于双向回写状态'},{n:'客户ID',d:'客户主数据 ID，用于关联客户档案与等级'},{n:'问题描述',d:'客户原话描述的故障现象'},{n:'联系方式',d:'现场联系人电话，供上门或回访'}],enabled:true,n7:126,wip:18},
     {code:'SRV-COMPLAINT',l2:'异常投诉',params:[{n:'工单号',d:'投诉来源工单编号'},{n:'客户ID',d:'客户主数据 ID'},{n:'投诉内容',d:'投诉事由原文，不做归纳'},{n:'客户诉求',d:'客户明确提出的处理要求'}],enabled:true,n7:34,wip:6},
     {code:'SRV-PROACTIVE',l2:'主动运营（续费 / 不及预期 / 设备异常信号）',params:[{n:'客户ID',d:'客户主数据 ID'},{n:'触达事由',d:'触发本次主动运营的信号，如续费临期 / 设备异常'},{n:'建议动作',d:'系统建议的跟进动作，供处理人参考'}],enabled:true,n7:58,wip:11},
     {code:'SRV-RETURN',l2:'退换货处理（能力已并入故障处理）',params:[{n:'工单号',d:'退换货单据编号'},{n:'客户ID',d:'客户主数据 ID'}],enabled:false,n7:0,wip:0}]},
@@ -5775,6 +6733,69 @@ const taskTypeTree=[
   {l1:'营销管理',prefix:'MKT',note:'管理日报驱动派单',children:[
     {code:'MKT-DISPATCH',l2:'管理派单（日报驱动）',params:[{n:'商机ID',d:'CRM 商机编号，用于回写跟进记录'},{n:'派单对象',d:'管理者指定的销售，作为任务处理人'},{n:'跟进要求',d:'管理者对本次跟进的具体要求'},{n:'截止时间',d:'要求完成跟进的时间'}],enabled:true,n7:83,wip:22}]}
 ];
+taskTypeTree.forEach(g=>g.children.forEach(c=>{if(c.manualClose==null)c.manualClose=true;if(!c.handleOptions)c.handleOptions=['已完成处理','已沟通确认，无需继续跟进']}));
+/* 类型编码优先；历史三级名称使用明确别名，不按子串猜测。 */
+function taskTypeOf(t,s){
+  const n=s&&(s.typeCode||s.type)?s:t;
+  const all=taskTypeTree.flatMap(g=>g.children.map(c=>({g,c})));
+  if(n.typeCode)return all.find(x=>x.c.code===n.typeCode)?.c;
+  const raw=n.type||'',parts=raw.split('›').map(x=>x.trim());
+  const aliases={'服务一条链 › 售后工单 › 故障处理':'SRV-FAULT','服务一条链 › 售后工单 › 异常投诉':'SRV-COMPLAINT','服务一条链 › 客户成功 › 主动运营':'SRV-PROACTIVE','项目空间 › 项目协作 › 项目行动项':'PRJ-ACTION','营销管理 › 销售管理 › 管理派单':'MKT-DISPATCH'};
+  const hit=all.find(x=>x.c.code===raw||x.c.code===aliases[raw]||(x.g.l1===parts[0]&&x.c.l2===parts[parts.length-1]));
+  if(hit)n.typeCode=hit.c.code;
+  return hit?.c;
+}
+function taskAuto(t,s){return taskTypeOf(t,s)?.manualClose===false}
+function taskEsc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function taskPolicyTag(t,s){return taskAuto(t,s)?`<span class="tag bg-violet-50 text-violet-600">自动闭环${(s||t).awaitAgent?' · 待Agent判断':''}</span>`:''}
+function taskWaitAgent(t,s,note){
+  const n=s||t;if(n.done||t.done)return;
+  n.awaitAgent=true;
+  if(note){n.handleNote=note;t.timeline.push([nowStamp(),`${s?'子任务「'+s.n+'」':'主任务'}提交处理记录：${note}；待Agent判断`])}
+  renderWbTasks();tdRefresh();
+  toast('已提交处理记录，待Agent判断；任务仍待处理');
+}
+const taskBusinessRecords=new Map();
+function taskBusinessKey(id,p){return `${id}:${p==null?'main':p}`}
+function taskBusinessRecord(t,p){
+  const key=taskBusinessKey(t.id,p);
+  if(!taskBusinessRecords.has(key))taskBusinessRecords.set(key,{id:`BIZ-${t.id}${p==null?'':'-'+p}`,status:'处理中'});
+  return taskBusinessRecords.get(key);
+}
+function taskJudgePanel(t,s,p){
+  if(!taskAuto(t,s))return '';
+  const n=s||t,arg=p==null?'null':`'${p}'`,record=taskBusinessRecord(t,p);
+  return `<div class="border border-violet-100 rounded-lg p-3 my-2 text-[11.5px]">${taskPolicyTag(t,s)} <b>关联数据判断（模拟）</b>
+    <div class="text-gray-500 mt-1">人负责处理，Agent 查询关联业务数据并判断是否完成。</div>
+    <table class="w-full mt-2 text-left"><tbody>
+      <tr><th class="font-normal text-gray-500 py-1">关联业务单据</th><td>${taskEsc(record.id)}</td></tr>
+      <tr><th class="font-normal text-gray-500 py-1">完成条件（示例）</th><td>关联单据处理状态为「已完成」</td></tr>
+      <tr><th class="font-normal text-gray-500 py-1">最近查询结果</th><td>${n.businessQuery?taskEsc(n.businessQuery.status)+' · '+taskEsc(n.businessQuery.at):'尚未查询'}</td></tr>
+    </tbody></table>
+    ${n.done?'':`<div class="flex flex-wrap gap-2 items-center mt-2"><label>业务数据（模拟） <select class="border border-gray-200 rounded px-2 py-1" onchange="taskSetBusinessStatus(${t.id},${arg},this.value)">${['处理中','已完成','查询失败'].map(status=>`<option ${record.status===status?'selected':''}>${status}</option>`).join('')}</select></label><button class="btn-p !py-1 text-[11px]" onclick="taskJudge(${t.id},${arg})">查询并判断（模拟）</button></div>`}
+    ${n.judgeReason?`<div class="mt-1 text-violet-600">${taskEsc(n.judgeReason)}</div>`:''}</div>`;
+}
+function taskSetBusinessStatus(id,p,status){
+  const t=wbTasks.find(x=>x.id===id);if(!t)return;
+  const s=p==null?null:subAt(t,p),n=s||t;
+  if((p!=null&&!s)||n.done||t.done||!taskAuto(t,s)||!['处理中','已完成','查询失败'].includes(status))return;
+  taskBusinessRecord(t,p).status=status;
+  taskJudge(id,p);
+}
+function taskJudge(id,p){
+  const t=wbTasks.find(x=>x.id===id);if(!t)return;
+  const s=p==null?null:subAt(t,p),n=s||t;if((p!=null&&!s)||n.done||t.done||!taskAuto(t,s))return;
+  const record=taskBusinessRecord(t,p),complete=record.status==='已完成';
+  n.businessQuery={id:record.id,status:record.status,at:nowStamp()};
+  n.awaitAgent=!complete;
+  n.judgeReason=complete?'Agent 查询到关联单据已完成，自动关闭任务（模拟）':record.status==='查询失败'?'关联数据查询失败，任务保持待处理，等待重试（模拟）':'关联单据仍在处理中，任务保持待处理（模拟）';
+  t.timeline.push([n.businessQuery.at,`${s?'#'+subKeyOf(t,p)+' ':''}Agent 查询 ${record.id}：${record.status}；${n.judgeReason}`]);
+  if(complete){
+    n.done=true;n.doneAt=nowStamp();
+    if(s){subAutoRollup(t,p);if((t.subs||[]).every(x=>x.done)&&!t.done){if(taskAuto(t))t.awaitAgent=true;else{t.done=true;t.doneAt=nowStamp()}}}
+  }
+  renderWbTasks();tdRefresh();toast(n.judgeReason);
+}
 /* 兼容取名：列表与提示只需要参数名 */
 const paramNames=ps=>(ps||[]).map(p=>p.n);
 function tcNextCode(gi){
@@ -5791,13 +6812,15 @@ function openTypeCfg(gi,ci){
   document.getElementById('tc-title').textContent=isNew?'新增任务类型':'编辑任务类型';
   document.getElementById('tc-subtitle').innerHTML=isNew?'保存即生效，无需审核；生效后业务系统可在「业务对接配置」中获权调用':`编码 <b class="font-mono">${t.code}</b> 关联的在途任务及业务对接不受影响，关键属性变更会留痕`;
   const sel=document.getElementById('tc-l1');
-  sel.innerHTML=taskTypeTree.map((x,i)=>`<option value="${i}" ${i===gi?'selected':''}>${x.l1}</option>`).join('');
+  sel.innerHTML=taskTypeTree.map((x,i)=>`<option value="${i}" ${i===gi?'selected':''}>${taskEsc(x.l1)}</option>`).join('');
   sel.disabled=!isNew;
   document.getElementById('tc-l1-add').classList.toggle('hidden',!isNew);
   const l1n=document.getElementById('tc-l1new');l1n.value='';l1n.classList.add('hidden');
   const codeEl=document.getElementById('tc-code');
   codeEl.value=t?t.code:tcNextCode(gi);codeEl.readOnly=true;codeEl.classList.add('bg-gray-50');
   document.getElementById('tc-name').value=t?t.l2:'';
+  document.getElementById('tc-handle-options').value=(t?.handleOptions||[]).join('\n');
+  document.getElementById('tc-manual-close').checked=t?.manualClose!==false;
   tcParams=t?t.params.map(p=>({n:p.n,d:p.d||''})):[];
   renderTcParams();
   document.getElementById('modal-typecfg').classList.remove('hidden');
@@ -5829,6 +6852,9 @@ function tcL1NewToggle(){
 function closeTypeCfg(){document.getElementById('modal-typecfg').classList.add('hidden')}
 function saveTypeCfg(){
   const name=document.getElementById('tc-name').value.trim();
+  const handleOptions=[...new Set(document.getElementById('tc-handle-options').value.split('\n').map(x=>x.trim()).filter(Boolean))];
+  const manualClose=document.getElementById('tc-manual-close').checked;
+  wbTasks.forEach(t=>{taskTypeOf(t);subFlatten(t).forEach(x=>taskTypeOf(t,x.s))});
   const params=tcParams.map(p=>({n:(p.n||'').trim(),d:(p.d||'').trim()})).filter(p=>p.n);
   if(!name){toast('请填写类型名称');return}
   const dup=params.map(p=>p.n).find((n,i,a)=>a.indexOf(n)!==i);
@@ -5843,12 +6869,12 @@ function saveTypeCfg(){
       taskTypeTree.push({l1:newL1,prefix:'TYP'+String(taskTypeTree.length+1).padStart(2,'0'),note:'',children:[]});
       gi=taskTypeTree.length-1;
     }
-    taskTypeTree[gi].children.push({code:tcNextCode(gi),l2:name,params,enabled:true,n7:0,wip:0});
+    taskTypeTree[gi].children.push({code:tcNextCode(gi),l2:name,params,handleOptions,manualClose,enabled:true,n7:0,wip:0});
   }else{
     const t=taskTypeTree[tcEdit.gi].children[tcEdit.ci];
-    t.l2=name;t.params=params;
+    t.l2=name;t.params=params;t.handleOptions=handleOptions;t.manualClose=manualClose;
   }
-  closeTypeCfg();renderPlatform();
+  closeTypeCfg();renderPlatform();renderWbTasks();tdRefresh();
   toast(tcEdit.ci<0?'已新增并生效，可在业务对接配置中授权给业务系统':'已保存，必须参数即时生效并同步给已获权的业务系统，变更已留痕');
 }
 function toggleTypeEnabled(gi,ci){
@@ -5863,16 +6889,25 @@ function toggleTypeEnabled(gi,ci){
   }
 }
 function renameTaskL1(gi){
+  wbTasks.forEach(t=>{taskTypeOf(t);subFlatten(t).forEach(x=>taskTypeOf(t,x.s))});
   const n=prompt('修改一级类型名称（编码前缀不变）',taskTypeTree[gi].l1);
   if(n&&n.trim()){taskTypeTree[gi].l1=n.trim();renderPlatform();toast('一级类型名称已更新')}
 }
 /* ---- 业务对接配置：系统名称 / 对接参数 / 可调用创建的任务类型 / 是否同步飞书待办 ---- */
+/* pages 为对接时由系统声明的可跳转页面清单，与 MCP 工具清单同一思路：
+   平台不自己维护页面，快捷操作只能从这份清单里选 */
 const bizSystems=[
-  {name:'天润客服',params:'AppKey + 签名密钥\n消息回调地址：https://open.tianrun.cn/hooks/task',types:['服务一条链 › 故障处理（设备问题）','服务一条链 › 异常投诉'],fsSync:true},
-  {name:'case 单系统',params:'AppKey + 事件订阅（规则升级自动派单）',types:['服务一条链 › 故障处理（设备问题）'],fsSync:true},
-  {name:'客成系统',params:'AppKey + 客户主数据同步（每日 02:00）',types:['服务一条链 › 主动运营（续费 / 不及预期 / 设备异常信号）'],fsSync:false},
-  {name:'CRM',params:'AppKey + 双向回调\n字段映射：商机ID / 客户ID / 负责人工号',types:['营销管理 › 管理派单（日报驱动）'],fsSync:true}
+  {name:'天润客服',params:'AppKey + 签名密钥\n消息回调地址：https://open.tianrun.cn/hooks/task',types:['服务一条链 › 故障处理（设备问题）','服务一条链 › 异常投诉'],fsSync:true,
+   pages:['来电记录','通话质检','坐席工作台']},
+  {name:'case 单系统',params:'AppKey + 事件订阅（规则升级自动派单）',types:['服务一条链 › 故障处理（设备问题）'],fsSync:true,
+   pages:['case 单列表','case 单详情','新建 case 单']},
+  {name:'客成系统',params:'AppKey + 客户主数据同步（每日 02:00）',types:['服务一条链 › 主动运营（续费 / 不及预期 / 设备异常信号）'],fsSync:false,
+   pages:['客户健康分','续费看板','在途工单']},
+  {name:'CRM',params:'AppKey + 双向回调\n字段映射：商机ID / 客户ID / 负责人工号',types:['营销管理 › 管理派单（日报驱动）'],fsSync:true,
+   pages:['客户档案','商机详情','合同与报价','拜访记录','新建客户线索']}
 ];
+/* 只有启用中的系统能作为快捷操作的跳转目标 */
+function bizPageOpts(){return bizSystems.filter(s=>!s.stopped&&(s.pages||[]).length)}
 /* 只有启用 / 停用两态：不设审核，也不设联调态 */
 function bizStatus(s){
   return s.stopped?{txt:'已停用',tag:'bg-gray-100 text-gray-500'}:{txt:'启用中',tag:'bg-emerald-100 text-emerald-700'};
@@ -5894,7 +6929,7 @@ function renderPlatform(){
   document.getElementById('pf-type-tree').innerHTML=taskTypeTree.map((g,gi)=>`
     <div class="card overflow-hidden">
       <div class="px-4 py-3 bg-violet-50/60 border-b border-gray-100 flex items-center gap-2">
-        <span class="font-bold text-[13px]">一级类型 · ${g.l1}</span>
+        <span class="font-bold text-[13px]">一级类型 · ${taskEsc(g.l1)}</span>
         <span class="tag bg-gray-100 text-gray-500 font-mono !text-[10px]">${g.prefix}</span>
         <span class="tag bg-violet-100 text-violet-700">平台统一管控</span>
         <span class="text-[11px] text-gray-400 ml-auto">${g.note||''}</span>
@@ -5905,7 +6940,7 @@ function renderPlatform(){
           <th class="px-4 py-2 font-medium">二级任务类型</th><th class="font-medium">类型编码</th><th class="font-medium">必须参数（创建时校验，悬浮看描述）</th><th class="font-medium">状态</th><th class="font-medium">操作</th>
         </tr></thead>
         <tbody>${g.children.map((t,ci)=>`<tr class="border-b border-gray-50 hover:bg-violet-50/40 ${t.enabled?'':'opacity-60'}">
-          <td class="px-4 py-2.5 font-medium">${t.l2}</td>
+          <td class="px-4 py-2.5 font-medium">${taskEsc(t.l2)} ${t.manualClose===false?'<span class="tag bg-violet-50 text-violet-600">自动闭环</span>':''}</td>
           <td><span class="tag bg-gray-100 text-gray-600 font-mono !text-[10.5px]">${t.code}</span></td>
           <td><div class="flex flex-wrap gap-1 max-w-[320px]">${t.params.length?t.params.map(p=>`<span class="tag bg-blue-50 text-blue-600 cursor-help" title="${p.d?p.d.replace(/"/g,'&quot;'):'未填写参数描述'}">${p.n}${p.d?'':' <span class="text-amber-500">!</span>'}</span>`).join(''):'<span class="text-gray-300 text-[11px]">无（创建时不校验）</span>'}</div></td>
           <td><span class="tag ${t.enabled?'bg-emerald-100 text-emerald-700':'bg-gray-100 text-gray-500'}">${t.enabled?'启用中':'已停用'}</span></td>
@@ -6241,6 +7276,70 @@ function rtSpanChange(){
   const end=document.querySelector('input[name="rt-span"]:checked').value==='截止';
   document.getElementById('rt-deadline').classList.toggle('hidden',!end);
 }
+/* ---- 定时任务的重复方式：按分钟 / 按天 / 按周 / 按月 ----
+   按分钟最低 5 分钟，可另给每日循环区间（选填，不填即全天）；触发时间为首次执行时间 */
+const RT_RPT_UNITS=[['minute','按分钟'],['day','按天'],['week','按周'],['month','按月']];
+const RT_MIN_STEP=5;
+let rtRpt={unit:'minute',every:5,workday:true,dows:[1],dom:1,from:'',to:''};
+function rtRptReset(){rtRpt={unit:'minute',every:5,workday:true,dows:[1],dom:1,from:'',to:''}}
+function rtKindChange(){
+  const rpt=document.querySelector('input[name="rt-kind"]:checked').value==='重复任务';
+  document.getElementById('rt-rpt-box').classList.toggle('hidden',!rpt);
+  document.getElementById('rt-until-box').classList.toggle('hidden',!rpt);
+  if(rpt)renderRtRpt();
+}
+function rtRptSet(f,v){rtRpt[f]=v;renderRtRpt()}
+function rtRptDow(d){
+  rtRpt.dows=rtRpt.dows.includes(d)?rtRpt.dows.filter(x=>x!==d):[...rtRpt.dows,d].sort();
+  if(!rtRpt.dows.length)rtRpt.dows=[d];
+  renderRtRpt();
+}
+/* 触发时间改了要重算按分钟的首次执行提示 */
+function rtTimeChange(){if(!document.getElementById('rt-rpt-box').classList.contains('hidden'))renderRtRpt()}
+/* 首次执行时刻落在每日区间外时，顺延到区间开始，不拦截保存 */
+function rtRptHint(){
+  if(rtRpt.unit!=='minute'||!rtRpt.from||!rtRpt.to)return '';
+  const tm=document.getElementById('rt-time').value;
+  if(!tm)return '';
+  const hm=tm.split('T')[1];
+  if(!hm)return '';
+  return (hm>=rtRpt.from&&hm<=rtRpt.to)?''
+    :`首次执行 ${hm} 不在每日区间内，顺延到当日 ${rtRpt.from} 开始`;
+}
+function renderRtRpt(){
+  document.getElementById('rt-rpt-units').innerHTML=RT_RPT_UNITS.map(([v,l])=>
+    `<span class="px-3 py-1 rounded-lg text-[11.5px] cursor-pointer ${v===rtRpt.unit?'bg-white font-semibold text-violet-700 shadow-sm':'text-gray-500 hover:text-gray-700'}" onclick="rtRptSet('unit','${v}')">${l}</span>`).join('');
+  const tmInput=(f)=>`<input type="time" value="${rtRpt[f]}" class="border border-gray-200 rounded-lg px-2 py-1 text-[12px] bg-white focus:outline-violet-300" onchange="rtRptSet('${f}',this.value)">`;
+  let d='';
+  if(rtRpt.unit==='minute'){
+    const hint=rtRptHint();
+    d=`<div class="flex items-center gap-1.5 text-[12px] text-gray-600">每隔
+        <input type="number" min="${RT_MIN_STEP}" step="1" value="${rtRpt.every}" class="w-16 border border-gray-200 rounded-lg px-2 py-1 text-[12px] bg-white focus:outline-violet-300" onchange="rtRptSet('every',+this.value)">
+        分钟<span class="text-[11px] text-gray-400">最低 ${RT_MIN_STEP} 分钟</span></div>
+      <div class="flex items-center gap-1.5 text-[12px] text-gray-600 mt-2">每日区间
+        ${tmInput('from')}到${tmInput('to')}
+        <span class="text-[11px] text-gray-400">不填即全天</span></div>
+      ${hint?`<div class="text-[11px] text-amber-600 mt-1.5">${hint}</div>`:''}`;
+  }else if(rtRpt.unit==='week'){
+    d=`<div class="flex items-center gap-1.5 flex-wrap">${WEEK_DAYS.map(([v,l])=>
+      `<span class="w-7 h-7 rounded-lg text-[11.5px] flex items-center justify-center cursor-pointer ${rtRpt.dows.includes(v)?'bg-violet-600 text-white':'bg-white border border-gray-200 text-gray-500'}" onclick="rtRptDow(${v})">${l}</span>`).join('')}</div>`;
+  }else if(rtRpt.unit==='month'){
+    d=`<div class="flex items-center gap-1.5 text-[12px] text-gray-500">每月
+      <select class="border border-gray-200 rounded-lg px-2 py-1 text-[12px] bg-white" onchange="rtRptSet('dom',+this.value)">${Array.from({length:28},(_,i)=>i+1).map(x=>`<option value="${x}"${x===rtRpt.dom?' selected':''}>${x}</option>`).join('')}</select>日</div>`;
+  }else{
+    d=`<label class="flex items-center gap-1.5 text-[12px] cursor-pointer"><input type="checkbox" class="accent-violet-600"${rtRpt.workday?' checked':''} onchange="rtRptSet('workday',this.checked)">仅工作日执行（跳过周末）</label>`;
+  }
+  document.getElementById('rt-rpt-detail').innerHTML=d;
+}
+/* 重复口径文案，写进列表的「执行要求」列 */
+function rtRptText(hm){
+  if(rtRpt.unit==='minute')
+    return ` 起每隔 ${rtRpt.every} 分钟执行${rtRpt.from&&rtRpt.to?`，每日 ${rtRpt.from}–${rtRpt.to}`:'，全天'}`;
+  if(rtRpt.unit==='week')
+    return ` 每周 ${rtRpt.dows.map(x=>(WEEK_DAYS.find(w=>w[0]===x)||[,''])[1]).join('、')} ${hm} 重复`;
+  if(rtRpt.unit==='month')return ` 每月 ${rtRpt.dom} 日 ${hm} 重复`;
+  return ` ${rtRpt.workday?'每工作日':'每日'} ${hm} 重复`;
+}
 function rtModeChange(){
   const on=document.getElementById('rt-mode-notify').checked||document.getElementById('rt-mode-user').checked;
   document.getElementById('rt-chan-box').classList.toggle('opacity-40',!on);
@@ -6252,7 +7351,9 @@ function openRaTask(){
   document.getElementById('rt-time').value='';
   document.getElementById('rt-prompt').value='';
   document.getElementById('rt-deadline').value='';
+  document.getElementById('rt-until').value='';
   document.querySelector('input[name="rt-kind"][value="一次性任务"]').checked=true;
+  rtRptReset();
   document.querySelector('input[name="rt-span"][value="长期"]').checked=true;
   document.querySelector('input[name="rt-status"][value="已启用"]').checked=true;
   document.getElementById('rt-mode-notify').checked=true;
@@ -6262,7 +7363,7 @@ function openRaTask(){
   document.querySelector('input[name="rt-tstate"][value="完成"]').checked=true;
   document.querySelectorAll('.rt-out').forEach(c=>c.checked=false);
   document.getElementById('rt-agent').innerHTML='<option value="">选择可管理的智能体</option>'+agents.map(a=>`<option>${a.name}</option>`).join('');
-  rtFillEvents();rtEvCatChange();rtTrigChange();rtSpanChange();rtModeChange();
+  rtFillEvents();rtEvCatChange();rtTrigChange();rtSpanChange();rtModeChange();rtKindChange();
   document.getElementById('modal-ratask').classList.remove('hidden');
 }
 function closeRaTask(){document.getElementById('modal-ratask').classList.add('hidden')}
@@ -6290,7 +7391,19 @@ function confirmRaTask(){
     if(!tm){toast('请选择触发时间');return}
     const kind=document.querySelector('input[name="rt-kind"]:checked').value;
     trigLabel='定时触发';
-    execText=`触发时间：${tm.replace('T',' ')}${kind==='重复任务'?' 重复执行':''}；执行要求：${prompt}`;
+    let rptTxt='';
+    if(kind==='重复任务'){
+      if(rtRpt.unit==='minute'){
+        if(!Number.isInteger(rtRpt.every)||rtRpt.every<RT_MIN_STEP){toast(`间隔最低 ${RT_MIN_STEP} 分钟，请填 ${RT_MIN_STEP} 以上的整数`);return}
+        if(!!rtRpt.from!==!!rtRpt.to){toast('每日区间要么都不填（全天），要么起止都填');return}
+        if(rtRpt.from&&rtRpt.to&&rtRpt.from>=rtRpt.to){toast('每日区间的开始时间需早于结束时间');return}
+      }
+      const until=document.getElementById('rt-until').value;
+      if(!until){toast('重复任务请选择截止时间');return}
+      if(until<=tm){toast('截止时间需晚于触发时间');return}
+      rptTxt=rtRptText(tm.split('T')[1]||'')+`，截止至 ${until.replace('T',' ')}`;
+    }
+    execText=`触发时间：${tm.replace('T',' ')}${rptTxt}；执行要求：${prompt}`;
   }
   const modes=[];
   if(document.getElementById('rt-mode-notify').checked)modes.push('任务通知');
@@ -8747,8 +9860,8 @@ const urgCfg={overdue:{tag:'bg-red-100 text-red-600',bd:'!border-l-red-400'},tod
 const wbTaskActive=()=>wbTasks.filter(t=>!t.done&&!t.transfer&&t.mine!==false);
 const wbFollowActive=()=>wbTasks.filter(t=>!t.done&&t.transfer);
 
-function wbTaskMeta(t){return `${t.proc?`${t.proc} · ${t.node}节点${t.sla?' · SLA '+t.sla:''} · `:''}${t.proj||'个人任务'} · 来源：${t.source} · 已同步飞书待办${t.watched?' · 👁 关注中':''}`}
-function wbFollowMeta(t){return `转交给 ${t.transfer.to} · ${t.transfer.time} · ${t.proj||'个人任务'}${t.transfer.nudges?` · 已催办 ${t.transfer.nudges} 次`:''}`}
+function wbTaskMeta(t){return `${taskPolicyTag(t)} ${t.proc?`${t.proc} · ${t.node}节点${t.sla?' · SLA '+t.sla:''} · `:''}${t.proj||'个人任务'} · 来源：${t.source} · 已同步飞书待办${t.watched?' · 👁 关注中':''}`}
+function wbFollowMeta(t){return `${taskPolicyTag(t)} 转交给 ${t.transfer.to} · ${t.transfer.time} · ${t.proj||'个人任务'}${t.transfer.nudges?` · 已催办 ${t.transfer.nudges} 次`:''}`}
 
 /* ---- 面板渲染（任务执行-待办 tab：我的待办 + 我转交·跟进中） ---- */
 const wbSubOpen=new Set();
@@ -8791,7 +9904,7 @@ function wbSubRow(t,s,p){
         ${onAgent(s)?`<span class="tag bg-violet-100 text-violet-600 !text-[9.5px]">⚙️ ${s.agent} 在办</span>`
           :subIsMine(s)&&!s.done?'<span class="tag bg-amber-100 text-amber-600 !text-[9.5px]">待我处理</span>':''}
       </div>
-      ${s.note?`<div class="text-[10px] text-gray-400 leading-snug mt-0.5">${s.note}</div>`:''}
+      ${s.note?`<div class="text-[10px] text-gray-400 leading-snug mt-0.5">${taskEsc(s.note)}</div>`:''}
       ${actable?`<div class="flex gap-1.5 mt-1 flex-wrap">${s.done
         ?''
         :`<button class="btn-p !py-0.5 !px-2.5 text-[10.5px]" onclick="event.stopPropagation();openTaskHandle(${t.id},'${p}')">处理</button><button class="btn-o !py-0.5 !px-2.5 text-[10.5px]" onclick="event.stopPropagation();ptTransferSub(${t.id},'${p}')">转交</button><button class="text-[10.5px] text-gray-400 hover:text-violet-600 self-center" onclick="event.stopPropagation();wbSubAgent(${t.id},'${p}')">智能体 ›</button>`}<button class="text-[10.5px] text-gray-400 hover:text-violet-600 self-center" onclick="event.stopPropagation();tcOpenTask(${t.id},'${p}')">详情 ›</button></div>`
@@ -8814,7 +9927,7 @@ function entryCardBody(e,extra){
       <span class="text-[12.5px] font-semibold flex items-center gap-1.5 flex-wrap ${e.done?'text-gray-400 line-through':''}">${e.title}${t.prio?rmPrioTag[t.prio]:''}${t.watched?' <span class="text-violet-500 text-[10px]">👁</span>':''}</span>
       <span class="tag ${tag} shrink-0 !text-[10px]">${tagTxt}</span>
     </div>
-    <p class="text-[10.5px] text-gray-400 mt-1 truncate">${cat}${t.proj||'个人任务'} · ${e.handler}${s&&s.note?` · ${s.note}`:''}</p>
+    <p class="text-[10.5px] text-gray-400 mt-1 truncate">${taskPolicyTag(t,s)} ${cat}${t.proj||'个人任务'} · ${e.handler}${s&&s.note?` · ${taskEsc(s.note)}`:''}</p>
     ${!s&&t.proc?`<p class="text-[10.5px] ${t.sla&&t.sla.includes('超')?'text-red-500 font-semibold':'text-gray-400'} mt-0.5 truncate">${t.proc} · ${t.node}节点${t.sla?' · SLA '+t.sla:''}</p>`:''}
     ${e.transfer?`<p class="text-[10.5px] text-gray-400 mt-0.5 truncate">已转交 ${e.transfer.time}${e.transfer.nudges?` · 已催办 ${e.transfer.nudges} 次`:''}</p>`:''}
     ${e.parent?`<p class="text-[10.5px] text-gray-400 mt-1 truncate" title="${e.parent}"><span class="text-gray-300">↑ 上级任务：</span>${e.parent}</p>`:''}
@@ -8856,9 +9969,9 @@ function wbAgentBox(e){
       <span>⚙️</span><span><b>${s.agent}</b> 执行中 · 问责人仍为我</span></div>`
     :agentDid(s)?`<div class="mt-2 text-[10.5px] text-violet-600">⚙️ ${s.agent} 已执行完成</div>`:'';
   if(agentPending(t))return `<div class="mt-2 rounded-lg bg-violet-50 border border-violet-200 px-2.5 py-2">
-    <div class="text-[10.5px] text-violet-700 flex items-start gap-1.5"><span>⚙️</span><span><b>${t.agentResult.by}</b> 已完成执行 · ${t.agentResult.at} 回写，待你确认<div class="text-gray-400 mt-0.5">${t.agentResult.summary}</div></span></div>
+    <div class="text-[10.5px] text-violet-700 flex items-start gap-1.5"><span>⚙️</span><span><b>${t.agentResult.by}</b> 已完成执行 · ${t.agentResult.at} 回写，待你确认<div class="text-gray-400 mt-0.5">${taskEsc(t.agentResult.summary)}</div></span></div>
     <div class="flex gap-1.5 mt-1.5 flex-wrap">
-      <button class="btn-p !py-0.5 !px-2.5 text-[10.5px]" onclick="event.stopPropagation();wbAdoptAgent(${t.id})">采纳并办结</button>
+      <button class="btn-p !py-0.5 !px-2.5 text-[10.5px]" onclick="event.stopPropagation();wbAdoptAgent(${t.id})">${taskAuto(t)?'采纳并提交判断':'采纳并办结'}</button>
       <button class="btn-o !py-0.5 !px-2.5 text-[10.5px]" onclick="event.stopPropagation();wbRerunAgent(${t.id})">退回重跑</button>
       <button class="btn-o !py-0.5 !px-2.5 text-[10.5px]" onclick="event.stopPropagation();wbAskTransfer(${t.id})">转给人</button>
     </div></div>`;
@@ -8932,6 +10045,7 @@ function subAutoRollup(t,p){
     if(!node)break;
     const ss=node.subs||[];
     if(!ss.length||!ss.every(x=>x.done)||node.done)break;
+    if(taskAuto(t,node)){node.awaitAgent=true;break}
     node.done=true;node.doneAt=nowStamp();
     const key=subKeyOf(t,parts.join('-'));
     t.timeline.push([node.doneAt,`#${key}「${node.n}」全部 ${ss.length} 个子任务已完成，自动办结`]);
@@ -8943,13 +10057,15 @@ let tdLastId=null;
 /* 办结一个子任务：写完成时间；全部子任务完成则主任务自动完成，完成时间取最后一个子任务的完成时间 */
 function wbFinishSub(t,p,by){
   const s=subAt(t,p),sn=subKeyOf(t,p);
-  if(!s)return false;
+  if(!s||s.done||t.done)return false;
+  if(taskAuto(t,s)){taskWaitAgent(t,s);return false}
   s.done=true;s.doneAt=nowStamp();
   /* 该子任务自己还有未完成的子任务时，只提示、不阻断（原型口径：以处理人确认为准） */
   const rolled=subAutoRollup(t,p);
   const st=wbSubStat(t);
   let autoDone=false;
-  if(st.d===st.n&&!t.done){
+  if(st.d===st.n&&!t.done&&taskAuto(t))t.awaitAgent=true;
+  if(st.d===st.n&&!t.done&&!taskAuto(t)){
     t.done=true;t.doneAt=nowStamp();autoDone=true;
     t.timeline.push([t.doneAt,`全部 ${st.n} 个子任务已完成，主任务自动完成（完成时间取最后一个子任务 #${sn}）`]);
   }
@@ -8963,6 +10079,7 @@ function wbToggleSubDone(tid,p){
   const t=wbTasks.find(x=>x.id===tid);const s=t&&subAt(t,p);if(!s)return;
   if(!subIsMine(s)){toast(`该子任务由 ${s.h} 处理，你只能处理归属自己的子任务`);return}
   if(s.done){toast(`子任务 #${subKeyOf(t,p)} 已办结，办结为终态不可撤回`);return}
+  if(taskAuto(t,s)){openTaskHandle(tid,p);return}
   const sn=subKeyOf(t,p);
   t.timeline.push([nowStamp(),`${ME} 完成子任务 #${sn}「${s.n}」`]);
   wbFinishSub(t,p,`${ME} 处理`);
@@ -8995,7 +10112,7 @@ function wbSubAgentAsk(tid,p,el){
   setTimeout(()=>{
     const bubble=document.getElementById(mid).querySelector('.typing');
     bubble.classList.remove('typing');
-    bubble.innerHTML=`子任务 <b>#${sn}</b>「${s.n}」：处理人 <b>${s.h}</b>${s.note?`，处理说明「${s.note}」`:''}，当前 <b>${s.done?'✅ 已完成':'进行中'}</b>。${(s.subs||[]).length?`它自己还有 ${(s.subs||[]).filter(x=>x.done).length}/${s.subs.length} 个子任务完成。`:''}上级任务「${subParentTitle(t,p)}」。
+    bubble.innerHTML=`子任务 <b>#${sn}</b>「${s.n}」：处理人 <b>${s.h}</b>${s.note?`，处理说明「${taskEsc(s.note)}」`:''}，当前 <b>${s.done?'✅ 已完成':'进行中'}</b>。${(s.subs||[]).length?`它自己还有 ${(s.subs||[]).filter(x=>x.done).length}/${s.subs.length} 个子任务完成。`:''}上级任务「${subParentTitle(t,p)}」。
       ${!s.done?`<div class="flex gap-2 mt-2">
         <button class="btn-o !py-1 !px-3 text-[11px]" onclick="toast('已在飞书提醒 ${s.h}（附子任务卡片）')">🔔 催 ${s.h}</button>
         <button class="btn-p !py-1 !px-3 text-[11px]" onclick="wbSubAgent(${tid},${idx})">改为智能体处理 ›</button>
@@ -9006,7 +10123,7 @@ function wbSubAgentAsk(tid,p,el){
 function wbSubAgentHandle(tid,p,el){
   const t=wbTasks.find(x=>x.id===tid),s=subAt(t,p),sn=subKeyOf(t,p),idx=`'${p}'`;
   wbCloseActionCard(el);
-  wbAgentMsg(`把子任务 <b>#${sn}</b>「${s.n}」交给 <b>${currentAgent}</b> 执行${s.note?`，处理说明「${s.note}」`:''}。执行结果将自动回写该子任务，并同步主任务「${t.title}」进度。
+  wbAgentMsg(`把子任务 <b>#${sn}</b>「${s.n}」交给 <b>${currentAgent}</b> 执行${s.note?`，处理说明「${taskEsc(s.note)}」`:''}。执行结果将自动回写该子任务，并同步主任务「${t.title}」进度。
     <div class="flex gap-2 mt-2">
       <button class="btn-p !py-1 !px-3 text-[11px]" onclick="wbConfirmSubAgentHandle(${tid},${idx},this)">确认派出</button>
       <button class="btn-o !py-1 !px-3 text-[11px]" onclick="wbCloseActionCard(this)">取消</button>
@@ -9017,13 +10134,15 @@ function wbConfirmSubAgentHandle(tid,p,el){
   if(s.done){if(el)wbCloseActionCard(el);toast('该子任务已完成，无需派出');return}
   if(el)wbCloseActionCard(el);
   const ag=currentAgent;
-  s.agent=ag;
+  s.agent=ag;s.agentResult=null;
   t.timeline.push([nowStamp(),`${ME} 通过会话指派「${ag}」处理子任务 #${sn}，处理人仍为 ${s.h}`]);
   renderWbTasks();tdRefresh();
   wbAgentMsg(`已派出 <b>${ag}</b> 处理子任务 <b>#${sn}</b>「${s.n}」，进展会自动写进主任务时间线，我会在这里同步。`);
   setTimeout(()=>{
     /* 转交/重开/主任务提前办结都会改掉这些字段，任一不成立就不再回写 */
     if(s.done||s.agent!==ag||t.done)return;
+    s.agentResult={at:nowStamp(),by:ag,summary:'模拟执行产出：已按子任务要求处理，待复核'};
+    if(taskAuto(t,s)){taskWaitAgent(t,s);wbAgentMsg('子任务执行产出已回写（模拟），待Agent判断，尚未办结。');return}
     t.timeline.push([nowStamp(),`${ag} 完成子任务 #${sn} 并回写结果`]);
     const autoDone=wbFinishSub(t,p,`${ag} 执行完成`);
     const st=wbSubStat(t);
@@ -9150,7 +10269,7 @@ function tcNodeRow(t,p,i){
     <div class="relative pb-3.5">
       <span class="absolute -left-[20px] top-0 w-[18px] h-[18px] rounded-full text-[9.5px] font-bold flex items-center justify-center ${s.done?'bg-emerald-400 text-white':'bg-white border-2 border-violet-400 text-violet-600'}">${s.done?'✓':i+1}</span>
       <div class="flex items-center gap-2 flex-wrap"><span class="text-[10px] text-gray-300">${subKeyOf(t,p)}</span><span class="text-[12.5px] font-semibold ${s.done?'text-gray-400 line-through':''}">${s.n}</span><span class="tag ${s.done?'bg-emerald-100 text-emerald-700':'bg-violet-100 text-violet-700'} !text-[10px]">${s.done?'已完成':'进行中'}</span>${kids.length?`<span class="text-[10px] text-gray-400">子任务 ${kids.filter(x=>x.done).length}/${kids.length}</span>`:''}${subIsMine(s)&&!s.done?'<span class="tag bg-amber-100 text-amber-600 !text-[10px]">待我处理</span>':''}</div>
-      <div class="text-[11px] text-gray-400 mt-0.5">处理人：${s.h}${s.agent?` · ⚙️ ${s.agent} ${s.done?'执行完成':'执行中'}`:''}${s.done&&s.doneAt?` · 完成于 ${s.doneAt}`:''}${s.note?` · ${s.note}`:''}</div>
+      <div class="text-[11px] text-gray-400 mt-0.5">处理人：${s.h}${s.agent?` · ⚙️ ${s.agent} ${s.done?'执行完成':'执行中'}`:''}${s.done&&s.doneAt?` · 完成于 ${s.doneAt}`:''}${s.note?` · ${taskEsc(s.note)}`:''}</div>
       ${actable?`<div class="flex gap-2 mt-1.5 flex-wrap">${s.done
         ?`<button class="text-[11px] text-gray-400 hover:text-violet-600" onclick="tcOpenTask(${t.id},'${p}')">详情 ›</button>`
         :`<button class="btn-p !py-0.5 !px-2.5 text-[11px]" onclick="openTaskHandle(${t.id},'${p}')">处理</button><button class="btn-o !py-0.5 !px-2.5 text-[11px]" onclick="ptTransferSub(${t.id},'${p}')">转交</button><button class="text-[11px] text-gray-400 hover:text-violet-600" title="在该子任务详情里可为它添加自己的子任务" onclick="tcOpenTask(${t.id},'${p}')">详情 ›</button>`}</div>`
@@ -9164,7 +10283,7 @@ function renderTcDetail(){
   if(!e){el.innerHTML='<div class="text-center text-gray-300 text-sm mt-20">选择左侧任务查看详情</div>';return}
   if(e.sub){renderTcSubDetail(el,e);return}
   const t=e.t;
-  const info=[['任务类型',t.type||'—'],['上级任务',t.parent||'无'],['关联项目',t.proj||'个人任务'],['业务系统编号',t.bizNo||'—'],['来源',t.source],['创建时间',t.createdAt||'—'],['截止时间',t.dueAt||t.due],['处理人',t.transfer?t.transfer.to+'（转交）':(t.handler||'罗紫函')],['创建人',t.creator||'—'],...(t.done?[['完成时间',t.doneAt||'—']]:[]),['备注',t.remark||'—'],...extFieldPairs(t)];
+  const info=[['任务类型',taskEsc(t.type||'—')+taskPolicyTag(t)],['上级任务',t.parent||'无'],['关联项目',t.proj||'个人任务'],['业务系统编号',t.bizNo||'—'],['来源',t.source],['创建时间',t.createdAt||'—'],['截止时间',t.dueAt||t.due],['处理人',t.transfer?t.transfer.to+'（转交）':(t.handler||'罗紫函')],['创建人',t.creator||'—'],...(t.done?[['完成时间',t.doneAt||'—']]:[]),['备注',t.remark||'—'],...extFieldPairs(t)];
   el.innerHTML=`
     <div class="flex items-start justify-between gap-3 mb-1">
       <div class="text-[16px] font-bold">${t.title}</div>
@@ -9180,9 +10299,10 @@ function renderTcDetail(){
       :isMainOwner(t)?`<button class="btn-p !py-1.5 !px-4 text-xs" onclick="openTaskHandle(${t.id})">处理</button><button class="btn-o !py-1.5 !px-4 text-xs" onclick="ptTransfer(${t.id});renderTcList();renderTcDetail()">转交</button>`
       :`<span class="text-[11.5px] text-gray-400">主任务处理人为 <b class="text-gray-600">${t.handler||'—'}</b>，你可处理归属自己的子任务</span>`}</div>
     ${tcNodeList(t,null)}
+    ${taskJudgePanel(t,null,null)}
     <div class="text-[12.5px] font-bold mb-2">任务处理时间线</div>
     <div class="relative pl-4 border-l-2 border-violet-100 space-y-3 ml-1 max-w-2xl">
-      ${t.timeline.map(([tm,txt])=>`<div class="relative"><span class="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full bg-violet-400 border-2 border-white"></span><div class="text-[10.5px] text-gray-400">${tm}</div><div class="text-[12px] text-gray-600 leading-relaxed">${txt}</div></div>`).join('')}
+      ${t.timeline.map(([tm,txt])=>`<div class="relative"><span class="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full bg-violet-400 border-2 border-white"></span><div class="text-[10.5px] text-gray-400">${tm}</div><div class="text-[12px] text-gray-600 leading-relaxed">${taskEsc(txt)}</div></div>`).join('')}
     </div>`;
 }
 /* 子任务条目详情：以我的任务为主体，上级任务作为可跳转的关联信息 */
@@ -9191,9 +10311,9 @@ function renderTcSubDetail(el,e){
   const pa=subParentOf(t,p),paIsMain=pa===t;
   const paSt=wbSubStat(pa),kids=s.subs||[];
   const tl=subTimeline(t,p,e.key);
-  const info=[['任务类型',t.type||'—'],['上级任务',subParentTitle(t,p)],['关联项目',t.proj||'个人任务'],['处理人',s.h],
+  const info=[['任务类型',taskEsc(s.type||t.type||'—')+taskPolicyTag(t,s)],['上级任务',subParentTitle(t,p)],['关联项目',t.proj||'个人任务'],['处理人',s.h],
     ['执行方式',s.agent?`🤖 ${s.agent} 执行（问责人 ${s.h}）`:'👤 人执行'],
-    ['处理说明',s.note||'—'],['截止时间',t.dueAt||t.due],['来源',t.source],
+    ['处理说明',taskEsc(s.note||'—')],['截止时间',t.dueAt||t.due],['来源',t.source],
     ...(kids.length?[['子任务进度',`${kids.filter(x=>x.done).length}/${kids.length}`]]:[]),
     ...(s.done?[['完成时间',s.doneAt||'—']]:[])];
   el.innerHTML=`
@@ -9217,9 +10337,10 @@ function renderTcSubDetail(el,e){
       <p class="text-[10.5px] text-gray-400 mt-1">处理人 ${paIsMain?(t.handler||ME):pa.h} · 子任务进度 ${paSt.d}/${paSt.n} · ${paIsMain?wbTaskMeta(t):`所属主任务：${t.title}`}</p>
     </div>
     ${tcNodeList(t,p)}
+    ${taskJudgePanel(t,s,p)}
     <div class="text-[12.5px] font-bold mb-2">该子任务处理记录 <span class="text-[10.5px] text-gray-400 font-normal">仅本子任务相关动态</span></div>
     <div class="relative pl-4 border-l-2 border-violet-100 space-y-3 ml-1 max-w-2xl">
-      ${tl.map(([tm,txt])=>`<div class="relative"><span class="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full bg-violet-400 border-2 border-white"></span><div class="text-[10.5px] text-gray-400">${tm}</div><div class="text-[12px] text-gray-600 leading-relaxed">${txt}</div></div>`).join('')}
+      ${tl.map(([tm,txt])=>`<div class="relative"><span class="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full bg-violet-400 border-2 border-white"></span><div class="text-[10.5px] text-gray-400">${tm}</div><div class="text-[12px] text-gray-600 leading-relaxed">${taskEsc(txt)}</div></div>`).join('')}
     </div>`;
 }
 function toggleTcPin(){
@@ -9472,7 +10593,7 @@ function renderBoard(){
         <div class="flex items-baseline gap-0.5 mt-0.5"><span class="text-[17px] font-bold leading-none ${v.color}">${v.val}</span><span class="text-[9.5px] text-gray-400">${t.unit}</span></div>
         <div class="text-[9.5px] text-gray-400 truncate mt-0.5">${v.sub}</div>
       </button>`}).join('')}</div>
-    <div class="text-[9.5px] text-gray-400 mt-1.5 px-0.5">维度口径与执行方式在「技能库 · 看板」按维度配置 · 更新 ${dimsFreqText(b)} · 点任一维度即在会话中展开查询 · 联动智能体 ${agentNick(boardLink(b))} 可直接追问本看板数据</div>`;
+    <div class="text-[9.5px] text-gray-400 mt-1.5 px-0.5">更新 ${dimsFreqText(b)} · 点维度展开查询 · 可向 ${agentNick(boardLink(b))} 追问</div>`;
 }
 function switchBoard(id){
   const b=liveBoards().find(x=>x.id===id);
@@ -9655,18 +10776,19 @@ function wbAgentScopeSummary(a){
 /* ---- 任务操作（对话/面板共用，统一回写） ---- */
 function wbDoneTask(id,el){
   const t=wbTasks.find(x=>x.id===id);
+  if(taskAuto(t)){openTaskHandle(id);return}
   wbMarkDone(id);
   if(el)wbCloseActionCard(el);
   wbAgentMsg(`已完成「${t.title}」✅ 状态已同步飞书待办${t.proj?'与项目任务清单':''}。<button class="text-violet-600 font-semibold underline ml-1" onclick="wbUndoDone(${t.id},this)">撤销</button>`);
 }
 function wbMarkDone(id){
-  const t=wbTasks.find(x=>x.id===id);t.done=true;t.doneAt=nowStamp();
+  const t=wbTasks.find(x=>x.id===id);if(!t||t.done)return;if(taskAuto(t)){openTaskHandle(id);return}t.done=true;t.doneAt=nowStamp();
   renderWbTasks();tdRefresh();
   const c=document.getElementById('ctask-'+id);
   if(c){c.style.opacity=.45;c.querySelectorAll('button').forEach(b=>b.disabled=true);}
 }
 function wbUndoDone(id,btn){
-  const t=wbTasks.find(x=>x.id===id);t.done=false;t.doneAt='';
+  const t=wbTasks.find(x=>x.id===id);if(taskAuto(t)){toast('自动闭环任务已办结，不可撤回');return}t.done=false;t.doneAt='';
   renderWbTasks();tdRefresh();
   btn.closest('.bg-gray-50').innerHTML=`已撤销，「${t.title}」恢复为待办。`;
   toast('已撤销完成操作');
@@ -9694,6 +10816,7 @@ function wbMarkTransfer(id,el,to){
   },12000);
   setTimeout(()=>{
     if(t.done||!t.transfer)return;
+    if(taskAuto(t)){taskWaitAgent(t,null,`${first} 提交处理进展（模拟）`);return}
     t.done=true;
     t.timeline.push(['刚刚',`${first} 已完成并提交`]);
     renderWbTasks();
@@ -9822,13 +10945,14 @@ function wbAgentReport(id,ag){
   const t=wbTasks.find(x=>x.id===id);
   if(!t||t.done||t.agent!==ag)return;
   const at=nowStamp();
-  t.agentResult={at,by:ag,summary:`已按任务要求完成${t.proj?`「${t.proj}」`:''}处理，结论与产出已附在任务时间线`};
-  t.timeline.push([at,`${ag} 执行完成并回写产出，待负责人 ${t.handler||ME} 确认`]);
+  t.agentResult={at,by:ag,summary:`模拟执行产出：已按任务要求完成${t.proj?`「${t.proj}」`:''}处理，结论与产出已附在任务时间线`};
+  if(taskAuto(t))t.awaitAgent=true;
+  t.timeline.push([at,`${ag} 模拟执行完成并回写产出，待负责人 ${t.handler||ME} 确认`]);
   renderWbTasks();tdRefresh();
   wbAgentMsg(`⚙️ <b>${ag}</b> 已完成「${t.title}」的执行，产出待你确认。
-    <div class="text-[11px] text-gray-400 mt-1.5">${t.agentResult.summary}</div>
+    <div class="text-[11px] text-gray-400 mt-1.5">${taskEsc(t.agentResult.summary)}</div>
     <div class="flex gap-2 mt-2 flex-wrap">
-      <button class="btn-p !py-1 !px-3 text-[11px]" onclick="wbAdoptAgent(${t.id},this)">采纳并办结</button>
+      <button class="btn-p !py-1 !px-3 text-[11px]" onclick="wbAdoptAgent(${t.id},this)">${taskAuto(t)?'采纳并提交判断':'采纳并办结'}</button>
       <button class="btn-o !py-1 !px-3 text-[11px]" onclick="wbRerunAgent(${t.id},this)">退回重跑</button>
       <button class="btn-o !py-1 !px-3 text-[11px]" onclick="wbCloseActionCard(this);wbAskTransfer(${t.id})">转给人处理</button>
     </div>`,true,ag);
@@ -9837,6 +10961,8 @@ function wbAdoptAgent(id,el){
   const t=wbTasks.find(x=>x.id===id);if(!t)return;
   if(el)wbCloseActionCard(el);
   if(t.done){toast('该任务已办结');return}
+  if(!t.agentResult){toast('暂无可采纳的执行产出');return}
+  if(taskAuto(t)){taskWaitAgent(t,null,`${ME} 采纳执行产出：${t.agentResult.summary}`);return}
   const by=t.agentResult?.by||t.agent||'智能体';
   t.done=true;t.doneAt=nowStamp();t.agentResult=null;
   t.timeline.push([t.doneAt,`${ME} 采纳 ${by} 的产出并办结任务`]);
@@ -10170,7 +11296,7 @@ function openAgentConfig(id){
   document.getElementById('ac-desc').value=a.desc||'洞察未见之处，化解管理之滞。';
   document.querySelectorAll('.ac-chat-name').forEach(e=>e.textContent=a.name||'智能体');
   renderAcModel();
-  showPage('agentconfig');renderAcRes();
+  showPage('agentconfig');renderAcRes();renderAcSubs();renderAcDts();renderAcSkills();
 }
 /* 智能体配置页：基座模型从平台「模型配置」取，思考配置按该模型的能力渲染 */
 let acModel='glm-5.2',acThink='低';
@@ -10255,6 +11381,213 @@ function acSetThink(v){
   renderAcDeep();
   toast(modelThink(acModel).lv?`思考等级已设为「${v}」`:(v==='开'?'已开启思考':'已关闭思考'));
 }
+/* ===== 智能体能力：SubAgent 与数据表 =====
+   AC_SUBS=主智能体下的 SubAgent，各自带模型、思考档位、提示词与可用数据表
+   AC_DTS=主智能体自己可查的数据表，与 SubAgent 各自挂的表相互独立 */
+const AC_SUBS=[
+  {id:'sub-1',name:'数据分析助手',desc:'按销售口径取数作答：目标完成率、商机转化、回款进度，取数前先确认口径与时间范围。',model:'glm-5.2',think:'低',prompt:'你负责销售数据的取数与归因分析。回答前先确认统计口径与时间范围，输出结论时标注取数来源表。',dts:['dt-target','dt-opp']},
+  {id:'sub-2',name:'客户风险排查',desc:'排查客户流失与续费风险信号，输出风险等级与建议动作，命中高风险时提示建跟进任务。',model:'glm-5.2',think:'中',prompt:'你负责客户风险排查。结合风险台账与回款情况给出风险等级（高 / 中 / 低）与建议动作。',dts:['dt-risk']},
+];
+const AC_DTS=['dt-target','dt-opp'];
+/* ===== 智能体能力：skills 版本应用 =====
+   applied=当前生效版本，mode=latest 跟随技能库最新发布版 / lock 锁定到指定版本，
+   draft=下拉改过但还没点「更 新」的待生效版本 */
+const AC_SKILLS=[
+  {id:'fsk-05',mode:'latest',lock:null,applied:'v1',draft:null},
+  {id:'fsk-09',mode:'lock',lock:'v1',applied:'v1',draft:null},
+  {id:'fsk-04',mode:'latest',lock:null,applied:'v2',draft:null},
+];
+/* 技能库里该 skill 当前已发布的版本号 */
+function acSkillPub(s){const v=(s.vers||[]).find(x=>x.st==='已发布');return v?v.v:s.ver}
+/* 这条挂载按当前模式该走的版本：跟随最新取已发布版，锁定取锁定版 */
+function acSkillTarget(it){
+  const s=fskGet(it.id);if(!s)return it.applied;
+  return it.mode==='lock'?(it.lock||it.applied):acSkillPub(s);
+}
+/* 待生效版本：优先取下拉改过的草稿，否则看模式算出来的目标版 */
+function acSkillPending(it){
+  const t=it.draft||acSkillTarget(it);
+  return t===it.applied?null:t;
+}
+function acSkillVerAt(s,v){const x=(s.vers||[]).find(y=>y.v===v);return x?x.at:s.at}
+function renderAcSkills(){
+  const box=document.getElementById('cap-skills');
+  box.innerHTML=AC_SKILLS.length?AC_SKILLS.map((it,i)=>{
+    const s=fskGet(it.id);if(!s)return '';
+    const pend=acSkillPending(it);
+    /* 可选版本只给已发布与历史版本，从未发布过的版本不进清单 */
+    const opts=(s.vers||[]).filter(v=>v.st!=='待发布');
+    const sel=it.draft?'lock:'+it.draft:(it.mode==='latest'?'latest':'lock:'+it.lock);
+    return `<div class="rounded-xl border ${pend?'border-amber-200 bg-amber-50/30':'border-gray-100'} px-3 py-2.5">
+      <div class="flex items-center gap-2">
+        <span class="text-[12.5px] font-bold truncate">${s.name}</span>
+        <span class="tag ${it.mode==='latest'&&!it.draft?'bg-violet-50 text-violet-600':'bg-gray-100 text-gray-500'}">${it.draft?'待切 '+it.draft:(it.mode==='latest'?'跟随最新':'已锁定 '+it.lock)}</span>
+        <span class="ml-auto text-gray-300 hover:text-red-500 cursor-pointer text-[13px] shrink-0" onclick="delAcSkill(${i})">⊖</span>
+      </div>
+      <div class="flex items-center gap-2 mt-1.5">
+        <span class="text-[11px] text-gray-400">当前应用 ${it.applied} · ${acSkillVerAt(s,it.applied)}</span>
+        <select class="ml-auto shrink-0 border border-gray-200 rounded-md px-2 py-1 text-[11px] text-gray-600 bg-white focus:outline-violet-300" onchange="acSkillPick(${i},this.value)">
+          <option value="latest" ${sel==='latest'?'selected':''}>跟随技能库最新</option>
+          ${opts.map(v=>`<option value="lock:${v.v}" ${sel==='lock:'+v.v?'selected':''}>${v.v} · ${v.at.slice(0,10)}${v.st==='已发布'?' · 最新':''}</option>`).join('')}
+        </select>
+      </div>
+      ${pend?`<div class="text-[11px] text-amber-600 leading-relaxed mt-1.5 pt-1.5 border-t border-amber-100">🔔 技能库已发布 ${pend}（${acSkillVerAt(s,pend)}）：点页头「更 新」后生效</div>`:''}
+    </div>`;
+  }).join(''):'<div class="text-[12px] text-gray-400">暂无配置，点击 ＋ 添加 skill</div>';
+  const n=AC_SKILLS.filter(acSkillPending).length;
+  document.getElementById('cap-skills-badge').classList.toggle('hidden',!n);
+  document.getElementById('cap-skills-badge-n').textContent=n;
+}
+function acSkillPick(i,v){
+  const it=AC_SKILLS[i];
+  if(v==='latest'){it.mode='latest';it.lock=null;it.draft=null}
+  else{const t=v.slice(5);it.mode='lock';it.lock=t;it.draft=t===it.applied?null:t}
+  renderAcSkills();
+}
+function delAcSkill(i){
+  const s=fskGet(AC_SKILLS[i].id);AC_SKILLS.splice(i,1);renderAcSkills();
+  toast(`已移除 skill「${s?s.name:''}」：更新后本智能体不再调用`);
+}
+/* 页头「更 新」：把 skills 的待生效版本一并发布，发布后才对智能体生效 */
+function acUpdate(){
+  const pend=AC_SKILLS.filter(acSkillPending);
+  pend.forEach(it=>{it.applied=acSkillPending(it);it.draft=null});
+  renderAcSkills();
+  toast(pend.length
+    ?`已发布更新（示意）：${pend.map(it=>(fskGet(it.id)||{}).name+' '+it.applied).join('、')} 已生效`
+    :'已发布更新（示意）');
+}
+function acDtName(id){const t=DATA_TABLES.find(x=>x.id===id);return t?t.name:id}
+function acDtTag(id,onDel){
+  const t=DATA_TABLES.find(x=>x.id===id);if(!t)return '';
+  return `<span class="inline-flex items-center gap-1.5 rounded-lg bg-gray-50 pl-2.5 pr-1.5 py-1 text-[11.5px]">
+    <span class="text-gray-600">${t.name}</span>
+    ${dtWpermTags(t,'智能体')}
+    ${onDel?`<span class="text-gray-300 hover:text-red-500 cursor-pointer px-0.5" onclick="${onDel}">✕</span>`:''}
+  </span>`;
+}
+function renderAcSubs(){
+  const box=document.getElementById('cap-sub');
+  box.innerHTML=AC_SUBS.length?AC_SUBS.map(s=>`
+    <div class="rounded-xl border border-gray-100 px-3 py-2.5">
+      <div class="flex items-center gap-2">
+        <span class="text-[12.5px] font-bold">${s.name}</span>
+        <span class="tag bg-gray-100 text-gray-500">${s.model}</span>
+        <div class="ml-auto flex items-center gap-2.5 text-[11px] shrink-0">
+          <span class="text-violet-600 cursor-pointer hover:underline" onclick="openSubCfg('${s.id}')">编辑</span>
+          <span class="text-gray-400 cursor-pointer hover:text-red-500" onclick="delSub('${s.id}')">删除</span>
+        </div>
+      </div>
+      <p class="text-[11px] text-gray-400 leading-relaxed mt-1">${s.desc}</p>
+      <div class="text-[10.5px] text-gray-400 mt-1.5">数据表 ${s.dts.length} 张${s.dts.length?'：'+s.dts.map(acDtName).join('、'):''}</div>
+    </div>`).join(''):'<div class="text-[12px] text-gray-400">暂无配置，点击 ＋ 添加 SubAgent</div>';
+}
+function renderAcDts(){
+  const box=document.getElementById('cap-dt');
+  box.innerHTML=AC_DTS.length
+    ?`<div class="flex flex-wrap gap-2">${AC_DTS.map(id=>acDtTag(id,`delAcDt('${id}')`)).join('')}</div>`
+    :'<div class="text-[12px] text-gray-400">暂无配置，点击 ＋ 挂载数据表</div>';
+}
+function delAcDt(id){
+  AC_DTS.splice(AC_DTS.indexOf(id),1);renderAcDts();
+  toast(`已移除「${acDtName(id)}」：主智能体不再能查这张表`);
+}
+function delSub(id){
+  const i=AC_SUBS.findIndex(s=>s.id===id);if(i<0)return;
+  const n=AC_SUBS[i].name;AC_SUBS.splice(i,1);renderAcSubs();
+  toast(`已删除 SubAgent「${n}」`);
+}
+/* ---- 挂载数据表（主智能体级）：弹窗里勾选，确定后才写回 ---- */
+let acDtDraft=[];
+function openAcDtPick(){
+  acDtDraft=AC_DTS.slice();
+  document.getElementById('acdt-kw').value='';
+  renderAcDtPick();
+  document.getElementById('modal-acdt').classList.remove('hidden');
+}
+function closeAcDtPick(){document.getElementById('modal-acdt').classList.add('hidden')}
+function renderAcDtPick(){
+  document.getElementById('acdt-list').innerHTML=
+    dtPickRows(document.getElementById('acdt-kw').value,acDtDraft,'acDtDraftPick');
+}
+function acDtDraftPick(id){
+  const i=acDtDraft.indexOf(id);
+  if(i<0)acDtDraft.push(id);else acDtDraft.splice(i,1);
+  renderAcDtPick();
+}
+function saveAcDt(){
+  AC_DTS.length=0;acDtDraft.forEach(id=>AC_DTS.push(id));
+  closeAcDtPick();renderAcDts();
+  toast(`已挂载 ${AC_DTS.length} 张数据表：主智能体可查询分析这些表`);
+}
+/* ---- 配置 SubAgent：id 为空是新增，否则是编辑 ---- */
+let curSub=null,subcThink='低',subcDts=[];
+function openSubCfg(id){
+  const s=id?AC_SUBS.find(x=>x.id===id):null;
+  curSub=id||null;
+  document.getElementById('subc-title').textContent=s?'编辑 SubAgent':'配置 SubAgent';
+  document.getElementById('subc-name').value=s?s.name:'';
+  document.getElementById('subc-desc').value=s?s.desc:'';
+  document.getElementById('subc-prompt').value=s?s.prompt:'';
+  document.getElementById('subc-name-cnt').textContent=(s?s.name.length:0)+' / 20';
+  document.getElementById('subc-desc-cnt').textContent=(s?s.desc.length:0)+' / 500';
+  document.getElementById('subc-prompt-cnt').textContent=(s?s.prompt.length:0)+' / 30000';
+  document.getElementById('subc-sw-space').classList.add('off');
+  subcDts=s?s.dts.slice():[];
+  document.getElementById('subc-dt-box').classList.add('hidden');
+  document.getElementById('subc-dt-kw').value='';
+  const pick=modelPickable();
+  const model=s&&pick.some(m=>m.name===s.model)?s.model:pick[0].name;
+  document.getElementById('subc-model').innerHTML=pick.map(m=>`<option ${model===m.name?'selected':''}>${m.name}</option>`).join('');
+  subcThink=s?s.think:modelThink(model).def;
+  renderSubcThink();renderSubcDt();
+  document.getElementById('modal-subcfg').classList.remove('hidden');
+}
+function closeSubCfg(){document.getElementById('modal-subcfg').classList.add('hidden')}
+function subcSetModel(v){subcThink=modelThink(v).def;renderSubcThink()}
+function subcSetThinkLv(v){subcThink=v}
+/* 思考配置按所选模型的能力渲染：支持等级的出等级单选，只支持开关的出开启 / 关闭 */
+function renderSubcThink(){
+  const t=modelThink(document.getElementById('subc-model').value),box=document.getElementById('subc-think');
+  if(!t.sup){box.innerHTML='';return}
+  const opts=t.lv?['关'].concat(t.opts):['开','关'];
+  const txt=v=>t.lv?v:(v==='开'?'开启思考':'关闭思考');
+  box.innerHTML=`<div class="flex items-center gap-3 flex-wrap">
+    ${t.lv?'<span class="text-[12px] text-gray-500">思考等级</span>':''}
+    ${opts.map(v=>`<label class="wf-radio !py-0"><input type="radio" name="subc-think" ${subcThink===v?'checked':''} onchange="subcSetThinkLv('${v}')"><span>${txt(v)}</span></label>`).join('')}
+  </div>`;
+}
+function subcToggleDtPick(){
+  const hidden=document.getElementById('subc-dt-box').classList.toggle('hidden');
+  if(!hidden)renderSubcDtPick();
+}
+function renderSubcDtPick(){
+  document.getElementById('subc-dt-pick').innerHTML=
+    dtPickRows(document.getElementById('subc-dt-kw').value,subcDts,'subcPickDt');
+}
+function subcPickDt(id){
+  const i=subcDts.indexOf(id);
+  if(i<0)subcDts.push(id);else subcDts.splice(i,1);
+  renderSubcDtPick();renderSubcDt();
+}
+function renderSubcDt(){
+  document.getElementById('subc-dt-sel').innerHTML=subcDts.map(id=>acDtTag(id,`subcPickDt('${id}')`)).join('');
+  document.getElementById('subc-dt-cnt').textContent=subcDts.length?`已选 ${subcDts.length} 张`:'';
+}
+function saveSubCfg(){
+  const name=document.getElementById('subc-name').value.trim();
+  const desc=document.getElementById('subc-desc').value.trim();
+  const prompt=document.getElementById('subc-prompt').value.trim();
+  if(!name)return toast('请填写 SubAgent 名称');
+  if(!desc)return toast('请填写能力描述');
+  if(!prompt)return toast('请填写提示词');
+  const model=document.getElementById('subc-model').value;
+  const s=curSub?AC_SUBS.find(x=>x.id===curSub):null;
+  if(s)Object.assign(s,{name,desc,model,think:subcThink,prompt,dts:subcDts.slice()});
+  else AC_SUBS.push({id:'sub-'+Date.now().toString().slice(-6),name,desc,model,think:subcThink,prompt,dts:subcDts.slice()});
+  closeSubCfg();renderAcSubs();
+  toast(`SubAgent「${name}」已保存：主智能体按能力描述决定何时分派，可用数据表 ${subcDts.length} 张`);
+}
 function toggleCapSec(id){
   const el=document.getElementById(id);el.classList.toggle('hidden');
   const a=document.getElementById('arrow-'+id);if(a)a.textContent=el.classList.contains('hidden')?'▸':'▾';
@@ -10335,14 +11668,16 @@ function acSend(){
 let toastTimer;
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.remove('hidden');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.add('hidden'),2400)}
 
-/* ================= 会话详情：完整输入输出 =================
-   CL_TRACE 按会话 ID 存逐轮过程：think=思考，tool=工具调用，sub=子智能体会话。
-   sub 节点与主会话同构（q / out / steps），renderer 递归渲染，支持多层嵌套。 */
+/* ================= 会话详情：一个会话内的多条 trace（交互记录） =================
+   CL_TRACE 按 traceID（tid）存单条 trace 的过程：input / files / out / steps。
+   时间、耗时、消耗、状态取自 CHATLOGS 同 tid 的行，不在此重复。
+   过程内 think=思考，tool=工具调用，sub=子智能体会话；sub 与主链路同构
+   （q / out / steps），renderer 递归渲染，子智能体会话穿插在该链路过程中。 */
 const CL_TRACE={
-'a9d3ce…':{
+'tr-8f2a91':{
   input:'对客户"远航物流"生成一页纸方案，突出智能调度收益。\n\n要求：\n1. 控制在一页纸内，给业务决策层看\n2. 突出智能调度能带来的量化收益\n3. 现状诊断要引用我们之前调研的结论，别凭空写\n4. 附一段实施节奏，分阶段',
   files:[['远航物流_调度现状调研_0912.docx','184 KB'],['远航_车队台账_8月.xlsx','52 KB']],
-  out:'全部步骤已完成。方案含现状诊断、调度优化路径、量化收益测算与分三阶段实施节奏，已输出为《远航物流智能调度一页纸方案_v3.md》。\n\n核心结论：\n· 现状——4 个调度中心各自排车，车辆空驶率 23.4%，人工排车平均每单 6.8 分钟\n· 优化路径——统一调度池 + 智能排车引擎，分阶段替换人工排车\n· 量化收益——空驶率降至 14% 区间，年化节省运输成本约 1,180 万元，调度人力可从 18 人压到 11 人\n· 实施节奏——试点（6 周·2 个调度中心）→ 推广（10 周·全量）→ 深化（持续·算法调优）\n\n收益测算口径已在方案附注中写明，取自客户 8 月车队台账与调研访谈，未使用行业均值外推。',
+  out:'全部步骤已完成。方案含现状诊断、调度优化路径、量化收益测算与分三阶段实施节奏，已输出为《远航物流智能调度一页纸方案_v1.md》。\n\n核心结论：\n· 现状——4 个调度中心各自排车，车辆空驶率 23.4%，人工排车平均每单 6.8 分钟\n· 优化路径——统一调度池 + 智能排车引擎，分阶段替换人工排车\n· 量化收益——空驶率降至 14% 区间，年化节省运输成本约 1,180 万元，调度人力可从 18 人压到 11 人\n· 实施节奏——试点（6 周·2 个调度中心）→ 推广（10 周·全量）→ 深化（持续·算法调优）\n\n收益测算口径已在方案附注中写明，取自客户 8 月车队台账与调研访谈，未使用行业均值外推。',
   steps:[
     {k:'think',t:'先确认上下文来源。用户要求现状诊断引用既有调研结论，所以不能直接生成，要先取项目空间里的调研文档与客户台账。'},
     {k:'tool',n:'项目空间检索',in:'space: 远航物流集团知识空间\nquery: 调度现状 调研结论 空驶率',out:'命中 3 份文档：\n· 远航物流_调度现状调研_0912.docx（含 6 次访谈记录）\n· 远航_车队台账_8月.xlsx（1,842 条行车记录）\n· 远航_调度中心组织架构_0820.md'},
@@ -10365,8 +11700,43 @@ const CL_TRACE={
     {k:'tool',n:'知识库检索',in:'kb: 标杆项目案例集（golden）\nquery: 智能调度 实施节奏 试点周期',out:'命中 2 个标杆案例：顺捷物流（试点 6 周 2 中心 → 推广 10 周）、云途供应链（试点 8 周 → 推广 12 周）。两例均为先试点后推广，未见一次性全量上线'},
     {k:'think',t:'按标杆案例的节奏给三阶段，试点取 6 周 2 个中心（和顺捷同体量）。篇幅核对：现状 4 条 + 路径 4 条 + 收益 4 项 + 节奏 3 阶段，约 950 字，一页纸放得下。可以出终稿。'}]},
 
-'02a8c4…':{
-  input:'整理远航物流调度需求调研报告，覆盖全部访谈对象。\n\n6 位访谈对象的记录都在项目空间里，按调研方案的 8 个维度整理，每个维度要标注信息来源于谁。',
+'tr-8f2a92':{
+  input:'收益测算的口径再确认一下：年化节省 1,180 万里有没有算司机工资？决策层肯定会问这个。\n\n如果没算，补进去重算一遍，取保守口径。',
+  files:[],
+  out:'已补入司机工资重算，年化节省口径从 1,180 万元修正为 1,641 万元（全成本口径）。\n\n修正说明：\n· 原口径 5.61 元/km 只含油耗与过路费，未计司机工资\n· 全成本口径 8.94 元/km = 油耗过路费 5.61 + 分摊司机工资 3.33\n· 按空驶率降至 14.6%（区间保守端）测算，月减少空驶 15.3 万 km\n· 年化节省 = 15.3 万 km × 8.94 元 × 12 ≈ 1,641 万元\n\n需提示：司机工资分摊按台账实际行车工时折算，月均工资取自调研访谈（9,200 元/人），台账未提供工资总额，该假设已写入方案附注。',
+  steps:[
+    {k:'think',t:'原测算只算了油耗和过路费，确实没算司机工资。工资不在台账里，要从调研访谈的月均工资反推，而且得按实际行车工时分摊，不能按人头平均——空驶省下来的是工时。另外取保守端，用空驶率区间的上限 14.6%，省得收益看起来虚高。'},
+    {k:'sub',agent:'数据分析',sid:'e0b7f2…',rt:98,tin:8600,tout:820,
+     q:'在原测算基础上补入司机工资：按台账实际行车工时分摊，不要按人头平均。月均工资取 9,200 元/人。空驶率目标取区间保守端 14.6%，重算全成本单位里程成本与年化节省。',
+     out:'重算完成：\n· 全成本单位里程成本 8.94 元/km（油耗过路费 5.61 + 司机工资分摊 3.33）\n· 8 月总行车工时 42,180 小时，在册司机 214 人\n· 空驶率降至 14.6% 时，月减少空驶里程 15.3 万 km\n· 年化节省 ≈ 1,641 万元\n口径说明：台账未提供工资总额，按 214 人 × 9,200 元反推月度工资总额 196.9 万元，再按行车工时分摊到里程。',
+     steps:[
+       {k:'tool',n:'表格读取',in:'file: 远航_车队台账_8月.xlsx\nsheet: 行车明细\ncols: 车牌,里程,行车工时,是否空驶',out:'读取 1,842 行。总行车工时 42,180 小时，在册司机 214 人（按车牌去重后对应）'},
+       {k:'think',t:'台账里没有工资字段，只能用调研访谈里的月均 9,200 元反推总额。这是个假设，必须在输出里标出来，不能当成台账实算数据混着说。'},
+       {k:'tool',n:'代码执行',in:'wage_total = 214 * 9200\nwage_per_km = wage_total / df.里程.sum()\nfull_cost = 5.61 + wage_per_km\nsaved_km = 426_312 - 1_821_455*0.146',out:'wage_total = 1,968,800 元/月\nwage_per_km = 3.33 元/km\nfull_cost = 8.94 元/km\nsaved_km = 152,380 km/月\n年化节省 = 152,380 × 8.94 × 12 = 16,349,318 元'}]},
+    {k:'think',t:'1,641 万和原来的 1,180 万差得不小，方案里凡是出现 1,180 的地方都要改掉，口径附注也要跟着换成全成本口径，否则决策层对不上账。其他三段不动。'},
+    {k:'tool',n:'文档编辑',in:'file: 远航物流智能调度一页纸方案_v1.md\nreplace: 1,180 万元 → 1,641 万元\nupdate: 收益测算口径附注',out:'已替换 3 处金额表述，附注更新为全成本口径说明，输出为《远航物流智能调度一页纸方案_v2.md》'}]},
+
+'tr-8f2a93':{
+  input:'再加一段风险与应对，三条以内，每条要挂到实施节奏的具体阶段上，别写原则性的话。',
+  files:[],
+  out:'已补入「风险与应对」三条，均挂到实施节奏的具体节点，输出为《远航物流智能调度一页纸方案_v3.md》。\n\n1. 调度员抵触统一调度池（试点阶段）——试点期两周内旧权限并行保留，调度员可随时回退人工排车，用试点数据说服而非强推\n2. 返程货源密度不足拖低配载命中率（试点选点）——试点优先选货源密度最高的两个中心，先验证命中率能否到 55% 下限，不达标则调整推广节奏\n3. 四个中心数据口径不一致（推广前置）——推广启动前完成主数据统一（车辆、线路、客户三类），否则排车引擎跨中心调度会出错\n\n篇幅核对：现状 4 条 + 路径 4 条 + 收益 4 项 + 节奏 3 阶段 + 风险 3 条，约 1,080 字，一页纸仍放得下。',
+  steps:[
+    {k:'think',t:'用户要的是挂到阶段上的具体动作，不是「加强沟通」这类空话。前两条坑标杆案例里真踩过，去查一下顺捷和云途当时的处理方式，直接套；第三条是远航四个中心自己的问题，调研文档里提到过数据不统一。'},
+    {k:'tool',n:'知识库检索',in:'kb: 标杆项目案例集（golden）\nquery: 智能调度 试点 调度员抵触 配载命中率不足',out:'命中 2 条处置记录：\n· 顺捷物流——试点期旧权限并行保留 2 周，调度员可回退，抵触情况 3 周内消解\n· 云途供应链——首批试点选货源密度最高网点，先验命中率下限'},
+    {k:'tool',n:'文档解析',in:'file: 远航物流_调度现状调研_0912.docx\nextract: 数据口径 主数据 不一致',out:'命中 2 段：4 个调度中心车辆编码规则不同；客户名称无统一主数据，同一客户在不同中心有 3 种写法'},
+    {k:'think',t:'三条都有出处了，分别挂试点、试点选点、推广前置。篇幅加完约 1,080 字，一页纸还放得下，可以出终稿。'}]},
+
+'tr-3b17c0':{
+  input:'远航调研的 8 位访谈对象，记录都传到项目空间了吗？先帮我核一下。',
+  files:[],
+  out:'项目空间里只有 6 位访谈对象的记录，缺 2 位。\n\n已有：王总（副总）、李调度主管、张调度员、车队刘经理、IT 周工、司机代表\n缺失：赵主管、陈专员\n\n这两位在调研方案里对应「异常调度处理」维度，缺了这一维会没有素材。建议先补传记录再整理报告。',
+  steps:[
+    {k:'tool',n:'项目空间检索',in:'space: 远航物流集团知识空间\nquery: 访谈记录 调研',out:'命中 1 份合并文档：远航_访谈记录_合并_0918.docx（412 KB）'},
+    {k:'tool',n:'文档解析',in:'file: 远航_访谈记录_合并_0918.docx\nextract: 访谈对象清单',out:'识别到 6 位访谈对象：王总（副总）、李调度主管、张调度员、车队刘经理、IT 周工、司机代表'},
+    {k:'think',t:'调研方案里是 8 位，文档里只有 6 位。对照一下缺的两位负责哪个维度——赵主管和陈专员对应异常调度处理，这一维会空。先把核对结果告诉用户，不要自己接着往下整理。'}]},
+
+'tr-3b17c1':{
+  input:'缺的两位我后面补，先按现有 6 位把报告整理出来。\n\n按调研方案的 8 个维度整理，每个维度要标注信息来源于谁，没素材的维度直接标出来别编。',
   files:[['远航_访谈记录_合并_0918.docx','412 KB']],
   out:'已完成 6 个维度，数据口径与两名访谈对象未覆盖——本次执行达到轮数上限（8 轮）提前结束，已先输出完成部分。\n\n已覆盖维度：\n1. 调度组织与分工（来源：王总、李调度主管）\n2. 现有排车流程（来源：李调度主管、张调度员）\n3. 车辆与运力结构（来源：车队刘经理）\n4. 返程配载现状（来源：张调度员、司机代表）\n5. 系统现状与集成点（来源：IT 周工）\n6. 调度绩效考核（来源：王总）\n\n未覆盖：\n· 维度 7「数据口径与报表需求」——需财务口径确认，访谈记录中无对应内容\n· 维度 8「异常调度处理」——访谈对象赵主管、陈专员的记录未在项目空间中找到\n\n建议：补齐两位访谈对象的记录后重跑，或放宽轮数上限至 12 轮。',
   steps:[
@@ -10384,7 +11754,7 @@ const CL_TRACE={
     {k:'tool',n:'文档解析',in:'extract: 维度7 数据口径与报表需求',out:'未命中。访谈记录中无财务口径相关内容'},
     {k:'think',t:'第 7 维度确实没有素材。已经第 8 轮了，到上限了，把 6 个完成的维度输出，两个缺口写清原因和补齐办法。'}]},
 
-'902d61…':{
+'tr-902d61':{
   input:'查询上周华东区销售拜访数据，按人汇总。',
   files:[],
   out:'未取到数据：CRM 查询参数不符，已说明原因。\n\n连续 4 次调用 CRM 查询接口均返回参数校验失败，平台判定无进展后终止。\n\n失败原因：接口要求 region 传区域编码（如 "CN-EA"），而不是中文区域名「华东」。本智能体挂载的 CRM 查询工具未提供编码对照表，无法自行换算。\n\n建议：在工具配置中补充区域名→编码的映射，或把 region 参数改为支持中文名入参。',
@@ -10396,7 +11766,7 @@ const CL_TRACE={
     {k:'tool',n:'CRM查询',in:'region: 华东区\nstart: 2026-09-15\nend: 2026-09-21',out:'❌ 400 参数校验失败：region 需为区域编码'},
     {k:'think',t:'第 4 次了，都是同一个参数问题，再试也是猜。停下来说明原因，让使用方补映射表。'}]},
 
-'7b1c08…':{
+'tr-7b1c08':{
   input:'分析昨夜调度服务超时告警的根因。',
   files:[],
   out:'—',
@@ -10410,26 +11780,47 @@ const CL_TRACE={
 /* 未单独编写过程的会话：按 rounds 的动作描述兜底生成，动作含检索/调用等词的记为工具调用 */
 const CL_TOOLWORDS=[['检索','知识库检索'],['读取','文件读取'],['调用','工具调用'],['查询','数据查询'],['比对','比对计算'],['拉取','数据拉取'],['抽取','内容抽取']];
 function clTrace(r){
-  if(CL_TRACE[r.sid])return CL_TRACE[r.sid];
+  if(CL_TRACE[r.tid])return CL_TRACE[r.tid];
   const steps=r.rounds.length
     ? r.rounds.map(x=>{
         const hit=CL_TOOLWORDS.find(([w])=>x[2].includes(w));
         return hit?{k:'tool',n:hit[1],in:x[2],out:`本轮消耗 入 ${clNum(x[0])} / 出 ${clNum(x[1])} tokens`}:{k:'think',t:x[2]};
       })
     : [{k:'think',t:'会话型智能体单轮直接应答，无自主循环过程。'}];
-  return {input:r.q,files:[],out:r.a,steps,derived:true};
+  return {input:r.q,files:[],out:r.a,err:r.err,steps,derived:true};
+}
+/* 一个会话内的全部执行链路，按时间正序（先发生的在前） */
+function clSessionTraces(sid){
+  return CHATLOGS.filter(r=>r.sid===sid).slice().sort((a,b)=>a.date<b.date?-1:1);
 }
 
 /* 过程文本来自日志，按文本注入，换行转 <br> */
 function clEsc(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
 function clNl(s){return clEsc(s).replace(/\n/g,'<br>')}
 
-let clSid=null;          /* 当前查看的会话在 CHATLOGS 中的下标 */
+let clSid=null;          /* 当前查看的会话 ID */
+let clFocus=null;        /* 从列表点进来的那条 trace，详情里高亮 */
 let clOpen={};           /* 折叠态：key → 是否展开 */
 function clToggle(k){clOpen[k]=!clOpen[k];renderClSession()}
 
+/* 点 ID 复制。file:// 下 navigator.clipboard 可能不可用，退回 execCommand */
+function clCopy(v,label){
+  const ok=()=>toast(`${label} 已复制：${v}`);
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(v).then(ok,()=>clCopyFallback(v,ok));
+  }else clCopyFallback(v,ok);
+}
+function clCopyFallback(v,ok){
+  const t=document.createElement('textarea');
+  t.value=v;t.style.position='fixed';t.style.opacity='0';
+  document.body.appendChild(t);t.select();
+  try{document.execCommand('copy');ok()}catch(e){toast('复制失败，请手动选择')}
+  document.body.removeChild(t);
+}
+
 function openClSession(i){
-  clSid=i;clOpen={};
+  const r=CHATLOGS[i];
+  clSid=r.sid;clFocus=r.tid;clOpen={};
   $c('cl-listview').classList.add('hidden');
   $c('cl-detailview').classList.remove('hidden');
   renderClSession();
@@ -10437,7 +11828,7 @@ function openClSession(i){
   emitPage();
 }
 function closeClSession(){
-  clSid=null;
+  clSid=null;clFocus=null;
   $c('cl-detailview').classList.add('hidden');
   $c('cl-listview').classList.remove('hidden');
   emitPage();
@@ -10507,10 +11898,17 @@ function clSubCount(steps){
 }
 function renderClSession(){
   if(clSid===null)return;
-  const r=CHATLOGS[clSid],c=clStat(r),s=CL_STATUS[r.st],tr=clTrace(r);
-  const subs=clSubCount(tr.steps);
+  const rows=clSessionTraces(clSid), r=rows[0];
+  const traces=rows.map(x=>({row:x,st:clStat(x),tr:clTrace(x)}));
+  /* 会话级合计：各链路消耗、自循环轮数相加 */
+  const tIn=traces.reduce((n,x)=>n+x.st.in,0), tOut=traces.reduce((n,x)=>n+x.st.out,0);
+  const tRt=traces.reduce((n,x)=>n+x.row.rt,0);
+  const loops=traces.reduce((n,x)=>n+(x.st.turns||0),0);
+  const anyDeep=traces.some(x=>x.row.deep);
+  const subs=traces.reduce((n,x)=>n+clSubCount(x.tr.steps),0);
+  const last=traces[traces.length-1], s=CL_STATUS[last.row.st];
   const allKeys=[];
-  (function walk(steps,p){(steps||[]).forEach((st,n)=>{const k=p+n;if(st.k!=='think')allKeys.push(k);if(st.k==='sub')walk(st.steps,k+'-')})})(tr.steps,'');
+  traces.forEach((x,ti)=>(function walk(steps,p){(steps||[]).forEach((st,n)=>{const k=p+n;if(st.k!=='think')allKeys.push(k);if(st.k==='sub')walk(st.steps,k+'-')})})(x.tr.steps,'t'+ti+'-'));
   const allOn=allKeys.length&&allKeys.every(k=>clOpen[k]);
 
   $c('cl-detailview').innerHTML=`
@@ -10518,55 +11916,74 @@ function renderClSession(){
       <button class="flex items-center gap-1.5 text-[12.5px] text-gray-600 hover:text-violet-600 font-semibold" onclick="closeClSession()"><span class="text-base">←</span> 会话记录</button>
       <div class="w-px h-4 bg-gray-200"></div>
       <span class="text-[13px] font-bold text-gray-800">${clEsc(r.title)}</span>
-      <span class="text-[11.5px] text-gray-400 col-mono">会话ID ${clEsc(r.sid)}</span>
+      <span class="text-[11.5px] text-gray-400">会话ID <span class="col-mono text-gray-600 cursor-pointer hover:text-violet-600" onclick="clCopy('${clEsc(clSid)}','会话ID')" title="点击复制会话ID">${clEsc(clSid)}</span></span>
+      <span class="text-[11px] text-gray-400">${traces.length} 条 trace</span>
       <span class="tag ${s.cls}">${s.n}</span>
-      ${r.err?`<span class="text-[11px] text-red-400">${clEsc(r.err)}</span>`:''}
-      <button class="btn-o !py-1 !px-3 text-[11.5px] ml-auto" onclick="openClDetail(${clSid})">分轮消耗明细</button>
-      <button class="btn-o !py-1 !px-3 text-[11.5px]" onclick="toast('导出会话全文（示意）')">导出全文</button>
+      <button class="btn-o !py-1 !px-3 text-[11.5px] ml-auto" onclick="toast('导出会话全文（示意）')">导出全文</button>
     </div>
 
     <div class="card p-4 mb-4 max-w-[1000px]">
-      <div class="grid grid-cols-3 lg:grid-cols-6 gap-4 text-[12px]">
+      <div class="grid grid-cols-3 lg:grid-cols-7 gap-4 text-[12px]">
         <div><div class="text-[10.5px] text-gray-400 mb-0.5">智能体</div><div class="font-semibold text-gray-700">${clEsc(r.agent)}</div><div class="text-[10px] text-gray-400">${r.deep?'深度智能体':'会话型'}</div></div>
         <div><div class="text-[10.5px] text-gray-400 mb-0.5">应用渠道</div><div class="text-gray-700">${clEsc(r.ch)}</div></div>
         <div><div class="text-[10.5px] text-gray-400 mb-0.5">用户</div><div class="text-gray-700">${clEsc(r.user)}</div></div>
-        <div><div class="text-[10.5px] text-gray-400 mb-0.5">创建时间</div><div class="text-gray-700 col-mono">${clEsc(r.date)}</div></div>
-        <div><div class="text-[10.5px] text-gray-400 mb-0.5">响应时长</div><div class="text-gray-700">${r.st==='error'&&r.a==='—'?'—':r.rt+'s'}</div></div>
-        <div><div class="text-[10.5px] text-gray-400 mb-0.5">消耗</div><div class="text-gray-700">入 ${clNum(c.in)} / 出 ${clNum(c.out)}</div><div class="text-[10px] text-violet-700 font-semibold">¥ ${clYuan(c.amt)}</div></div>
+        <div><div class="text-[10.5px] text-gray-400 mb-0.5">会话开始</div><div class="text-gray-700 col-mono">${clEsc(r.date)}</div></div>
+        <div><div class="text-[10.5px] text-gray-400 mb-0.5">trace 数</div><div class="font-semibold text-gray-700">${traces.length} 条</div><div class="text-[10px] text-gray-400">${anyDeep?`自循环合计 ${loops} 轮`:'会话型，不计自循环'}</div></div>
+        <div><div class="text-[10.5px] text-gray-400 mb-0.5">响应时长</div><div class="text-gray-700">${tRt}s</div><div class="text-[10px] text-gray-400">全部 trace 合计</div></div>
+        <div><div class="text-[10.5px] text-gray-400 mb-0.5">消耗</div><div class="text-gray-700">入 ${clNum(tIn)} / 出 ${clNum(tOut)}</div><div class="text-[10px] text-violet-700 font-semibold">¥ ${clYuan(clAmt(tIn,tOut))}</div></div>
       </div>
     </div>
 
-    <div class="card p-4 mb-4 max-w-[1000px]">
-      <div class="text-[12.5px] font-bold mb-2">完整输入</div>
-      <div class="rounded-xl bg-violet-50/60 border border-violet-100 px-4 py-3 text-[12.5px] text-gray-700 leading-relaxed">${clNl(tr.input)}</div>
-      ${tr.files&&tr.files.length?`<div class="flex flex-wrap gap-2 mt-2.5">${tr.files.map(f=>`<span class="app-chip !py-1 !px-2.5 !text-[11.5px]">📎 ${clEsc(f[0])} <span class="text-gray-400 font-normal">${clEsc(f[1])}</span></span>`).join('')}</div>`:''}
+    <div class="flex items-center mb-2.5 max-w-[1000px]">
+      <span class="text-[12.5px] font-bold">交互记录</span>
+      <span class="text-[11px] text-gray-400 ml-2">本会话 ${traces.length} 条 trace，按时间正序${subs?` · 过程中穿插 ${subs} 个子智能体会话`:''}</span>
+      ${allKeys.length?`<span class="text-[11.5px] text-violet-600 font-semibold cursor-pointer hover:underline ml-auto" onclick="clToggleAll(${!allOn})">${allOn?'全部收起':'全部展开'}</span>`:''}
     </div>
 
-    <div class="card p-4 mb-4 max-w-[1000px]">
-      <div class="flex items-center mb-1">
-        <span class="text-[12.5px] font-bold">执行过程</span>
-        <span class="text-[11px] text-gray-400 ml-2">${c.turns===null?'会话型智能体，单轮应答':`${c.turns} 轮`}${subs?` · 含 ${subs} 个子智能体会话`:''}</span>
-        ${allKeys.length?`<span class="text-[11.5px] text-violet-600 font-semibold cursor-pointer hover:underline ml-auto" onclick="clToggleAll(${!allOn})">${allOn?'全部收起':'全部展开'}</span>`:''}
-      </div>
-      ${tr.derived?'<div class="text-[10.5px] text-gray-400 mb-1">本会话过程由分轮记录还原，未留存逐步原文</div>':''}
-      <div class="divide-y divide-gray-50">${tr.steps.map((st,n)=>clStepHtml(st,''+n,0)).join('')}</div>
-    </div>
+    ${traces.map((x,ti)=>{
+      const tn=x.tr, row=x.row, cs=x.st, rs=CL_STATUS[row.st];
+      const bad=tn.out==='—', focus=row.tid===clFocus&&traces.length>1;
+      const tsub=clSubCount(tn.steps);
+      return `<div class="card p-4 mb-3 max-w-[1000px] ${bad?'!border-red-100':focus?'!border-violet-300':''}">
+        <div class="flex items-center gap-2 pb-2.5 mb-2.5 border-b border-gray-100 flex-wrap">
+          <span class="text-[12.5px] font-bold text-gray-800">trace${ti+1}</span>
+          <span class="text-[11px] text-gray-400">traceID</span>
+          <span class="text-[11.5px] text-gray-600 col-mono cursor-pointer hover:text-violet-600" onclick="clCopy('${clEsc(row.tid)}','traceID')" title="点击复制 traceID">${clEsc(row.tid)}</span>
+          <span class="text-[11px] text-gray-400 ml-1">执行链路ID</span>
+          <span class="text-[11.5px] text-gray-600 col-mono cursor-pointer hover:text-violet-600" onclick="clCopy('${clEsc(row.lkid)}','执行链路ID')" title="点击复制执行链路ID">${clEsc(row.lkid)}</span>
+          ${focus?'<span class="tag bg-violet-100 text-violet-700">从列表进入</span>':''}
+          <span class="text-[11px] text-gray-400 col-mono">${clEsc(row.date)}</span>
+          <span class="text-[11px] text-gray-400">${bad?'—':row.rt+'s'} · 入 ${clNum(cs.in)} / 出 ${clNum(cs.out)} · ¥ ${clYuan(cs.amt)}</span>
+          <span class="text-[11px] text-gray-400">自循环 ${cs.turns===null?'—':cs.turns+' 轮'}</span>
+          ${tsub?`<span class="tag bg-violet-100 text-violet-700">${tsub} 个子会话</span>`:''}
+          <span class="tag ${rs.cls} ml-auto">${rs.n}</span>
+        </div>
 
-    <div class="card p-4 max-w-[1000px] ${r.a==='—'?'!border-red-100':''}">
-      <div class="text-[12.5px] font-bold mb-2">完整输出</div>
-      ${tr.out==='—'
-        ? `<div class="rounded-xl bg-red-50 border border-red-100 px-4 py-3 text-[12.5px] text-red-600 leading-relaxed">${clEsc(tr.err||'本次执行未产出内容')}</div>`
-        : `<div class="rounded-xl bg-gray-50 border border-gray-100 px-4 py-3 text-[12.5px] text-gray-700 leading-relaxed">${clNl(tr.out)}</div>`}
-      <div class="flex items-center gap-2 mt-3">
-        <span class="text-[11px] text-gray-400">用户反馈</span>
-        ${r.fb==='赞'?'<span class="tag bg-emerald-100 text-emerald-700">赞</span>':r.fb==='踩'?'<span class="tag bg-red-100 text-red-600">踩</span>':'<span class="text-[11px] text-gray-300">无</span>'}
-      </div>
-    </div>`;
+        <div class="text-[10.5px] text-gray-400 mb-1">用户输入</div>
+        <div class="rounded-xl bg-violet-50/60 border border-violet-100 px-3.5 py-2.5 text-[12.5px] text-gray-700 leading-relaxed">${clNl(tn.input)}</div>
+        ${tn.files&&tn.files.length?`<div class="flex flex-wrap gap-2 mt-2">${tn.files.map(f=>`<span class="app-chip !py-1 !px-2.5 !text-[11.5px]">📎 ${clEsc(f[0])} <span class="text-gray-400 font-normal">${clEsc(f[1])}</span></span>`).join('')}</div>`:''}
+
+        <div class="flex items-center mt-3 mb-0.5">
+          <span class="text-[10.5px] text-gray-400">执行过程</span>
+          ${tn.derived?'<span class="text-[10.5px] text-gray-400 ml-2">· 由自循环分轮记录还原，未留存逐步原文</span>':''}
+          ${row.deep&&row.rounds.length?`<span class="text-[10.5px] text-violet-600 cursor-pointer hover:underline ml-auto" onclick="openClDetail(${CHATLOGS.indexOf(row)})">分轮消耗明细</span>`:''}
+        </div>
+        <div class="rounded-xl border border-gray-100 px-3 py-1 divide-y divide-gray-50">${tn.steps.map((st,n)=>clStepHtml(st,'t'+ti+'-'+n,0)).join('')}</div>
+
+        <div class="text-[10.5px] text-gray-400 mt-3 mb-1">输出</div>
+        ${bad
+          ? `<div class="rounded-xl bg-red-50 border border-red-100 px-3.5 py-2.5 text-[12.5px] text-red-600 leading-relaxed">${clEsc(tn.err||'本 trace 未产出内容')}</div>`
+          : `<div class="rounded-xl bg-gray-50 border border-gray-100 px-3.5 py-2.5 text-[12.5px] text-gray-700 leading-relaxed">${clNl(tn.out)}</div>`}
+        <div class="flex items-center gap-2 mt-3">
+          <span class="text-[11px] text-gray-400">用户反馈</span>
+          ${row.fb==='赞'?'<span class="tag bg-emerald-100 text-emerald-700">赞</span>':row.fb==='踩'?'<span class="tag bg-red-100 text-red-600">踩</span>':'<span class="text-[11px] text-gray-300">无</span>'}
+        </div>
+      </div>`;
+    }).join('')}`;
 }
 function clToggleAll(on){
-  const r=CHATLOGS[clSid],tr=clTrace(r);
   clOpen={};
-  if(on)(function walk(steps,p){(steps||[]).forEach((st,n)=>{const k=p+n;if(st.k!=='think')clOpen[k]=true;if(st.k==='sub')walk(st.steps,k+'-')})})(tr.steps,'');
+  if(on)clSessionTraces(clSid).forEach((row,ti)=>(function walk(steps,p){(steps||[]).forEach((st,n)=>{const k=p+n;if(st.k!=='think')clOpen[k]=true;if(st.k==='sub')walk(st.steps,k+'-')})})(clTrace(row).steps,'t'+ti+'-'));
   renderClSession();
 }
 
