@@ -2293,21 +2293,16 @@
       <div id="dts-users" class="border border-gray-200 border-t-0 rounded-b-lg max-h-[200px] overflow-y-auto -mt-0.5"></div>
       <label class="text-[12px] font-semibold text-gray-600 block mb-1.5 mt-4">分配权限</label>
       <select id="dts-perm" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-[12.5px] focus:outline-violet-300 bg-white">
-        <option value="可使用">可使用（仅查看数据与在会话中取数）</option><option value="可管理">可管理（可改字段与口径、可再分享、可删除）</option>
+        <option value="可使用">可使用（仅列表可见、配智能体时可挂载）</option><option value="可管理">可管理（可进详情页、改字段与口径、编辑数据、再分享、删除）</option>
       </select>
     </div>
     <div class="border-t border-gray-100 mt-4 pt-4">
-      <div class="flex items-center gap-2 mb-2">
-        <span class="text-[12px] font-semibold text-gray-600">智能体应用权限</span>
-        <span class="text-gray-300 text-xs" title="智能体代某人操作这张表时能做到哪一步。四档递进，后一档包含前一档的动作">ⓘ</span>
-        <div class="ml-auto flex items-center gap-4">
-          <label class="flex items-center gap-1.5 text-[12px] cursor-pointer"><input type="radio" name="dts-wmode" value="uni" class="accent-violet-600" onchange="dtsSetWmode('uni')"><span>统一设置</span></label>
-          <label class="flex items-center gap-1.5 text-[12px] cursor-pointer"><input type="radio" name="dts-wmode" value="adv" class="accent-violet-600" onchange="dtsSetWmode('adv')"><span>高级设置</span></label>
-        </div>
+      <div class="flex items-center gap-2 mb-1.5">
+        <span class="text-[12px] font-semibold text-gray-600">智能体应用权限上限</span>
+        <span class="text-gray-300 text-xs" title="这张表允许智能体做到的最高一档。四档递进，后一档包含前一档的动作">ⓘ</span>
       </div>
-      <label class="text-[11.5px] text-gray-500 block mb-1.5" id="dts-wperm-label">统一档位</label>
       <select id="dts-wperm" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-[12.5px] focus:outline-violet-300 bg-white" onchange="dtsSetWperm(this.value)"></select>
-      <div id="dts-wadv" class="hidden mt-3 space-y-2"></div>
+      <p class="text-[11px] text-gray-400 mt-1.5">各智能体用哪一档在能力配置挂载时单独选，不能超过此上限</p>
     </div>
     <div class="flex items-center gap-1.5 mt-4 text-[12px]">
       <span class="font-semibold text-gray-600">已授权用户</span>
@@ -2873,7 +2868,7 @@ const VERSIONS = [
   {v:'v22', date:'2026-09-03', title:'任务执行子任务可操作 + 报价Agent skill 表单闭环', desc:'三处待办均可展开并处理子任务、一键转智能体会话；新增报价Agent：skill 生成表单 → 提交回传 → 智能体出报价单。', file:'versions/[原型]AI基础设施平台-整合版-v22-2026-09-03.html'},
   {v:'v23', date:'2026-09-09', title:'智能体伙伴纵向栏 + 每个智能体独立会话 + 收藏体系收敛', desc:'工作台布局重构：智能体伙伴改最左纵向栏、每个智能体独立会话、收藏统一收敛为「我的看板」，下线流程看板。', file:'versions/[原型]AI基础设施平台-整合版-v23-2026-09-09.html'},
   {v:'v24', date:'2026-09-10', title:'任务执行统一「处理」动作 + 子任务权限与主任务自动完成', desc:'主子任务统一「处理」动作（可选人工或智能体执行），处理权限按归属收敛，子任务全部完成时主任务自动办结。', file:'versions/[原型]AI基础设施平台-整合版-v24-2026-09-10.html'},
-  {v:'工作版', date:'2026-11-08', title:'Skill 版本三态发布 + 能力配置按版本应用 skill，定时任务可按分钟重复', desc:'Skill 版本改三态，发布只通知智能体管理员，能力配置的 skills 可跟随最新或锁定版本。定时任务重复方式补齐分钟 / 天 / 周 / 月，按分钟最低 5 分钟并可设每日区间与截止时间。', file:'SELF'},
+  {v:'工作版', date:'2026-11-11', title:'数据表权限：表上只设智能体应用权限上限，各智能体挂载时在上限内选档', desc:'人的权限只约束页面操作，可使用仅列表可见与可挂载。表级不再按人配智能体档位，只设一个上限；挂载默认只读、不得超上限，上限调低时超出的挂载自动降档。', file:'SELF'},
   {v:'线上版本 2026-11-04', date:'2026-11-04', release:true, title:'线上版本 2026-11-04', desc:'优化任务处理策略前的线上冻结快照。', file:'versions/[原型]AI基础设施平台-整合版-线上版本-2026-11-04.html'},
   {v:'Agent平台261021版本', date:'2026-10-21', release:true, title:'数据表能力成型：新增两选与上传解析、编辑收到详情页、分享到人', desc:'Agent 平台 261021 正式版（已冻结）。数据表新增先选上传文件 / 自定义，上传后表名描述自动解析填充；编辑入口收到详情页，可改应用权限；字段表收为业务语义六列，分享改分享到人；看板更新时间收到看板级；任务执行的执行方式在事件触发下转为选填。', file:'versions/[原型]AI基础设施平台-整合版-Agent平台261021版本-2026-10-21.html'},
   {v:'智能体平台任务中心1.1', date:'2026-09-18', release:true, title:'评审调整：处理动作与任务配置收敛，列表改日期筛选，办结为终态', desc:'任务中心 1.1 正式版（已冻结）。处理动作与任务配置收敛，列表改日期筛选（默认近 3 个月），办结为终态，子任务只在本层添加、可派智能体执行；平台我的任务增手动新建入口，扩展字段收为统一字段、格式同备注。', file:'versions/[原型]AI基础设施平台-整合版-智能体平台任务中心1.1-2026-09-18.html'},
@@ -2930,7 +2925,7 @@ const PAGE_SPECS={
 'agentconfig':{name:'智能体平台 · 智能体配置',
   desc:'单个智能体的能力装配页：挂载技能（Skills / MCP / 工具 / 数据表）、拆分 SubAgent、挂载知识库与项目空间、设置执行上限。',
   fields:'智能体名称与头像、基座模型、提示词、技能挂载清单（含版本号、版本时间、版本选择器）、SubAgent 清单、数据表挂载清单、知识资源挂载清单、执行轮数与超时上限。SubAgent 配置项：名称（必填，20 字内）、能力描述（必填，500 字内）、模型（必填）与思考配置、提示词（必填，30000 字内）、知识库、可用数据表。',
-  logic:'从卡片进入，页头返回我的智能体；技能与知识资源只能选择已授权对象；保存即生效，无需审核。SubAgent 按场景拆出的子能力各自配模型、思考档位、提示词与可用数据表，主智能体按能力描述决定何时分派；校验顺序为名称 → 能力描述 → 提示词。SubAgent 的思考配置按所选模型的能力渲染，换模型时回到该模型的默认档位。数据表只能从技能库里授权可用的表中挂载，待授权的表不进清单；主智能体挂载的表与各 SubAgent 挂载的表相互独立，互不继承。两处数据表选择器都可按表名模糊筛选，已勾中但被筛掉的表不丢选中状态，每次打开清空关键词；表后的权限标签显示该表的智能体应用权限通用档，有按人特配时另挂「N 人特配」。skills 每条显示当前应用的版本号与版本时间，可选「跟随技能库最新」或锁定到某个版本；可选清单只给已发布与历史版本，待发布版本不进清单。技能库发布新版本时通知本智能体的管理员，仅有发布权限的管理员可切换版本；跟随最新的挂载在技能库发新版后、锁定的挂载在手动改版本后，都会标出待生效版本并提示去发布，切版本只落草稿，点页头「更 新」才真正生效。'},
+  logic:'从卡片进入，页头返回我的智能体；技能与知识资源只能选择已授权对象；保存即生效，无需审核。SubAgent 按场景拆出的子能力各自配模型、思考档位、提示词与可用数据表，主智能体按能力描述决定何时分派；校验顺序为名称 → 能力描述 → 提示词。SubAgent 的思考配置按所选模型的能力渲染，换模型时回到该模型的默认档位。数据表只能从技能库里授权可用的表中挂载，待授权的表不进清单；主智能体挂载的表与各 SubAgent 挂载的表相互独立，互不继承。两处数据表选择器都可按表名模糊筛选，已勾中但被筛掉的表不丢选中状态，每次打开清空关键词；每张表后面给档位下拉，可选档位按该表设定的智能体应用权限上限封顶，勾选时默认只读、需要写入再手动调高，表后标出该表的上限。已挂载的标签显示本智能体用的档位，表级上限比它高时另挂一个「上限 X」；表级上限被调低时，超过上限的挂载自动降到上限。skills 每条显示当前应用的版本号与版本时间，可选「跟随技能库最新」或锁定到某个版本；可选清单只给已发布与历史版本，待发布版本不进清单。技能库发布新版本时通知本智能体的管理员，仅有发布权限的管理员可切换版本；跟随最新的挂载在技能库发新版后、锁定的挂载在手动改版本后，都会标出待生效版本并提示去发布，切版本只落草稿，点页头「更 新」才真正生效。'},
 'wfconfig':{name:'智能体平台 · 工作流配置',
   desc:'工作流Agent 的节点编排画布：节点可增删、拖拽与连线，选中节点在右侧配置输入、能力参数与输出。',
   fields:'页头：智能体名称、正式版本时间、当前版本时间、状态标签。画布：节点（开始 / Agent / 大模型节点 / 问题分类 / 知识库检索 / 直接回复 / 工具 / MCP 等）、连线、缩放比例。大模型 / Agent 节点配置：描述、输入参数、基座模型与提示词（大模型节点）、输出格式（文本 / JSON解析）、输出参数名。问题分类节点配置：描述、输入参数、分类方式（模型判断 / 代码处理）、分类清单、上下文配置、执行节点提示。直接回复节点配置：描述、回复方式（上一个节点直接输出 / 结束不做任何处理 / 输出固定内容）、固定内容与引用参数。',
@@ -2974,7 +2969,7 @@ const PAGE_SPECS={
 'skills-table':{name:'智能体平台 · 技能库 · 数据表',
   desc:'智能体可读写的结构化数据，不再区分上传表与自定义表，一张表按智能体应用权限决定能被怎么用，列表为表格形态。',
   fields:'数据表、智能体应用权限、使用状态、关联智能体、应用授权、创建人、更新时间、操作。',
-  logic:'「+ 添加数据表」在列表右上角，点击先出弹窗二选上传文件 / 自定义数据表：选上传文件在弹窗内传文件，再进配置页，表名与描述按解析结果自动填好；选自定义数据表直接进配置页。表名点击进入数据表详情页。列表「编辑」与表名一样进数据表详情页。智能体应用权限为只读 / 可读写 / 可读写改 / 可读写改删四档递进，后一档包含前一档的动作，建表时定初始档位，之后统一在列表「分享」里按人配；列表权限列显示通用档，有按人特配时另挂「N 人特配」。'},
+  logic:'「+ 添加数据表」在列表右上角，点击先出弹窗二选上传文件 / 自定义数据表：选上传文件在弹窗内传文件，再进配置页，表名与描述按解析结果自动填好；选自定义数据表直接进配置页。表名点击进入数据表详情页，仅对本表可管理的人可点；可使用的人表名不可点、带「可使用」标签，操作列不给编辑与删除。列表「编辑」与表名一样进数据表详情页。智能体应用权限为只读 / 可读写 / 可读写改 / 可读写改删四档递进，后一档包含前一档的动作。表上只设一个上限，建表时定、之后在列表「分享」里改；各智能体实际用哪一档在智能体能力配置挂载这张表时单独选，不能超过上限。列表权限列显示该表的上限。'},
 'skills-board':{name:'智能体平台 · 技能库 · 看板配置',
   desc:'工作台看板的配置侧，看板分工作看板与经营看板两类，含内容配置与分享范围配置。列表上方有看板类型、可用范围与名称搜索三项筛选。',
   fields:'筛选项：看板类型（工作看板 / 经营看板）、可用范围（公开可用 / 授权可用）、看板名称搜索。卡片：看板名称、看板类型、可用范围、启停开关、执行智能体、数据维度、创建人与时间、已授权人数、操作。工作看板配置的每个数据维度：图标、维度名称、单位、查询输入、执行方式、执行对象（数据表 / 智能体 / MCP + MCP 工具）、更新时间（仅智能体执行）。',
@@ -2991,7 +2986,7 @@ const PAGE_SPECS={
 'dt-detail':{name:'智能体平台 · 数据表详情',
   desc:'单张数据表的字段、查询口径与数据内容，字段描述是智能体理解该表的依据。',
   fields:'字段名、类型、中文名、数据示例、业务含义、枚举说明、操作。页签为字段及描述、查询口径、数据，开了写权限的表另有写入记录。',
-  logic:'页头只留返回按钮；字段只描述业务语义，不再配置对智能体可见 / 可筛选 / 可聚合与确认状态，解析或声明后即可被查询；所有表的字段都可改名、可新增与删除，数据页单元格可直接编辑，唯一键行不可删除，改其中文名时唯一键标记同步更新，至少保留一个字段。写入记录与唯一键只在权限非只读时出现，智能体按档位直接写入、不再进待确认队列，留痕以一次执行为批次并可整批撤销。数据表名称与描述可改：入口是详情页头卡的「编辑」，两项必填，列表「编辑」与表名都只进详情页。分享入口只在数据表列表页，详情页不提供。分享弹窗管两件事：一是分享到人，可用范围选授权可用时从飞书组织架构勾选部门或人员并分配可使用 / 可管理，组织树为一级部门分组 + 二级部门 + 人三层，勾选粒度是二级部门与人、勾二级部门即授权该部门全员，无归属部门的人平铺在树的最后，选公开可用时人员区置灰且名单清空，授权可用且名单为空不允许保存；二是智能体应用权限，分统一设置与高级设置两种，统一设置下一档对所有人生效，高级设置下先定通用档（未单独配置的用户走这档），再对每个高于通用档的档位分别挑人，一个人只能落在一档、勾新档位时自动从原档位摘掉，通用档提上去后低于它的特配自动失效。高级设置的候选人：授权可用取本表已授权与本次新勾的人，被移出名单的人特配同步失效；公开可用没有名单，候选取平台全员、特配按人单独留存。高级设置下没有任何特配不允许保存。唯一键与维护方式按表的实际最高档判断（通用档与各档特配里取最高），由只读变可写时自动补唯一键「记录编号」并把维护方式改为智能体自动更新，收回只读时写入记录页签隐藏、维护方式改回手工维护，已写入的数据不动。关联智能体为被引用情况的只读展示，不在此处增删。查询口径表只有口径名称、参数、过滤与聚合规则三列。'},
+  logic:'页头只留返回按钮；字段只描述业务语义，不再配置对智能体可见 / 可筛选 / 可聚合与确认状态，解析或声明后即可被查询；详情页只有对本表可管理的人能进（建表人恒为可管理），可使用的人在列表只能看到表名与描述、配智能体时可挂载，表名不可点、无编辑与删除入口；所有表的字段都可改名、可新增与删除，数据页单元格可直接编辑，唯一键行不可删除，改其中文名时唯一键标记同步更新，至少保留一个字段。写入记录与唯一键只在权限非只读时出现，智能体按档位直接写入、不再进待确认队列，留痕以一次执行为批次并可整批撤销。数据表名称与描述可改：入口是详情页头卡的「编辑」，两项必填，列表「编辑」与表名都只进详情页。分享入口只在数据表列表页，详情页不提供。分享弹窗管两件事：一是分享到人，可用范围选授权可用时从飞书组织架构勾选部门或人员并分配可使用 / 可管理（可使用仅列表可见与配智能体时可挂载，可管理才能进详情页、改字段与口径、编辑数据、再分享、删除；两者只约束人，与智能体应用权限互不封顶），组织树为一级部门分组 + 二级部门 + 人三层，勾选粒度是二级部门与人、勾二级部门即授权该部门全员，无归属部门的人平铺在树的最后，选公开可用时人员区置灰且名单清空，授权可用且名单为空不允许保存；二是智能体应用权限上限，只设一档、不按人区分，表示这张表允许智能体做到的最高一档；各智能体实际用哪一档在智能体能力配置挂载这张表时单独选，挂载默认只读、不能超过上限，上限调低时已挂载且超出的智能体自动降到上限并提示。唯一键与维护方式按这个上限判断，由只读变可写时自动补唯一键「记录编号」并把维护方式改为智能体自动更新，收回只读时写入记录页签隐藏、维护方式改回手工维护，已写入的数据不动。关联智能体为被引用情况的只读展示，不在此处增删。查询口径表只有口径名称、参数、过滤与聚合规则三列。'},
 'func-skill':{name:'智能体平台 · 功能型技能详情',
   desc:'单个 Skill 代码包的内容视图：左侧文件树（scripts / tests / SKILL.md），右侧按 Preview / Code 两态看文件，顶部可调试、自动修改与发布版本。',
   fields:'页头：技能名称、开始调试、自动修改 Skill、版本更新及发布、保存。左栏：文件树、当前版本号、发布状态、更新时间、创建人。右栏：Preview / Code 切换、行数与文件大小、文件内容。自动修改弹窗：需求描述（必填，30000 字内）、知识库选择（公司知识仓库 / 客户知识空间 / 自定义知识库）、可使用的数据表（可展开勾选，每项带智能体应用权限）、可使用的 MCP、工具列表。版本弹窗：版本号、更新时间、创建人、发布状态、版本修改说明、发布按钮、新增版本上传。',
@@ -3633,11 +3628,8 @@ const DATA_TABLES=[
      {name:'超时单量趋势',params:'时间范围 · 受理团队',rule:'按月分组 SUM(超时单量)',refs:'—'},
    ]},
 ];
-/* 授权到人的智能体应用权限：wmode=uni 时全员同档；adv 时 wgrants 里的人走更高档 */
-DATA_TABLES.forEach(t=>{if(!t.wmode){t.wmode='uni';t.wgrants=[]}});
-Object.assign(DATA_TABLES.find(t=>t.id==='dt-risk'),
-  {wmode:'adv',wgrants:[{name:'何伟文',perm:'rwu'},{name:'木明',perm:'rwud'}]});
-/* 智能体应用权限：四档递进，后一档包含前一档的动作。只读表不生成唯一键，也没有写入记录 */
+/* 智能体应用权限：四档递进，后一档包含前一档的动作。表级只设上限，各智能体挂载时在上限内选档。
+   只读表不生成唯一键，也没有写入记录 */
 const DT_WPERM={read:'只读',rw:'可读写',rwu:'可读写改',rwud:'可读写改删'};
 const DT_WPERM_OPTS=[
   ['read','只读 — 只能查，不能写'],
@@ -3646,29 +3638,53 @@ const DT_WPERM_OPTS=[
   ['rwud','可读写改删 — 可新增、修改与删除'],
 ];
 const DT_WPERM_CLS={read:'bg-gray-100 text-gray-600',rw:'bg-sky-50 text-sky-700',rwu:'bg-violet-100 text-violet-700',rwud:'bg-amber-100 text-amber-700'};
-/* wmode: uni=统一设置（wperm 对所有人生效）/ adv=高级设置（wperm 为通用档，wgrants 里的人走更高档） */
 function dtWLv(k){return ['read','rw','rwu','rwud'].indexOf(k)}
-function dtWGrants(t){return t.wmode==='adv'?(t.wgrants||[]):[]}
-/* 表的实际最高档：唯一键与写入记录按这个判断，不看通用档 */
-function dtMaxWperm(t){return dtWGrants(t).reduce((a,g)=>dtWLv(g.perm)>dtWLv(a)?g.perm:a,t.wperm||'read')}
+/* 唯一键与写入记录按表级上限判断：上限非只读即有 */
+function dtMaxWperm(t){return t.wperm||'read'}
 function dtCanWrite(t){return dtMaxWperm(t)!=='read'}
-/* 权限标签：统一设置只出档位，高级设置额外标出特配人数 */
 function dtWpermTags(t,pfx){
-  const wp=t.wperm||'read',n=dtWGrants(t).length;
-  return `<span class="tag ${DT_WPERM_CLS[wp]} whitespace-nowrap">${pfx||''}${DT_WPERM[wp]}</span>`
-    +(n?`<span class="tag bg-gray-100 text-gray-500 whitespace-nowrap">${n} 人特配</span>`:'');
+  const wp=t.wperm||'read';
+  return `<span class="tag ${DT_WPERM_CLS[wp]} whitespace-nowrap">${pfx||''}${DT_WPERM[wp]}</span>`;
 }
-/* 三处数据表选择器共用：只列授权可用的表，按表名模糊筛选 */
+/* 人的权限：可使用只在列表可见、配智能体时可挂载；可管理才有详情页与编辑删除。建表人恒为可管理 */
+function dtMyPerm(t){
+  if(t.by===ME)return '可管理';
+  const g=(t.grants||[]).find(x=>x.name===ME);
+  return g?g.perm:'可使用';
+}
+function dtCanManage(t){return dtMyPerm(t)==='可管理'}
+/* ---- 智能体挂载的数据表：每条挂载 {id,perm}，perm 不得超过该表的 wperm 上限 ---- */
+function dtMountFind(arr,id){return (arr||[]).find(m=>m.id===id)}
+function dtMountIds(arr){return (arr||[]).map(m=>m.id)}
+/* 挂载默认只读，最小权限起步 */
+function dtMountDefault(){return 'read'}
+function dtWpermOptsUpTo(cap){return DT_WPERM_OPTS.filter(o=>dtWLv(o[0])<=dtWLv(cap||'read'))}
+/* 三处数据表选择器共用：只列授权可用的表，按表名模糊筛选。
+   mount 模式下每行带档位下拉（勾中才可改），用于智能体与 SubAgent 的挂载 */
 function dtAuthPool(){return DATA_TABLES.filter(t=>t.auth==='授权可用')}
-function dtPickRows(kw,sel,onPick){
+function dtPickRows(kw,sel,onPick,mount){
   const k=(kw||'').trim().toLowerCase();
   const hit=dtAuthPool().filter(t=>!k||t.name.toLowerCase().includes(k));
   if(!hit.length)return '<div class="px-3.5 py-3 text-[11.5px] text-gray-300">没有匹配的数据表</div>';
-  return hit.map(t=>`<label class="flex items-center gap-2.5 px-3.5 py-2.5 text-[12px] cursor-pointer hover:bg-gray-50 border-b border-gray-50 last:border-0">
-    <input type="checkbox" ${sel.includes(t.id)?'checked':''} class="accent-violet-600" onchange="${onPick}('${t.id}')">
-    <span class="text-gray-600 truncate">${t.name}</span>
-    <span class="ml-auto shrink-0 flex items-center gap-1">${dtWpermTags(t,'智能体')}</span>
-  </label>`).join('');
+  const ids=mount?dtMountIds(sel):sel;
+  return hit.map(t=>{
+    const on=ids.includes(t.id);
+    const m=mount?dtMountFind(sel,t.id):null;
+    return `<div class="flex items-center gap-2.5 px-3.5 py-2.5 text-[12px] border-b border-gray-50 last:border-0 hover:bg-gray-50">
+      <label class="flex items-center gap-2.5 cursor-pointer min-w-0 flex-1">
+        <input type="checkbox" ${on?'checked':''} class="accent-violet-600" onchange="${onPick}('${t.id}')">
+        <span class="text-gray-600 truncate">${t.name}</span>
+      </label>
+      ${mount
+        ?`<select class="shrink-0 w-[96px] border border-gray-200 rounded-lg px-2 py-1 text-[11.5px] bg-white focus:outline-violet-300 ${on?'':'opacity-40 pointer-events-none'}"
+            onchange="${mount}('${t.id}',this.value)">
+            ${dtWpermOptsUpTo(t.wperm).map(o=>
+              `<option value="${o[0]}" ${m&&m.perm===o[0]?'selected':''}>${DT_WPERM[o[0]]}</option>`).join('')}
+          </select>
+          <span class="shrink-0 w-[84px] text-right text-[10.5px] text-gray-400 whitespace-nowrap">上限 ${DT_WPERM[t.wperm||'read']}</span>`
+        :`<span class="ml-auto shrink-0 flex items-center gap-1">${dtWpermTags(t,'智能体')}</span>`}
+    </div>`;
+  }).join('');
 }
 function dtHasFile(t){return t.srcType==='上传文件'}
 function toolItems(){
@@ -3783,11 +3799,15 @@ function dtRow(t){
   const authCls=t.auth==='授权可用'?'bg-emerald-50 text-emerald-600':'bg-amber-50 text-amber-600';
   const used=t.use==='使用中';
   const useCls=used?'bg-emerald-50 text-emerald-600 border-emerald-200':'bg-sky-50 text-sky-600 border-sky-200';
+  const mng=dtCanManage(t);
   return `<tr class="border-b border-gray-50 last:border-0 hover:bg-violet-50/30 transition align-top">
     <td class="px-4 py-3">
       <div class="flex items-center gap-1.5">
         <span class="text-[13px] leading-5">${t.icon}</span>
-        <span class="text-violet-600 font-semibold cursor-pointer hover:underline" onclick="openDtDetail('${t.id}')">${t.name}</span>
+        ${mng
+          ?`<span class="text-violet-600 font-semibold cursor-pointer hover:underline" onclick="openDtDetail('${t.id}')">${t.name}</span>`
+          :`<span class="text-gray-700 font-semibold">${t.name}</span>
+            <span class="tag bg-gray-100 text-gray-500 whitespace-nowrap">可使用</span>`}
       </div>
       <p class="text-[11px] text-gray-400 leading-relaxed mt-1 max-w-[320px] sk-desc">${t.desc}</p>
     </td>
@@ -3799,9 +3819,10 @@ function dtRow(t){
     <td class="px-3 py-3 text-gray-500 text-[11.5px] whitespace-nowrap">${t.at}</td>
     <td class="px-3 py-3">
       <div class="flex items-center gap-1.5 whitespace-nowrap">
-        <button class="btn-o !py-0.5 !px-2 text-[11px]" onclick="openDtDetail('${t.id}')">编 辑</button>
+        ${mng?`<button class="btn-o !py-0.5 !px-2 text-[11px]" onclick="openDtDetail('${t.id}')">编 辑</button>
         <button class="btn-o !py-0.5 !px-2 text-[11px]" onclick="openDtShare('${t.id}')">分 享</button>
-        <button class="!py-0.5 !px-2 text-[11px] font-semibold border border-red-200 text-red-500 rounded-lg hover:bg-red-50 transition" onclick="dtDelTable('${t.id}')">删 除</button>
+        <button class="!py-0.5 !px-2 text-[11px] font-semibold border border-red-200 text-red-500 rounded-lg hover:bg-red-50 transition" onclick="dtDelTable('${t.id}')">删 除</button>`
+        :`<span class="text-[11px] text-gray-300">--</span>`}
       </div>
     </td>
   </tr>`;
@@ -4888,6 +4909,8 @@ function renderSkillLib(){
 let curDt=null,dtTab='fields';
 function dtGet(){return DATA_TABLES.find(t=>t.id===curDt)}
 function openDtDetail(id){
+  const tb=DATA_TABLES.find(x=>x.id===id);
+  if(tb&&!dtCanManage(tb)){toast(`你对「${tb.name}」只有可使用权限，不能查看表详情`);return}
   curDt=id;dtTab='fields';
   document.getElementById('skill-listview').classList.add('hidden');
   document.getElementById('skill-detailview').classList.add('hidden');
@@ -5132,22 +5155,18 @@ function dtRollback(b){
 }
 /* ===== 分享与授权：分享到人（部门树）+ 授权智能体 ===== */
 let dtsScope='auth',dtsGrants=[],dtsPick=[],dtsPickDept=[],dtsOpenDept=['d-mkt-ka'];
-let dtsWmode='uni',dtsWperm='read',dtsWGrants=[],dtsWOpen=[];
+let dtsWperm='read';
 function openDtShare(id){
   if(id)curDt=id;
   const t=dtGet();
   dtsScope=t.scope||'auth';
   dtsGrants=JSON.parse(JSON.stringify(t.grants||[]));
   dtsPick=[];dtsPickDept=[];
-  dtsWmode=t.wmode||'uni';
   dtsWperm=t.wperm||'read';
-  dtsWGrants=JSON.parse(JSON.stringify(t.wgrants||[]));
-  dtsWOpen=[];
   document.getElementById('dts-kw').value='';
   document.getElementById('dts-perm').value='可使用';
   document.getElementById('dts-granted').classList.add('hidden');
   document.querySelectorAll('input[name="dts-scope"]').forEach(r=>r.checked=r.value===dtsScope);
-  document.querySelectorAll('input[name="dts-wmode"]').forEach(r=>r.checked=r.value===dtsWmode);
   document.getElementById('modal-dtshare').classList.remove('hidden');
   renderDtsWperm();
   dtsSetScope(dtsScope);
@@ -5158,65 +5177,13 @@ function dtsSetScope(s){
   const wrap=document.getElementById('dts-auth-wrap');
   wrap.classList.toggle('opacity-40',s==='public');
   wrap.classList.toggle('pointer-events-none',s==='public');
-  renderDtsUsers();renderDtsGranted();renderDtsWadv();
+  renderDtsUsers();renderDtsGranted();
 }
-/* ---- 智能体应用权限：统一一档 / 高级设置按人加档 ---- */
-/* 高级设置的候选人：授权可用取本表已授权与本次新勾的人，公开可用取平台全员 */
-function dtsWCands(){
-  if(dtsScope==='public')
-    return [...new Set([...users.map(u=>u.name),...FS_ORG.flatMap(d=>d.subs.flatMap(s=>s.members)),...FS_NO_DEPT])];
-  return [...new Set([...dtsGrants.map(g=>g.name),...dtsPickedNames()])];
-}
-function dtsSetWmode(m){
-  dtsWmode=m;renderDtsWperm();renderDtsWadv();
-}
-function dtsSetWperm(v){
-  dtsWperm=v;renderDtsWadv();
-}
+/* ---- 智能体应用权限：表级只设一个上限，各智能体挂载时在上限内选档 ---- */
+function dtsSetWperm(v){dtsWperm=v}
 function renderDtsWperm(){
-  document.getElementById('dts-wperm-label').textContent=dtsWmode==='adv'?'通用档（未单独配置的用户走这档）':'统一档位';
   document.getElementById('dts-wperm').innerHTML=DT_WPERM_OPTS.map(o=>
     `<option value="${o[0]}" ${o[0]===dtsWperm?'selected':''}>${o[1]}</option>`).join('');
-  document.getElementById('dts-wadv').classList.toggle('hidden',dtsWmode!=='adv');
-}
-function dtsToggleWLv(k){
-  dtsWOpen=dtsWOpen.includes(k)?dtsWOpen.filter(x=>x!==k):[...dtsWOpen,k];
-  renderDtsWadv();
-}
-/* 一个人只能落在一档：勾新档位时先从原档位摘掉 */
-function dtsPickWUser(k,n){
-  const cur=dtsWGrants.find(g=>g.name===n);
-  dtsWGrants=dtsWGrants.filter(g=>g.name!==n);
-  if(!cur||cur.perm!==k)dtsWGrants.push({name:n,perm:k});
-  renderDtsWadv();
-}
-function renderDtsWadv(){
-  const box=document.getElementById('dts-wadv');
-  if(dtsWmode!=='adv'){box.innerHTML='';return}
-  const cands=dtsWCands();
-  /* 候选人被移出授权名单、或通用档提到该档位之上时，特配自动失效 */
-  dtsWGrants=dtsWGrants.filter(g=>cands.includes(g.name)&&dtWLv(g.perm)>dtWLv(dtsWperm));
-  const lvs=DT_WPERM_OPTS.filter(o=>dtWLv(o[0])>dtWLv(dtsWperm));
-  if(!lvs.length){box.innerHTML='<div class="text-[11.5px] text-gray-300 px-1">通用档已是最高档，没有可单独配置的档位</div>';return}
-  if(!cands.length){box.innerHTML='<div class="text-[11.5px] text-gray-300 px-1">还没有授权对象，先在上面勾选部门或人员</div>';return}
-  box.innerHTML=lvs.map(o=>{
-    const k=o[0],open=dtsWOpen.includes(k),mine=dtsWGrants.filter(g=>g.perm===k);
-    return `<div class="border border-gray-100 rounded-xl overflow-hidden">
-      <div class="flex items-center gap-2 px-3 py-2.5 cursor-pointer hover:bg-violet-50/40" onclick="dtsToggleWLv('${k}')">
-        <span class="tag ${DT_WPERM_CLS[k]}">${DT_WPERM[k]}</span>
-        <span class="text-[11.5px] text-gray-400">${mine.length?`已配 ${mine.length} 人`:'未单独配置'}</span>
-        <span class="ml-auto text-gray-300 text-[11px]">${open?'⌄':'›'}</span>
-      </div>
-      ${open?`<div class="border-t border-gray-100 max-h-[150px] overflow-y-auto">${cands.map(n=>{
-        const g=dtsWGrants.find(x=>x.name===n),other=g&&g.perm!==k;
-        return `<label class="flex items-center gap-2 px-3 py-1.5 text-[12px] cursor-pointer hover:bg-gray-50 border-b border-gray-50 last:border-0">
-          <input type="checkbox" class="accent-violet-600" ${g&&g.perm===k?'checked':''} onchange="dtsPickWUser('${k}','${n}')">
-          <span>${n}</span><span class="text-[10.5px] text-gray-400">${deptUser(n).acct}</span>
-          ${other?`<span class="text-[10.5px] text-gray-400 ml-auto">已配 ${DT_WPERM[g.perm]}</span>`:''}
-        </label>`;
-      }).join('')}</div>`:''}
-    </div>`;
-  }).join('');
 }
 function dtsToggleDept(id){
   dtsOpenDept=dtsOpenDept.includes(id)?dtsOpenDept.filter(x=>x!==id):[...dtsOpenDept,id];
@@ -5252,28 +5219,34 @@ function renderDtsGranted(){
     </div>`).join(''):'<div class="px-3 py-2.5 text-[11.5px] text-gray-300">暂无已授权用户</div>';
 }
 function dtsRevoke(i){
-  dtsGrants.splice(i,1);renderDtsGranted();renderDtsUsers();renderDtsWadv();
+  dtsGrants.splice(i,1);renderDtsGranted();renderDtsUsers();
 }
 function saveDtShare(){
   const t=dtGet(),picked=dtsPickedNames();
   if(dtsScope==='auth'&&!dtsGrants.length&&!picked.length){toast('请至少选择一个部门或人员');return}
-  if(dtsWmode==='adv'&&!dtsWGrants.length){toast('高级设置下请至少为一个用户配置高于通用档的权限，否则改回统一设置');return}
   const perm=document.getElementById('dts-perm').value;
   if(dtsScope==='auth')picked.forEach(n=>{if(!dtsGrants.some(g=>g.name===n))dtsGrants.push({name:n,perm})});
   const wasMax=dtMaxWperm(t);
   t.scope=dtsScope;t.grants=dtsScope==='public'?[]:dtsGrants;
-  t.wmode=dtsWmode;t.wperm=dtsWperm;
-  /* 公开可用没有授权名单，特配名单按人单独留存；授权可用时跟着名单收敛 */
-  t.wgrants=dtsWmode==='adv'
-    ?(dtsScope==='public'?dtsWGrants:dtsWGrants.filter(g=>t.grants.some(x=>x.name===g.name)))
-    :[];
+  t.wperm=dtsWperm;
+  const clamped=dtClampMounts(t);
   const note=dtSyncWrite(t,wasMax);
   closeDtShare();renderDtDetail();
   if(!document.getElementById('skill-listview').classList.contains('hidden'))renderSkillLib();
-  const w=dtsWmode==='adv'?`智能体应用权限通用档${DT_WPERM[t.wperm]} + ${t.wgrants.length} 人特配`:`智能体应用权限${DT_WPERM[t.wperm]}`;
-  toast(`「${t.name}」授权已保存：${dtsScope==='public'?'全员可用':`${t.grants.length} 人可用`}，${w}${note}`);
+  toast(`「${t.name}」授权已保存：${dtsScope==='public'?'全员可用':`${t.grants.length} 人可用`}，智能体应用权限上限${DT_WPERM[t.wperm]}${note}${clamped?`，${clamped} 处挂载已降到上限内`:''}`);
 }
-/* 权限动了就同步唯一键与维护方式：按表的实际最高档判断，不看通用档 */
+/* 上限调低时，已挂载且超过上限的智能体档位跟着降到上限 */
+function dtClampMounts(t){
+  let n=0;
+  const fix=arr=>arr.forEach(m=>{
+    if(m.id===t.id&&dtWLv(m.perm)>dtWLv(t.wperm)){m.perm=t.wperm;n++}
+  });
+  fix(AC_DTS);AC_SUBS.forEach(s=>fix(s.dts));
+  if(n){renderAcDts&&document.getElementById('cap-dt')&&renderAcDts();
+    renderAcSubs&&document.getElementById('cap-sub')&&renderAcSubs()}
+  return n;
+}
+/* 权限动了就同步唯一键与维护方式 */
 function dtSyncWrite(t,wasMax){
   const now=dtMaxWperm(t);
   if(wasMax==='read'&&now!=='read'){
@@ -5506,7 +5479,7 @@ function saveDtNew(){
     sync:'ok',syncNote:canWrite?'智能体自动更新':'手工维护',
     syncAt:bzStamp(),rowCnt:hasFile?'96':'0',limit:0,
     pk:canWrite?'记录编号':'',
-    agents:[],wperm,wmode:'uni',wgrants:[],
+    agents:[],wperm,
     by:ME,at:bzStamp(),refs:0,auth:'待授权',use:'未使用',
     scope:'auth',grants:[],
     fields:[],queries:[],rows:[],writes:[]};
@@ -11383,12 +11356,13 @@ function acSetThink(v){
 }
 /* ===== 智能体能力：SubAgent 与数据表 =====
    AC_SUBS=主智能体下的 SubAgent，各自带模型、思考档位、提示词与可用数据表
-   AC_DTS=主智能体自己可查的数据表，与 SubAgent 各自挂的表相互独立 */
+   AC_DTS=主智能体自己可查的数据表，与 SubAgent 各自挂的表相互独立
+   挂载记为 {id,perm}：perm 是本智能体用的档位，不得超过该表的 wperm 上限 */
 const AC_SUBS=[
-  {id:'sub-1',name:'数据分析助手',desc:'按销售口径取数作答：目标完成率、商机转化、回款进度，取数前先确认口径与时间范围。',model:'glm-5.2',think:'低',prompt:'你负责销售数据的取数与归因分析。回答前先确认统计口径与时间范围，输出结论时标注取数来源表。',dts:['dt-target','dt-opp']},
-  {id:'sub-2',name:'客户风险排查',desc:'排查客户流失与续费风险信号，输出风险等级与建议动作，命中高风险时提示建跟进任务。',model:'glm-5.2',think:'中',prompt:'你负责客户风险排查。结合风险台账与回款情况给出风险等级（高 / 中 / 低）与建议动作。',dts:['dt-risk']},
+  {id:'sub-1',name:'数据分析助手',desc:'按销售口径取数作答：目标完成率、商机转化、回款进度，取数前先确认口径与时间范围。',model:'glm-5.2',think:'低',prompt:'你负责销售数据的取数与归因分析。回答前先确认统计口径与时间范围，输出结论时标注取数来源表。',dts:[{id:'dt-target',perm:'read'},{id:'dt-opp',perm:'read'}]},
+  {id:'sub-2',name:'客户风险排查',desc:'排查客户流失与续费风险信号，输出风险等级与建议动作，命中高风险时提示建跟进任务。',model:'glm-5.2',think:'中',prompt:'你负责客户风险排查。结合风险台账与回款情况给出风险等级（高 / 中 / 低）与建议动作。',dts:[{id:'dt-risk',perm:'read'}]},
 ];
-const AC_DTS=['dt-target','dt-opp'];
+const AC_DTS=[{id:'dt-target',perm:'read'},{id:'dt-opp',perm:'read'}];
 /* ===== 智能体能力：skills 版本应用 =====
    applied=当前生效版本，mode=latest 跟随技能库最新发布版 / lock 锁定到指定版本，
    draft=下拉改过但还没点「更 新」的待生效版本 */
@@ -11458,11 +11432,14 @@ function acUpdate(){
     :'已发布更新（示意）');
 }
 function acDtName(id){const t=DATA_TABLES.find(x=>x.id===id);return t?t.name:id}
-function acDtTag(id,onDel){
-  const t=DATA_TABLES.find(x=>x.id===id);if(!t)return '';
+/* 挂载标签显示本智能体用的档位；表级上限更高时再挂一个灰色「上限 X」 */
+function acDtTag(m,onDel){
+  const t=DATA_TABLES.find(x=>x.id===m.id);if(!t)return '';
+  const cap=t.wperm||'read';
   return `<span class="inline-flex items-center gap-1.5 rounded-lg bg-gray-50 pl-2.5 pr-1.5 py-1 text-[11.5px]">
     <span class="text-gray-600">${t.name}</span>
-    ${dtWpermTags(t,'智能体')}
+    <span class="tag ${DT_WPERM_CLS[m.perm]} whitespace-nowrap">${DT_WPERM[m.perm]}</span>
+    ${dtWLv(cap)>dtWLv(m.perm)?`<span class="tag bg-gray-100 text-gray-400 whitespace-nowrap">上限 ${DT_WPERM[cap]}</span>`:''}
     ${onDel?`<span class="text-gray-300 hover:text-red-500 cursor-pointer px-0.5" onclick="${onDel}">✕</span>`:''}
   </span>`;
 }
@@ -11479,17 +11456,17 @@ function renderAcSubs(){
         </div>
       </div>
       <p class="text-[11px] text-gray-400 leading-relaxed mt-1">${s.desc}</p>
-      <div class="text-[10.5px] text-gray-400 mt-1.5">数据表 ${s.dts.length} 张${s.dts.length?'：'+s.dts.map(acDtName).join('、'):''}</div>
+      <div class="text-[10.5px] text-gray-400 mt-1.5">数据表 ${s.dts.length} 张${s.dts.length?'：'+s.dts.map(m=>`${acDtName(m.id)}（${DT_WPERM[m.perm]}）`).join('、'):''}</div>
     </div>`).join(''):'<div class="text-[12px] text-gray-400">暂无配置，点击 ＋ 添加 SubAgent</div>';
 }
 function renderAcDts(){
   const box=document.getElementById('cap-dt');
   box.innerHTML=AC_DTS.length
-    ?`<div class="flex flex-wrap gap-2">${AC_DTS.map(id=>acDtTag(id,`delAcDt('${id}')`)).join('')}</div>`
+    ?`<div class="flex flex-wrap gap-2">${AC_DTS.map(m=>acDtTag(m,`delAcDt('${m.id}')`)).join('')}</div>`
     :'<div class="text-[12px] text-gray-400">暂无配置，点击 ＋ 挂载数据表</div>';
 }
 function delAcDt(id){
-  AC_DTS.splice(AC_DTS.indexOf(id),1);renderAcDts();
+  AC_DTS.splice(AC_DTS.findIndex(m=>m.id===id),1);renderAcDts();
   toast(`已移除「${acDtName(id)}」：主智能体不再能查这张表`);
 }
 function delSub(id){
@@ -11500,7 +11477,7 @@ function delSub(id){
 /* ---- 挂载数据表（主智能体级）：弹窗里勾选，确定后才写回 ---- */
 let acDtDraft=[];
 function openAcDtPick(){
-  acDtDraft=AC_DTS.slice();
+  acDtDraft=AC_DTS.map(m=>({...m}));
   document.getElementById('acdt-kw').value='';
   renderAcDtPick();
   document.getElementById('modal-acdt').classList.remove('hidden');
@@ -11508,17 +11485,20 @@ function openAcDtPick(){
 function closeAcDtPick(){document.getElementById('modal-acdt').classList.add('hidden')}
 function renderAcDtPick(){
   document.getElementById('acdt-list').innerHTML=
-    dtPickRows(document.getElementById('acdt-kw').value,acDtDraft,'acDtDraftPick');
+    dtPickRows(document.getElementById('acdt-kw').value,acDtDraft,'acDtDraftPick','acDtDraftPerm');
 }
 function acDtDraftPick(id){
-  const i=acDtDraft.indexOf(id);
-  if(i<0)acDtDraft.push(id);else acDtDraft.splice(i,1);
+  const i=acDtDraft.findIndex(m=>m.id===id);
+  if(i<0)acDtDraft.push({id,perm:dtMountDefault()});else acDtDraft.splice(i,1);
   renderAcDtPick();
 }
+function acDtDraftPerm(id,v){
+  const m=dtMountFind(acDtDraft,id);if(m)m.perm=v;
+}
 function saveAcDt(){
-  AC_DTS.length=0;acDtDraft.forEach(id=>AC_DTS.push(id));
+  AC_DTS.length=0;acDtDraft.forEach(m=>AC_DTS.push({...m}));
   closeAcDtPick();renderAcDts();
-  toast(`已挂载 ${AC_DTS.length} 张数据表：主智能体可查询分析这些表`);
+  toast(`已挂载 ${AC_DTS.length} 张数据表：主智能体可按各表选定的档位读写`);
 }
 /* ---- 配置 SubAgent：id 为空是新增，否则是编辑 ---- */
 let curSub=null,subcThink='低',subcDts=[];
@@ -11533,7 +11513,7 @@ function openSubCfg(id){
   document.getElementById('subc-desc-cnt').textContent=(s?s.desc.length:0)+' / 500';
   document.getElementById('subc-prompt-cnt').textContent=(s?s.prompt.length:0)+' / 30000';
   document.getElementById('subc-sw-space').classList.add('off');
-  subcDts=s?s.dts.slice():[];
+  subcDts=s?s.dts.map(m=>({...m})):[];
   document.getElementById('subc-dt-box').classList.add('hidden');
   document.getElementById('subc-dt-kw').value='';
   const pick=modelPickable();
@@ -11563,15 +11543,19 @@ function subcToggleDtPick(){
 }
 function renderSubcDtPick(){
   document.getElementById('subc-dt-pick').innerHTML=
-    dtPickRows(document.getElementById('subc-dt-kw').value,subcDts,'subcPickDt');
+    dtPickRows(document.getElementById('subc-dt-kw').value,subcDts,'subcPickDt','subcDtPerm');
 }
 function subcPickDt(id){
-  const i=subcDts.indexOf(id);
-  if(i<0)subcDts.push(id);else subcDts.splice(i,1);
+  const i=subcDts.findIndex(m=>m.id===id);
+  if(i<0)subcDts.push({id,perm:dtMountDefault()});else subcDts.splice(i,1);
   renderSubcDtPick();renderSubcDt();
 }
+function subcDtPerm(id,v){
+  const m=dtMountFind(subcDts,id);if(m)m.perm=v;
+  renderSubcDt();
+}
 function renderSubcDt(){
-  document.getElementById('subc-dt-sel').innerHTML=subcDts.map(id=>acDtTag(id,`subcPickDt('${id}')`)).join('');
+  document.getElementById('subc-dt-sel').innerHTML=subcDts.map(m=>acDtTag(m,`subcPickDt('${m.id}')`)).join('');
   document.getElementById('subc-dt-cnt').textContent=subcDts.length?`已选 ${subcDts.length} 张`:'';
 }
 function saveSubCfg(){
@@ -11583,8 +11567,9 @@ function saveSubCfg(){
   if(!prompt)return toast('请填写提示词');
   const model=document.getElementById('subc-model').value;
   const s=curSub?AC_SUBS.find(x=>x.id===curSub):null;
-  if(s)Object.assign(s,{name,desc,model,think:subcThink,prompt,dts:subcDts.slice()});
-  else AC_SUBS.push({id:'sub-'+Date.now().toString().slice(-6),name,desc,model,think:subcThink,prompt,dts:subcDts.slice()});
+  const dts=subcDts.map(m=>({...m}));
+  if(s)Object.assign(s,{name,desc,model,think:subcThink,prompt,dts});
+  else AC_SUBS.push({id:'sub-'+Date.now().toString().slice(-6),name,desc,model,think:subcThink,prompt,dts});
   closeSubCfg();renderAcSubs();
   toast(`SubAgent「${name}」已保存：主智能体按能力描述决定何时分派，可用数据表 ${subcDts.length} 张`);
 }
