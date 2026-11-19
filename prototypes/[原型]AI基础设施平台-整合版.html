@@ -84,6 +84,11 @@
   .ev-pick.on{border-color:#7033ff;background:#f0ebff}
   .ev-bar{height:6px;border-radius:99px;background:#f1f0f5;overflow:hidden}
   .ev-bar>i{display:block;height:100%;border-radius:99px;transition:width .9s ease}
+  /* 评测页签：独立 class，避免与项目详情的 .ptab 批量查询相互影响 */
+  .evtab{padding:7px 14px;font-size:12.5px;border-radius:8px;color:#6b7280;cursor:pointer;font-weight:500}
+  .evtab.active{background:#f0ebff;color:#4929e2;font-weight:600}
+  .ev-dimcard{cursor:pointer}
+  .ev-dimcard:hover{border-color:#d8b4fe;box-shadow:0 4px 16px rgba(112,51,255,.08)}
   .temp-bar{transition:width .8s ease}
   .toast{animation:toastIn .3s ease both}
   @keyframes toastIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
@@ -602,87 +607,85 @@
 
     <!-- ===== 页面：评测调试 ===== -->
     <section id="pg-eval" class="hidden resp-pad px-8 pb-10">
-      <h1 class="text-xl font-bold mb-4">评测调试</h1>
+      <h1 class="text-xl font-bold mb-3">评测调试</h1>
+      <div class="flex gap-2 mb-4" id="ev-tabs">
+        <span class="evtab active" id="ev-tab-task" onclick="evTab('task')">评测任务</span>
+        <span class="evtab" id="ev-tab-set" onclick="evTab('set')">评测数据集</span>
+      </div>
 
-      <!-- 配置区 -->
-      <div id="ev-setup">
-        <div class="card p-5 mb-4">
-          <div class="flex items-center mb-3"><span class="ev-sn">1</span><span class="text-[13.5px] font-bold">选择评测智能体</span></div>
-          <div class="grid grid-cols-4 resp-grid-4 gap-3" id="ev-agent-grid"></div>
-        </div>
-
-        <div class="card p-5 mb-4">
-          <div class="flex items-center mb-3"><span class="ev-sn">2</span><span class="text-[13.5px] font-bold">选择评测维度</span><span class="ml-auto text-[11.5px] text-violet-600 font-semibold cursor-pointer hover:underline" onclick="evPickAllDims()">全选</span></div>
-          <div class="grid grid-cols-3 resp-grid-3 gap-3" id="ev-dim-grid"></div>
-        </div>
-
-        <div class="card p-5 mb-4">
-          <div class="flex items-center mb-3"><span class="ev-sn">3</span><span class="text-[13.5px] font-bold">评测数据</span></div>
-          <div class="flex gap-2 mb-4">
-            <span class="ptab active" id="ev-src-auto" onclick="evSrc('auto')">自动生成</span>
-            <span class="ptab" id="ev-src-set" onclick="evSrc('set')">选择已有数据集</span>
-            <span class="ptab" id="ev-src-up" onclick="evSrc('up')">上传数据</span>
+      <!-- ===== tab：评测任务 ===== -->
+      <div id="ev-pane-task">
+        <!-- 任务列表 -->
+        <div id="ev-tasklist">
+          <div class="flex items-center gap-2 mb-3">
+            <input id="ev-task-kw" class="border border-gray-200 rounded-lg px-3 py-2 text-xs w-56 focus:outline-violet-300" placeholder="搜索任务名称" oninput="renderEvTasks()">
+            <select id="ev-task-agent" class="border border-gray-200 rounded-lg px-3 py-2 text-xs text-gray-600 focus:outline-violet-300" onchange="renderEvTasks()"></select>
+            <button class="btn-p ml-auto" onclick="openEvTaskNew()">＋ 新建任务</button>
           </div>
-
-          <!-- 自动生成 -->
-          <div id="ev-pane-auto">
-            <div class="flex flex-wrap items-center gap-2 mb-3">
-              <span class="text-[12px] text-gray-500">生成来源</span>
-              <select id="ev-gen-from" class="border border-gray-200 rounded-lg px-3 py-1.5 text-xs text-gray-600 focus:outline-violet-300">
-                <option value="log">抽样历史会话记录</option>
-                <option value="kb">基于已挂载知识库生成</option>
-                <option value="skill">基于已挂载技能场景生成</option>
-              </select>
-              <span class="text-[12px] text-gray-500 ml-2">生成条数</span>
-              <select id="ev-gen-n" class="border border-gray-200 rounded-lg px-3 py-1.5 text-xs text-gray-600 focus:outline-violet-300">
-                <option>20</option><option selected>50</option><option>100</option><option>200</option>
-              </select>
-              <button class="btn-o !py-1.5 !px-4 text-xs" onclick="evGenData()">生成评测集</button>
-            </div>
-            <div id="ev-gen-out" class="text-[12px] text-gray-400">尚未生成</div>
+          <div class="card p-3 mb-3 flex items-center gap-3" id="ev-cmp-bar">
+            <span class="text-[12px] text-gray-500">勾选两条任务可做结果对比</span>
+            <span class="text-[12px] font-semibold text-violet-600" id="ev-cmp-sel">已选 0 / 2</span>
+            <button class="btn-o !py-1 !px-3 text-[11.5px]" onclick="evOpenCompare()">开始对比</button>
+            <button class="text-[11.5px] text-gray-400 hover:text-gray-600" onclick="evCmpClear()">清空</button>
           </div>
-
-          <!-- 已有数据集 -->
-          <div id="ev-pane-set" class="hidden">
-            <div class="card overflow-hidden">
-              <table class="w-full text-[12.5px]">
+          <div class="card overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-[12.5px] min-w-[1080px]">
                 <thead><tr class="text-left text-gray-400 border-b border-gray-100">
-                  <th class="px-4 py-2.5 font-medium w-10"></th><th class="px-3 font-medium">数据集名称</th><th class="px-3 font-medium">用例数</th><th class="px-3 font-medium">来源</th><th class="px-3 font-medium">含标准答案</th><th class="px-3 font-medium">更新时间</th>
+                  <th class="px-4 py-2.5 font-medium w-10"></th>
+                  <th class="px-3 font-medium">任务名称</th>
+                  <th class="px-3 font-medium">执行智能体</th>
+                  <th class="px-3 font-medium">评测数据集</th>
+                  <th class="px-3 font-medium">评测维度</th>
+                  <th class="px-3 font-medium">综合得分</th>
+                  <th class="px-3 font-medium">用例数</th>
+                  <th class="px-3 font-medium">判断模型</th>
+                  <th class="px-3 font-medium">执行时间</th>
+                  <th class="px-3 font-medium">操作</th>
                 </tr></thead>
-                <tbody id="ev-set-tbody"></tbody>
+                <tbody id="ev-task-tbody"></tbody>
               </table>
             </div>
           </div>
-
-          <!-- 上传 -->
-          <div id="ev-pane-up" class="hidden">
-            <div class="border-2 border-dashed border-gray-200 rounded-xl py-8 text-center cursor-pointer hover:border-violet-300 hover:bg-violet-50/40 transition" onclick="evUpload()">
-              <div class="text-2xl mb-1.5">📄</div>
-              <div class="text-[12.5px] text-gray-600 font-semibold mb-1">点击上传评测集</div>
-              <div class="text-[11px] text-gray-400">支持 .xlsx / .csv / .jsonl，需含「问题」列，有「标准答案」列才可评准确率</div>
-            </div>
-            <div id="ev-up-out" class="text-[12px] text-gray-400 mt-3">尚未上传</div>
-          </div>
         </div>
 
-        <div class="flex items-center gap-3">
-          <button class="btn-p" onclick="evStart()">开始评测</button>
-          <button class="px-4 py-2 rounded-lg bg-gray-100 text-sm text-gray-600 hover:bg-gray-200" onclick="evReset()">重 置</button>
-          <span id="ev-ready" class="text-[11.5px] text-gray-400"></span>
+        <!-- 执行中 -->
+        <div id="ev-running" class="hidden card p-8 text-center">
+          <div class="text-[13.5px] font-bold mb-1" id="ev-run-title">正在评测…</div>
+          <div class="text-[12px] text-gray-400 mb-5" id="ev-run-sub">—</div>
+          <div class="ev-bar max-w-md mx-auto mb-2"><i id="ev-run-bar" style="width:0%;background:linear-gradient(90deg,#7033ff,#c084fc)"></i></div>
+          <div class="text-[11.5px] text-gray-400" id="ev-run-pct">0%</div>
+        </div>
+
+        <!-- 结果区 -->
+        <div id="ev-result" class="hidden"></div>
+        <!-- 对比区 -->
+        <div id="ev-compare" class="hidden"></div>
+      </div>
+
+      <!-- ===== tab：评测数据集 ===== -->
+      <div id="ev-pane-set" class="hidden">
+        <div class="flex items-center gap-2 mb-3">
+          <input id="ev-set-kw" class="border border-gray-200 rounded-lg px-3 py-2 text-xs w-56 focus:outline-violet-300" placeholder="搜索数据集名称" oninput="renderEvSets()">
+          <button class="btn-p ml-auto" onclick="openEvGen('log')">＋ 生成数据集</button>
+          <button class="btn-o" onclick="evSetUpload()">上传数据集</button>
+        </div>
+        <div class="card overflow-hidden">
+          <table class="w-full text-[12.5px]">
+            <thead><tr class="text-left text-gray-400 border-b border-gray-100">
+              <th class="px-4 py-2.5 font-medium">数据集名称</th>
+              <th class="px-3 font-medium">用例数</th>
+              <th class="px-3 font-medium">来源</th>
+              <th class="px-3 font-medium">含标准答案</th>
+              <th class="px-3 font-medium">更新时间</th>
+              <th class="px-3 font-medium">操作</th>
+            </tr></thead>
+            <tbody id="ev-set-tbody"></tbody>
+          </table>
         </div>
       </div>
-
-      <!-- 执行中 -->
-      <div id="ev-running" class="hidden card p-8 text-center">
-        <div class="text-[13.5px] font-bold mb-1" id="ev-run-title">正在评测…</div>
-        <div class="text-[12px] text-gray-400 mb-5" id="ev-run-sub">—</div>
-        <div class="ev-bar max-w-md mx-auto mb-2"><i id="ev-run-bar" style="width:0%;background:linear-gradient(90deg,#7033ff,#c084fc)"></i></div>
-        <div class="text-[11.5px] text-gray-400" id="ev-run-pct">0%</div>
-      </div>
-
-      <!-- 结果区 -->
-      <div id="ev-result" class="hidden"></div>
     </section>
+
 
     <!-- ===== 页面：平台配置（模型配置 / 任务配置 / 统计权责） ===== -->
     <section id="pg-platform" class="hidden resp-pad px-8 pb-10">
@@ -1054,7 +1057,7 @@
             <div class="flex items-center gap-2 cursor-pointer select-none" onclick="toggleCapSec('cap-skills')">
               <span class="text-gray-400 text-xs" id="arrow-cap-skills">▸</span>
               <span class="font-bold text-[13.5px]">skills</span>
-              <span class="text-gray-300 text-xs" title="挂载技能库里授权可用的 Skill 代码包，按版本应用；技能库发布新版本时通知本智能体的管理员，仅有发布权限的管理员可切版本并发布">ⓘ</span>
+              <span class="text-gray-300 text-xs" title="挂载技能库里授权可用的 Skill 代码包：选「跟随技能更新」则自动应用最新发布版、无需发布；锁定到某一版本的在技能库发新版时出更新提示，由有发布权限的管理员手动切版本并点「更 新」后生效">ⓘ</span>
               <span id="cap-skills-badge" class="hidden tag bg-amber-50 text-amber-600">🔔 <span id="cap-skills-badge-n">0</span></span>
               <button class="ml-auto text-gray-400 hover:text-violet-600 text-base leading-none" onclick="event.stopPropagation();toast('添加 skill（示意）')">＋</button>
             </div>
@@ -1129,7 +1132,10 @@
         <!-- 右：调试预览 -->
         <div class="w-[400px] shrink-0 border-l border-gray-100 flex flex-col">
           <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100 shrink-0">
-            <span class="font-bold text-[13px]">调试预览</span>
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-[13px]">调试预览</span>
+              <span id="ac-keyhint" class="tag bg-amber-50 text-amber-600 hidden">未配关联 Key · 调试可用，发布前需配置</span>
+            </div>
             <span class="text-gray-400 text-xs cursor-pointer hover:text-violet-600" onclick="toast('全屏（示意）')">⛶ 全屏</span>
           </div>
           <div class="flex-1 overflow-y-auto p-4" id="ac-chat">
@@ -1175,7 +1181,7 @@
         <div class="ml-auto flex items-center gap-2">
           <button class="btn-o" onclick="openAppSetting()">应用设置</button>
           <button class="btn-o" onclick="wfSaveTemp()">保存临时版本</button>
-          <button class="btn-p" onclick="toast('已发布更新（示意）')">更 新</button>
+          <button class="btn-p" onclick="wfUpdate()">更 新</button>
           <span class="text-xs text-gray-400 ml-2 cursor-pointer hover:text-violet-600" onclick="toast('帮助文档（示意）')">ⓘ 帮助文档</span>
         </div>
       </div>
@@ -2225,6 +2231,19 @@
   </div>
 </div>
 
+<!-- ===== 功能型技能：评测优化（三步：逻辑诊断 → 调试验证 → 新增版本） ===== -->
+<div id="modal-fskopt" class="hidden fixed inset-0 z-50 modal-bg flex items-center justify-center" onclick="if(event.target===this)closeFskOpt()">
+  <div class="bg-white rounded-2xl w-[860px] p-6 fade-in max-h-[92vh] flex flex-col">
+    <div class="flex items-center justify-between mb-3 shrink-0">
+      <h3 class="font-bold text-violet-700">◎ 评测优化 · <span id="fsko-name"></span></h3>
+      <button class="text-gray-400 hover:text-gray-600" onclick="closeFskOpt()">✕</button>
+    </div>
+    <div class="flex items-center gap-1 text-[12px] mb-4 shrink-0" id="fsko-steps"></div>
+    <div class="flex-1 overflow-y-auto min-h-0" id="fsko-body"></div>
+    <div class="flex items-center gap-2 mt-4 pt-4 border-t border-gray-100 shrink-0" id="fsko-foot"></div>
+  </div>
+</div>
+
 <!-- ===== 功能型技能：版本更新及发布 ===== -->
 <div id="modal-fskver" class="hidden fixed inset-0 z-50 modal-bg flex items-center justify-center" onclick="if(event.target===this)closeFskVer()">
   <div class="bg-white rounded-2xl w-[740px] p-6 fade-in">
@@ -2642,8 +2661,22 @@
 <div id="modal-appsetting" class="hidden fixed inset-0 z-50 modal-bg flex items-center justify-center" onclick="if(event.target===this)closeAppSetting()">
   <div class="bg-white rounded-2xl w-[560px] p-6 fade-in max-h-[90vh] overflow-y-auto">
     <div class="flex items-center justify-between mb-1"><h3 class="font-bold">应用设置</h3><button class="text-gray-400 hover:text-gray-600" onclick="closeAppSetting()">✕</button></div>
-    <p class="text-[11.5px] text-gray-400 mb-4">配置智能体的接入渠道与响应方式</p>
+    <p class="text-[11.5px] text-gray-400 mb-4">配置智能体的关联 Key、接入渠道与响应方式</p>
     <div class="space-y-3">
+      <!-- 关联 Key 配置：一个智能体只配一个 Key，调用量与费用按该 Key 归集 -->
+      <div class="border border-gray-100 rounded-xl p-3.5">
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="font-semibold text-[13px]"><span class="text-red-500">*</span> 关联 Key 配置</span>
+          <span class="tag bg-gray-100 text-gray-500">调用量与费用按该 Key 归集</span>
+          <span class="tag bg-amber-50 text-amber-600">调试可不配 · 发布必须配</span>
+        </div>
+        <div class="flex items-center gap-4 mt-2.5 text-[12.5px] text-gray-700">
+          <span class="shrink-0 text-gray-500">应用类型</span>
+          <label class="flex items-center gap-1.5 cursor-pointer"><input type="radio" name="as-apptype" value="personal" class="accent-violet-600" onchange="asSetAppType('personal')">个人应用</label>
+          <label class="flex items-center gap-1.5 cursor-pointer"><input type="radio" name="as-apptype" value="team" class="accent-violet-600" onchange="asSetAppType('team')">团队应用</label>
+        </div>
+        <div id="as-key-form" class="mt-2.5"></div>
+      </div>
       <div class="border border-gray-100 rounded-xl p-3.5">
         <div class="flex items-center gap-2 cursor-pointer select-none" onclick="toggleCapSec('as-feishu')">
           <span class="text-gray-400 text-xs" id="arrow-as-feishu">▾</span>
@@ -2652,7 +2685,7 @@
           <button class="ml-auto btn-o !py-1 !px-3 text-[11px]" onclick="event.stopPropagation();openFsGroupCfg('__default__')">飞书群会话配置</button>
         </div>
         <div id="as-feishu" class="mt-3">
-          <div class="text-[11px] text-gray-400 mb-2">该智能体已加入 <b class="text-gray-600" id="as-feishu-cnt">0</b> 个飞书群，可按群分别设置响应方式</div>
+          <div class="text-[11px] text-gray-400 mb-2">该智能体已加入 <b class="text-gray-600" id="as-feishu-cnt">0</b> 个飞书群，可按群分别设置响应方式与响应数据格式</div>
           <div class="space-y-1.5 max-h-56 overflow-y-auto" id="as-feishu-list"></div>
         </div>
       </div>
@@ -2679,7 +2712,7 @@
     </div>
     <div class="flex justify-end gap-2 mt-5">
       <button class="btn-o !py-1.5 !px-5 text-xs" onclick="closeAppSetting()">取 消</button>
-      <button class="btn-p !py-1.5 !px-5 text-xs" onclick="closeAppSetting();toast('应用设置已保存（示意）')">确 定</button>
+      <button class="btn-p !py-1.5 !px-5 text-xs" onclick="saveAppSetting()">确 定</button>
     </div>
   </div>
 </div>
@@ -2689,9 +2722,15 @@
   <div class="bg-white rounded-2xl w-[380px] p-6 fade-in">
     <div class="flex items-center justify-between mb-1"><h3 class="font-bold">飞书群会话配置</h3><button class="text-gray-400 hover:text-gray-600" onclick="closeFsGroupCfg()">✕</button></div>
     <p class="text-[11.5px] text-gray-400 mb-4" id="fsgroup-name"></p>
+    <div class="text-[12px] font-semibold text-gray-600 mb-2">响应方式</div>
     <div class="space-y-2.5 text-[13px] text-gray-700">
       <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="fs-resp" value="at" class="accent-violet-600" id="fs-resp-at">被@时回复</label>
       <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="fs-resp" value="new" class="accent-violet-600" id="fs-resp-new">群内新增消息时回复</label>
+    </div>
+    <div class="text-[12px] font-semibold text-gray-600 mt-4 mb-2">响应数据格式</div>
+    <div class="space-y-2.5 text-[13px] text-gray-700">
+      <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="fs-fmt" value="card" class="accent-violet-600" id="fs-fmt-card">卡片消息</label>
+      <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="fs-fmt" value="text" class="accent-violet-600" id="fs-fmt-text">普通消息</label>
     </div>
     <div class="flex justify-end gap-2 mt-5">
       <button class="btn-o !py-1.5 !px-5 text-xs" onclick="closeFsGroupCfg()">取 消</button>
@@ -2752,6 +2791,151 @@
       <button class="btn-o !py-1.5 !px-5 text-xs" onclick="closeNodeCfg()">取 消</button>
       <button class="btn-p !py-1.5 !px-5 text-xs" onclick="saveNodeCfg()">保存节点配置</button>
     </div>
+  </div>
+</div>
+
+<!-- ===== 评测：新建评测任务 ===== -->
+<div id="modal-evtask" class="hidden fixed inset-0 z-50 modal-bg flex items-center justify-center" onclick="if(event.target===this)closeEvTaskNew()">
+  <div class="bg-white rounded-2xl w-[660px] p-6 fade-in max-h-[90vh] flex flex-col">
+    <div class="flex items-center justify-between mb-4 shrink-0">
+      <h3 class="font-bold">创建评测任务</h3>
+      <button class="text-gray-400 hover:text-gray-600" onclick="closeEvTaskNew()">✕</button>
+    </div>
+    <div class="overflow-y-auto pr-1 flex-1">
+      <div class="space-y-3.5 text-[12.5px]">
+        <div class="flex items-start gap-3">
+          <label class="w-24 text-right shrink-0 pt-2 text-gray-600"><span class="text-red-500">*</span> 任务名称</label>
+          <input id="evt-name" maxlength="50" class="flex-1 border border-gray-200 rounded-lg px-3 py-2 focus:outline-violet-300" placeholder="请输入任务名称">
+        </div>
+        <div class="flex items-start gap-3">
+          <label class="w-24 text-right shrink-0 pt-2 text-gray-600"><span class="text-red-500">*</span> 评测方式</label>
+          <select id="evt-kind" class="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-gray-600 focus:outline-violet-300">
+            <option value="agent">智能体</option>
+            <option value="flow">工作流</option>
+          </select>
+        </div>
+        <div class="flex items-start gap-3">
+          <label class="w-24 text-right shrink-0 pt-2 text-gray-600"><span class="text-red-500">*</span> 执行智能体</label>
+          <select id="evt-agent" class="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-gray-600 focus:outline-violet-300"></select>
+        </div>
+        <div class="flex items-start gap-3">
+          <label class="w-24 text-right shrink-0 pt-2 text-gray-600"><span class="text-red-500">*</span> 评测数据集</label>
+          <div class="flex-1">
+            <select id="evt-set" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-gray-600 focus:outline-violet-300" onchange="evtSyncDims()"></select>
+            <div class="flex items-center gap-2 mt-2">
+              <button class="btn-o !py-1 !px-3 text-[11.5px]" onclick="openEvGen('log')">从历史会话生成</button>
+              <button class="btn-o !py-1 !px-3 text-[11.5px]" onclick="openEvGen('skill')">从技能场景生成</button>
+              <button class="text-[11.5px] text-violet-600 font-semibold hover:underline" onclick="evSetUpload()">上传数据集</button>
+            </div>
+          </div>
+        </div>
+        <div class="flex items-start gap-3">
+          <label class="w-24 text-right shrink-0 pt-2 text-gray-600"><span class="text-red-500">*</span> 评测维度</label>
+          <div class="flex-1" id="evt-dims"></div>
+        </div>
+        <div class="flex items-start gap-3">
+          <label class="w-24 text-right shrink-0 pt-2 text-gray-600">评测要求</label>
+          <textarea id="evt-prompt" rows="4" maxlength="30000" class="flex-1 border border-gray-200 rounded-lg px-3 py-2 focus:outline-violet-300 resize-none" placeholder="请输入评测要求提示词"></textarea>
+        </div>
+        <div class="flex items-start gap-3">
+          <label class="w-24 text-right shrink-0 pt-2 text-gray-600">评测判断模型</label>
+          <select id="evt-judge" class="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-gray-600 focus:outline-violet-300">
+            <option>DeepSeek-R1</option><option>Qwen3-235B-Thinking</option><option>GPT-4o</option><option>Claude Sonnet 4.6</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="flex justify-end gap-2 mt-5 pt-4 border-t border-gray-100 shrink-0">
+      <button class="px-4 py-2 rounded-lg bg-gray-100 text-sm text-gray-600 hover:bg-gray-200" onclick="closeEvTaskNew()">取 消</button>
+      <button class="btn-p" onclick="evTaskCreate()">确 定</button>
+    </div>
+  </div>
+</div>
+<!-- ===== 评测：生成评测数据集（历史会话 / 技能场景） ===== -->
+<div id="modal-evgen" class="hidden fixed inset-0 z-50 modal-bg flex items-center justify-center" onclick="if(event.target===this)closeEvGen()">
+  <div class="bg-white rounded-2xl w-[880px] p-6 fade-in max-h-[92vh] flex flex-col">
+    <div class="flex items-center justify-between mb-3 shrink-0">
+      <h3 class="font-bold">生成评测数据集</h3>
+      <button class="text-gray-400 hover:text-gray-600" onclick="closeEvGen()">✕</button>
+    </div>
+    <div class="flex gap-2 mb-4 shrink-0">
+      <span class="evtab active" id="evg-tab-log" onclick="evGenTab('log')">基于历史会话</span>
+      <span class="evtab" id="evg-tab-skill" onclick="evGenTab('skill')">基于技能场景</span>
+    </div>
+
+    <!-- 历史会话 -->
+    <div id="evg-pane-log" class="flex-1 min-h-0 flex flex-col">
+      <div class="flex flex-wrap items-center gap-2 mb-3 shrink-0 text-[12px]">
+        <select id="evg-agent" class="border border-gray-200 rounded-lg px-3 py-1.5 text-gray-600 focus:outline-violet-300" onchange="renderEvGenRows()"></select>
+        <select id="evg-status" class="border border-gray-200 rounded-lg px-3 py-1.5 text-gray-600 focus:outline-violet-300" onchange="renderEvGenRows()"></select>
+        <select id="evg-fb" class="border border-gray-200 rounded-lg px-3 py-1.5 text-gray-600 focus:outline-violet-300" onchange="renderEvGenRows()">
+          <option value="">全部反馈</option><option value="赞">赞</option><option value="踩">踩</option><option value="-">无反馈</option>
+        </select>
+        <input id="evg-from" type="date" class="border border-gray-200 rounded-lg px-2 py-1.5 text-gray-600 focus:outline-violet-300" onchange="renderEvGenRows()">
+        <span class="text-gray-400">至</span>
+        <input id="evg-to" type="date" class="border border-gray-200 rounded-lg px-2 py-1.5 text-gray-600 focus:outline-violet-300" onchange="renderEvGenRows()">
+        <button class="text-[11.5px] text-gray-400 hover:text-gray-600 ml-1" onclick="evGenResetFilter()">重置</button>
+      </div>
+      <div class="card overflow-hidden flex-1 min-h-0 flex flex-col">
+        <div class="flex items-center px-4 py-2.5 border-b border-gray-100 shrink-0 text-[11.5px]">
+          <span class="text-gray-500">命中 <b class="text-violet-600" id="evg-hit">0</b> 条会话 · 已选 <b class="text-violet-600" id="evg-cnt">0</b> 条</span>
+          <span class="ml-auto flex items-center gap-3">
+            <span class="text-violet-600 font-semibold cursor-pointer hover:underline" onclick="evGenSelAll(1)">全选</span>
+            <span class="text-violet-600 font-semibold cursor-pointer hover:underline" onclick="evGenSelAll(0)">取消全选</span>
+          </span>
+        </div>
+        <div class="overflow-auto flex-1">
+          <table class="w-full text-[12px]">
+            <thead class="sticky top-0 bg-white"><tr class="text-left text-gray-400 border-b border-gray-100">
+              <th class="px-4 py-2.5 font-medium w-10"></th>
+              <th class="px-3 font-medium">时间</th>
+              <th class="px-3 font-medium">智能体</th>
+              <th class="px-3 font-medium">会话输入（作为评测问题）</th>
+              <th class="px-3 font-medium">执行状态</th>
+              <th class="px-3 font-medium">时长</th>
+              <th class="px-3 font-medium">轮数</th>
+              <th class="px-3 font-medium">反馈</th>
+            </tr></thead>
+            <tbody id="evg-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- 技能场景 -->
+    <div id="evg-pane-skill" class="hidden flex-1 min-h-0 overflow-auto">
+      <div class="flex flex-wrap items-center gap-2 mb-3 text-[12px]">
+        <span class="text-gray-500">所属智能体</span>
+        <select id="evgs-agent" class="border border-gray-200 rounded-lg px-3 py-1.5 text-gray-600 focus:outline-violet-300" onchange="renderEvGenSkill()"></select>
+        <span class="text-gray-500 ml-2">每个场景生成</span>
+        <select id="evgs-n" class="border border-gray-200 rounded-lg px-3 py-1.5 text-gray-600 focus:outline-violet-300" onchange="evGenSkillSync()">
+          <option>5</option><option selected>10</option><option>20</option>
+        </select>
+        <span class="text-gray-500">条</span>
+      </div>
+      <div class="grid grid-cols-2 gap-3" id="evgs-grid"></div>
+      <div class="text-[12px] text-gray-500 mt-3" id="evgs-sum">—</div>
+    </div>
+
+    <div class="flex items-center gap-3 mt-5 pt-4 border-t border-gray-100 shrink-0">
+      <input id="evg-name" class="border border-gray-200 rounded-lg px-3 py-2 text-[12.5px] w-72 focus:outline-violet-300" placeholder="数据集名称">
+      <span class="text-[11.5px] text-gray-400" id="evg-note">标准答案取历史输出，可人工校正</span>
+      <div class="ml-auto flex gap-2">
+        <button class="px-4 py-2 rounded-lg bg-gray-100 text-sm text-gray-600 hover:bg-gray-200" onclick="closeEvGen()">取 消</button>
+        <button class="btn-p" onclick="evGenConfirm()">生成数据集</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 评测：单维度用例下钻 ===== -->
+<div id="modal-evdim" class="hidden fixed inset-0 z-50 modal-bg flex items-center justify-center" onclick="if(event.target===this)closeEvDim()">
+  <div class="bg-white rounded-2xl w-[900px] p-6 fade-in max-h-[90vh] flex flex-col">
+    <div class="flex items-center justify-between mb-3 shrink-0">
+      <h3 class="font-bold" id="evd-title">维度明细</h3>
+      <button class="text-gray-400 hover:text-gray-600" onclick="closeEvDim()">✕</button>
+    </div>
+    <div id="evd-body" class="overflow-auto flex-1 min-h-0"></div>
   </div>
 </div>
 
@@ -2868,7 +3052,7 @@ const VERSIONS = [
   {v:'v22', date:'2026-09-03', title:'任务执行子任务可操作 + 报价Agent skill 表单闭环', desc:'三处待办均可展开并处理子任务、一键转智能体会话；新增报价Agent：skill 生成表单 → 提交回传 → 智能体出报价单。', file:'versions/[原型]AI基础设施平台-整合版-v22-2026-09-03.html'},
   {v:'v23', date:'2026-09-09', title:'智能体伙伴纵向栏 + 每个智能体独立会话 + 收藏体系收敛', desc:'工作台布局重构：智能体伙伴改最左纵向栏、每个智能体独立会话、收藏统一收敛为「我的看板」，下线流程看板。', file:'versions/[原型]AI基础设施平台-整合版-v23-2026-09-09.html'},
   {v:'v24', date:'2026-09-10', title:'任务执行统一「处理」动作 + 子任务权限与主任务自动完成', desc:'主子任务统一「处理」动作（可选人工或智能体执行），处理权限按归属收敛，子任务全部完成时主任务自动办结。', file:'versions/[原型]AI基础设施平台-整合版-v24-2026-09-10.html'},
-  {v:'工作版', date:'2026-11-11', title:'数据表权限：表上只设智能体应用权限上限，各智能体挂载时在上限内选档', desc:'人的权限只约束页面操作，可使用仅列表可见与可挂载。表级不再按人配智能体档位，只设一个上限；挂载默认只读、不得超上限，上限调低时超出的挂载自动降档。', file:'SELF'},
+  {v:'工作版', date:'2026-11-19', title:'Skill 评测优化三步闭环 + skill 跟随更新与锁定版本两种方式 + 飞书群响应格式与关联 Key 配置', desc:'Skill 详情页新增评测优化：分层给建议 → 采纳后调试看执行轮数与输出对比 → 新增版本并发布。挂载可选跟随技能更新或锁定版本；飞书群按群配卡片 / 普通消息；应用设置首位新增关联 Key 必填项，区分个人 / 团队应用，团队 Key 带出所属项目，发布前校验。', file:'SELF'},
   {v:'线上版本 2026-11-04', date:'2026-11-04', release:true, title:'线上版本 2026-11-04', desc:'优化任务处理策略前的线上冻结快照。', file:'versions/[原型]AI基础设施平台-整合版-线上版本-2026-11-04.html'},
   {v:'Agent平台261021版本', date:'2026-10-21', release:true, title:'数据表能力成型：新增两选与上传解析、编辑收到详情页、分享到人', desc:'Agent 平台 261021 正式版（已冻结）。数据表新增先选上传文件 / 自定义，上传后表名描述自动解析填充；编辑入口收到详情页，可改应用权限；字段表收为业务语义六列，分享改分享到人；看板更新时间收到看板级；任务执行的执行方式在事件触发下转为选填。', file:'versions/[原型]AI基础设施平台-整合版-Agent平台261021版本-2026-10-21.html'},
   {v:'智能体平台任务中心1.1', date:'2026-09-18', release:true, title:'评审调整：处理动作与任务配置收敛，列表改日期筛选，办结为终态', desc:'任务中心 1.1 正式版（已冻结）。处理动作与任务配置收敛，列表改日期筛选（默认近 3 个月），办结为终态，子任务只在本层添加、可派智能体执行；平台我的任务增手动新建入口，扩展字段收为统一字段、格式同备注。', file:'versions/[原型]AI基础设施平台-整合版-智能体平台任务中心1.1-2026-09-18.html'},
@@ -2924,12 +3108,12 @@ const PAGE_SPECS={
   logic:'只展示当前用户有授权的智能体；卡片点击进入配置页，返回时回到本列表；创建入口按智能体类型分流。'},
 'agentconfig':{name:'智能体平台 · 智能体配置',
   desc:'单个智能体的能力装配页：挂载技能（Skills / MCP / 工具 / 数据表）、拆分 SubAgent、挂载知识库与项目空间、设置执行上限。',
-  fields:'智能体名称与头像、基座模型、提示词、技能挂载清单（含版本号、版本时间、版本选择器）、SubAgent 清单、数据表挂载清单、知识资源挂载清单、执行轮数与超时上限。SubAgent 配置项：名称（必填，20 字内）、能力描述（必填，500 字内）、模型（必填）与思考配置、提示词（必填，30000 字内）、知识库、可用数据表。',
-  logic:'从卡片进入，页头返回我的智能体；技能与知识资源只能选择已授权对象；保存即生效，无需审核。SubAgent 按场景拆出的子能力各自配模型、思考档位、提示词与可用数据表，主智能体按能力描述决定何时分派；校验顺序为名称 → 能力描述 → 提示词。SubAgent 的思考配置按所选模型的能力渲染，换模型时回到该模型的默认档位。数据表只能从技能库里授权可用的表中挂载，待授权的表不进清单；主智能体挂载的表与各 SubAgent 挂载的表相互独立，互不继承。两处数据表选择器都可按表名模糊筛选，已勾中但被筛掉的表不丢选中状态，每次打开清空关键词；每张表后面给档位下拉，可选档位按该表设定的智能体应用权限上限封顶，勾选时默认只读、需要写入再手动调高，表后标出该表的上限。已挂载的标签显示本智能体用的档位，表级上限比它高时另挂一个「上限 X」；表级上限被调低时，超过上限的挂载自动降到上限。skills 每条显示当前应用的版本号与版本时间，可选「跟随技能库最新」或锁定到某个版本；可选清单只给已发布与历史版本，待发布版本不进清单。技能库发布新版本时通知本智能体的管理员，仅有发布权限的管理员可切换版本；跟随最新的挂载在技能库发新版后、锁定的挂载在手动改版本后，都会标出待生效版本并提示去发布，切版本只落草稿，点页头「更 新」才真正生效。'},
+  fields:'智能体名称与头像、基座模型、提示词、技能挂载清单（含版本号、版本时间、版本选择器）、SubAgent 清单、数据表挂载清单、知识资源挂载清单、执行轮数与超时上限。应用设置弹窗：关联 Key 配置（排在首位，必填：应用类型个人 / 团队，个人应用填 Access Key，团队应用填模型平台 KeyID + 密钥并带出所属项目 / 产品）、飞书应用（已加入群清单，每群带响应方式与响应数据格式标签）、网页应用内部链接、API调用、是否启用。飞书群会话配置弹窗：响应方式（被@时回复 / 群内新增消息时回复）、响应数据格式（卡片消息 / 普通消息）。SubAgent 配置项：名称（必填，20 字内）、能力描述（必填，500 字内）、模型（必填）与思考配置、提示词（必填，30000 字内）、知识库、可用数据表。',
+  logic:'从卡片进入，页头返回我的智能体；技能与知识资源只能选择已授权对象；保存即生效，无需审核。SubAgent 按场景拆出的子能力各自配模型、思考档位、提示词与可用数据表，主智能体按能力描述决定何时分派；校验顺序为名称 → 能力描述 → 提示词。SubAgent 的思考配置按所选模型的能力渲染，换模型时回到该模型的默认档位。数据表只能从技能库里授权可用的表中挂载，待授权的表不进清单；主智能体挂载的表与各 SubAgent 挂载的表相互独立，互不继承。两处数据表选择器都可按表名模糊筛选，已勾中但被筛掉的表不丢选中状态，每次打开清空关键词；每张表后面给档位下拉，可选档位按该表设定的智能体应用权限上限封顶，勾选时默认只读、需要写入再手动调高，表后标出该表的上限。已挂载的标签显示本智能体用的档位，表级上限比它高时另挂一个「上限 X」；表级上限被调低时，超过上限的挂载自动降到上限。skills 每条显示当前应用的版本号与版本时间，可选「跟随技能更新」或锁定到某个版本；可选清单只给已发布与历史版本，待发布版本不进清单。选跟随技能更新的挂载恒等于技能库已发布版，技能库发新版后自动更新并生效，不出更新提示、无需点「更 新」；锁定到某一版本的挂载不随技能库变动，技能库发新版时只出更新提示并通知本智能体的管理员，由有发布权限的管理员手动切版本，切版本只落草稿、点页头「更 新」才生效；从锁定改回跟随技能更新即时生效，不进草稿。页头「应用设置」配接入渠道：飞书应用下的响应方式与响应数据格式都按群设置，只对飞书群会话生效，未单独设置的群走默认配置（被@时回复 + 卡片消息），项目空间的关联群列表与这里共用同一份配置。关联 Key 配置排在应用设置首位且为必填，每个智能体只能配一个 Key，调用量与费用按该 Key 归集：选个人应用填 Access Key（即个人 AI coding 的 Key，用量计入个人额度），选团队应用填模型平台 KeyID + 密钥，两项都填完后反查该 Key 归属的项目与产品并显示，查不到则提示核对、不算配置完成。切换应用类型即清空另一类型已填内容。Key 与密钥默认打码，可切换显示。调试不校验 Key，未配 Key 时调试预览区出提示；点页头「更 新」发布前必须配好 Key，未配或团队 Key 未查到归属项目则拦住并跳到应用设置，「保 存」只落草稿不校验。'},
 'wfconfig':{name:'智能体平台 · 工作流配置',
   desc:'工作流Agent 的节点编排画布：节点可增删、拖拽与连线，选中节点在右侧配置输入、能力参数与输出。',
   fields:'页头：智能体名称、正式版本时间、当前版本时间、状态标签。画布：节点（开始 / Agent / 大模型节点 / 问题分类 / 知识库检索 / 直接回复 / 工具 / MCP 等）、连线、缩放比例。大模型 / Agent 节点配置：描述、输入参数、基座模型与提示词（大模型节点）、输出格式（文本 / JSON解析）、输出参数名。问题分类节点配置：描述、输入参数、分类方式（模型判断 / 代码处理）、分类清单、上下文配置、执行节点提示。直接回复节点配置：描述、回复方式（上一个节点直接输出 / 结束不做任何处理 / 输出固定内容）、固定内容与引用参数。',
-  logic:'节点从底部「＋ 节点」按分组添加，拖拽移动、从输出端口拉到输入端口连线；选中节点右侧出配置面板。大模型节点与 Agent 节点的输出格式二选：文本输出单个 text 参数；JSON解析下自行添加输出参数名（只配名称不配类型，参数名不可重复，重复的行标红并提示），按参数名解析模型返回的 JSON。问题分类节点不自定义输出，两种分类方式都固定输出 question_category_output（值为命中的分类名）；分类方式二选：模型判断由大模型按分类的主题描述判定走向，需配上下文轮数与执行节点提示；代码处理按关键词规则由代码判定，不调模型，因此隐藏上下文配置与执行节点提示。直接回复节点的回复方式三选：上一个节点直接输出、结束不做任何处理、输出固定内容；选固定内容时编辑文本（上限 1000 字，为空时标红提示），可通过「添加引用参数」把上游输出按 {{上游节点.参数名}} 插入光标处。各节点的输出都会出现在下游节点的输入参数可选清单里，下游节点按「上游节点.参数名」引用；切换输出格式或删除输出参数会使下游已有引用失效并提示重选。配置不完整的节点在卡片右上角显示红色 ⓘ。'},
+  logic:'节点从底部「＋ 节点」按分组添加，拖拽移动、从输出端口拉到输入端口连线；选中节点右侧出配置面板。大模型节点与 Agent 节点的输出格式二选：文本输出单个 text 参数；JSON解析下自行添加输出参数名（只配名称不配类型，参数名不可重复，重复的行标红并提示），按参数名解析模型返回的 JSON。问题分类节点不自定义输出，两种分类方式都固定输出 question_category_output（值为命中的分类名）；分类方式二选：模型判断由大模型按分类的主题描述判定走向，需配上下文轮数与执行节点提示；代码处理按关键词规则由代码判定，不调模型，因此隐藏上下文配置与执行节点提示。直接回复节点的回复方式三选：上一个节点直接输出、结束不做任何处理、输出固定内容；选固定内容时编辑文本（上限 1000 字，为空时标红提示），可通过「添加引用参数」把上游输出按 {{上游节点.参数名}} 插入光标处。各节点的输出都会出现在下游节点的输入参数可选清单里，下游节点按「上游节点.参数名」引用；切换输出格式或删除输出参数会使下游已有引用失效并提示重选。配置不完整的节点在卡片右上角显示红色 ⓘ。页头「应用设置」与智能体配置页共用，关联 Key 为发布前置条件：点「更 新」时未配 Key 则拦住并跳到应用设置，「保存临时版本」与画布调试不校验。'},
 'res-kb':{name:'智能体平台 · 资源库 · 知识库',
   desc:'自定义 / 公司 / 客户三类知识库的统一维护，内容供智能体引用。',
   fields:'名称、问答数量、文档数、引用信息源、关联智能体、创建人、更新时间、应用授权、状态、操作。',
@@ -2943,9 +3127,9 @@ const PAGE_SPECS={
   fields:'项目名称、阶段、关联群、创建人、Project Summary；任务清单（项目成员待办）：任务、负责人、创建人、来源、期限、状态、飞书待办、操作。',
   logic:'页头提供返回资源库；各分区用页签切换；任务清单分项目成员待办与智能体任务两个子页签，成员待办每行可处理 / 催办 / 删除——处理后状态转已完成并同步飞书待办，催办按次累计并提醒负责人，删除需二次确认且撤回飞书待办，已完成的行只保留删除；已挂载的 KA 主理智能体在工作台会话中可直接引用本空间内容。'},
 'eval':{name:'智能体平台 · 评测调试',
-  desc:'对智能体做自动化评测：选智能体 → 选评测维度 → 准备评测集（自动生成 / 选已有 / 上传）→ 跑批出结果与处理建议。',
-  fields:'评测智能体、评测维度（响应速度 / 平均执行轮数 / 回答准确率，各含目标阈值）、评测集来源与用例数、综合得分、各维度实测值与达标状态、用例明细（问题、耗时、轮数、是否命中）、处理建议。',
-  logic:'三步均完成才可开始评测；准确率维度要求评测集含标准答案，自动生成选「抽样历史会话」时按历史输出比对、无标准答案则该维度置灰；跑批结束按维度给达标判定（达标 / 偏慢 / 不达标），每条不达标维度给出指向具体配置项的处理建议（提示词、基座模型、知识库、技能拆分、轮数上限），建议可一键跳转对应配置页。'},
+  desc:'评测任务与评测数据集两个页签。数据集可从历史会话或技能场景生成，任务跑批后出六维结果，支持单维度下钻与两次任务结果对比。',
+  fields:'评测任务（任务名称、评测方式、执行智能体、评测数据集、评测维度、评测要求提示词、评测判断模型）；评测维度分效率指标（响应速度 / 平均执行轮数 / 单用例 token）与质量指标（回答准确率 / 内容完整性 / 格式合规性），各含目标阈值；结果含综合得分、六维雷达图、各维度实测值与达标状态、单维度用例明细（含判断模型打分理由）、处理建议；数据集含用例数、来源、是否含标准答案。',
+  logic:'数据集生成两条路径：历史会话按智能体 / 时间 / 执行状态 / 用户反馈筛选后勾选，问题取会话输入、标准答案取历史输出；技能场景按智能体已挂载技能逐场景生成。质量指标中准确率与完整性依赖标准答案，数据集无标准答案时该维度置灰。跑批结束按维度给达标判定（达标 / 接近达标 / 不达标），综合得分按各维度达成比取均值再按未达标占比扣分；点维度卡下钻该维度用例明细，质量维度附判断模型打分理由；每条不达标维度给出指向具体配置项的处理建议，可一键跳转对应配置页。列表勾选两条任务进入对比：时间早的为基线，按维度方向判定改善或退化，跨智能体对比会提示差值不代表配置调整收益。'},
 'runs-mine':{name:'智能体平台 · 任务执行 · People | 我的任务',
   desc:'以处理人视角汇总全部来源的任务（智能体创建、业务系统派单、手动新建），支持处理、转交与删除。',
   fields:'筛选区常显：视角、状态、关键字、搜索、重置、更多筛选、导出、新建任务；更多筛选收起行：任务类型、日期区间、处理人。列表：任务、任务大类、任务类型、来源、截止时间、创建时间、状态、飞书待办、处理人、创建人、备注信息、操作。',
@@ -2989,8 +3173,8 @@ const PAGE_SPECS={
   logic:'页头只留返回按钮；字段只描述业务语义，不再配置对智能体可见 / 可筛选 / 可聚合与确认状态，解析或声明后即可被查询；详情页只有对本表可管理的人能进（建表人恒为可管理），可使用的人在列表只能看到表名与描述、配智能体时可挂载，表名不可点、无编辑与删除入口；所有表的字段都可改名、可新增与删除，数据页单元格可直接编辑，唯一键行不可删除，改其中文名时唯一键标记同步更新，至少保留一个字段。写入记录与唯一键只在权限非只读时出现，智能体按档位直接写入、不再进待确认队列，留痕以一次执行为批次并可整批撤销。数据表名称与描述可改：入口是详情页头卡的「编辑」，两项必填，列表「编辑」与表名都只进详情页。分享入口只在数据表列表页，详情页不提供。分享弹窗管两件事：一是分享到人，可用范围选授权可用时从飞书组织架构勾选部门或人员并分配可使用 / 可管理（可使用仅列表可见与配智能体时可挂载，可管理才能进详情页、改字段与口径、编辑数据、再分享、删除；两者只约束人，与智能体应用权限互不封顶），组织树为一级部门分组 + 二级部门 + 人三层，勾选粒度是二级部门与人、勾二级部门即授权该部门全员，无归属部门的人平铺在树的最后，选公开可用时人员区置灰且名单清空，授权可用且名单为空不允许保存；二是智能体应用权限上限，只设一档、不按人区分，表示这张表允许智能体做到的最高一档；各智能体实际用哪一档在智能体能力配置挂载这张表时单独选，挂载默认只读、不能超过上限，上限调低时已挂载且超出的智能体自动降到上限并提示。唯一键与维护方式按这个上限判断，由只读变可写时自动补唯一键「记录编号」并把维护方式改为智能体自动更新，收回只读时写入记录页签隐藏、维护方式改回手工维护，已写入的数据不动。关联智能体为被引用情况的只读展示，不在此处增删。查询口径表只有口径名称、参数、过滤与聚合规则三列。'},
 'func-skill':{name:'智能体平台 · 功能型技能详情',
   desc:'单个 Skill 代码包的内容视图：左侧文件树（scripts / tests / SKILL.md），右侧按 Preview / Code 两态看文件，顶部可调试、自动修改与发布版本。',
-  fields:'页头：技能名称、开始调试、自动修改 Skill、版本更新及发布、保存。左栏：文件树、当前版本号、发布状态、更新时间、创建人。右栏：Preview / Code 切换、行数与文件大小、文件内容。自动修改弹窗：需求描述（必填，30000 字内）、知识库选择（公司知识仓库 / 客户知识空间 / 自定义知识库）、可使用的数据表（可展开勾选，每项带智能体应用权限）、可使用的 MCP、工具列表。版本弹窗：版本号、更新时间、创建人、发布状态、版本修改说明、发布按钮、新增版本上传。',
-  logic:'页头只留返回按钮，进入后技能库标题与页签整块隐藏。保存只落草稿，须经「版本更新及发布」发布后才对引用的智能体生效。自动创建从列表右上角进、自动修改从详情页进，两者共用同一弹窗，需求描述为空不允许提交。可使用的数据表只列技能库里授权可用的表，待授权的表不进清单；展开区顶部可按表名模糊筛选，已勾中但被筛掉的表不丢选中状态，无匹配时提示换关键词；可多选、选中数量回显在标题行，生成的取数逻辑按所选表的字段口径写；数据表为选填，每次打开弹窗清空上次的勾选与关键词。版本历史每个版本都带修改说明：新增版本上传时代码包与修改说明均必填，修改说明限 100 字以内；未上传或未填说明不允许确定。版本分三态：同一时间只有一个版本为已发布，发布新版本时原已发布版本转为历史，从未发布过的版本为待发布；历史与待发布版本都可再次发布。发布动作不直接改智能体的生效版本，只通知引用本 Skill 的智能体管理员，由有发布权限的管理员在智能体能力配置里切版本并更新后才生效。删除技能时若已被智能体引用，需先解除引用。'},
+  fields:'页头：技能名称、开始调试、评测优化、自动修改 Skill、版本更新及发布、保存。评测优化弹窗分三步：① 调试优化类型（按评测任务结果优化 / 按调试会话过程优化，必选）+ 生成优化建议按钮 + 按判定口径、流程步骤、脚本实现、输出格式分层的建议列表（每条带现状、建议改法、依据、预计收益与采纳勾选）；② 执行轮数 / 单次耗时 / 判定一致率三项前后对比、按轮展开的执行过程（动作、调用对象、耗时、输出）、同一用例的优化前后输出对比；③ 新版本号、基于版本、代码包、采纳建议清单、版本修改说明（必填，100 字内）。左栏：文件树、当前版本号、发布状态、更新时间、创建人。右栏：Preview / Code 切换、行数与文件大小、文件内容。自动修改弹窗：需求描述（必填，30000 字内）、知识库选择（公司知识仓库 / 客户知识空间 / 自定义知识库）、可使用的数据表（可展开勾选，每项带智能体应用权限）、可使用的 MCP、工具列表。版本弹窗：版本号、更新时间、创建人、发布状态、版本修改说明、发布按钮、新增版本上传。',
+  logic:'页头只留返回按钮，进入后技能库标题与页签整块隐藏。保存只落草稿，须经「版本更新及发布」发布后才对引用的智能体生效。自动创建从列表右上角进、自动修改从详情页进，两者共用同一弹窗，需求描述为空不允许提交。可使用的数据表只列技能库里授权可用的表，待授权的表不进清单；展开区顶部可按表名模糊筛选，已勾中但被筛掉的表不丢选中状态，无匹配时提示换关键词；可多选、选中数量回显在标题行，生成的取数逻辑按所选表的字段口径写；数据表为选填，每次打开弹窗清空上次的勾选与关键词。版本历史每个版本都带修改说明：新增版本上传时代码包与修改说明均必填，修改说明限 100 字以内；未上传或未填说明不允许确定。版本分三态：同一时间只有一个版本为已发布，发布新版本时原已发布版本转为历史，从未发布过的版本为待发布；历史与待发布版本都可再次发布。发布动作对引用方分两种作用：选「跟随技能更新」的挂载自动应用新版本并立即生效；锁定到某一版本的挂载不受影响，只向智能体管理员发更新提示，由有发布权限的管理员在能力配置里切版本并更新后才生效。删除技能时若已被智能体引用，需先解除引用。评测优化按三步推进：第一步必须先选调试优化类型并点「生成优化建议」才出建议，未选类型不允许生成；两类类型取的数据不同，按评测任务结果优化给判定口径、脚本实现与输出格式的改法，按调试会话过程优化给流程步骤与取数的改法；建议按 SKILL.md 的渐进明细分层列出并逐条勾选采纳，中途改类型则已生成的建议与采纳项清空、需重新生成，一条未勾不允许进下一步；第二步按采纳项生成优化稿并用同一组用例调试，出前后指标、按轮的执行过程与输出对比，可回第一步改采纳项或重新调试；第三步版本号自动取当前最大版本号 +1，修改说明按采纳建议的层级汇总预填、可改且必填，可「存为待发布」只进版本历史，或「保存并发布」直接走发布流程。'},
 'flow-skill':{name:'智能体平台 · 流程型技能详情',
   desc:'流程型技能的骨架视图：节点编排、节点智能体与在途任务概况。',
   fields:'流程名称、节点数、流程负责人、执行说明、在途任务数、各节点配置。',
@@ -5626,6 +5810,7 @@ function renderFskDetail(){
       <button class="btn-o !py-1 !px-3 text-[11px]" onclick="closeFskDetail()">返 回</button>
       <span class="text-[15px] font-bold break-all">${s.name}</span>
       <button class="btn-o !py-1 !px-3 text-[11px]" onclick="toast('开始调试（示意）：在调试会话里跑这版 Skill，看判定值与依据是否符合预期')">▷ 开始调试</button>
+      <button class="btn-o !py-1 !px-3 text-[11px] !text-violet-600 !border-violet-200" onclick="openFskOpt()">◎ 评测优化</button>
       <div class="flex items-center gap-2 ml-auto shrink-0">
         <button class="btn-o !py-1 !px-3 text-[11px] !text-violet-600 !border-violet-200" onclick="openFskAuto()">✦ 自动修改 Skill</button>
         <button class="btn-o !py-1 !px-3 text-[11px] !text-violet-600 !border-violet-200" onclick="openFskVer()">⟳ 版本更新及发布</button>
@@ -5691,6 +5876,243 @@ function fskPreviewView(body){
   });
   if(fence)out.push(`<pre class="font-mono text-[11px] bg-gray-50 text-gray-600 rounded-lg px-3 py-2.5 my-2 overflow-x-auto">${htmlEsc(fence.join('\n'))}</pre>`);
   return `<div class="px-5 py-4 max-w-[760px]">${out.join('')}</div>`;
+}
+/* ===== 评测优化 Skill：逻辑诊断 → 调试验证 → 新增版本并发布 =====
+   建议按 skill 的渐进明细分层给出，采纳哪几条决定第二步调试跑什么、第三步版本说明写什么 */
+const FSKO_LAYER=['判定口径','流程步骤','脚本实现','输出格式'];
+/* 两类优化依据给的建议不同：评测结果侧重判定准确率，调试会话侧重执行过程与轮数 */
+const FSKO_SRC=[
+  {id:'ev',t:'按评测任务结果优化',d:'检修工单判定 v3 · 2026-11-16 · 36 条用例 · 准确率 82%',tip:'对着判错的用例改判定口径与输出，提准确率'},
+  {id:'dbg',t:'按调试会话过程优化',d:'近 7 天 8 次调试 · 平均执行 3.6 轮 · 2 次超时重试',tip:'对着执行过程改流程拆分与取数，降轮数与耗时'},
+];
+const FSKO_ADVICE={
+  ev:[
+    {id:'e1',layer:'判定口径',issue:'SKILL.md 里「在途工单」只写了状态名，没写时间窗，模型在跨天场景下自行推断为当天。',fix:'把在途的判定补成「状态 ∈ {待派工, 处理中} 且创建时间在近 3 天内」，并在表格里列明状态码。',basis:'评测集 12 条跨天用例中 5 条判成「建议观察」，预期应为「已有工单等待」。',gain:'误判率 18% → 6%'},
+    {id:'e2',layer:'脚本实现',issue:'analyze.py 对工单内容做关键词匹配时未区分温度类与门磁类，温度诊断会命中门磁工单。',fix:'按诊断类型传入关键词白名单，匹配不到时返回空而非降级到模糊匹配。',basis:'评测里 2 条温度类用例命中了门磁工单，v2 修过一次同类问题。',gain:'串类命中 2 条 → 0 条'},
+    {id:'e3',layer:'输出格式',issue:'判定依据是自由文本，调用方要再解析一次才能拿到工单号。',fix:'输出固定三字段：判定值、工单号列表、依据摘要（80 字内），依据摘要不含换行。',basis:'两个引用方都在自己侧做了字符串切割，口径不一致。',gain:'调用方免解析'},
+  ],
+  dbg:[
+    {id:'d1',layer:'流程步骤',issue:'取数与判定写在同一步，模型拿到空结果时会再试一次全量查询，多跑一轮。',fix:'拆成「取数 → 校验非空 → 判定」三步，空结果直接短路返回「需要下单」，不再回查。',basis:'8 次调试里 3 次出现重复取数，平均多 1.4 轮。',gain:'执行轮数 3.6 → 2.4'},
+    {id:'d2',layer:'流程步骤',issue:'设备号缺失时才去问一线，模型会先空跑一次查询再追问。',fix:'把入参校验提到第一步，设备号为空直接返回「转一线补充设备号」，不进查询。',basis:'2 次超时重试都发生在设备号缺失的会话里。',gain:'超时重试 2 次 → 0 次'},
+    {id:'d3',layer:'脚本实现',issue:'工单查询每次拉全字段，返回包大、模型读取慢。',fix:'只取工单号、状态、创建时间、工单内容四个字段，其余字段按需二次查询。',basis:'单次取数平均 820 ms，返回体中 7 成字段未被用到。',gain:'单次耗时 4.2 s → 1.0 s'},
+  ],
+};
+/* src=选中的优化类型（未选为空），gen=建议生成状态 idle/ing/done：没生成前不出建议 */
+let fsko={step:1,src:'',gen:'idle',adopt:[],ran:false,note:''};
+function openFskOpt(){
+  const s=fskGet(curFsk);if(!s)return;
+  fsko={step:1,src:'',gen:'idle',adopt:[],ran:false,note:''};
+  document.getElementById('fsko-name').textContent=s.name;
+  renderFskOpt();
+  document.getElementById('modal-fskopt').classList.remove('hidden');
+}
+function closeFskOpt(){document.getElementById('modal-fskopt').classList.add('hidden')}
+function fskoList(){return fsko.src?FSKO_ADVICE[fsko.src]:[]}
+function fskoAdvice(){return fskoList().filter(a=>fsko.adopt.includes(a.id))}
+/* 换类型要重新生成：清空已生成的建议与采纳项 */
+function fskoSetSrc(v){
+  if(fsko.src===v)return;
+  fsko.src=v;fsko.gen='idle';fsko.adopt=[];fsko.ran=false;
+  renderFskOpt();
+}
+function fskoGen(){
+  if(!fsko.src)return toast('请先选择调试优化类型');
+  fsko.gen='ing';renderFskOpt();
+  setTimeout(()=>{if(fsko.gen==='ing'){fsko.gen='done';renderFskOpt()}},800);
+}
+function fskoNextVer(){
+  const s=fskGet(curFsk)||{};
+  const n=Math.max(...(s.vers||[{v:'v1'}]).map(v=>parseInt(String(v.v).replace(/\D/g,''),10)||0));
+  return 'v'+(n+1);
+}
+function renderFskOpt(){
+  document.getElementById('fsko-steps').innerHTML=[['1','逻辑诊断与建议'],['2','调试验证输出'],['3','新增版本并发布']]
+    .map(([n,t],i)=>`<span class="flex items-center gap-1 ${i?'ml-2':''}">
+      ${i?'<span class="text-gray-300 mr-2">→</span>':''}
+      <span class="ev-sn ${fsko.step>=+n?'':'off'}">${n}</span>
+      <span class="${fsko.step===+n?'font-bold text-violet-700':'text-gray-400'}">${t}</span></span>`).join('');
+  document.getElementById('fsko-body').innerHTML=
+    fsko.step===1?fskoStep1():fsko.step===2?fskoStep2():fskoStep3();
+  document.getElementById('fsko-foot').innerHTML=
+    fsko.step===1?fskoFoot1():fsko.step===2?fskoFoot2():fskoFoot3();
+}
+/* ---- 第一步：按 skill 层级逐条给优化建议，勾选采纳 ---- */
+function fskoStep1(){
+  const head=`<div class="text-[12px] font-semibold text-gray-600 mb-2"><span class="text-red-500">*</span> 调试优化类型</div>
+    <div class="grid grid-cols-2 gap-2 mb-4">
+      ${FSKO_SRC.map(x=>`<div class="ev-pick ${fsko.src===x.id?'on':''}" onclick="fskoSetSrc('${x.id}')">
+        <div class="text-[12.5px] font-semibold">${x.t}</div>
+        <div class="text-[11px] text-gray-400 mt-0.5">${x.d}</div>
+        <div class="text-[11px] text-violet-500 mt-1">${x.tip}</div></div>`).join('')}
+    </div>`;
+  if(fsko.gen!=='done')return head+`<div class="card p-8 text-center">
+    ${fsko.gen==='ing'
+      ?`<div class="text-[13px] font-bold mb-1">正在分析「${FSKO_SRC.find(x=>x.id===fsko.src).t}」…</div>
+         <div class="text-[12px] text-gray-400 mb-5">按 SKILL.md 的渐进明细逐层比对，定位到具体层级后给建议</div>
+         <div class="ev-bar max-w-md mx-auto"><i style="width:65%;background:linear-gradient(90deg,#7033ff,#c084fc)"></i></div>`
+      :`<div class="text-[13px] font-bold text-gray-500 mb-1">${fsko.src?'点下方「生成优化建议」':'请先选择调试优化类型'}</div>
+         <div class="text-[12px] text-gray-400">建议按所选类型的数据生成，不同类型定位到的层级与改法不同</div>`}
+    </div>`;
+  const list=fskoList();
+  return head+`<div class="flex items-center mb-2">
+      <span class="text-[12px] font-semibold text-gray-600">优化建议</span>
+      <span class="text-[11px] text-gray-400 ml-2">按 SKILL.md 的渐进明细分层给出，勾选要采纳的条目</span>
+      <span class="ml-auto text-[11px] text-violet-600 cursor-pointer hover:underline" onclick="fskoGen()">↻ 重新生成</span>
+      <span class="text-[11px] text-violet-600 cursor-pointer hover:underline ml-3" onclick="fskoAll()">${fsko.adopt.length===list.length?'全不选':'全选'}</span>
+    </div>
+    <div class="space-y-2">${FSKO_LAYER.map(L=>{
+      const list=fskoList().filter(a=>a.layer===L);if(!list.length)return '';
+      return `<div class="text-[11px] font-bold text-gray-400 pt-1.5">${L}</div>
+        ${list.map(a=>{const on=fsko.adopt.includes(a.id);
+        return `<div class="rounded-xl border ${on?'border-violet-200 bg-violet-50/40':'border-gray-100'} px-3.5 py-3 cursor-pointer" onclick="fskoPick('${a.id}')">
+          <div class="flex items-start gap-2.5">
+            <input type="checkbox" class="accent-violet-600 mt-0.5 pointer-events-none" ${on?'checked':''}>
+            <div class="flex-1 min-w-0 space-y-1">
+              <div class="text-[12.5px] text-gray-700 leading-relaxed"><b>建议</b>：${a.fix}</div>
+              <div class="text-[11.5px] text-gray-500 leading-relaxed">现状：${a.issue}</div>
+              <div class="text-[11.5px] text-gray-400 leading-relaxed">依据：${a.basis}</div>
+            </div>
+            <span class="tag bg-emerald-50 text-emerald-600 shrink-0 whitespace-nowrap">${a.gain}</span>
+          </div>
+        </div>`}).join('')}`;
+    }).join('')}</div>`;
+}
+function fskoFoot1(){
+  const done=fsko.gen==='done';
+  return `<span class="text-[11.5px] text-gray-400">${done?`已采纳 <b class="text-violet-600">${fsko.adopt.length}</b> / ${fskoList().length} 条`:'选择类型后生成建议'}</span>
+    <div class="ml-auto flex gap-2">
+      <button class="btn-o" onclick="closeFskOpt()">取 消</button>
+      ${done
+        ?'<button class="btn-p" onclick="fskoRun()">同意并调试</button>'
+        :`<button class="btn-p" onclick="fskoGen()" ${fsko.gen==='ing'?'disabled':''}>生成优化建议</button>`}
+    </div>`;
+}
+function fskoPick(id){
+  const i=fsko.adopt.indexOf(id);
+  if(i<0)fsko.adopt.push(id);else fsko.adopt.splice(i,1);
+  renderFskOpt();
+}
+function fskoAll(){
+  const list=fskoList();
+  fsko.adopt=fsko.adopt.length===list.length?[]:list.map(a=>a.id);
+  renderFskOpt();
+}
+/* ---- 第二步：按采纳的建议跑一遍调试，按轮看执行过程与前后输出 ---- */
+/* 两类优化看的指标与对比用例不同：评测结果看准确率，调试过程看轮数与耗时 */
+const FSKO_METRIC={
+  ev:{sum:'跨天在途工单判定与串类命中已修正。',
+      met:[['判定一致率','82%','94%'],['跨天用例误判','5 条','1 条'],['串类命中','2 条','0 条']],
+      caseT:'同一条跨天用例',
+      before:'建议观察 —— 未查到当天创建的工单，建议继续观察设备温度。',
+      beforeBad:'✕ 漏掉前一天创建的在途工单',
+      after:'已有工单等待 · WO-20261116-0471<br>依据：近 3 天内存在处理中的温度类检修工单。'},
+  dbg:{sum:'流程拆分与取数字段收敛，执行轮数与耗时下降。',
+       met:[['执行轮数','3.6 轮','2.4 轮'],['单次耗时','4.2 s','1.0 s'],['超时重试','2 次','0 次']],
+       caseT:'同一条设备号缺失的会话',
+       before:'先查了一次全量工单（4.2 s，返回空），再追问「请提供设备号」，共 4 轮。',
+       beforeBad:'✕ 入参校验在查询之后，空跑一次取数',
+       after:'转一线补充设备号（1 轮，60 ms）<br>依据：入参校验前置，设备号为空不进查询。'},
+};
+const FSKO_ROUNDS={
+  ev:[
+    {n:1,act:'取在途检修工单',tool:'ics_workorder MCP · 按设备号 + 近 3 天窗口',ms:820,out:'命中 1 条：WO-20261116-0471（处理中，2026-11-15 创建）'},
+    {n:2,act:'匹配工单内容',tool:'analyze.py · 温度类关键词白名单',ms:140,out:'工单内容「冷机温度异常」命中温度类白名单，未串到门磁类'},
+    {n:3,act:'输出判定',tool:'—',ms:60,out:'判定值=已有工单等待；工单号=[WO-20261116-0471]；依据摘要=近 3 天内存在处理中的温度类检修工单'},
+  ],
+  dbg:[
+    {n:1,act:'校验入参',tool:'analyze.py · 设备号必填校验',ms:20,out:'设备号齐全，继续取数；为空则直接返回「转一线补充设备号」不进查询'},
+    {n:2,act:'取在途检修工单（四字段）',tool:'ics_workorder MCP · 工单号 / 状态 / 创建时间 / 工单内容',ms:260,out:'命中 1 条：WO-20261116-0471，返回体由 18 字段收敛到 4 字段'},
+    {n:3,act:'校验非空并输出判定',tool:'—',ms:60,out:'非空 → 判定值=已有工单等待；空结果直接短路返回「需要下单」，不再回查'},
+  ],
+};
+function fskoRun(){
+  if(!fsko.adopt.length)return toast('请先勾选至少一条优化建议');
+  fsko.step=2;fsko.ran=false;renderFskOpt();
+  setTimeout(()=>{if(fsko.step===2){fsko.ran=true;renderFskOpt()}},900);
+}
+function fskoStep2(){
+  if(!fsko.ran)return `<div class="card p-8 text-center">
+    <div class="text-[13.5px] font-bold mb-1">正在按采纳的 ${fsko.adopt.length} 条建议生成优化稿并调试…</div>
+    <div class="text-[12px] text-gray-400 mb-5">改写 SKILL.md 与脚本后，用同一组评测用例跑执行过程</div>
+    <div class="ev-bar max-w-md mx-auto"><i style="width:70%;background:linear-gradient(90deg,#7033ff,#c084fc)"></i></div></div>`;
+  const M=FSKO_METRIC[fsko.src];
+  return `<div class="grid grid-cols-3 gap-2 mb-4">
+      ${M.met.map(([k,a,b])=>`<div class="rounded-xl border border-gray-100 px-3.5 py-2.5">
+        <div class="text-[11px] text-gray-400">${k}</div>
+        <div class="text-[13px] mt-1"><span class="text-gray-400 line-through">${a}</span>
+          <span class="text-gray-300 mx-1">→</span><b class="text-emerald-600">${b}</b></div></div>`).join('')}
+    </div>
+    <div class="text-[12px] font-semibold text-gray-600 mb-2">执行过程（优化稿）</div>
+    <div class="space-y-2 mb-4">${FSKO_ROUNDS[fsko.src].map(r=>`
+      <div class="rounded-xl border border-gray-100 px-3.5 py-2.5">
+        <div class="flex items-center gap-2">
+          <span class="ev-sn">${r.n}</span>
+          <span class="text-[12.5px] font-semibold">${r.act}</span>
+          <span class="tag bg-gray-100 text-gray-500 ml-auto shrink-0">${r.ms} ms</span>
+        </div>
+        <div class="text-[11.5px] text-gray-400 mt-1.5 pl-7">调用：${r.tool}</div>
+        <div class="text-[11.5px] text-gray-600 mt-0.5 pl-7 leading-relaxed">输出：${r.out}</div>
+      </div>`).join('')}</div>
+    <div class="text-[12px] font-semibold text-gray-600 mb-2">输出对比 <span class="text-[11px] text-gray-400 font-normal ml-1">${M.caseT}</span></div>
+    <div class="grid grid-cols-2 gap-2">
+      <div class="rounded-xl border border-gray-100 bg-gray-50 px-3.5 py-3">
+        <div class="text-[11px] text-gray-400 mb-1.5">优化前 ${(fskGet(curFsk)||{}).ver}</div>
+        <div class="text-[11.5px] text-gray-500 leading-relaxed">${M.before}<br><span class="text-red-400">${M.beforeBad}</span></div>
+      </div>
+      <div class="rounded-xl border border-violet-200 bg-violet-50/40 px-3.5 py-3">
+        <div class="text-[11px] text-violet-600 mb-1.5">优化后 ${fskoNextVer()}（草稿）</div>
+        <div class="text-[11.5px] text-gray-600 leading-relaxed">${M.after}<br><span class="text-emerald-600">✓ 与预期一致</span></div>
+      </div>
+    </div>`;
+}
+function fskoFoot2(){
+  return `<button class="btn-o" onclick="fsko.step=1;renderFskOpt()">← 回到建议</button>
+    <div class="ml-auto flex gap-2">
+      <button class="btn-o" onclick="fskoRun()" ${fsko.ran?'':'disabled'}>↻ 重新调试</button>
+      <button class="btn-p" onclick="fskoToVer()" ${fsko.ran?'':'disabled'}>生成优化版本</button>
+    </div>`;
+}
+/* ---- 第三步：落成新版本，修改说明由采纳的建议汇总生成，可改，限 100 字 ---- */
+function fskoToVer(){
+  if(!fsko.ran)return;
+  fsko.step=3;
+  const layers=fskoAdvice().map(a=>a.layer).filter((x,i,arr)=>arr.indexOf(x)===i).join('、');
+  fsko.note=((fsko.src==='ev'?'按评测结果优化：':'按调试过程优化：')+layers+'共 '+fsko.adopt.length+' 项，'+FSKO_METRIC[fsko.src].sum).slice(0,100);
+  renderFskOpt();
+}
+function fskoStep3(){
+  const s=fskGet(curFsk)||{};
+  return `<div class="rounded-xl border border-gray-100 px-3.5 py-3 mb-3 text-[12px] text-gray-500 space-y-1.5">
+      <div class="flex items-center gap-2"><span class="text-gray-400 w-16 shrink-0">新版本号</span><b class="text-gray-700">${fskoNextVer()}</b>
+        <span class="tag bg-gray-100 text-gray-500 ml-1">基于 ${s.ver}</span></div>
+      <div class="flex items-center gap-2"><span class="text-gray-400 w-16 shrink-0">本次改动</span>采纳 ${fsko.adopt.length} 条建议 · 调试已通过</div>
+      <div class="flex items-center gap-2"><span class="text-gray-400 w-16 shrink-0">代码包</span>📦 ${s.name}-${fskoNextVer()}.zip <span class="text-gray-400">（由优化稿生成）</span></div>
+    </div>
+    <div class="text-[12px] font-semibold text-gray-600 mb-1.5">采纳的建议</div>
+    <div class="space-y-1.5 mb-4">${fskoAdvice().map(a=>`
+      <div class="flex items-start gap-2 text-[11.5px] leading-relaxed">
+        <span class="tag bg-violet-50 text-violet-600 shrink-0">${a.layer}</span>
+        <span class="text-gray-600">${a.fix}</span></div>`).join('')}</div>
+    <div class="text-[12px] font-semibold mb-1.5"><span class="text-red-500">*</span> 版本修改说明</div>
+    <textarea id="fsko-note" rows="3" maxlength="100" class="w-full text-[12px] border border-gray-200 rounded-lg px-3 py-2.5 leading-relaxed focus:outline-none focus:border-violet-300" oninput="fsko.note=this.value;document.getElementById('fsko-note-cnt').textContent=this.value.length+' / 100'">${htmlEsc(fsko.note)}</textarea>
+    <div class="text-right text-[11px] text-gray-400" id="fsko-note-cnt">${fsko.note.length} / 100</div>`;
+}
+function fskoFoot3(){
+  return `<button class="btn-o" onclick="fsko.step=2;renderFskOpt()">← 回到调试</button>
+    <div class="ml-auto flex gap-2">
+      <button class="btn-o" onclick="fskoSave(false)">存为待发布</button>
+      <button class="btn-p" onclick="fskoSave(true)">保存并发布</button>
+    </div>`;
+}
+function fskoSave(pub){
+  const s=fskGet(curFsk);if(!s)return;
+  const note=(fsko.note||'').trim();
+  if(!note)return toast('请填写版本修改说明');
+  const v=fskoNextVer();
+  s.vers.unshift({v:v,at:new Date().toLocaleString('zh-CN',{hour12:false}).replace(/\//g,'-'),by:s.by,st:'待发布',note:note});
+  closeFskOpt();
+  if(pub)fskPublish(v);
+  else{renderFskDetail();toast(`${v} 已存为待发布：在「版本更新及发布」里发布后才对引用的智能体生效`)}
 }
 /* ---- 自动修改 Skill：详情页进来是改当前 Skill，列表页进来是从零创建 ---- */
 let fskAutoMode='edit';
@@ -5773,7 +6195,7 @@ function fskPublish(v){
   s.ver=v;
   renderFskVerList();renderFskDetail();
   const n=(s.agents||[]).length;
-  toast(`${v} 已发布：已通知 ${n} 个引用本 Skill 的智能体管理员，由管理员在能力配置切版本并更新后生效`);
+  toast(`${v} 已发布：引用本 Skill 的 ${n} 个智能体中，跟随技能更新的已自动生效；锁定版本的已通知管理员，由管理员切版本并更新后生效`);
 }
 function openFskVerNew(){
   document.getElementById('fskvn-note').value='';
@@ -7899,6 +8321,7 @@ function openWfConfig(id){
   document.getElementById('wf-name').textContent=a.name||'工作流Agent';
   document.getElementById('wf-pubtime').textContent=a.time||'--';
   wfDefault();
+  asAgent={id:id,name:a.name||'工作流Agent'};
   showPage('wfconfig');
   wfSetZoom(wfZoom);
   wfRender();
@@ -7906,6 +8329,11 @@ function openWfConfig(id){
 function wfSaveTemp(){
   document.getElementById('wf-curtime').textContent=new Date().toLocaleString('zh-CN',{hour12:false}).replace(/\//g,'-');
   toast('已保存临时版本（示意）');
+}
+/* 发布前校验关联 Key，调试与保存临时版本不校验 */
+function wfUpdate(){
+  if(!asGuardPublish())return;
+  toast('已发布更新（示意）');
 }
 function wfNode(id){return wfNodes.find(n=>n.id===id)}
 function wfTypeName(n){return n.name||WF_TYPES[n.t].name}
@@ -8860,7 +9288,7 @@ function renderPdGroups(){
     <div class="flex items-center gap-3 p-3 rounded-xl border border-gray-100 text-[12.5px]">
       <span class="text-base">💬</span>
       <div class="flex-1"><div class="font-semibold">${g[0]}</div><div class="text-[11px] text-gray-400">${g[1]}</div></div>
-      <button class="tag ${getFsResp(g[0])==='new'?'bg-violet-100 text-violet-700':'bg-gray-100 text-gray-500'} hover:!ring-1 hover:ring-violet-300" title="点击配置该群响应方式" onclick="openFsGroupCfg('${g[0]}')">${getFsResp(g[0])==='new'?'新消息时回复 ⚙':'被@时回复 ⚙'}</button>
+      <button class="tag ${getFsResp(g[0])==='new'?'bg-violet-100 text-violet-700':'bg-gray-100 text-gray-500'} hover:!ring-1 hover:ring-violet-300" title="点击配置该群响应方式与数据格式" onclick="openFsGroupCfg('${g[0]}')">${getFsResp(g[0])==='new'?'新消息时回复 ⚙':'被@时回复 ⚙'} · ${FS_FMT_TXT[getFsFmt(g[0])]}</button>
       <span class="tag bg-emerald-100 text-emerald-700">${g[2]}</span>
       <button class="text-[11px] text-gray-400 hover:text-red-400" onclick="unbindGroup(${i})">解绑</button>
     </div>`).join('')||'<div class="py-8 text-center text-gray-400 text-[12.5px]">暂无关联群，点击右上角「一键创建并关联」或「绑定群」</div>';
@@ -8873,35 +9301,145 @@ function unbindGroup(i){
   toast('已解绑「'+n+'」，KA 主理智能体已退出该群，对应监听任务已移除');
 }
 
-/* ================= 飞书群响应方式配置（按群） ================= */
-let fsRespCfg={}, fsCfgTarget='';
+/* ================= 飞书群会话配置（按群：响应方式 + 响应数据格式） =================
+   两项都按群存，未单独设置的群取 __default__ */
+let fsRespCfg={}, fsFmtCfg={}, fsCfgTarget='';
 function getFsResp(g){return fsRespCfg[g]||fsRespCfg['__default__']||'at'}
-function openAppSetting(){renderAsFeishuList();document.getElementById('modal-appsetting').classList.remove('hidden')}
+function getFsFmt(g){return fsFmtCfg[g]||fsFmtCfg['__default__']||'card'}
+const FS_FMT_TXT={card:'卡片消息',text:'普通消息'};
+function openAppSetting(){renderAsFeishuList();renderAsKeyForm();document.getElementById('modal-appsetting').classList.remove('hidden')}
 function closeAppSetting(){document.getElementById('modal-appsetting').classList.add('hidden')}
+
+/* ================= 关联 Key 配置 =================
+   一个智能体只配一个 Key：个人应用填 Access Key，团队应用填模型平台 KeyID + 密钥
+   团队应用的 KeyID 与密钥填完后反查该 Key 归属的项目 / 产品，查不到不算配置完成
+   调试不校验 Key，发布（更新）前必须配好 */
+let asAgent={id:'',name:''}, asKeys={}, asKeyShown=false;
+/* 模型平台已开通的 Key：keyid → 密钥 + 归属项目 / 产品，用于演示反查 */
+const AS_TEAM_KEYS=[
+  {kid:'LTAI-7f3c9a21',sec:'Zq8mK2pX',proj:'车队智能运营平台',prod:'G7 车队管理 · 智能调度'},
+  {kid:'LTAI-2b56ef08',sec:'Vn4dR9wL',proj:'KA 客户经营中台',prod:'销售管理 · KA 主理'},
+  {kid:'LTAI-91ad4c7e',sec:'Hs6jT3yB',proj:'检修运维数字化',prod:'设备运维 · 工单中心'},
+];
+/* 已发布的智能体给一份已配好的 Key 做示意，其余为未配置 */
+asKeys['aibot_ka_master']={type:'team',kid:'LTAI-2b56ef08',sec:'Vn4dR9wL'};
+function asCfg(){
+  if(!asKeys[asAgent.id])asKeys[asAgent.id]={type:'',ak:'',kid:'',sec:''};
+  return asKeys[asAgent.id];
+}
+/* 团队应用：keyid 与密钥都对才算查到 */
+function asTeamHit(c){return AS_TEAM_KEYS.find(k=>k.kid===c.kid.trim()&&k.sec===c.sec.trim())}
+/* Key 是否已配置完成：个人填了 Access Key / 团队查到归属项目 */
+function asKeyReady(id){
+  const c=asKeys[id];if(!c||!c.type)return false;
+  return c.type==='personal'?!!c.ak.trim():!!asTeamHit(c);
+}
+function asKeyDesc(id){
+  const c=asKeys[id];if(!asKeyReady(id))return '';
+  if(c.type==='personal')return '个人应用 · '+asMaskKey(c.ak.trim());
+  const h=asTeamHit(c);return '团队应用 · '+h.kid+' · '+h.proj;
+}
+function asMaskKey(k){return k.length<10?k:k.slice(0,6)+'···'+k.slice(-4)}
+/* 切换应用类型即清空另一类型已填内容，保证全局只留一份 Key */
+function asSetAppType(t){
+  const c=asCfg();
+  if(c.type===t)return;
+  c.type=t;c.ak='';c.kid='';c.sec='';asKeyShown=false;
+  renderAsKeyForm();
+}
+function asSetKeyField(f,v){asCfg()[f]=v;if(f!=='ak')renderAsKeyTeamHit()}
+function toggleAsKey(){asKeyShown=!asKeyShown;renderAsKeyForm()}
+function renderAsKeyForm(){
+  const c=asCfg(),box=document.getElementById('as-key-form');
+  document.querySelectorAll('input[name="as-apptype"]').forEach(r=>{r.checked=r.value===c.type});
+  if(!c.type){
+    box.innerHTML=`<div class="text-[11.5px] text-gray-400 bg-gray-50 rounded-lg px-3 py-2">请先选择应用类型，再填写对应的 Key</div>`;
+    return;
+  }
+  const t=asKeyShown?'text':'password';
+  const eye=`<button class="text-gray-400 hover:text-gray-600 px-0.5 shrink-0" onclick="toggleAsKey()" title="显示 / 隐藏">◉</button>`;
+  box.innerHTML=c.type==='personal'
+    ?`<div class="flex items-center gap-2 text-[12px] text-gray-600">
+        <span class="shrink-0 w-[72px]">Access Key</span>
+        <input id="as-ak" type="${t}" class="flex-1 border border-gray-200 rounded-lg px-2.5 py-1.5 text-[11.5px] font-mono focus:outline-violet-300"
+          placeholder="填入个人 AI coding 的 Key" value="${c.ak}" oninput="asSetKeyField('ak',this.value)">
+        ${eye}
+      </div>
+      <div class="text-[11px] text-amber-600 mt-1.5">个人 AI coding 的 Key，用量与费用计入个人额度</div>`
+    :`<div class="space-y-2">
+        <div class="flex items-center gap-2 text-[12px] text-gray-600">
+          <span class="shrink-0 w-[72px]">KeyID</span>
+          <input id="as-kid" class="flex-1 border border-gray-200 rounded-lg px-2.5 py-1.5 text-[11.5px] font-mono focus:outline-violet-300"
+            placeholder="模型平台的 KeyID" value="${c.kid}" oninput="asSetKeyField('kid',this.value)">
+        </div>
+        <div class="flex items-center gap-2 text-[12px] text-gray-600">
+          <span class="shrink-0 w-[72px]">密钥</span>
+          <input id="as-sec" type="${t}" class="flex-1 border border-gray-200 rounded-lg px-2.5 py-1.5 text-[11.5px] font-mono focus:outline-violet-300"
+            placeholder="模型平台的密钥" value="${c.sec}" oninput="asSetKeyField('sec',this.value)">
+          ${eye}
+        </div>
+        <div id="as-team-hit"></div>
+      </div>`;
+  if(c.type==='team')renderAsKeyTeamHit();
+}
+/* KeyID + 密钥都填完才反查，查到展示归属项目 / 产品 */
+function renderAsKeyTeamHit(){
+  const box=document.getElementById('as-team-hit');if(!box)return;
+  const c=asCfg();
+  if(!c.kid.trim()||!c.sec.trim()){
+    box.innerHTML=`<div class="text-[11px] text-gray-400">KeyID 与密钥填写完成后，自动带出该 Key 归属的项目 / 产品</div>`;
+    return;
+  }
+  const h=asTeamHit(c);
+  box.innerHTML=h
+    ?`<div class="bg-violet-50 rounded-lg px-3 py-2 text-[11.5px] text-gray-600 space-y-0.5">
+        <div><span class="text-gray-400 mr-1.5">所属项目</span><b class="text-violet-700">${h.proj}</b></div>
+        <div><span class="text-gray-400 mr-1.5">所属产品</span>${h.prod}</div>
+      </div>`
+    :`<div class="text-[11px] text-red-500">未查到该 Key 的归属项目，请核对 KeyID 与密钥</div>`;
+}
+function saveAppSetting(){
+  const c=asCfg();
+  if(c.type==='team'&&c.kid.trim()&&c.sec.trim()&&!asTeamHit(c))return toast('KeyID 或密钥有误，未查到归属项目，请核对后再保存');
+  closeAppSetting();renderAcKeyHint();
+  toast(asKeyReady(asAgent.id)?'应用设置已保存（示意）：'+asKeyDesc(asAgent.id):'应用设置已保存（示意）：关联 Key 未配置，调试可用，发布前需补齐');
+}
+/* 发布（更新）前校验 Key；调试不校验 */
+function asGuardPublish(){
+  if(asKeyReady(asAgent.id))return true;
+  toast('「'+asAgent.name+'」未配置关联 Key，无法发布：请到页头「应用设置」完成关联 Key 配置');
+  openAppSetting();
+  return false;
+}
 function renderAsFeishuList(){
   document.getElementById('as-feishu-cnt').textContent=joinedGroups.length;
   document.getElementById('as-feishu-list').innerHTML=joinedGroups.map(g=>`
   <div class="flex items-center gap-2.5 px-3 py-2 rounded-xl border border-gray-100 text-[12px]">
     <span>💬</span><span class="flex-1 truncate">${g}</span>
     <span class="tag ${getFsResp(g)==='new'?'bg-violet-100 text-violet-700':'bg-gray-100 text-gray-500'}">${getFsResp(g)==='new'?'新消息时回复':'被@时回复'}</span>
+    <span class="tag ${getFsFmt(g)==='card'?'bg-sky-50 text-sky-600':'bg-gray-100 text-gray-500'}">${FS_FMT_TXT[getFsFmt(g)]}</span>
     <button class="btn-o !py-0.5 !px-2.5 text-[11px]" onclick="openFsGroupCfg('${g}')">设置</button>
   </div>`).join('');
 }
 function openFsGroupCfg(g){
   fsCfgTarget=g;
-  document.getElementById('fsgroup-name').textContent=g==='__default__'?'配置默认响应方式（未单独设置的群生效）':'配置群「'+g+'」的响应方式';
-  const v=getFsResp(g);
+  document.getElementById('fsgroup-name').textContent=g==='__default__'?'配置默认响应方式与数据格式（未单独设置的群生效）':'配置群「'+g+'」的响应方式与数据格式';
+  const v=getFsResp(g),f=getFsFmt(g);
   document.getElementById('fs-resp-at').checked=v!=='new';
   document.getElementById('fs-resp-new').checked=v==='new';
+  document.getElementById('fs-fmt-card').checked=f!=='text';
+  document.getElementById('fs-fmt-text').checked=f==='text';
   document.getElementById('modal-fsgroupcfg').classList.remove('hidden');
 }
 function closeFsGroupCfg(){document.getElementById('modal-fsgroupcfg').classList.add('hidden')}
 function saveFsGroupCfg(){
   const v=document.getElementById('fs-resp-new').checked?'new':'at';
-  fsRespCfg[fsCfgTarget]=v;closeFsGroupCfg();
+  const f=document.getElementById('fs-fmt-text').checked?'text':'card';
+  fsRespCfg[fsCfgTarget]=v;fsFmtCfg[fsCfgTarget]=f;closeFsGroupCfg();
   if(!document.getElementById('modal-appsetting').classList.contains('hidden'))renderAsFeishuList();
   if(!document.getElementById('pg-projdetail').classList.contains('hidden'))renderPdGroups();
-  toast(fsCfgTarget==='__default__'?'默认响应方式已更新':'「'+fsCfgTarget+'」响应方式已更新：'+(v==='new'?'群内新增消息时回复':'被@时回复'));
+  const d=(v==='new'?'群内新增消息时回复':'被@时回复')+' · '+FS_FMT_TXT[f];
+  toast(fsCfgTarget==='__default__'?'默认配置已更新：'+d:'「'+fsCfgTarget+'」已更新：'+d);
 }
 /* 绑定微信群：从当前智能体已加入的群中搜索选择 */
 function openBindGroup(){document.getElementById('bg-search').value='';renderBgList();document.getElementById('modal-bindgroup').classList.remove('hidden')}
@@ -11269,7 +11807,13 @@ function openAgentConfig(id){
   document.getElementById('ac-desc').value=a.desc||'洞察未见之处，化解管理之滞。';
   document.querySelectorAll('.ac-chat-name').forEach(e=>e.textContent=a.name||'智能体');
   renderAcModel();
-  showPage('agentconfig');renderAcRes();renderAcSubs();renderAcDts();renderAcSkills();
+  asAgent={id:id,name:a.name||'智能体'};
+  showPage('agentconfig');renderAcRes();renderAcSubs();renderAcDts();renderAcSkills();renderAcKeyHint();
+}
+/* 调试预览区的 Key 提示：只在未配关联 Key 时出现 */
+function renderAcKeyHint(){
+  const e=document.getElementById('ac-keyhint');if(!e)return;
+  e.classList.toggle('hidden',asKeyReady(asAgent.id));
 }
 /* 智能体配置页：基座模型从平台「模型配置」取，思考配置按该模型的能力渲染 */
 let acModel='glm-5.2',acThink='低';
@@ -11364,48 +11908,56 @@ const AC_SUBS=[
 ];
 const AC_DTS=[{id:'dt-target',perm:'read'},{id:'dt-opp',perm:'read'}];
 /* ===== 智能体能力：skills 版本应用 =====
-   applied=当前生效版本，mode=latest 跟随技能库最新发布版 / lock 锁定到指定版本，
-   draft=下拉改过但还没点「更 新」的待生效版本 */
+   mode=latest 跟随技能更新：恒等于技能库已发布版，技能库发新版即自动生效，无需发布
+   mode=lock 锁定版本：停在 lock 这一版，技能库发新版只给更新提示，需人工切版本再点「更 新」
+   draft=锁定模式下改过但还没点「更 新」的待生效版本 */
 const AC_SKILLS=[
-  {id:'fsk-05',mode:'latest',lock:null,applied:'v1',draft:null},
-  {id:'fsk-09',mode:'lock',lock:'v1',applied:'v1',draft:null},
-  {id:'fsk-04',mode:'latest',lock:null,applied:'v2',draft:null},
+  {id:'fsk-05',mode:'latest',lock:null,draft:null},
+  {id:'fsk-09',mode:'lock',lock:'v1',draft:null},
+  {id:'fsk-04',mode:'lock',lock:'v1',draft:null},
 ];
 /* 技能库里该 skill 当前已发布的版本号 */
 function acSkillPub(s){const v=(s.vers||[]).find(x=>x.st==='已发布');return v?v.v:s.ver}
-/* 这条挂载按当前模式该走的版本：跟随最新取已发布版，锁定取锁定版 */
-function acSkillTarget(it){
-  const s=fskGet(it.id);if(!s)return it.applied;
-  return it.mode==='lock'?(it.lock||it.applied):acSkillPub(s);
+/* 当前实际生效的版本：跟随更新的自动取已发布版，锁定的取锁定版 */
+function acSkillApplied(it){
+  const s=fskGet(it.id);if(!s)return it.lock;
+  return it.mode==='latest'?acSkillPub(s):(it.lock||acSkillPub(s));
 }
-/* 待生效版本：优先取下拉改过的草稿，否则看模式算出来的目标版 */
+/* 待生效版本：只有锁定模式才有——改过版本取草稿，没改则看技能库有无更新的已发布版 */
 function acSkillPending(it){
-  const t=it.draft||acSkillTarget(it);
-  return t===it.applied?null:t;
+  if(it.mode==='latest')return null;
+  const s=fskGet(it.id);if(!s)return null;
+  const cur=acSkillApplied(it);
+  const t=it.draft||acSkillPub(s);
+  return t===cur?null:t;
 }
+/* 待生效版本是人工切过的（点更新即生效），还是技能库发新版带出来的提示（需先选版本） */
+function acSkillIsDraft(it){return it.mode==='lock'&&!!it.draft&&it.draft!==acSkillApplied(it)}
 function acSkillVerAt(s,v){const x=(s.vers||[]).find(y=>y.v===v);return x?x.at:s.at}
 function renderAcSkills(){
   const box=document.getElementById('cap-skills');
   box.innerHTML=AC_SKILLS.length?AC_SKILLS.map((it,i)=>{
     const s=fskGet(it.id);if(!s)return '';
-    const pend=acSkillPending(it);
+    const cur=acSkillApplied(it),pend=acSkillPending(it),isDraft=acSkillIsDraft(it);
     /* 可选版本只给已发布与历史版本，从未发布过的版本不进清单 */
     const opts=(s.vers||[]).filter(v=>v.st!=='待发布');
-    const sel=it.draft?'lock:'+it.draft:(it.mode==='latest'?'latest':'lock:'+it.lock);
+    const sel=it.mode==='latest'?'latest':'lock:'+(it.draft||cur);
     return `<div class="rounded-xl border ${pend?'border-amber-200 bg-amber-50/30':'border-gray-100'} px-3 py-2.5">
       <div class="flex items-center gap-2">
         <span class="text-[12.5px] font-bold truncate">${s.name}</span>
-        <span class="tag ${it.mode==='latest'&&!it.draft?'bg-violet-50 text-violet-600':'bg-gray-100 text-gray-500'}">${it.draft?'待切 '+it.draft:(it.mode==='latest'?'跟随最新':'已锁定 '+it.lock)}</span>
+        <span class="tag ${it.mode==='latest'?'bg-violet-50 text-violet-600':(isDraft?'bg-amber-50 text-amber-600':'bg-gray-100 text-gray-500')}">${it.mode==='latest'?'跟随技能更新':(isDraft?'待切 '+it.draft:'已锁定 '+cur)}</span>
         <span class="ml-auto text-gray-300 hover:text-red-500 cursor-pointer text-[13px] shrink-0" onclick="delAcSkill(${i})">⊖</span>
       </div>
       <div class="flex items-center gap-2 mt-1.5">
-        <span class="text-[11px] text-gray-400">当前应用 ${it.applied} · ${acSkillVerAt(s,it.applied)}</span>
+        <span class="text-[11px] text-gray-400">当前应用 ${cur} · ${acSkillVerAt(s,cur)}</span>
         <select class="ml-auto shrink-0 border border-gray-200 rounded-md px-2 py-1 text-[11px] text-gray-600 bg-white focus:outline-violet-300" onchange="acSkillPick(${i},this.value)">
-          <option value="latest" ${sel==='latest'?'selected':''}>跟随技能库最新</option>
+          <option value="latest" ${sel==='latest'?'selected':''}>跟随技能更新（自动生效）</option>
           ${opts.map(v=>`<option value="lock:${v.v}" ${sel==='lock:'+v.v?'selected':''}>${v.v} · ${v.at.slice(0,10)}${v.st==='已发布'?' · 最新':''}</option>`).join('')}
         </select>
       </div>
-      ${pend?`<div class="text-[11px] text-amber-600 leading-relaxed mt-1.5 pt-1.5 border-t border-amber-100">🔔 技能库已发布 ${pend}（${acSkillVerAt(s,pend)}）：点页头「更 新」后生效</div>`:''}
+      ${pend?`<div class="text-[11px] text-amber-600 leading-relaxed mt-1.5 pt-1.5 border-t border-amber-100">${isDraft
+        ?`已选 ${pend}（${acSkillVerAt(s,pend)}）：点页头「更 新」后生效`
+        :`🔔 技能库已发布 ${pend}（${acSkillVerAt(s,pend)}）：本挂载锁定在 ${cur} 不会自动更新，可切到该版本或改为跟随技能更新`}</div>`:''}
     </div>`;
   }).join(''):'<div class="text-[12px] text-gray-400">暂无配置，点击 ＋ 添加 skill</div>';
   const n=AC_SKILLS.filter(acSkillPending).length;
@@ -11413,22 +11965,33 @@ function renderAcSkills(){
   document.getElementById('cap-skills-badge-n').textContent=n;
 }
 function acSkillPick(i,v){
-  const it=AC_SKILLS[i];
-  if(v==='latest'){it.mode='latest';it.lock=null;it.draft=null}
-  else{const t=v.slice(5);it.mode='lock';it.lock=t;it.draft=t===it.applied?null:t}
+  const it=AC_SKILLS[i],s=fskGet(it.id);
+  if(v==='latest'){
+    /* 跟随技能更新：立即落到技能库已发布版，不进草稿、无需发布 */
+    it.mode='latest';it.lock=null;it.draft=null;
+    renderAcSkills();
+    toast(`「${s?s.name:''}」已改为跟随技能更新：当前应用 ${acSkillApplied(it)}，技能库发新版后自动生效`);
+    return;
+  }
+  /* 锁定到指定版本：只落草稿，点页头「更 新」才真正生效 */
+  const t=v.slice(5),cur=acSkillApplied(it);
+  it.mode='lock';it.lock=it.lock||cur;it.draft=t===cur?null:t;
   renderAcSkills();
+  toast(it.draft?`已选 ${it.draft}（草稿）：点页头「更 新」后生效`:`已锁定在 ${cur}：技能库发新版不再自动更新`);
 }
 function delAcSkill(i){
   const s=fskGet(AC_SKILLS[i].id);AC_SKILLS.splice(i,1);renderAcSkills();
   toast(`已移除 skill「${s?s.name:''}」：更新后本智能体不再调用`);
 }
-/* 页头「更 新」：把 skills 的待生效版本一并发布，发布后才对智能体生效 */
+/* 页头「更 新」：只发布锁定模式下人工切过版本的草稿；跟随技能更新的挂载不经这里
+   发布动作先过关联 Key 校验，未配 Key 直接拦住 */
 function acUpdate(){
-  const pend=AC_SKILLS.filter(acSkillPending);
-  pend.forEach(it=>{it.applied=acSkillPending(it);it.draft=null});
+  if(!asGuardPublish())return;
+  const done=AC_SKILLS.filter(acSkillIsDraft);
+  done.forEach(it=>{it.lock=it.draft;it.draft=null});
   renderAcSkills();
-  toast(pend.length
-    ?`已发布更新（示意）：${pend.map(it=>(fskGet(it.id)||{}).name+' '+it.applied).join('、')} 已生效`
+  toast(done.length
+    ?`已发布更新（示意）：${done.map(it=>(fskGet(it.id)||{}).name+' '+it.lock).join('、')} 已生效`
     :'已发布更新（示意）');
 }
 function acDtName(id){const t=DATA_TABLES.find(x=>x.id===id);return t?t.name:id}
@@ -11973,149 +12536,590 @@ function clToggleAll(on){
 }
 
 /* ================= 评测调试 =================
-   三步配置（智能体 / 维度 / 评测集）跑批出结果；指标实测值由智能体 id 哈希派生，
-   同一智能体多次进入结果稳定，便于截图对照。 */
+   评测任务 / 评测数据集两个 tab。数据集可由历史会话（CHATLOGS 真实取数）或技能场景生成；
+   任务跑批后出六维结果，支持单维度下钻与两次任务结果对比。
+   实测值由「智能体 id + 任务 seed」哈希派生：同一任务多次查看结果稳定，
+   同一智能体的不同任务（改配置前后）得到不同实测值，便于演示回归对比。 */
 const EV_DIMS={
-  speed:{n:'响应速度',   icon:'⚡', unit:'s',  tgt:60, dir:'lte', hint:'目标 ≤ 60s'},
-  rounds:{n:'平均执行轮数',icon:'🔁', unit:'轮', tgt:5,  dir:'lte', hint:'目标 ≤ 5 轮'},
-  acc:{n:'回答准确率',   icon:'🎯', unit:'%',  tgt:85, dir:'gte', hint:'目标 ≥ 85%'}
+  speed:{n:'响应速度',    icon:'⚡', unit:'s',  tgt:60,  dir:'lte', g:'eff', hint:'目标 ≤ 60s'},
+  rounds:{n:'平均执行轮数',icon:'🔁', unit:'轮', tgt:5,   dir:'lte', g:'eff', hint:'目标 ≤ 5 轮'},
+  cost:{n:'单用例 token', icon:'🪙', unit:'k',  tgt:30,  dir:'lte', g:'eff', hint:'目标 ≤ 30k'},
+  acc:{n:'回答准确率',    icon:'🎯', unit:'%',  tgt:85,  dir:'gte', g:'qa', std:true, hint:'目标 ≥ 85%'},
+  comp:{n:'内容完整性',   icon:'🧩', unit:'分', tgt:80,  dir:'gte', g:'qa', std:true, hint:'目标 ≥ 80 分'},
+  fmt:{n:'格式合规性',    icon:'📐', unit:'分', tgt:90,  dir:'gte', g:'qa', hint:'目标 ≥ 90 分'}
 };
-/* 已有评测集：std=是否含标准答案（无标准答案不可评准确率） */
-const EV_SETS=[
-  {id:'ds-01',n:'KA 方案生成标准问答集',   cnt:120,src:'人工标注',    std:true, t:'2026-10-18 14:20'},
-  {id:'ds-02',n:'报价核算回归集',          cnt:64, src:'历史会话抽样',std:true, t:'2026-10-15 09:30'},
-  {id:'ds-03',n:'客服工单分类集',          cnt:200,src:'业务系统导出',std:true, t:'2026-10-11 16:45'},
-  {id:'ds-04',n:'调研访谈开放题集',        cnt:45, src:'人工标注',    std:false,t:'2026-09-28 11:02'}
+const EV_GRP={eff:{n:'效率指标',sub:'平台执行数据直接统计'},qa:{n:'质量指标',sub:'由评测判断模型打分'}};
+const EV_DIMKEYS=Object.keys(EV_DIMS);
+
+/* 评测数据集：std=是否含标准答案（无标准答案不可评准确率与完整性） */
+let EV_SETS=[
+  {id:'ds-01',n:'KA 方案生成标准问答集',cnt:120,src:'人工标注',    std:true, t:'2026-10-18 14:20'},
+  {id:'ds-02',n:'报价核算回归集',       cnt:64, src:'历史会话生成',std:true, t:'2026-10-15 09:30'},
+  {id:'ds-03',n:'客服工单分类集',       cnt:200,src:'业务系统导出',std:true, t:'2026-10-11 16:45'},
+  {id:'ds-04',n:'调研访谈开放题集',     cnt:45, src:'人工标注',    std:false,t:'2026-09-28 11:02'}
 ];
-let evState={agent:null,dims:{speed:true,rounds:true,acc:true},src:'auto',data:null,res:null};
 
-function renderEval(){
-  document.getElementById('ev-agent-grid').innerHTML=agents.map(a=>`
-    <div class="ev-pick ${evState.agent===a.id?'on':''}" onclick="evPickAgent('${a.id}')">
-      <div class="flex items-center gap-2.5">
-        <div class="shrink-0">${agentAvatarSvg(a.name,30)}</div>
-        <div class="min-w-0">
-          <div class="text-[12.5px] font-bold truncate" title="${a.name}">${a.name}</div>
-          <div class="text-[10.5px] text-gray-400 truncate">${a.id}</div>
-        </div>
-      </div>
-    </div>`).join('');
-  renderEvDims();
-  document.getElementById('ev-set-tbody').innerHTML=EV_SETS.map(s=>`
-    <tr class="border-b border-gray-50 last:border-0 hover:bg-violet-50/30 cursor-pointer" onclick="evPickSet('${s.id}')">
-      <td class="px-4 py-2.5">${evState.src==='set'&&evState.data&&evState.data.id===s.id?'<span class="text-violet-600 font-bold">●</span>':'<span class="text-gray-200">○</span>'}</td>
-      <td class="px-3 font-semibold text-gray-700">${s.n}</td>
-      <td class="px-3 font-mono text-gray-500">${s.cnt}</td>
-      <td class="px-3 text-gray-500">${s.src}</td>
-      <td class="px-3">${s.std?'<span class="tag bg-emerald-100 text-emerald-700">含</span>':'<span class="tag bg-gray-100 text-gray-500">不含</span>'}</td>
-      <td class="px-3 col-mono text-gray-400">${s.t}</td>
-    </tr>`).join('');
-  evSyncReady();
-}
+/* 评测任务：seed 决定实测值，同智能体不同 seed 可演示改配置前后的回归对比 */
+let EV_TASKS=[
+  {id:'et-06',n:'KA 主理智能体 · 提示词调优后回归',aid:'aibot_ka_master',set:'ds-01',
+   dims:['speed','rounds','cost','acc','comp','fmt'],judge:'DeepSeek-R1',t:'2026-11-12 16:40',seed:107,
+   prompt:'重点看方案结构完整性与收益口径是否与价目表一致。'},
+  {id:'et-05',n:'KA 主理智能体 · 调优前基线',aid:'aibot_ka_master',set:'ds-01',
+   dims:['speed','rounds','cost','acc','comp','fmt'],judge:'DeepSeek-R1',t:'2026-11-08 10:12',seed:160,
+   prompt:'重点看方案结构完整性与收益口径是否与价目表一致。'},
+  {id:'et-04',n:'报价 Agent · 价目表更新后验证',aid:'aibot_quote_01',set:'ds-02',
+   dims:['speed','rounds','acc','fmt'],judge:'Qwen3-235B-Thinking',t:'2026-11-05 15:08',seed:4,
+   prompt:'单价口径必须与最新价目表一致，含税口径需显式标注。'},
+  {id:'et-03',n:'综合测试机器人 · 工单分类抽检',aid:'aibot_624_297',set:'ds-03',
+   dims:['speed','acc','fmt'],judge:'GPT-4o',t:'2026-11-02 11:30',seed:5,
+   prompt:'分类需落在三级分类表内，不得自造类目。'},
+  {id:'et-02',n:'调研开放题效率评测',aid:'aibot_ka_master',set:'ds-04',
+   dims:['speed','rounds','cost','fmt'],judge:'DeepSeek-R1',t:'2026-10-29 09:45',seed:9,
+   prompt:''}
+];
+let evSeq=7;
 
-/* 准确率依赖标准答案：评测集不含标准答案时该维度不可选 */
-function evAccOk(){
-  const d=evState.data;
-  if(!d)return true;
-  return d.std!==false;
-}
-function renderEvDims(){
-  document.getElementById('ev-dim-grid').innerHTML=Object.entries(EV_DIMS).map(([k,d])=>{
-    const dis=k==='acc'&&!evAccOk();
-    return `<div class="ev-pick ${evState.dims[k]&&!dis?'on':''}" style="${dis?'opacity:.45;cursor:not-allowed':''}" onclick="${dis?'':`evToggleDim('${k}')`}">
-      <div class="flex items-start gap-2">
-        <span class="text-base leading-none mt-0.5">${d.icon}</span>
-        <div class="min-w-0">
-          <div class="text-[12.5px] font-bold">${d.n}</div>
-          <div class="text-[11px] text-gray-400 mt-0.5">${dis?'所选评测集不含标准答案，不可评':d.hint}</div>
-        </div>
-      </div>
-    </div>`}).join('');
-}
-
-function evPickAgent(id){evState.agent=id;renderEval()}
-function evToggleDim(k){evState.dims[k]=!evState.dims[k];renderEvDims();evSyncReady()}
-function evPickAllDims(){Object.keys(EV_DIMS).forEach(k=>evState.dims[k]=!(k==='acc'&&!evAccOk()));renderEvDims();evSyncReady()}
-
-function evSrc(s){
-  evState.src=s;evState.data=null;
-  ['auto','set','up'].forEach(x=>{
-    document.getElementById('ev-src-'+x).classList.toggle('active',x===s);
-    document.getElementById('ev-pane-'+x).classList.toggle('hidden',x!==s);
-  });
-  document.getElementById('ev-gen-out').innerHTML='尚未生成';
-  document.getElementById('ev-gen-out').className='text-[12px] text-gray-400';
-  document.getElementById('ev-up-out').innerHTML='尚未上传';
-  document.getElementById('ev-up-out').className='text-[12px] text-gray-400 mt-3';
-  renderEval();
-}
-const EV_GEN_FROM={log:'抽样历史会话记录',kb:'已挂载知识库生成',skill:'已挂载技能场景生成'};
-function evGenData(){
-  if(!evState.agent){toast('请先选择评测智能体');return}
-  const from=document.getElementById('ev-gen-from').value;
-  const n=+document.getElementById('ev-gen-n').value;
-  /* 抽样历史会话以历史输出为基准答案，其余两种来源由模型生成标准答案 */
-  evState.data={id:'gen',n:'自动生成评测集',cnt:n,src:EV_GEN_FROM[from],std:true};
-  const o=document.getElementById('ev-gen-out');
-  o.className='text-[12px] text-gray-600';
-  o.innerHTML=`✅ 已生成 <b class="text-violet-600">${n}</b> 条用例 · 来源：${EV_GEN_FROM[from]} · 含标准答案${from==='log'?'（以历史输出为基准）':'（模型生成，可人工校正）'}
-    <span class="text-violet-600 font-semibold cursor-pointer hover:underline ml-2" onclick="toast('查看评测集明细（示意）')">查看明细</span>`;
-  renderEval();
-}
-function evPickSet(id){
-  if(evState.src!=='set'){evSrc('set')}
-  const s=EV_SETS.find(x=>x.id===id);
-  evState.data={...s};
-  if(!s.std)evState.dims.acc=false;
-  renderEval();
-}
-function evUpload(){
-  evState.data={id:'up',n:'评测集_上传.xlsx',cnt:86,src:'上传',std:true};
-  const o=document.getElementById('ev-up-out');
-  o.className='text-[12px] text-gray-600 mt-3';
-  o.innerHTML=`✅ 已解析 <b class="text-violet-600">86</b> 条用例 · 识别到「问题」「标准答案」两列
-    <span class="text-violet-600 font-semibold cursor-pointer hover:underline ml-2" onclick="toast('查看解析结果（示意）')">查看解析结果</span>`;
-  renderEval();
-}
-function evSyncReady(){
-  const el=document.getElementById('ev-ready');if(!el)return;
-  const miss=[];
-  if(!evState.agent)miss.push('评测智能体');
-  if(!Object.values(evState.dims).some(Boolean))miss.push('评测维度');
-  if(!evState.data)miss.push('评测集');
-  el.textContent=miss.length?'待完成：'+miss.join(' / '):`已就绪 · ${evState.data.cnt} 条用例 · ${Object.keys(evState.dims).filter(k=>evState.dims[k]).length} 个维度`;
-  el.className='text-[11.5px] '+(miss.length?'text-gray-400':'text-emerald-600 font-semibold');
-}
-function evReset(){
-  evState={agent:null,dims:{speed:true,rounds:true,acc:true},src:'auto',data:null,res:null};
-  evSrc('auto');
-  document.getElementById('ev-result').classList.add('hidden');
-  document.getElementById('ev-setup').classList.remove('hidden');
-}
-
-/* 实测值由 id 哈希派生：同一智能体结果稳定 */
-function evMetrics(aid){
-  const h=agentHash(aid);
-  const p=i=>((h>>>(i*7))&1023)/1023;
+/* 实测值：按 (aid, seed, 维度) 派生，范围贴合各维度目标线 */
+function evMetrics(aid,seed){
+  const base=agentHash(String(aid)+'#'+(seed||0));
+  const p=i=>{let h=(base^Math.imul(i+1,2654435761))>>>0;h^=h>>>13;h=Math.imul(h,1274126177)>>>0;h^=h>>>16;return (h>>>8)/16777216};
   return {
-    speed:+(18+p(0)*78).toFixed(1),      /* 18 ~ 96 s */
-    rounds:+(2.4+p(1)*5.2).toFixed(1),   /* 2.4 ~ 7.6 轮 */
-    acc:+(62+p(2)*33).toFixed(1)         /* 62 ~ 95 % */
+    speed:+(18+p(0)*78).toFixed(1),    /* 18 ~ 96 s */
+    rounds:+(2.4+p(1)*5.2).toFixed(1), /* 2.4 ~ 7.6 轮 */
+    cost:+(12+p(2)*34).toFixed(1),     /* 12 ~ 46 k */
+    acc:+(62+p(3)*33).toFixed(1),      /* 62 ~ 95 % */
+    comp:+(58+p(4)*38).toFixed(1),     /* 58 ~ 96 分 */
+    fmt:+(70+p(5)*29).toFixed(1)       /* 70 ~ 99 分 */
   };
 }
 function evPass(k,v){return EV_DIMS[k].dir==='lte'?v<=EV_DIMS[k].tgt:v>=EV_DIMS[k].tgt}
-/* 偏差一成内记为「接近达标」，避免只有达标/不达标两级；1e-9 容差避开 5.5/5-1 这类浮点噪声 */
+/* 偏差一成内记为「接近达标」，避免只有达标/不达标两级；1e-9 容差避开浮点噪声 */
 function evLevel(k,v){
   const d=EV_DIMS[k];
   if(evPass(k,v))return 'ok';
   const off=d.dir==='lte'?v/d.tgt-1:1-v/d.tgt;
   return off<=0.1+1e-9?'warn':'bad';
 }
-const EV_LV={ok:{n:'达标',cls:'bg-emerald-100 text-emerald-700',bar:'#10b981'},
-             warn:{n:'接近达标',cls:'bg-amber-100 text-amber-700',bar:'#f59e0b'},
-             bad:{n:'不达标',cls:'bg-red-100 text-red-600',bar:'#ef4444'}};
+const EV_LV={ok:{n:'达标',cls:'bg-emerald-100 text-emerald-700',bar:'#10b981',c:'#10b981'},
+             warn:{n:'接近达标',cls:'bg-amber-100 text-amber-700',bar:'#f59e0b',c:'#f59e0b'},
+             bad:{n:'不达标',cls:'bg-red-100 text-red-600',bar:'#ef4444',c:'#ef4444'}};
+/* 达成比：>1 为优于目标，统一口径供雷达图与得分使用 */
+function evRatio(k,v){const d=EV_DIMS[k];return d.dir==='lte'?d.tgt/v:v/d.tgt}
+function evSetOf(id){return EV_SETS.find(s=>s.id===id)}
+function evAgentName(aid){const a=agents.find(x=>x.id===aid);return a?a.name:aid}
+/* 综合得分：单维度达标即满分（超出不加分），未达标按与目标线的比值折算，
+   再按未达标维度的占比扣分。扣分取占比而非逐项累加，否则维度越多分数越容易被扣到地板。 */
+const EV_CUT={ok:0,warn:0.4,bad:1};
+function evScore(t){
+  const m=evMetrics(t.aid,t.seed),ds=t.dims;
+  if(!ds.length)return 0;
+  const base=ds.reduce((s,k)=>s+Math.max(0,Math.round(Math.min(1,evRatio(k,m[k]))*100)),0)/ds.length;
+  const cut=60*ds.reduce((s,k)=>s+EV_CUT[evLevel(k,m[k])],0)/ds.length;
+  return Math.max(0,Math.round(base-cut));
+}
+const evTone=s=>s>=85?'text-emerald-600':s>=70?'text-amber-600':'text-red-500';
 
-/* 处理建议：按维度 × 等级给出指向具体配置项的动作 */
+/* ---------- tab 与列表 ---------- */
+let evCmpSel=[];   /* 勾选用于对比的任务 id，最多 2 个 */
+let evCurTask=null;
+
+function renderEval(){
+  const sel=$c('ev-task-agent');
+  if(sel.options.length<1){
+    sel.add(new Option('全部智能体',''));
+    [...new Set(EV_TASKS.map(t=>t.aid))].forEach(id=>sel.add(new Option(evAgentName(id),id)));
+  }
+  evTab('task');
+  evBackList();
+  renderEvSets();
+}
+function evTab(t){
+  ['task','set'].forEach(x=>{
+    $c('ev-tab-'+x).classList.toggle('active',x===t);
+    $c('ev-pane-'+x).classList.toggle('hidden',x!==t);
+  });
+  if(t==='task')renderEvTasks();else renderEvSets();
+}
+/* 回到任务列表态：结果区与对比区都收起 */
+function evBackList(){
+  $c('ev-result').classList.add('hidden');
+  $c('ev-compare').classList.add('hidden');
+  $c('ev-running').classList.add('hidden');
+  $c('ev-tasklist').classList.remove('hidden');
+  renderEvTasks();
+}
+function evCmpClear(){evCmpSel=[];renderEvTasks()}
+function evCmpToggle(id){
+  const i=evCmpSel.indexOf(id);
+  if(i>=0)evCmpSel.splice(i,1);
+  else{
+    if(evCmpSel.length>=2){toast('最多选两条任务做对比，请先取消一条');return}
+    evCmpSel.push(id);
+  }
+  renderEvTasks();
+}
+function renderEvTasks(){
+  const kw=($c('ev-task-kw').value||'').trim(),aid=$c('ev-task-agent').value;
+  const list=EV_TASKS.filter(t=>(!kw||t.n.includes(kw))&&(!aid||t.aid===aid));
+  $c('ev-cmp-sel').textContent=`已选 ${evCmpSel.length} / 2`;
+  $c('ev-task-tbody').innerHTML=list.length?list.map(t=>{
+    const s=evScore(t),ds=evSetOf(t.set),on=evCmpSel.includes(t.id);
+    return `<tr class="border-b border-gray-50 last:border-0 hover:bg-violet-50/30">
+      <td class="px-4 py-3"><span class="cursor-pointer ${on?'text-violet-600 font-bold':'text-gray-300'}" onclick="evCmpToggle('${t.id}')">${on?'☑':'☐'}</span></td>
+      <td class="px-3"><span class="font-semibold text-violet-700 cursor-pointer hover:underline" onclick="evViewTask('${t.id}')">${t.n}</span></td>
+      <td class="px-3 text-gray-600">${evAgentName(t.aid)}</td>
+      <td class="px-3 text-gray-600">${ds?ds.n:'—'}</td>
+      <td class="px-3 text-gray-500">${t.dims.length} 个</td>
+      <td class="px-3"><b class="col-mono text-[14px] ${evTone(s)}">${s}</b></td>
+      <td class="px-3 col-mono text-gray-500">${ds?ds.cnt:'—'}</td>
+      <td class="px-3 text-gray-500">${t.judge}</td>
+      <td class="px-3 col-mono text-gray-400">${t.t}</td>
+      <td class="px-3 whitespace-nowrap">
+        <button class="text-violet-600 font-semibold hover:underline" onclick="evViewTask('${t.id}')">查看结果</button>
+        <button class="text-gray-400 hover:text-violet-600 ml-2" onclick="evRerun('${t.id}')">重跑</button>
+        <button class="text-gray-400 hover:text-red-500 ml-2" onclick="evDelTask('${t.id}')">删除</button>
+      </td>
+    </tr>`}).join('')
+    :`<tr><td colspan="10" class="px-4 py-10 text-center text-[12px] text-gray-400">没有符合条件的评测任务</td></tr>`;
+}
+function evDelTask(id){
+  const t=EV_TASKS.find(x=>x.id===id);if(!t)return;
+  if(!confirm(`确认删除评测任务「${t.n}」？\n\n删除后该次评测结果与用例明细一并清除，不可恢复。`))return;
+  EV_TASKS=EV_TASKS.filter(x=>x.id!==id);
+  evCmpSel=evCmpSel.filter(x=>x!==id);
+  renderEvTasks();toast('评测任务已删除');
+}
+function renderEvSets(){
+  const kw=($c('ev-set-kw').value||'').trim();
+  const list=EV_SETS.filter(s=>!kw||s.n.includes(kw));
+  $c('ev-set-tbody').innerHTML=list.length?list.map(s=>`
+    <tr class="border-b border-gray-50 last:border-0 hover:bg-violet-50/30">
+      <td class="px-4 py-3 font-semibold text-gray-700">${s.n}</td>
+      <td class="px-3 col-mono text-gray-500">${s.cnt}</td>
+      <td class="px-3 text-gray-500">${s.src}</td>
+      <td class="px-3">${s.std?'<span class="tag bg-emerald-100 text-emerald-700">含</span>':'<span class="tag bg-gray-100 text-gray-500">不含</span>'}</td>
+      <td class="px-3 col-mono text-gray-400">${s.t}</td>
+      <td class="px-3 whitespace-nowrap">
+        <button class="text-violet-600 font-semibold hover:underline" onclick="toast('查看数据集明细（示意）：逐条问题与标准答案可人工校正')">查看明细</button>
+        <button class="text-gray-400 hover:text-violet-600 ml-2" onclick="evUseSet('${s.id}')">建评测任务</button>
+        <button class="text-gray-400 hover:text-red-500 ml-2" onclick="evDelSet('${s.id}')">删除</button>
+      </td>
+    </tr>`).join('')
+    :`<tr><td colspan="6" class="px-4 py-10 text-center text-[12px] text-gray-400">没有符合条件的数据集</td></tr>`;
+}
+function evDelSet(id){
+  const s=evSetOf(id);if(!s)return;
+  const used=EV_TASKS.filter(t=>t.set===id);
+  if(used.length){toast(`该数据集被 ${used.length} 个评测任务引用，不可删除`);return}
+  if(!confirm(`确认删除数据集「${s.n}」？\n\n删除后不可恢复。`))return;
+  EV_SETS=EV_SETS.filter(x=>x.id!==id);
+  renderEvSets();toast('数据集已删除');
+}
+function evUseSet(id){evTab('task');openEvTaskNew(id)}
+function evSetUpload(){
+  const s={id:'ds-'+(++evSeq),n:'评测集_上传.xlsx',cnt:86,src:'上传',std:true,t:'2026-11-16 10:00'};
+  EV_SETS.unshift(s);
+  renderEvSets();
+  if(!$c('modal-evtask').classList.contains('hidden')){evtFillSets(s.id);evtSyncDims()}
+  toast('已解析 86 条用例，识别到「问题」「标准答案」两列');
+}
+
+/* ---------- 新建评测任务 ---------- */
+let evtDims={speed:true,rounds:true,cost:true,acc:true,comp:true,fmt:true};
+function openEvTaskNew(setId){
+  const ag=$c('evt-agent');
+  ag.innerHTML=agents.map(a=>`<option value="${a.id}">${a.name}</option>`).join('');
+  evtFillSets(setId);
+  $c('evt-name').value='';
+  $c('evt-prompt').value='';
+  $c('evt-kind').value='agent';
+  evtDims={speed:true,rounds:true,cost:true,acc:true,comp:true,fmt:true};
+  evtSyncDims();
+  $c('modal-evtask').classList.remove('hidden');
+}
+function closeEvTaskNew(){$c('modal-evtask').classList.add('hidden')}
+function evtFillSets(setId){
+  const sel=$c('evt-set');
+  sel.innerHTML=EV_SETS.map(s=>`<option value="${s.id}">${s.n}（${s.cnt} 条${s.std?'':' · 无标准答案'}）</option>`).join('');
+  if(setId)sel.value=setId;
+}
+/* 准确率与完整性依赖标准答案：数据集不含标准答案时置灰并取消勾选 */
+function evtSyncDims(){
+  const s=evSetOf($c('evt-set').value),std=!s||s.std!==false;
+  $c('evt-dims').innerHTML=Object.entries(EV_GRP).map(([g,G])=>`
+    <div class="mb-2.5 last:mb-0">
+      <div class="flex items-center gap-2 mb-1.5">
+        <span class="text-[11.5px] font-bold text-gray-700">${G.n}</span>
+        <span class="text-[10.5px] text-gray-400">${G.sub}</span>
+      </div>
+      <div class="grid grid-cols-3 gap-2">
+        ${EV_DIMKEYS.filter(k=>EV_DIMS[k].g===g).map(k=>{
+          const d=EV_DIMS[k],dis=d.std&&!std;
+          if(dis)evtDims[k]=false;
+          return `<div class="ev-pick !p-2 ${evtDims[k]?'on':''}" style="${dis?'opacity:.45;cursor:not-allowed':''}" onclick="${dis?'':`evtToggle('${k}')`}">
+            <div class="flex items-center gap-1.5">
+              <span class="text-[12px] leading-none">${d.icon}</span>
+              <span class="text-[11.5px] font-bold">${d.n}</span>
+            </div>
+            <div class="text-[10.5px] text-gray-400 mt-0.5">${dis?'数据集无标准答案':d.hint}</div>
+          </div>`}).join('')}
+      </div>
+    </div>`).join('');
+}
+function evtToggle(k){evtDims[k]=!evtDims[k];evtSyncDims()}
+function evTaskCreate(){
+  const name=$c('evt-name').value.trim();
+  if(!name){toast('请输入任务名称');return}
+  const dims=EV_DIMKEYS.filter(k=>evtDims[k]);
+  if(!dims.length){toast('请至少选择一个评测维度');return}
+  const t={id:'et-'+(++evSeq),n:name,aid:$c('evt-agent').value,set:$c('evt-set').value,
+           dims,judge:$c('evt-judge').value,prompt:$c('evt-prompt').value.trim(),
+           t:'2026-11-16 10:00',seed:evSeq};
+  EV_TASKS.unshift(t);
+  const sel=$c('ev-task-agent');
+  if(![...sel.options].some(o=>o.value===t.aid))sel.add(new Option(evAgentName(t.aid),t.aid));
+  closeEvTaskNew();
+  evRun(t);
+}
+function evRerun(id){const t=EV_TASKS.find(x=>x.id===id);if(t)evRun(t)}
+
+/* ---------- 跑批 ---------- */
+function evRun(t){
+  const ds=evSetOf(t.set),total=ds?ds.cnt:50;
+  $c('ev-tasklist').classList.add('hidden');
+  $c('ev-result').classList.add('hidden');
+  $c('ev-compare').classList.add('hidden');
+  const run=$c('ev-running');run.classList.remove('hidden');
+  $c('ev-run-title').textContent=`正在评测「${t.n}」`;
+  const bar=$c('ev-run-bar'),pct=$c('ev-run-pct'),sub=$c('ev-run-sub');
+  let i=0;
+  const timer=setInterval(()=>{
+    i=Math.min(total,i+Math.max(1,Math.round(total/14)));
+    const r=Math.round(i/total*100);
+    bar.style.width=r+'%';pct.textContent=r+'%';
+    sub.textContent=`已执行 ${i} / ${total} 条用例 · 判断模型：${t.judge} · 维度：${t.dims.map(k=>EV_DIMS[k].n).join('、')}`;
+    if(i>=total){clearInterval(timer);setTimeout(()=>{run.classList.add('hidden');evViewTask(t.id)},450)}
+  },260);
+}
+
+/* ---------- 生成评测数据集：历史会话 / 技能场景 ---------- */
+let evGen={mode:'log',pick:{},skill:{}};
+function openEvGen(mode){
+  evGen={mode:mode||'log',pick:{},skill:{}};
+  const ag=$c('evg-agent');
+  if(ag.options.length<1){
+    ag.add(new Option('全部智能体',''));
+    [...new Set(CHATLOGS.map(r=>r.agent))].forEach(a=>ag.add(new Option(a,a)));
+    const st=$c('evg-status');
+    st.add(new Option('全部状态',''));
+    Object.entries(CL_STATUS).forEach(([k,v])=>st.add(new Option(v.n,k)));
+    const gs=$c('evgs-agent');
+    agents.forEach(a=>gs.add(new Option(a.name,a.id)));
+  }
+  $c('evg-name').value='';
+  $c('modal-evgen').classList.remove('hidden');
+  evGenTab(evGen.mode);
+}
+function closeEvGen(){$c('modal-evgen').classList.add('hidden')}
+function evGenTab(m){
+  evGen.mode=m;
+  ['log','skill'].forEach(x=>{
+    $c('evg-tab-'+x).classList.toggle('active',x===m);
+    $c('evg-pane-'+x).classList.toggle('hidden',x!==m);
+  });
+  $c('evg-note').textContent=m==='log'
+    ?'标准答案取历史输出，可人工校正'
+    :'标准答案由判断模型按技能说明生成，可人工校正';
+  if(m==='log')renderEvGenRows();else renderEvGenSkill();
+}
+function evGenResetFilter(){
+  $c('evg-agent').value='';$c('evg-status').value='';$c('evg-fb').value='';
+  $c('evg-from').value='';$c('evg-to').value='';
+  renderEvGenRows();
+}
+function evGenRows(){
+  const a=$c('evg-agent').value,st=$c('evg-status').value,fb=$c('evg-fb').value;
+  const f=$c('evg-from').value,t=$c('evg-to').value;
+  return CHATLOGS.filter(r=>{
+    if(a&&r.agent!==a)return false;
+    if(st&&r.st!==st)return false;
+    if(fb&&r.fb!==fb)return false;
+    const d=r.date.slice(0,10);
+    if(f&&d<f)return false;
+    if(t&&d>t)return false;
+    return true;
+  });
+}
+function renderEvGenRows(){
+  const rows=evGenRows();
+  $c('evg-hit').textContent=rows.length;
+  $c('evg-tbody').innerHTML=rows.length?rows.map(r=>{
+    const S=CL_STATUS[r.st],on=!!evGen.pick[r.id];
+    return `<tr class="border-b border-gray-50 last:border-0 hover:bg-violet-50/30 cursor-pointer" onclick="evGenPick('${r.id}')">
+      <td class="px-4 py-2.5"><span class="${on?'text-violet-600 font-bold':'text-gray-300'}">${on?'☑':'☐'}</span></td>
+      <td class="px-3 col-mono text-gray-400 whitespace-nowrap">${r.date}</td>
+      <td class="px-3 text-gray-600 whitespace-nowrap">${r.agent}</td>
+      <td class="px-3 text-gray-700 max-w-[260px]"><div class="truncate" title="${clEsc(r.q)}">${clEsc(r.q)}</div></td>
+      <td class="px-3"><span class="tag ${S.cls} whitespace-nowrap">${S.n}</span></td>
+      <td class="px-3 col-mono text-gray-500">${r.rt}s</td>
+      <td class="px-3 col-mono text-gray-500">${r.deep?r.rounds.length:'—'}</td>
+      <td class="px-3 text-gray-500">${r.fb==='赞'?'👍':r.fb==='踩'?'👎':'—'}</td>
+    </tr>`}).join('')
+    :`<tr><td colspan="8" class="px-4 py-10 text-center text-[12px] text-gray-400">没有符合筛选条件的历史会话</td></tr>`;
+  evGenCnt();
+}
+function evGenPick(id){evGen.pick[id]=!evGen.pick[id];renderEvGenRows()}
+function evGenSelAll(on){
+  evGenRows().forEach(r=>{if(on)evGen.pick[r.id]=true;else delete evGen.pick[r.id]});
+  renderEvGenRows();
+}
+function evGenCnt(){$c('evg-cnt').textContent=Object.values(evGen.pick).filter(Boolean).length}
+
+/* 技能场景：取智能体已挂载的工具/技能作为场景，每个场景生成 N 条用例 */
+function evGenSkillList(){
+  const a=agents.find(x=>x.id===$c('evgs-agent').value);
+  if(!a)return [];
+  return String(a.tools||'').split(/[,，]/).map(s=>s.trim().replace(/…$/,''))
+    .filter(s=>s&&s!=='--'&&s!=='—');
+}
+function renderEvGenSkill(){
+  const list=evGenSkillList();
+  $c('evgs-grid').innerHTML=list.length?list.map((s,i)=>{
+    const on=evGen.skill[s]!==false;
+    evGen.skill[s]=on;
+    return `<div class="ev-pick ${on?'on':''}" onclick="evGenSkillToggle('${s.replace(/'/g,"\\'")}')">
+      <div class="flex items-center gap-2">
+        <span class="${on?'text-violet-600 font-bold':'text-gray-300'}">${on?'☑':'☐'}</span>
+        <span class="text-[12px] font-bold truncate">${s}</span>
+      </div>
+    </div>`}).join('')
+    :`<div class="col-span-2 py-10 text-center text-[12px] text-gray-400">该智能体未挂载技能或工具，换一个智能体，或改用「基于历史会话」生成</div>`;
+  evGenSkillSync();
+}
+function evGenSkillToggle(s){evGen.skill[s]=!evGen.skill[s];renderEvGenSkill()}
+function evGenSkillCnt(){
+  const n=+$c('evgs-n').value;
+  return evGenSkillList().filter(s=>evGen.skill[s]).length*n;
+}
+function evGenSkillSync(){
+  const list=evGenSkillList(),on=list.filter(s=>evGen.skill[s]).length;
+  $c('evgs-sum').textContent=list.length
+    ?`已选 ${on} / ${list.length} 个场景，预计生成 ${evGenSkillCnt()} 条用例`
+    :'—';
+}
+function evGenConfirm(){
+  const log=evGen.mode==='log';
+  const cnt=log?Object.values(evGen.pick).filter(Boolean).length:evGenSkillCnt();
+  if(!cnt){toast(log?'请先勾选历史会话':'请先选择技能场景');return}
+  const name=$c('evg-name').value.trim()||(log?'历史会话评测集':'技能场景评测集');
+  const s={id:'ds-'+(++evSeq),n:name,cnt,
+           src:log?'历史会话生成':'技能场景生成',std:true,t:'2026-11-16 10:00'};
+  EV_SETS.unshift(s);
+  closeEvGen();
+  renderEvSets();
+  if(!$c('modal-evtask').classList.contains('hidden')){evtFillSets(s.id);evtSyncDims()}
+  else evTab('set');
+  toast(`已生成数据集「${name}」· ${cnt} 条用例`);
+}
+
+/* ---------- 多维结果 ---------- */
+/* 雷达图：半径按达成比映射，1.0（目标线）落在参考环上，最多画到 1.4。
+   画布左右各留 56px 给维度名，否则「平均执行轮数」这类长标签会被裁掉。 */
+function evRadar(dims,m,size){
+  const PAD=56,W=size+PAD*2;
+  const R=size/2-26,cx=W/2,cy=size/2,CAP=1.4;
+  const ang=i=>-Math.PI/2+i*2*Math.PI/dims.length;
+  const pt=(i,r)=>[cx+Math.cos(ang(i))*r,cy+Math.sin(ang(i))*r];
+  const ring=f=>dims.map((_,i)=>pt(i,R*f).map(n=>n.toFixed(1)).join(',')).join(' ');
+  const data=dims.map((k,i)=>pt(i,R*Math.min(CAP,evRatio(k,m[k]))/CAP).map(n=>n.toFixed(1)).join(',')).join(' ');
+  const tgtF=1/CAP;
+  const labels=dims.map((k,i)=>{
+    const [x,y]=pt(i,R+16),d=EV_DIMS[k],lv=evLevel(k,m[k]);
+    const anc=Math.abs(x-cx)<6?'middle':x>cx?'start':'end';
+    return `<text x="${x.toFixed(1)}" y="${(y+4).toFixed(1)}" text-anchor="${anc}" font-size="10.5" fill="${EV_LV[lv].c}" font-weight="600">${d.n}</text>`;
+  }).join('');
+  return `<svg viewBox="0 0 ${W} ${size}" width="${W}" height="${size}" class="max-w-full">
+    ${[0.25,0.5,0.75,1].map(f=>`<polygon points="${ring(f)}" fill="none" stroke="#f1f0f5" stroke-width="1"/>`).join('')}
+    ${dims.map((_,i)=>{const [x,y]=pt(i,R);return `<line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="#f1f0f5" stroke-width="1"/>`}).join('')}
+    <polygon points="${ring(tgtF)}" fill="none" stroke="#f59e0b" stroke-width="1.2" stroke-dasharray="3 3"/>
+    <polygon points="${data}" fill="rgba(112,51,255,.16)" stroke="#7033ff" stroke-width="1.8"/>
+    ${dims.map((k,i)=>{const [x,y]=pt(i,R*Math.min(CAP,evRatio(k,m[k]))/CAP);return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3" fill="${EV_LV[evLevel(k,m[k])].c}"/>`}).join('')}
+    ${labels}
+  </svg>`;
+}
+
+/* 用例明细：以真实历史会话为用例底稿，按 (任务 seed, 用例, 维度) 派生数值与判定 */
+function evCasePool(t){
+  const ds=evSetOf(t.set),n=Math.min(10,ds?ds.cnt:10);
+  const m=evMetrics(t.aid,t.seed);
+  return CHATLOGS.slice(0,n).map((r,i)=>{
+    const h=agentHash(t.id+'|'+r.id);
+    const p=j=>{let x=(h^Math.imul(j+1,2246822507))>>>0;x^=x>>>13;x=Math.imul(x,1274126177)>>>0;x^=x>>>16;return (x>>>8)/16777216};
+    const f=0.68+p(0)*0.72;  /* 0.68 ~ 1.40 倍率 */
+    return {
+      i:i+1,q:r.q,ref:r.a,
+      speed:+(m.speed*f).toFixed(1),
+      rounds:Math.max(1,Math.round(m.rounds*f)),
+      cost:+(m.cost*f).toFixed(1),
+      acc:Math.round(Math.max(0,Math.min(100,m.acc+(p(1)-0.5)*34))),
+      comp:Math.round(Math.max(0,Math.min(100,m.comp+(p(2)-0.5)*34))),
+      fmt:Math.round(Math.max(0,Math.min(100,m.fmt+(p(3)-0.5)*26))),
+      ri:Math.floor(p(4)*3)
+    };
+  });
+}
+/* 判断模型打分理由：按维度 × 是否达标取一条 */
+const EV_REASON={
+  acc:{ok:['关键数据与标准答案一致，口径与引用来源正确','结论与标准答案同向，数值误差在允许范围内','要点覆盖完整，引用的价目表版本正确'],
+       bad:['收益测算漏算司机工资，与标准答案口径不一致','引用了过期价目表，单价偏低','结论方向正确但关键数值与标准答案偏差超 15%']},
+  comp:{ok:['现状诊断、方案路径、实施节奏三段齐全','要求的全部维度均有输出，无缺口','含风险与应对，且挂到了实施阶段'],
+        bad:['缺实施节奏段落，方案无法落地','8 个调研维度只覆盖 6 个，缺口未说明原因','只给结论未给测算过程']},
+  fmt:{ok:['按要求输出一页纸结构，标题层级规范','表格字段与模板一致，单位标注完整','分点清晰，金额均带单位与口径附注'],
+       bad:['正文混入markdown符号，未按一页纸模板输出','金额未标单位与含税口径','要求表格输出，实际给了大段文字']}
+};
+function evReason(k,ok,ri){const R=EV_REASON[k];return R?R[ok?'ok':'bad'][ri%3]:''}
+
+function evViewTask(id){
+  const t=EV_TASKS.find(x=>x.id===id);if(!t)return;
+  evCurTask=t;
+  $c('ev-tasklist').classList.add('hidden');
+  $c('ev-compare').classList.add('hidden');
+  renderEvResult(t);
+}
+function renderEvResult(t){
+  const a=agents.find(x=>x.id===t.aid),ds=evSetOf(t.set);
+  const m=evMetrics(t.aid,t.seed),dims=t.dims;
+  const score=evScore(t),bad=dims.filter(k=>evLevel(k,m[k])!=='ok');
+  const tips=bad.flatMap(k=>(EV_TIPS[k]&&EV_TIPS[k][evLevel(k,m[k])]||[]).map(x=>[k,...x]));
+
+  const groupHtml=Object.entries(EV_GRP).map(([g,G])=>{
+    const ks=dims.filter(k=>EV_DIMS[k].g===g);
+    if(!ks.length)return '';
+    return `<div class="mb-4">
+      <div class="flex items-center gap-2 mb-2">
+        <span class="text-[12.5px] font-bold">${G.n}</span>
+        <span class="text-[11px] text-gray-400">${G.sub}</span>
+      </div>
+      <div class="grid grid-cols-3 resp-grid-3 gap-3">
+        ${ks.map(k=>{
+          const d=EV_DIMS[k],v=m[k],lv=evLevel(k,v),L=EV_LV[lv];
+          const r=Math.min(100,evRatio(k,v)*100);
+          return `<div class="card p-4 ev-dimcard" onclick="openEvDim('${k}')">
+            <div class="flex items-center gap-2 mb-2">
+              <span>${d.icon}</span><span class="text-[12.5px] font-bold">${d.n}</span>
+              <span class="tag ${L.cls} ml-auto">${L.n}</span>
+            </div>
+            <div class="flex items-end gap-1.5 mb-2">
+              <span class="text-2xl font-black col-mono" style="color:${L.c}">${v}</span>
+              <span class="text-[11.5px] text-gray-400 mb-1">${d.unit}</span>
+              <span class="text-[11px] text-gray-400 mb-1 ml-auto">目标 ${d.dir==='lte'?'≤':'≥'} ${d.tgt}${d.unit}</span>
+            </div>
+            <div class="ev-bar"><i style="width:${r.toFixed(0)}%;background:${L.bar}"></i></div>
+            <div class="text-[10.5px] text-violet-600 font-semibold mt-2">查看用例明细 →</div>
+          </div>`}).join('')}
+      </div>
+    </div>`}).join('');
+
+  const tipHtml=tips.length?tips.map(([k,title,body,entry,act],i)=>`
+    <div class="flex gap-3 py-3 border-b border-gray-50 last:border-0">
+      <div class="w-5 h-5 rounded-full bg-violet-100 text-violet-700 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">${i+1}</div>
+      <div class="min-w-0 flex-1">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="text-[12.5px] font-bold text-gray-800">${title}</span>
+          <span class="tag bg-gray-100 text-gray-500">${EV_DIMS[k].n}</span>
+        </div>
+        <div class="text-[11.5px] text-gray-500 leading-relaxed">${body}</div>
+      </div>
+      <button class="btn-o !py-1 !px-3 text-[11px] shrink-0 self-start" onclick="${act}">去${entry}</button>
+    </div>`).join(''):`<div class="py-6 text-center text-[12px] text-gray-400">各维度均已达标，可把本次结果设为基线，后续回归对照。</div>`;
+
+  $c('ev-result').innerHTML=`
+    <div class="flex items-center gap-3 mb-4">
+      <button class="flex items-center gap-1.5 text-[12.5px] text-gray-600 hover:text-violet-600 font-semibold" onclick="evBackList()"><span class="text-base">←</span> 返 回</button>
+      <div class="w-px h-4 bg-gray-200"></div>
+      <div class="shrink-0">${agentAvatarSvg(a?a.name:t.aid,26)}</div>
+      <span class="text-[13px] font-bold">${t.n}</span>
+      <span class="text-[11.5px] text-gray-400">${evAgentName(t.aid)} · ${ds?ds.cnt:'—'} 条用例 · ${ds?ds.src:'—'} · 判断模型 ${t.judge}</span>
+      <button class="btn-o !py-1 !px-3 text-[11.5px] ml-auto" onclick="toast('已导出评测报告（示意）')">导出报告</button>
+      <button class="btn-p !py-1.5 !px-4 text-xs" onclick="evRerun('${t.id}')">重跑评测</button>
+    </div>
+
+    <div class="grid grid-cols-3 gap-4 mb-4">
+      <div class="card p-5 flex items-center justify-center">
+        ${dims.length>=3?evRadar(dims,m,230):'<div class="text-[12px] text-gray-400 py-10">维度少于 3 个，不绘制雷达图</div>'}
+      </div>
+      <div class="card p-5 col-span-2 flex flex-col justify-center">
+        <div class="flex items-center gap-6 mb-3">
+          <div class="text-center shrink-0 pr-6 border-r border-gray-100">
+            <div class="text-[11px] text-gray-400 mb-1">综合得分</div>
+            <div class="text-4xl font-black col-mono ${evTone(score)}">${score}</div>
+          </div>
+          <div class="text-[12.5px] text-gray-600 leading-relaxed">
+            ${bad.length
+              ? `本次评测 <b>${dims.length}</b> 个维度，<b class="text-red-500">${bad.length}</b> 个未达标：${bad.map(k=>EV_DIMS[k].n).join('、')}。下方给出 ${tips.length} 条处理建议，按影响面从大到小排列。`
+              : `本次评测 <b>${dims.length}</b> 个维度全部达标，可作为后续回归的基线版本。`}
+          </div>
+        </div>
+        <div class="flex items-center gap-4 text-[10.5px] text-gray-400 pt-3 border-t border-gray-100">
+          <span class="flex items-center gap-1"><i class="inline-block w-3 h-0 border-t-[1.5px] border-dashed border-amber-500"></i> 目标线</span>
+          <span class="flex items-center gap-1"><i class="inline-block w-2.5 h-2.5 rounded-sm" style="background:rgba(112,51,255,.3);border:1px solid #7033ff"></i> 本次实测</span>
+          ${t.prompt?`<span class="truncate">评测要求：${clEsc(t.prompt)}</span>`:''}
+        </div>
+      </div>
+    </div>
+
+    ${groupHtml}
+
+    <div class="card p-5">
+      <div class="text-[13.5px] font-bold mb-1">处理建议</div>
+      <div class="mt-2">${tipHtml}</div>
+    </div>`;
+  $c('ev-result').classList.remove('hidden');
+}
+
+/* ---------- 单维度下钻 ---------- */
+function openEvDim(k){
+  const t=evCurTask;if(!t)return;
+  const d=EV_DIMS[k],m=evMetrics(t.aid,t.seed),lv=evLevel(k,m[k]),L=EV_LV[lv];
+  const qa=d.g==='qa';
+  /* 按该维度表现由差到好排序：先看拖后腿的用例 */
+  const cases=evCasePool(t).slice().sort((x,y)=>d.dir==='lte'?y[k]-x[k]:x[k]-y[k]);
+  const ds=evSetOf(t.set);
+  const miss=cases.filter(c=>!evPass(k,c[k])).length;
+  $c('evd-title').innerHTML=`${d.icon} ${d.n} · 用例明细
+    <span class="tag ${L.cls} ml-2">${L.n}</span>
+    <span class="text-[11.5px] font-normal text-gray-400 ml-2">实测 ${m[k]}${d.unit} · 目标 ${d.dir==='lte'?'≤':'≥'} ${d.tgt}${d.unit}</span>`;
+  $c('evd-body').innerHTML=`
+    <div class="flex items-center gap-4 mb-3 text-[12px] text-gray-500">
+      <span>抽样 <b class="text-gray-700">${cases.length}</b> / ${ds?ds.cnt:'—'} 条，按本维度表现由差到好排列</span>
+      <span>未达标 <b class="text-red-500">${miss}</b> 条</span>
+      ${qa?`<span class="ml-auto">打分与理由来自判断模型 ${t.judge}</span>`:''}
+    </div>
+    <table class="w-full text-[12px]">
+      <thead><tr class="text-left text-gray-400 border-b border-gray-100">
+        <th class="px-3 py-2.5 font-medium w-8">#</th>
+        <th class="px-3 font-medium">问题</th>
+        <th class="px-3 font-medium whitespace-nowrap">${d.n}</th>
+        <th class="px-3 font-medium whitespace-nowrap">判定</th>
+        <th class="px-3 font-medium">${qa?'判断模型打分理由':'说明'}</th>
+      </tr></thead>
+      <tbody>${cases.map(c=>{
+        const ok=evPass(k,c[k]);
+        return `<tr class="border-b border-gray-50 last:border-0 align-top">
+          <td class="px-3 py-2.5 col-mono text-gray-400">${c.i}</td>
+          <td class="px-3 py-2.5 text-gray-700 max-w-[240px]"><div class="truncate" title="${clEsc(c.q)}">${clEsc(c.q)}</div></td>
+          <td class="px-3 py-2.5 col-mono font-semibold ${ok?'text-gray-600':'text-red-500'}">${c[k]}${d.unit}</td>
+          <td class="px-3 py-2.5">${ok?'<span class="tag bg-emerald-100 text-emerald-700">达标</span>':'<span class="tag bg-red-100 text-red-600">未达标</span>'}</td>
+          <td class="px-3 py-2.5 text-gray-500 max-w-[300px] leading-relaxed">${qa
+            ? clEsc(evReason(k,ok,c.ri))
+            : ok?'在目标线内':`超出目标线 ${d.dir==='lte'?(c[k]-d.tgt).toFixed(1):(d.tgt-c[k]).toFixed(1)}${d.unit}`}</td>
+        </tr>`}).join('')}</tbody>
+    </table>`;
+  $c('modal-evdim').classList.remove('hidden');
+}
+function closeEvDim(){$c('modal-evdim').classList.add('hidden')}
+
+/* ---------- 处理建议：按维度 × 等级给出指向具体配置项的动作 ---------- */
 const EV_TIPS={
   speed:{
     bad:[['精简工具调用链','评测中 31% 的用例串行调用了 3 个以上工具，建议在技能库中把可并行的工具合并为一个流程型技能','技能库','showPage(\'skills\')'],
@@ -12129,161 +13133,125 @@ const EV_TIPS={
          ['下调轮数上限','上限从 8 收到 5，触顶的会话改为输出已完成部分，避免无效轮次','智能体配置','evGotoConfig()']],
     warn:[['提示词补充终止条件','补充收尾判定，预计可减少 1 ~ 2 轮无效重试','智能体配置','evGotoConfig()']]
   },
+  cost:{
+    bad:[['收紧单轮召回与上下文','单用例 token 主要消耗在重复召回同一批文档，开启去重后可降约四成','智能体配置','evGotoConfig()'],
+         ['长文档改为摘要入上下文','检索命中的长文档全文入参，改为先摘要再入上下文','资源库','gotoPlatformResource(\'company\')']],
+    warn:[['开启召回结果去重','重复文档占召回量约 15%，去重后 token 可回到目标线内','智能体配置','evGotoConfig()']]
+  },
   acc:{
     bad:[['补充知识库覆盖','未命中用例集中在 3 个主题上，对应知识库缺少可引用文档','资源库','gotoPlatformResource(\'custom\')'],
          ['提示词补充输出格式约束','12% 的未命中是格式不符而非内容错误，约束输出结构即可回收','智能体配置','evGotoConfig()'],
          ['挂载标杆案例作为示例','从标杆项目案例集中选 5 条作为 few-shot 示例写入提示词','资源库','gotoPlatformResource(\'company\')']],
     warn:[['提示词补充输出格式约束','格式不符占未命中的多数，约束输出结构后预计可达标','智能体配置','evGotoConfig()']]
+  },
+  comp:{
+    bad:[['提示词固化输出骨架','缺段的用例集中在实施节奏与风险应对，建议把必填段落写进提示词','智能体配置','evGotoConfig()'],
+         ['补齐缺口说明要求','数据缺失时要求显式写明缺口与补齐办法，而不是直接省略','智能体配置','evGotoConfig()']],
+    warn:[['提示词固化输出骨架','把必填段落写进提示词，预计完整性可回到目标线内','智能体配置','evGotoConfig()']]
+  },
+  fmt:{
+    bad:[['挂载输出模板','按一页纸模板约束标题层级与字段，格式类扣分可基本回收','资源库','gotoPlatformResource(\'company\')'],
+         ['提示词补充单位与口径要求','金额类输出要求带单位与含税口径','智能体配置','evGotoConfig()']],
+    warn:[['提示词补充单位与口径要求','补充单位与口径标注要求即可达标','智能体配置','evGotoConfig()']]
   }
 };
-function evGotoConfig(){if(evState.agent)openAgentConfig(evState.agent);else showPage('agents')}
+function evGotoConfig(){if(evCurTask)openAgentConfig(evCurTask.aid);else showPage('agents')}
 
-function evStart(){
-  if(!evState.agent){toast('请先选择评测智能体');return}
-  const dims=Object.keys(EV_DIMS).filter(k=>evState.dims[k]);
-  if(!dims.length){toast('请至少选择一个评测维度');return}
-  if(!evState.data){toast('请先准备评测数据');return}
-  const a=agents.find(x=>x.id===evState.agent);
-  document.getElementById('ev-setup').classList.add('hidden');
-  document.getElementById('ev-result').classList.add('hidden');
-  const run=document.getElementById('ev-running');
-  run.classList.remove('hidden');
-  document.getElementById('ev-run-title').textContent=`正在评测「${a.name}」`;
-  const bar=document.getElementById('ev-run-bar'),pct=document.getElementById('ev-run-pct'),sub=document.getElementById('ev-run-sub');
-  let i=0;const total=evState.data.cnt;
-  const timer=setInterval(()=>{
-    i+=Math.max(1,Math.round(total/14));
-    if(i>=total)i=total;
-    const r=Math.round(i/total*100);
-    bar.style.width=r+'%';pct.textContent=r+'%';
-    sub.textContent=`已执行 ${i} / ${total} 条用例 · 评测维度：${dims.map(k=>EV_DIMS[k].n).join('、')}`;
-    if(i>=total){
-      clearInterval(timer);
-      setTimeout(()=>{run.classList.add('hidden');renderEvResult(dims)},450);
-    }
-  },260);
+/* ---------- 两次评测结果对比 ---------- */
+function evOpenCompare(){
+  if(evCmpSel.length!==2){toast('请先勾选两条评测任务');return}
+  const A=EV_TASKS.find(x=>x.id===evCmpSel[0]),B=EV_TASKS.find(x=>x.id===evCmpSel[1]);
+  if(!A||!B){toast('所选任务已不存在');return}
+  /* 时间早的放左边作为基线 */
+  const [base,cur]=A.t<=B.t?[A,B]:[B,A];
+  renderEvCompare(base,cur);
 }
+function renderEvCompare(base,cur){
+  const mb=evMetrics(base.aid,base.seed),mc=evMetrics(cur.aid,cur.seed);
+  const sb=evScore(base),sc=evScore(cur);
+  const dims=EV_DIMKEYS.filter(k=>base.dims.includes(k)&&cur.dims.includes(k));
+  const only=EV_DIMKEYS.filter(k=>base.dims.includes(k)!==cur.dims.includes(k));
+  const sameAgent=base.aid===cur.aid;
+  const dScore=sc-sb;
 
-function renderEvResult(dims){
-  const a=agents.find(x=>x.id===evState.agent);
-  const m=evMetrics(evState.agent);
-  /* 综合得分：单维度达标即满分（超出目标线不加分，否则快的维度会盖住不达标的维度），
-     未达标按与目标线的比值折算；再按未达标维度数扣分，保证「有维度不达标」时分数不会落在高分区。 */
-  const scoreOf=k=>{
-    const d=EV_DIMS[k],v=m[k];
-    const r=Math.min(1,d.dir==='lte'?d.tgt/v:v/d.tgt);
-    return Math.max(0,Math.round(r*100));
-  };
-  const PENALTY={ok:0,warn:8,bad:20};
-  const base=dims.reduce((s,k)=>s+scoreOf(k),0)/dims.length;
-  const cut=dims.reduce((s,k)=>s+PENALTY[evLevel(k,m[k])],0);
-  const score=Math.max(0,Math.round(base-cut));
-  const bad=dims.filter(k=>evLevel(k,m[k])!=='ok');
-  const sTone=score>=85?'text-emerald-600':score>=70?'text-amber-600':'text-red-500';
-
-  const cards=dims.map(k=>{
-    const d=EV_DIMS[k],v=m[k],lv=evLevel(k,v),L=EV_LV[lv];
-    const r=d.dir==='lte'?Math.min(100,d.tgt/v*100):Math.min(100,v/d.tgt*100);
-    return `<div class="card p-4">
-      <div class="flex items-center gap-2 mb-2">
-        <span>${d.icon}</span><span class="text-[12.5px] font-bold">${d.n}</span>
-        <span class="tag ${L.cls} ml-auto">${L.n}</span>
-      </div>
-      <div class="flex items-end gap-1.5 mb-2">
-        <span class="text-2xl font-black font-mono ${lv==='ok'?'text-emerald-600':lv==='warn'?'text-amber-600':'text-red-500'}">${v}</span>
-        <span class="text-[11.5px] text-gray-400 mb-1">${d.unit}</span>
-        <span class="text-[11px] text-gray-400 mb-1 ml-auto">目标 ${d.dir==='lte'?'≤':'≥'} ${d.tgt}${d.unit}</span>
-      </div>
-      <div class="ev-bar"><i style="width:${r.toFixed(0)}%;background:${L.bar}"></i></div>
-    </div>`}).join('');
-
-  /* 用例明细：抽样 5 条，耗时/轮数围绕实测均值波动 */
-  const CASES=[
-    ['对客户「远航物流」生成一页纸方案','方案结构完整，含现状诊断与实施节奏',1],
-    ['按最新价目表核算山东正丰 3 条线路报价','单价口径与价目表一致',1],
-    ['查询上周华东区销售拜访数据，按人汇总','CRM 查询参数不符，未取到数据',0],
-    ['整理远航物流调度需求调研报告','缺 2 个访谈对象，数据口径未对齐',0],
-    ['生成徐州聚鸿拜访复盘报告','复盘维度齐全，评分口径正确',1]
-  ];
-  const rows=CASES.map((c,i)=>{
-    const f=[0.82,1.14,0.71,1.36,0.95][i];
-    const t=(m.speed*f).toFixed(1),rd=Math.max(1,Math.round(m.rounds*f));
+  /* 变化方向按维度方向判定：lte 维度数值下降为改善 */
+  const rows=dims.map(k=>{
+    const d=EV_DIMS[k],vb=mb[k],vc=mc[k],diff=+(vc-vb).toFixed(1);
+    const better=d.dir==='lte'?diff<0:diff>0;
+    const flat=Math.abs(diff)<1e-9;
+    const cls=flat?'text-gray-400':better?'text-emerald-600':'text-red-500';
     return `<tr class="border-b border-gray-50 last:border-0">
-      <td class="px-4 py-2.5 text-gray-400 font-mono">${i+1}</td>
-      <td class="px-3 text-gray-700 max-w-[260px]"><div class="immediate-hover" title="${c[0]}">${c[0]}</div></td>
-      ${dims.includes('speed')?`<td class="px-3 font-mono ${+t>EV_DIMS.speed.tgt?'text-red-500 font-semibold':'text-gray-600'}">${t}s</td>`:''}
-      ${dims.includes('rounds')?`<td class="px-3 font-mono ${rd>EV_DIMS.rounds.tgt?'text-red-500 font-semibold':'text-gray-600'}">${rd}</td>`:''}
-      ${dims.includes('acc')?`<td class="px-3">${c[2]?'<span class="tag bg-emerald-100 text-emerald-700">命中</span>':'<span class="tag bg-red-100 text-red-600">未命中</span>'}</td>`:''}
-      <td class="px-3 text-gray-500 max-w-[220px]"><div class="immediate-hover" title="${c[1]}">${c[1]}</div></td>
+      <td class="px-4 py-2.5"><span class="mr-1.5">${d.icon}</span><span class="font-semibold text-gray-700">${d.n}</span></td>
+      <td class="px-3 col-mono text-gray-600">${vb}${d.unit}</td>
+      <td class="px-3"><span class="tag ${EV_LV[evLevel(k,vb)].cls}">${EV_LV[evLevel(k,vb)].n}</span></td>
+      <td class="px-3 col-mono text-gray-600">${vc}${d.unit}</td>
+      <td class="px-3"><span class="tag ${EV_LV[evLevel(k,vc)].cls}">${EV_LV[evLevel(k,vc)].n}</span></td>
+      <td class="px-3 col-mono font-semibold ${cls}">${flat?'—':(diff>0?'+':'')+diff+d.unit}</td>
+      <td class="px-3 text-[11.5px] ${cls}">${flat?'无变化':better?'改善':'退化'}</td>
     </tr>`}).join('');
 
-  const tips=bad.flatMap(k=>(EV_TIPS[k][evLevel(k,m[k])]||[]).map(t=>[k,...t]));
-  const tipHtml=tips.length?tips.map(([k,title,body,entry,act],i)=>`
-    <div class="flex gap-3 py-3 border-b border-gray-50 last:border-0">
-      <div class="w-5 h-5 rounded-full bg-violet-100 text-violet-700 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">${i+1}</div>
-      <div class="min-w-0 flex-1">
-        <div class="flex items-center gap-2 mb-1">
-          <span class="text-[12.5px] font-bold text-gray-800">${title}</span>
-          <span class="tag bg-gray-100 text-gray-500">${EV_DIMS[k].n}</span>
-        </div>
-        <div class="text-[11.5px] text-gray-500 leading-relaxed">${body}</div>
-      </div>
-      <button class="btn-o !py-1 !px-3 text-[11px] shrink-0 self-start" onclick="${act}">去${entry}</button>
-    </div>`).join(''):`<div class="py-6 text-center text-[12px] text-gray-400">各维度均已达标，暂无需处理。可把本次结果设为基线，后续回归对照。</div>`;
-
-  document.getElementById('ev-result').innerHTML=`
+  $c('ev-compare').innerHTML=`
     <div class="flex items-center gap-3 mb-4">
-      <button class="flex items-center gap-1.5 text-[12.5px] text-gray-600 hover:text-violet-600 font-semibold" onclick="evBackSetup()"><span class="text-base">←</span> 重新配置</button>
+      <button class="flex items-center gap-1.5 text-[12.5px] text-gray-600 hover:text-violet-600 font-semibold" onclick="evBackList()"><span class="text-base">←</span> 返 回</button>
       <div class="w-px h-4 bg-gray-200"></div>
-      <div class="shrink-0">${agentAvatarSvg(a.name,26)}</div>
-      <span class="text-[13px] font-bold">${a.name}</span>
-      <span class="text-[11.5px] text-gray-400">${evState.data.cnt} 条用例 · ${evState.data.src}</span>
-      <button class="btn-o !py-1 !px-3 text-[11.5px] ml-auto" onclick="toast('已导出评测报告（示意）')">导出报告</button>
-      <button class="btn-p !py-1.5 !px-4 text-xs" onclick="evStart()">重跑评测</button>
+      <span class="text-[13px] font-bold">评测结果对比</span>
+      <span class="text-[11.5px] text-gray-400">${sameAgent?'同一智能体的两次评测，可作为改配置前后的回归对照':'跨智能体对比，维度口径一致但执行对象不同'}</span>
+      <button class="btn-o !py-1 !px-3 text-[11.5px] ml-auto" onclick="toast('已导出对比报告（示意）')">导出对比</button>
     </div>
 
-    <div class="card p-5 mb-4 flex items-center gap-6">
-      <div class="text-center shrink-0 pr-6 border-r border-gray-100">
-        <div class="text-[11px] text-gray-400 mb-1">综合得分</div>
-        <div class="text-4xl font-black font-mono ${sTone}">${score}</div>
+    ${sameAgent?'':`<div class="border-l-[3px] border-amber-400 bg-amber-50/50 rounded-r-lg px-3 py-2 mb-4 text-[11.5px] text-gray-600">所选两条任务的执行智能体不同（${evAgentName(base.aid)} / ${evAgentName(cur.aid)}），差值仅反映两者当前表现差异，不代表配置调整带来的提升。</div>`}
+    ${only.length?`<div class="border-l-[3px] border-gray-300 bg-gray-50 rounded-r-lg px-3 py-2 mb-4 text-[11.5px] text-gray-600">以下维度仅在一侧评测过，未纳入对比：${only.map(k=>EV_DIMS[k].n).join('、')}。</div>`:''}
+
+    <div class="grid grid-cols-3 gap-4 mb-4">
+      <div class="card p-5">
+        <div class="text-[11px] text-gray-400 mb-1">基线（${base.t.slice(0,10)}）</div>
+        <div class="text-[12.5px] font-bold truncate mb-2" title="${base.n}">${base.n}</div>
+        <div class="text-3xl font-black col-mono ${evTone(sb)}">${sb}</div>
       </div>
-      <div class="text-[12.5px] text-gray-600 leading-relaxed">
-        ${bad.length
-          ? `本次评测 <b>${dims.length}</b> 个维度，<b class="text-red-500">${bad.length}</b> 个未达标：${bad.map(k=>EV_DIMS[k].n).join('、')}。下方给出 ${tips.length} 条处理建议，按影响面从大到小排列。`
-          : `本次评测 <b>${dims.length}</b> 个维度全部达标，可作为后续回归的基线版本。`}
+      <div class="card p-5">
+        <div class="text-[11px] text-gray-400 mb-1">对比（${cur.t.slice(0,10)}）</div>
+        <div class="text-[12.5px] font-bold truncate mb-2" title="${cur.n}">${cur.n}</div>
+        <div class="text-3xl font-black col-mono ${evTone(sc)}">${sc}</div>
+      </div>
+      <div class="card p-5">
+        <div class="text-[11px] text-gray-400 mb-1">综合得分变化</div>
+        <div class="text-3xl font-black col-mono ${dScore>0?'text-emerald-600':dScore<0?'text-red-500':'text-gray-400'}">${dScore>0?'+':''}${dScore}</div>
+        <div class="text-[11.5px] text-gray-500 mt-2">${
+          dScore>0?`${dims.filter(k=>(EV_DIMS[k].dir==='lte'?mc[k]<mb[k]:mc[k]>mb[k])).length} 个维度改善`
+          :dScore<0?`${dims.filter(k=>(EV_DIMS[k].dir==='lte'?mc[k]>mb[k]:mc[k]<mb[k])).length} 个维度退化`
+          :'两次结果持平'}</div>
       </div>
     </div>
 
-    <div class="grid grid-cols-3 resp-grid-3 gap-4 mb-4">${cards}</div>
-
-    <div class="card p-5 mb-4">
-      <div class="text-[13.5px] font-bold mb-1">处理建议</div>
-      <div class="mt-2">${tipHtml}</div>
+    <div class="grid grid-cols-2 gap-4 mb-4">
+      <div class="card p-5">
+        <div class="text-[12.5px] font-bold mb-2">基线雷达</div>
+        <div class="flex justify-center">${base.dims.length>=3?evRadar(base.dims,mb,220):'<div class="text-[12px] text-gray-400 py-8">维度少于 3 个</div>'}</div>
+      </div>
+      <div class="card p-5">
+        <div class="text-[12.5px] font-bold mb-2">对比雷达</div>
+        <div class="flex justify-center">${cur.dims.length>=3?evRadar(cur.dims,mc,220):'<div class="text-[12px] text-gray-400 py-8">维度少于 3 个</div>'}</div>
+      </div>
     </div>
 
     <div class="card overflow-hidden">
-      <div class="flex items-center px-5 py-3.5 border-b border-gray-100">
-        <span class="text-[13.5px] font-bold">用例明细</span>
-        <span class="text-[11px] text-gray-400 ml-2">抽样 5 / ${evState.data.cnt} 条</span>
-        <span class="text-[11.5px] text-violet-600 font-semibold cursor-pointer hover:underline ml-auto" onclick="toast('查看全部用例（示意）')">查看全部</span>
-      </div>
-      <table class="w-full text-[12px]">
+      <div class="px-5 py-3.5 border-b border-gray-100 text-[13.5px] font-bold">维度逐项对照</div>
+      <table class="w-full text-[12.5px]">
         <thead><tr class="text-left text-gray-400 border-b border-gray-100">
-          <th class="px-4 py-2.5 font-medium w-10">#</th><th class="px-3 font-medium">问题</th>
-          ${dims.includes('speed')?'<th class="px-3 font-medium">响应时长</th>':''}
-          ${dims.includes('rounds')?'<th class="px-3 font-medium">执行轮数</th>':''}
-          ${dims.includes('acc')?'<th class="px-3 font-medium">准确率判定</th>':''}
-          <th class="px-3 font-medium">说明</th>
+          <th class="px-4 py-2.5 font-medium">维度</th>
+          <th class="px-3 font-medium">基线实测</th>
+          <th class="px-3 font-medium">基线判定</th>
+          <th class="px-3 font-medium">对比实测</th>
+          <th class="px-3 font-medium">对比判定</th>
+          <th class="px-3 font-medium">差值</th>
+          <th class="px-3 font-medium">变化</th>
         </tr></thead>
-        <tbody>${rows}</tbody>
+        <tbody>${rows||`<tr><td colspan="7" class="px-4 py-10 text-center text-[12px] text-gray-400">两条任务没有共同的评测维度，无法对照</td></tr>`}</tbody>
       </table>
     </div>`;
-  document.getElementById('ev-result').classList.remove('hidden');
-}
-function evBackSetup(){
-  document.getElementById('ev-result').classList.add('hidden');
-  document.getElementById('ev-setup').classList.remove('hidden');
-  renderEval();
+  $c('ev-tasklist').classList.add('hidden');
+  $c('ev-result').classList.add('hidden');
+  $c('ev-compare').classList.remove('hidden');
 }
 
 /* init */
